@@ -168,7 +168,7 @@ body.is-lightbox-open {
   opacity: 0.2;
   transform-box: fill-box;
   transform-origin: center;
-  transition: fill 0.18s ease, transform 0.18s ease;
+  transition: fill 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
 }
 
 .fwm-modal__lightbox-icon-arrow {
@@ -188,7 +188,8 @@ body.is-lightbox-open {
 
 .fwm-modal__image-link:hover .fwm-modal__lightbox-icon-circle {
   fill: var(--fw_rosa);
-  transform: scale(1.3);
+  opacity: 1;
+  transform: scale(1.133333);
 }
 
 .fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow {
@@ -196,11 +197,11 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--bottom {
-  transform: translate(-1.3%, 1.3%);
+  transform: translateY(4px);
 }
 
 .fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--top {
-  transform: translate(1.3%, -1.3%);
+  transform: translateX(4px);
 }
 
 .fwm-modal__caption {
