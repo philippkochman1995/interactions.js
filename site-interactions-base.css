@@ -150,15 +150,57 @@ body.is-lightbox-open {
   position: absolute;
   left: 0.625rem;
   bottom: 0.625rem;
-  width: 1.875rem;
-  height: 1.875rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--fw_off_white);
-  color: var(--fw_dark_purple);
-  border-radius: 50%;
   pointer-events: none;
+}
+
+.fwm-modal__lightbox-icon svg {
+  width: 1.875rem;
+  height: 1.875rem;
+  display: block;
+  overflow: visible;
+}
+
+.fwm-modal__lightbox-icon-circle {
+  fill: var(--fw_off_white);
+  opacity: 0.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.18s ease, transform 0.18s ease;
+}
+
+.fwm-modal__lightbox-icon-arrow {
+  fill: var(--fw_dark_purple_50);
+  transition: fill 0.18s ease, transform 0.18s ease;
+}
+
+.fwm-modal__lightbox-icon-arrow--bottom {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fwm-modal__lightbox-icon-arrow--top {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-circle {
+  fill: var(--fw_rosa);
+  transform: scale(1.3);
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow {
+  fill: var(--fw_dark_purple);
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--bottom {
+  transform: translate(-1.3%, 1.3%);
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--top {
+  transform: translate(1.3%, -1.3%);
 }
 
 .fwm-modal__caption {
