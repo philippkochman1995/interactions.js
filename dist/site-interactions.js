@@ -1,763 +1,381 @@
-/*! Webflow Site Interactions v1.0.0 */
-(function () {
-  'use strict';
-
-  const Utils = (() => {
-const FOCUSABLE_SELECTOR = [
-    'a[href]',
-    'area[href]',
-    'button:not([disabled])',
-    'input:not([disabled]):not([type="hidden"])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    'iframe',
-    'object',
-    'embed',
-    '[contenteditable]:not([contenteditable="false"])',
-    '[tabindex]:not([tabindex="-1"])',
-].join(',');
-function qs(selector, root = document) {
-    return root.querySelector(selector);
+//#region src/modules/utils.ts
+var e = [
+	"a[href]",
+	"area[href]",
+	"button:not([disabled])",
+	"input:not([disabled]):not([type=\"hidden\"])",
+	"select:not([disabled])",
+	"textarea:not([disabled])",
+	"iframe",
+	"object",
+	"embed",
+	"[contenteditable]:not([contenteditable=\"false\"])",
+	"[tabindex]:not([tabindex=\"-1\"])"
+].join(",");
+function t(e, t = document) {
+	return t.querySelector(e);
 }
-function qsa(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
+function n(e, t = document) {
+	return Array.from(t.querySelectorAll(e));
 }
-function safeParseJson(input) {
-    try {
-        return JSON.parse(input);
-    }
-    catch (_a) {
-        return null;
-    }
+function r(e) {
+	try {
+		return JSON.parse(e);
+	} catch (e) {
+		return null;
+	}
 }
-function isHTMLElement(value) {
-    return value instanceof HTMLElement;
+function i(e) {
+	return e instanceof HTMLElement;
 }
-function isNonEmptyString(value) {
-    return typeof value === 'string' && value.trim().length > 0;
+function a(e) {
+	return typeof e == "string" && e.trim().length > 0;
 }
-function getStringAttr(element, attrName) {
-    const value = element.getAttribute(attrName);
-    return isNonEmptyString(value) ? value.trim() : '';
+function o(e, t) {
+	let n = e.getAttribute(t);
+	return a(n) ? n.trim() : "";
 }
-function getDataId(element, attrName) {
-    return getStringAttr(element, attrName);
+function s(e, t) {
+	return o(e, t);
 }
-function findElementByDataValue(selector, attrName, expectedValue, root = document) {
-    var _a;
-    const normalizedValue = expectedValue.trim();
-    if (!normalizedValue) {
-        return null;
-    }
-    return ((_a = qsa(selector, root).find((element) => {
-        return getStringAttr(element, attrName) === normalizedValue;
-    })) !== null && _a !== void 0 ? _a : null);
+function c(e, t, r, i = document) {
+	var a;
+	let s = r.trim();
+	return s ? (a = n(e, i).find((e) => o(e, t) === s)) == null ? null : a : null;
 }
-function isElementHidden(element) {
-    if (element.hidden) {
-        return true;
-    }
-    if (element.closest('[hidden], [aria-hidden="true"]')) {
-        return true;
-    }
-    if (element.inert) {
-        return true;
-    }
-    const style = window.getComputedStyle(element);
-    return style.display === 'none' || style.visibility === 'hidden';
+function l(e) {
+	if (e.hidden || e.closest("[hidden], [aria-hidden=\"true\"]") || e.inert) return !0;
+	let t = window.getComputedStyle(e);
+	return t.display === "none" || t.visibility === "hidden";
 }
-function getFocusableElements(container) {
-    return qsa(FOCUSABLE_SELECTOR, container).filter((element) => {
-        return !isElementHidden(element) && element.tabIndex !== -1;
-    });
+function u(t) {
+	return n(e, t).filter((e) => !l(e) && e.tabIndex !== -1);
 }
-function focusElement(element) {
-    if (!element) {
-        return;
-    }
-    try {
-        element.focus({ preventScroll: true });
-    }
-    catch (_a) {
-        element.focus();
-    }
+function d(e) {
+	if (e) try {
+		e.focus({ preventScroll: !0 });
+	} catch (t) {
+		e.focus();
+	}
 }
-function getActiveHTMLElement() {
-    return isHTMLElement(document.activeElement) ? document.activeElement : null;
+function f() {
+	return i(document.activeElement) ? document.activeElement : null;
 }
-function restoreFocus(element) {
-    if (!element || !document.contains(element)) {
-        return;
-    }
-    focusElement(element);
+function p(e) {
+	!e || !document.contains(e) || d(e);
 }
-function trapFocus(container, event) {
-    if (event.key !== 'Tab') {
-        return;
-    }
-    const focusableElements = getFocusableElements(container);
-    if (focusableElements.length === 0) {
-        event.preventDefault();
-        focusElement(container);
-        return;
-    }
-    const first = focusableElements[0];
-    const last = focusableElements[focusableElements.length - 1];
-    const activeElement = getActiveHTMLElement();
-    if (!activeElement || !container.contains(activeElement)) {
-        event.preventDefault();
-        focusElement(first);
-        return;
-    }
-    if (event.shiftKey && activeElement === first) {
-        event.preventDefault();
-        focusElement(last);
-        return;
-    }
-    if (!event.shiftKey && activeElement === last) {
-        event.preventDefault();
-        focusElement(first);
-    }
+function m(e, t) {
+	if (t.key !== "Tab") return;
+	let n = u(e);
+	if (n.length === 0) {
+		t.preventDefault(), d(e);
+		return;
+	}
+	let r = n[0], i = n[n.length - 1], a = f();
+	if (!a || !e.contains(a)) {
+		t.preventDefault(), d(r);
+		return;
+	}
+	if (t.shiftKey && a === r) {
+		t.preventDefault(), d(i);
+		return;
+	}
+	!t.shiftKey && a === i && (t.preventDefault(), d(r));
 }
-const scrollState = {
-    count: 0,
-    scrollY: 0,
-    bodyOverflow: '',
-    bodyPosition: '',
-    bodyTop: '',
-    bodyWidth: '',
-    bodyPaddingRight: '',
+var h = {
+	count: 0,
+	scrollY: 0,
+	bodyOverflow: "",
+	bodyPosition: "",
+	bodyTop: "",
+	bodyWidth: "",
+	bodyPaddingRight: ""
 };
-function lockScroll() {
-    scrollState.count += 1;
-    if (scrollState.count > 1) {
-        return;
-    }
-    const { body, documentElement } = document;
-    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
-    scrollState.scrollY = window.scrollY || documentElement.scrollTop || 0;
-    scrollState.bodyOverflow = body.style.overflow;
-    scrollState.bodyPosition = body.style.position;
-    scrollState.bodyTop = body.style.top;
-    scrollState.bodyWidth = body.style.width;
-    scrollState.bodyPaddingRight = body.style.paddingRight;
-    body.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollState.scrollY}px`;
-    body.style.width = '100%';
-    if (scrollbarWidth > 0) {
-        body.style.paddingRight = `${scrollbarWidth}px`;
-    }
+function ee() {
+	if (h.count += 1, h.count > 1) return;
+	let { body: e, documentElement: t } = document, n = window.innerWidth - t.clientWidth;
+	h.scrollY = window.scrollY || t.scrollTop || 0, h.bodyOverflow = e.style.overflow, h.bodyPosition = e.style.position, h.bodyTop = e.style.top, h.bodyWidth = e.style.width, h.bodyPaddingRight = e.style.paddingRight, e.style.overflow = "hidden", e.style.position = "fixed", e.style.top = `-${h.scrollY}px`, e.style.width = "100%", n > 0 && (e.style.paddingRight = `${n}px`);
 }
-function unlockScroll() {
-    if (scrollState.count === 0) {
-        return;
-    }
-    scrollState.count -= 1;
-    if (scrollState.count > 0) {
-        return;
-    }
-    const { body } = document;
-    const scrollY = scrollState.scrollY;
-    body.style.overflow = scrollState.bodyOverflow;
-    body.style.position = scrollState.bodyPosition;
-    body.style.top = scrollState.bodyTop;
-    body.style.width = scrollState.bodyWidth;
-    body.style.paddingRight = scrollState.bodyPaddingRight;
-    window.scrollTo(0, scrollY);
+function g() {
+	if (h.count === 0 || (--h.count, h.count > 0)) return;
+	let { body: e } = document, t = h.scrollY;
+	e.style.overflow = h.bodyOverflow, e.style.position = h.bodyPosition, e.style.top = h.bodyTop, e.style.width = h.bodyWidth, e.style.paddingRight = h.bodyPaddingRight, window.scrollTo(0, t);
 }
-function prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function _(e, t, n, r, i) {
+	let a = (t) => {
+		let i = t.target;
+		if (!(i instanceof Element)) return;
+		let a = i.closest(n);
+		a && (e instanceof HTMLElement && !e.contains(a) || r(t, a));
+	};
+	return e.addEventListener(t, a, i), () => {
+		e.removeEventListener(t, a, i);
+	};
 }
-function delegate(root, eventName, selector, handler, options) {
-    const listener = (event) => {
-        const target = event.target;
-        if (!(target instanceof Element)) {
-            return;
-        }
-        const matchedElement = target.closest(selector);
-        if (!matchedElement) {
-            return;
-        }
-        if (root instanceof HTMLElement && !root.contains(matchedElement)) {
-            return;
-        }
-        handler(event, matchedElement);
-    };
-    root.addEventListener(eventName, listener, options);
-    return () => {
-        root.removeEventListener(eventName, listener, options);
-    };
+function v(e, t, n) {
+	e.dispatchEvent(new CustomEvent(t, {
+		bubbles: !0,
+		detail: n
+	}));
 }
-function dispatchSiteEvent(target, eventName, detail) {
-    target.dispatchEvent(new CustomEvent(eventName, {
-        bubbles: true,
-        detail,
-    }));
+//#endregion
+//#region src/modules/i18n.ts
+var y = {};
+function te(e) {
+	return !e || typeof e != "object" || Array.isArray(e) ? {} : Object.entries(e).reduce((e, [t, n]) => (a(t) && a(n) && (e[t.trim()] = n.trim()), e), {});
 }
-function escapeHtml(value) {
-    const replacements = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;',
-    };
-    return value.replace(/[&<>"']/g, (character) => replacements[character]);
+function ne(e = document) {
+	var n, i;
+	y = {};
+	let a = t("[data-site-i18n]", e), o = (n = a == null || (i = a.textContent) == null ? void 0 : i.trim()) == null ? "" : n;
+	return o && (y = te(r(o))), {
+		get values() {
+			return { ...y };
+		},
+		t: re
+	};
 }
-    return {
-      qs,
-      qsa,
-      safeParseJson,
-      isHTMLElement,
-      isNonEmptyString,
-      getStringAttr,
-      getDataId,
-      findElementByDataValue,
-      getFocusableElements,
-      focusElement,
-      getActiveHTMLElement,
-      restoreFocus,
-      trapFocus,
-      lockScroll,
-      unlockScroll,
-      prefersReducedMotion,
-      delegate,
-      dispatchSiteEvent,
-      escapeHtml,
-    };
-  })();
+function re(e, t) {
+	let n = e.trim(), r = y[n];
+	return a(r) ? r.trim() : t.trim();
+}
+//#endregion
+//#region src/modules/lightbox.ts
+var b = "[data-lightbox-src]", ie = "[data-site-lightbox]", x = "[data-lightbox-close]", S = "[data-lightbox-prev]", C = "[data-lightbox-next]", w = !1, T = null, E = null, D = [], O = 0, k = !1, A = null;
+function ae(e) {
+	return o(e, "data-lightbox-src") || (e instanceof HTMLAnchorElement ? e.href : "");
+}
+function oe(e) {
+	var n, r;
+	let i = o(e, "data-lightbox-alt");
+	if (i) return i;
+	let a = t("img", e);
+	return (n = a == null || (r = a.alt) == null ? void 0 : r.trim()) == null ? "" : n;
+}
+function j(e) {
+	let t = ae(e).trim();
+	return t ? {
+		src: t,
+		caption: o(e, "data-lightbox-caption"),
+		alt: oe(e),
+		group: o(e, "data-lightbox-group"),
+		trigger: e
+	} : null;
+}
+function se(e) {
+	let t = j(e);
+	if (!t) return null;
+	if (!t.group) return {
+		items: [t],
+		index: 0
+	};
+	let r = n(b).filter((e) => o(e, "data-lightbox-group") === t.group).map(j).filter((e) => !!e), i = Math.max(0, r.findIndex((t) => t.trigger === e));
+	return {
+		items: r.length > 0 ? r : [t],
+		index: i
+	};
+}
+function M(e, t, n, r) {
+	let i = document.createElement("button");
+	return i.type = "button", i.className = r, i.setAttribute(t, ""), i.setAttribute("aria-label", e), i.title = e, i.textContent = n, i;
+}
+function N() {
+	var e, n, r, i, a, o;
+	if (E) return P(E), E;
+	let s = t(ie), c = s == null ? document.createElement("div") : s;
+	if (c.classList.add("site-lightbox"), c.setAttribute("data-site-lightbox", ""), c.setAttribute("role", "dialog"), c.setAttribute("aria-modal", "true"), c.setAttribute("aria-hidden", "true"), c.setAttribute("aria-label", (e = T == null ? void 0 : T.t("openImage", "Image preview")) == null ? "Image preview" : e), c.hidden = !0, c.tabIndex = -1, !s) {
+		var l, u, d;
+		c.innerHTML = "";
+		let e = M((l = T == null ? void 0 : T.t("close", "Close")) == null ? "Close" : l, "data-lightbox-close", "×", "site-lightbox__close"), t = M((u = T == null ? void 0 : T.t("previous", "Previous")) == null ? "Previous" : u, "data-lightbox-prev", "‹", "site-lightbox__previous"), n = M((d = T == null ? void 0 : T.t("next", "Next")) == null ? "Next" : d, "data-lightbox-next", "›", "site-lightbox__next"), r = document.createElement("figure");
+		r.className = "site-lightbox__figure";
+		let i = document.createElement("img");
+		i.className = "site-lightbox__image", i.setAttribute("data-lightbox-image", ""), i.alt = "";
+		let a = document.createElement("figcaption");
+		a.className = "site-lightbox__caption", a.setAttribute("data-lightbox-caption-output", ""), a.hidden = !0, r.append(i, a), c.append(e, t, r, n), document.body.append(c);
+	}
+	let f = {
+		root: c,
+		image: (n = t("[data-lightbox-image]", c)) == null ? document.createElement("img") : n,
+		caption: (r = t("[data-lightbox-caption-output]", c)) == null ? document.createElement("figcaption") : r,
+		closeButton: (i = t(x, c)) == null ? document.createElement("button") : i,
+		previousButton: (a = t(S, c)) == null ? document.createElement("button") : a,
+		nextButton: (o = t(C, c)) == null ? document.createElement("button") : o
+	};
+	return E = f, P(f), !s && !document.body.contains(c) && document.body.append(c), f;
+}
+function P(e) {
+	var t, n, r, i;
+	let a = (t = T == null ? void 0 : T.t("close", "Close")) == null ? "Close" : t, o = (n = T == null ? void 0 : T.t("previous", "Previous")) == null ? "Previous" : n, s = (r = T == null ? void 0 : T.t("next", "Next")) == null ? "Next" : r, c = (i = T == null ? void 0 : T.t("openImage", "Image preview")) == null ? "Image preview" : i;
+	e.root.setAttribute("aria-label", c), e.closeButton.setAttribute("aria-label", a), e.closeButton.title = a, e.previousButton.setAttribute("aria-label", o), e.previousButton.title = o, e.nextButton.setAttribute("aria-label", s), e.nextButton.title = s;
+}
+function F() {
+	let e = N(), t = D[O];
+	if (!t) return;
+	e.image.src = t.src, e.image.alt = t.alt, e.caption.textContent = t.caption, e.caption.hidden = t.caption.length === 0;
+	let n = D.length > 1;
+	e.previousButton.hidden = !n, e.nextButton.hidden = !n, e.root.dataset.lightboxIndex = String(O), e.root.dataset.lightboxCount = String(D.length);
+}
+function I(e) {
+	let t = N();
+	t.root.hidden = !e, t.root.setAttribute("aria-hidden", String(!e)), t.root.classList.toggle("is-active", e), t.root.classList.toggle("is-visible", e), document.documentElement.classList.toggle("is-lightbox-open", e), document.body.classList.toggle("is-lightbox-open", e);
+}
+function L(e) {
+	D.length < 2 || (O = (e + D.length) % D.length, F());
+}
+function R() {
+	L(O + 1);
+}
+function z() {
+	L(O - 1);
+}
+function B(e) {
+	var t;
+	let n = se(e);
+	if (!n) return;
+	let r = k;
+	D = n.items, O = n.index, A = e, k = !0, F(), I(!0), r || ee();
+	let i = N();
+	d(i.closeButton || i.root);
+	let a = D[O];
+	v(i.root, "site:lightbox-open", {
+		item: a,
+		index: O,
+		count: D.length,
+		group: (t = a == null ? void 0 : a.group) == null ? "" : t,
+		trigger: e
+	});
+}
+function V() {
+	var e;
+	if (!k || !E) return;
+	let t = E, n = A, r = (e = D[O]) == null ? null : e;
+	I(!1), g(), k = !1, D = [], O = 0, A = null, t.image.removeAttribute("src"), t.caption.textContent = "", v(t.root, "site:lightbox-close", { item: r }), p(n);
+}
+function ce(e) {
+	if (!(!k || !E)) {
+		if (e.key === "Escape") {
+			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation(), V();
+			return;
+		}
+		if (e.key === "ArrowRight") {
+			e.preventDefault(), R();
+			return;
+		}
+		if (e.key === "ArrowLeft") {
+			e.preventDefault(), z();
+			return;
+		}
+		m(E.root, e);
+	}
+}
+function le(e) {
+	!k || !E || e.target === E.root && V();
+}
+function ue(e) {
+	return T = e.i18n, w || (_(document, "click", b, (e, t) => {
+		e.preventDefault(), B(t);
+	}), _(document, "click", x, (e) => {
+		e.preventDefault(), V();
+	}), _(document, "click", S, (e) => {
+		e.preventDefault(), z();
+	}), _(document, "click", C, (e) => {
+		e.preventDefault(), R();
+	}), document.addEventListener("click", le), document.addEventListener("keydown", ce, !0), w = !0), {
+		openLightbox: B,
+		closeLightbox: V
+	};
+}
+//#endregion
+//#region src/modules/modal.ts
+var H = "[data-modal]", de = "[data-modal-panel]", fe = "[data-modal-open]", pe = "[data-modal-close]", me = "a[href^=\"#modal:\"]", he = "#modal:", U = !1, W = !0, G = null, K = null, q = "", J = null;
+function ge(e) {
+	return c(H, "data-modal", e);
+}
+function Y(e) {
+	var t;
+	return (t = e.querySelector(de)) == null ? e : t;
+}
+function _e(e) {
+	var t;
+	let n = (t = e.getAttribute("href")) == null ? "" : t;
+	return n.startsWith(he) ? decodeURIComponent(n.slice(7)).trim() : "";
+}
+function ve(e) {
+	let t = Y(e);
+	e.hidden = !0, e.setAttribute("aria-hidden", "true"), t.setAttribute("role", "dialog"), t.setAttribute("aria-modal", "true");
+}
+function ye(e) {
+	var t;
+	let n = Y(e), r = (t = u(n)[0]) == null ? u(e)[0] : t;
+	if (r) {
+		d(r);
+		return;
+	}
+	n.hasAttribute("tabindex") || n.setAttribute("tabindex", "-1"), d(n);
+}
+function X(e, t) {
+	e.hidden = !t, e.setAttribute("aria-hidden", String(!t)), e.classList.toggle("is-active", t), e.classList.toggle("is-visible", t), document.documentElement.classList.toggle("is-modal-open", t), document.body.classList.toggle("is-modal-open", t);
+}
+function Z(e, t) {
+	let n = e.trim();
+	if (!n) return;
+	let r = ge(n);
+	r && (G && G !== r && Q(), G !== r && (J = t == null ? f() : t, G = r, K = Y(r), q = n, X(r, !0), ee(), ye(r), v(r, "site:modal-open", {
+		id: q,
+		modal: r,
+		trigger: t == null ? null : t
+	})));
+}
+function Q() {
+	if (!G) return;
+	let e = G, t = q, n = J;
+	X(e, !1), g(), G = null, K = null, q = "", J = null, v(e, "site:modal-close", {
+		id: t,
+		modal: e
+	}), p(n);
+}
+function be(e) {
+	if (!(!G || !K) && !document.body.classList.contains("is-lightbox-open")) {
+		if (e.key === "Escape") {
+			e.preventDefault(), Q();
+			return;
+		}
+		m(K, e);
+	}
+}
+function xe(e) {
+	if (!W || !G) return;
+	let t = e.target;
+	!i(t) || !G.contains(t) || Y(G).contains(t) || Q();
+}
+function Se(e) {
+	var t;
+	return W = (t = e.closeOnBackdrop) == null || t, n(H).forEach(ve), U || (_(document, "click", fe, (e, t) => {
+		e.preventDefault(), Z(s(t, "data-modal-open"), t);
+	}), _(document, "click", me, (e, t) => {
+		e.preventDefault(), Z(_e(t), t);
+	}), _(document, "click", pe, (e, t) => {
+		!G || !G.contains(t) || (e.preventDefault(), Q());
+	}), document.addEventListener("click", xe), document.addEventListener("keydown", be), U = !0), {
+		openModal: Z,
+		closeModal: Q
+	};
+}
+//#endregion
+//#region src/main.ts
+var Ce = !1;
+function $() {
+	if (Ce) return;
+	Ce = !0;
+	let e = ne();
+	Se({ i18n: e }), ue({ i18n: e }), window.SiteInteractions = {
+		openModal: Z,
+		closeModal: Q,
+		openLightbox: B,
+		closeLightbox: V
+	};
+}
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", $, { once: !0 }) : $();
+//#endregion
 
-  const I18n = (() => {
-    const { isNonEmptyString, safeParseJson, qs } = Utils;
-let translations = {};
-function normalizeTranslations(value) {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        return {};
-    }
-    return Object.entries(value).reduce((accumulator, [key, translation]) => {
-        if (isNonEmptyString(key) && isNonEmptyString(translation)) {
-            accumulator[key.trim()] = translation.trim();
-        }
-        return accumulator;
-    }, {});
-}
-function initI18n(root = document) {
-    var _a, _b;
-    translations = {};
-    const script = qs('[data-site-i18n]', root);
-    const rawJson = (_b = (_a = script === null || script === void 0 ? void 0 : script.textContent) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : '';
-    if (rawJson) {
-        const parsed = safeParseJson(rawJson);
-        translations = normalizeTranslations(parsed);
-    }
-    return {
-        get values() {
-            return { ...translations };
-        },
-        t,
-    };
-}
-function t(key, fallback) {
-    const normalizedKey = key.trim();
-    const value = translations[normalizedKey];
-    if (isNonEmptyString(value)) {
-        return value.trim();
-    }
-    return fallback.trim();
-}
-    return { initI18n, t };
-  })();
-
-  const Modal = (() => {
-    const {
-      delegate,
-      dispatchSiteEvent,
-      findElementByDataValue,
-      focusElement,
-      getActiveHTMLElement,
-      getDataId,
-      getFocusableElements,
-      isHTMLElement,
-      lockScroll,
-      qsa,
-      restoreFocus,
-      trapFocus,
-      unlockScroll,
-    } = Utils;
-const MODAL_SELECTOR = '[data-modal]';
-const MODAL_PANEL_SELECTOR = '[data-modal-panel]';
-const MODAL_OPEN_SELECTOR = '[data-modal-open]';
-const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
-let initialized = false;
-let closeOnBackdrop = true;
-let activeModal = null;
-let activePanel = null;
-let activeModalId = '';
-let previouslyFocusedElement = null;
-function getModalById(id) {
-    return findElementByDataValue(MODAL_SELECTOR, 'data-modal', id);
-}
-function getModalPanel(modal) {
-    var _a;
-    return (_a = modal.querySelector(MODAL_PANEL_SELECTOR)) !== null && _a !== void 0 ? _a : modal;
-}
-function prepareModal(modal) {
-    const panel = getModalPanel(modal);
-    modal.hidden = true;
-    modal.setAttribute('aria-hidden', 'true');
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-modal', 'true');
-}
-function focusModal(modal) {
-    var _a;
-    const panel = getModalPanel(modal);
-    const firstFocusable = (_a = getFocusableElements(panel)[0]) !== null && _a !== void 0 ? _a : getFocusableElements(modal)[0];
-    if (firstFocusable) {
-        focusElement(firstFocusable);
-        return;
-    }
-    if (!panel.hasAttribute('tabindex')) {
-        panel.setAttribute('tabindex', '-1');
-    }
-    focusElement(panel);
-}
-function setModalOpenState(modal, isOpen) {
-    modal.hidden = !isOpen;
-    modal.setAttribute('aria-hidden', String(!isOpen));
-    modal.classList.toggle('is-active', isOpen);
-    modal.classList.toggle('is-visible', isOpen);
-    document.documentElement.classList.toggle('is-modal-open', isOpen);
-    document.body.classList.toggle('is-modal-open', isOpen);
-}
-function openModal(id, trigger) {
-    const normalizedId = id.trim();
-    if (!normalizedId) {
-        return;
-    }
-    const modal = getModalById(normalizedId);
-    if (!modal) {
-        return;
-    }
-    if (activeModal && activeModal !== modal) {
-        closeModal();
-    }
-    if (activeModal === modal) {
-        return;
-    }
-    previouslyFocusedElement = trigger !== null && trigger !== void 0 ? trigger : getActiveHTMLElement();
-    activeModal = modal;
-    activePanel = getModalPanel(modal);
-    activeModalId = normalizedId;
-    setModalOpenState(modal, true);
-    lockScroll();
-    focusModal(modal);
-    dispatchSiteEvent(modal, 'site:modal-open', {
-        id: activeModalId,
-        modal,
-        trigger: trigger !== null && trigger !== void 0 ? trigger : null,
-    });
-}
-function closeModal() {
-    if (!activeModal) {
-        return;
-    }
-    const modal = activeModal;
-    const id = activeModalId;
-    const focusTarget = previouslyFocusedElement;
-    setModalOpenState(modal, false);
-    unlockScroll();
-    activeModal = null;
-    activePanel = null;
-    activeModalId = '';
-    previouslyFocusedElement = null;
-    dispatchSiteEvent(modal, 'site:modal-close', {
-        id,
-        modal,
-    });
-    restoreFocus(focusTarget);
-}
-function onKeydown(event) {
-    if (!activeModal || !activePanel) {
-        return;
-    }
-    // When a lightbox is open over a modal, the lightbox owns top-level keyboard handling.
-    if (document.body.classList.contains('is-lightbox-open')) {
-        return;
-    }
-    if (event.key === 'Escape') {
-        event.preventDefault();
-        closeModal();
-        return;
-    }
-    trapFocus(activePanel, event);
-}
-function onBackdropClick(event) {
-    if (!closeOnBackdrop || !activeModal) {
-        return;
-    }
-    const target = event.target;
-    if (!isHTMLElement(target) || !activeModal.contains(target)) {
-        return;
-    }
-    const panel = getModalPanel(activeModal);
-    if (!panel.contains(target)) {
-        closeModal();
-    }
-}
-function initModals(options) {
-    var _a;
-    closeOnBackdrop = (_a = options.closeOnBackdrop) !== null && _a !== void 0 ? _a : true;
-    qsa(MODAL_SELECTOR).forEach(prepareModal);
-    if (!initialized) {
-        delegate(document, 'click', MODAL_OPEN_SELECTOR, (event, trigger) => {
-            event.preventDefault();
-            openModal(getDataId(trigger, 'data-modal-open'), trigger);
-        });
-        delegate(document, 'click', MODAL_CLOSE_SELECTOR, (event, closeButton) => {
-            if (!activeModal || !activeModal.contains(closeButton)) {
-                return;
-            }
-            event.preventDefault();
-            closeModal();
-        });
-        document.addEventListener('click', onBackdropClick);
-        document.addEventListener('keydown', onKeydown);
-        initialized = true;
-    }
-    return {
-        openModal,
-        closeModal,
-    };
-}
-    return { initModals, openModal, closeModal };
-  })();
-
-  const Lightbox = (() => {
-    const {
-      delegate,
-      dispatchSiteEvent,
-      focusElement,
-      getStringAttr,
-      lockScroll,
-      qsa,
-      qs,
-      restoreFocus,
-      trapFocus,
-      unlockScroll,
-    } = Utils;
-const LIGHTBOX_TRIGGER_SELECTOR = '[data-lightbox-src]';
-const LIGHTBOX_ROOT_SELECTOR = '[data-site-lightbox]';
-const LIGHTBOX_CLOSE_SELECTOR = '[data-lightbox-close]';
-const LIGHTBOX_PREVIOUS_SELECTOR = '[data-lightbox-prev]';
-const LIGHTBOX_NEXT_SELECTOR = '[data-lightbox-next]';
-let initialized = false;
-let i18n = null;
-let elements = null;
-let items = [];
-let activeIndex = 0;
-let isOpen = false;
-let previouslyFocusedElement = null;
-function getTriggerSrc(trigger) {
-    const dataSrc = getStringAttr(trigger, 'data-lightbox-src');
-    if (dataSrc) {
-        return dataSrc;
-    }
-    if (trigger instanceof HTMLAnchorElement) {
-        return trigger.href;
-    }
-    return '';
-}
-function getTriggerAlt(trigger) {
-    var _a, _b;
-    const explicitAlt = getStringAttr(trigger, 'data-lightbox-alt');
-    if (explicitAlt) {
-        return explicitAlt;
-    }
-    const image = qs('img', trigger);
-    return (_b = (_a = image === null || image === void 0 ? void 0 : image.alt) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : '';
-}
-function getTriggerItem(trigger) {
-    const src = getTriggerSrc(trigger).trim();
-    if (!src) {
-        return null;
-    }
-    return {
-        src,
-        caption: getStringAttr(trigger, 'data-lightbox-caption'),
-        alt: getTriggerAlt(trigger),
-        group: getStringAttr(trigger, 'data-lightbox-group'),
-        trigger,
-    };
-}
-function collectItems(trigger) {
-    const selectedItem = getTriggerItem(trigger);
-    if (!selectedItem) {
-        return null;
-    }
-    if (!selectedItem.group) {
-        return {
-            items: [selectedItem],
-            index: 0,
-        };
-    }
-    const groupedItems = qsa(LIGHTBOX_TRIGGER_SELECTOR)
-        .filter((candidate) => getStringAttr(candidate, 'data-lightbox-group') === selectedItem.group)
-        .map(getTriggerItem)
-        .filter((item) => Boolean(item));
-    const index = Math.max(0, groupedItems.findIndex((item) => item.trigger === trigger));
-    return {
-        items: groupedItems.length > 0 ? groupedItems : [selectedItem],
-        index,
-    };
-}
-function button(label, attrName, text, className) {
-    const element = document.createElement('button');
-    element.type = 'button';
-    element.className = className;
-    element.setAttribute(attrName, '');
-    element.setAttribute('aria-label', label);
-    element.title = label;
-    element.textContent = text;
-    return element;
-}
-function ensureLightboxDom() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-    if (elements) {
-        updateLabels(elements);
-        return elements;
-    }
-    const existingRoot = qs(LIGHTBOX_ROOT_SELECTOR);
-    const root = existingRoot !== null && existingRoot !== void 0 ? existingRoot : document.createElement('div');
-    root.classList.add('site-lightbox');
-    root.setAttribute('data-site-lightbox', '');
-    root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-modal', 'true');
-    root.setAttribute('aria-hidden', 'true');
-    root.setAttribute('aria-label', (_a = i18n === null || i18n === void 0 ? void 0 : i18n.t('openImage', 'Image preview')) !== null && _a !== void 0 ? _a : 'Image preview');
-    root.hidden = true;
-    root.tabIndex = -1;
-    if (!existingRoot) {
-        root.innerHTML = '';
-        const closeButton = button((_b = i18n === null || i18n === void 0 ? void 0 : i18n.t('close', 'Close')) !== null && _b !== void 0 ? _b : 'Close', 'data-lightbox-close', '×', 'site-lightbox__close');
-        const previousButton = button((_c = i18n === null || i18n === void 0 ? void 0 : i18n.t('previous', 'Previous')) !== null && _c !== void 0 ? _c : 'Previous', 'data-lightbox-prev', '‹', 'site-lightbox__previous');
-        const nextButton = button((_d = i18n === null || i18n === void 0 ? void 0 : i18n.t('next', 'Next')) !== null && _d !== void 0 ? _d : 'Next', 'data-lightbox-next', '›', 'site-lightbox__next');
-        const figure = document.createElement('figure');
-        figure.className = 'site-lightbox__figure';
-        const image = document.createElement('img');
-        image.className = 'site-lightbox__image';
-        image.setAttribute('data-lightbox-image', '');
-        image.alt = '';
-        const caption = document.createElement('figcaption');
-        caption.className = 'site-lightbox__caption';
-        caption.setAttribute('data-lightbox-caption-output', '');
-        caption.hidden = true;
-        figure.append(image, caption);
-        root.append(closeButton, previousButton, figure, nextButton);
-        document.body.append(root);
-    }
-    const foundElements = {
-        root,
-        image: (_e = qs('[data-lightbox-image]', root)) !== null && _e !== void 0 ? _e : document.createElement('img'),
-        caption: (_f = qs('[data-lightbox-caption-output]', root)) !== null && _f !== void 0 ? _f : document.createElement('figcaption'),
-        closeButton: (_g = qs(LIGHTBOX_CLOSE_SELECTOR, root)) !== null && _g !== void 0 ? _g : document.createElement('button'),
-        previousButton: (_h = qs(LIGHTBOX_PREVIOUS_SELECTOR, root)) !== null && _h !== void 0 ? _h : document.createElement('button'),
-        nextButton: (_j = qs(LIGHTBOX_NEXT_SELECTOR, root)) !== null && _j !== void 0 ? _j : document.createElement('button'),
-    };
-    elements = foundElements;
-    updateLabels(foundElements);
-    if (!existingRoot && !document.body.contains(root)) {
-        document.body.append(root);
-    }
-    return foundElements;
-}
-function updateLabels(lightboxElements) {
-    var _a, _b, _c, _d;
-    const closeLabel = (_a = i18n === null || i18n === void 0 ? void 0 : i18n.t('close', 'Close')) !== null && _a !== void 0 ? _a : 'Close';
-    const previousLabel = (_b = i18n === null || i18n === void 0 ? void 0 : i18n.t('previous', 'Previous')) !== null && _b !== void 0 ? _b : 'Previous';
-    const nextLabel = (_c = i18n === null || i18n === void 0 ? void 0 : i18n.t('next', 'Next')) !== null && _c !== void 0 ? _c : 'Next';
-    const dialogLabel = (_d = i18n === null || i18n === void 0 ? void 0 : i18n.t('openImage', 'Image preview')) !== null && _d !== void 0 ? _d : 'Image preview';
-    lightboxElements.root.setAttribute('aria-label', dialogLabel);
-    lightboxElements.closeButton.setAttribute('aria-label', closeLabel);
-    lightboxElements.closeButton.title = closeLabel;
-    lightboxElements.previousButton.setAttribute('aria-label', previousLabel);
-    lightboxElements.previousButton.title = previousLabel;
-    lightboxElements.nextButton.setAttribute('aria-label', nextLabel);
-    lightboxElements.nextButton.title = nextLabel;
-}
-function renderItem() {
-    const lightboxElements = ensureLightboxDom();
-    const item = items[activeIndex];
-    if (!item) {
-        return;
-    }
-    lightboxElements.image.src = item.src;
-    lightboxElements.image.alt = item.alt;
-    lightboxElements.caption.textContent = item.caption;
-    lightboxElements.caption.hidden = item.caption.length === 0;
-    const hasMultipleItems = items.length > 1;
-    lightboxElements.previousButton.hidden = !hasMultipleItems;
-    lightboxElements.nextButton.hidden = !hasMultipleItems;
-    lightboxElements.root.dataset.lightboxIndex = String(activeIndex);
-    lightboxElements.root.dataset.lightboxCount = String(items.length);
-}
-function setOpenState(open) {
-    const lightboxElements = ensureLightboxDom();
-    lightboxElements.root.hidden = !open;
-    lightboxElements.root.setAttribute('aria-hidden', String(!open));
-    lightboxElements.root.classList.toggle('is-active', open);
-    lightboxElements.root.classList.toggle('is-visible', open);
-    document.documentElement.classList.toggle('is-lightbox-open', open);
-    document.body.classList.toggle('is-lightbox-open', open);
-}
-function goToItem(index) {
-    if (items.length < 2) {
-        return;
-    }
-    activeIndex = (index + items.length) % items.length;
-    renderItem();
-}
-function goNext() {
-    goToItem(activeIndex + 1);
-}
-function goPrevious() {
-    goToItem(activeIndex - 1);
-}
-function openLightbox(trigger) {
-    var _a;
-    const collection = collectItems(trigger);
-    if (!collection) {
-        return;
-    }
-    const wasOpen = isOpen;
-    items = collection.items;
-    activeIndex = collection.index;
-    previouslyFocusedElement = trigger;
-    isOpen = true;
-    renderItem();
-    setOpenState(true);
-    if (!wasOpen) {
-        lockScroll();
-    }
-    const lightboxElements = ensureLightboxDom();
-    focusElement(lightboxElements.closeButton || lightboxElements.root);
-    const currentItem = items[activeIndex];
-    dispatchSiteEvent(lightboxElements.root, 'site:lightbox-open', {
-        item: currentItem,
-        index: activeIndex,
-        count: items.length,
-        group: (_a = currentItem === null || currentItem === void 0 ? void 0 : currentItem.group) !== null && _a !== void 0 ? _a : '',
-        trigger,
-    });
-}
-function closeLightbox() {
-    var _a;
-    if (!isOpen || !elements) {
-        return;
-    }
-    const lightboxElements = elements;
-    const focusTarget = previouslyFocusedElement;
-    const currentItem = (_a = items[activeIndex]) !== null && _a !== void 0 ? _a : null;
-    setOpenState(false);
-    unlockScroll();
-    isOpen = false;
-    items = [];
-    activeIndex = 0;
-    previouslyFocusedElement = null;
-    lightboxElements.image.removeAttribute('src');
-    lightboxElements.caption.textContent = '';
-    dispatchSiteEvent(lightboxElements.root, 'site:lightbox-close', {
-        item: currentItem,
-    });
-    restoreFocus(focusTarget);
-}
-function onKeydown(event) {
-    if (!isOpen || !elements) {
-        return;
-    }
-    if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        closeLightbox();
-        return;
-    }
-    if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        goNext();
-        return;
-    }
-    if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        goPrevious();
-        return;
-    }
-    trapFocus(elements.root, event);
-}
-function onBackdropClick(event) {
-    if (!isOpen || !elements) {
-        return;
-    }
-    if (event.target === elements.root) {
-        closeLightbox();
-    }
-}
-function initLightbox(options) {
-    i18n = options.i18n;
-    if (!initialized) {
-        delegate(document, 'click', LIGHTBOX_TRIGGER_SELECTOR, (event, trigger) => {
-            event.preventDefault();
-            openLightbox(trigger);
-        });
-        delegate(document, 'click', LIGHTBOX_CLOSE_SELECTOR, (event) => {
-            event.preventDefault();
-            closeLightbox();
-        });
-        delegate(document, 'click', LIGHTBOX_PREVIOUS_SELECTOR, (event) => {
-            event.preventDefault();
-            goPrevious();
-        });
-        delegate(document, 'click', LIGHTBOX_NEXT_SELECTOR, (event) => {
-            event.preventDefault();
-            goNext();
-        });
-        document.addEventListener('click', onBackdropClick);
-        document.addEventListener('keydown', onKeydown, true);
-        initialized = true;
-    }
-    return {
-        openLightbox,
-        closeLightbox,
-    };
-}
-    return { initLightbox, openLightbox, closeLightbox };
-  })();
-
-  let booted = false;
-
-  function boot() {
-    if (booted) {
-      return;
-    }
-
-    booted = true;
-
-    const i18n = I18n.initI18n();
-
-    Modal.initModals({ i18n });
-    Lightbox.initLightbox({ i18n });
-
-    window.SiteInteractions = {
-      openModal: Modal.openModal,
-      closeModal: Modal.closeModal,
-      openLightbox: Lightbox.openLightbox,
-      closeLightbox: Lightbox.closeLightbox,
-    };
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot, { once: true });
-  } else {
-    boot();
-  }
-})();
+//# sourceMappingURL=site-interactions.js.map

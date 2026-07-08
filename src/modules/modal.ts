@@ -24,6 +24,8 @@ const MODAL_SELECTOR = '[data-modal]';
 const MODAL_PANEL_SELECTOR = '[data-modal-panel]';
 const MODAL_OPEN_SELECTOR = '[data-modal-open]';
 const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
+const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
+const MODAL_HASH_PREFIX = '#modal:';
 
 let initialized = false;
 let closeOnBackdrop = true;
@@ -38,6 +40,16 @@ function getModalById(id: string): HTMLElement | null {
 
 function getModalPanel(modal: HTMLElement): HTMLElement {
   return modal.querySelector<HTMLElement>(MODAL_PANEL_SELECTOR) ?? modal;
+}
+
+function getModalIdFromHashLink(link: HTMLElement): string {
+  const href = link.getAttribute('href') ?? '';
+
+  if (!href.startsWith(MODAL_HASH_PREFIX)) {
+    return '';
+  }
+
+  return decodeURIComponent(href.slice(MODAL_HASH_PREFIX.length)).trim();
 }
 
 function prepareModal(modal: HTMLElement): void {
@@ -182,6 +194,11 @@ export function initModals(options: ModalInitOptions): ModalApi {
     delegate(document, 'click', MODAL_OPEN_SELECTOR, (event, trigger) => {
       event.preventDefault();
       openModal(getDataId(trigger, 'data-modal-open'), trigger);
+    });
+
+    delegate(document, 'click', MODAL_HASH_LINK_SELECTOR, (event, trigger) => {
+      event.preventDefault();
+      openModal(getModalIdFromHashLink(trigger), trigger);
     });
 
     delegate(document, 'click', MODAL_CLOSE_SELECTOR, (event, closeButton) => {

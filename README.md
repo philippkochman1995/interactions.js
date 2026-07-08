@@ -59,6 +59,12 @@ The script fails silently if this JSON is missing or invalid. Missing keys fall 
 <a href="#" data-modal-open="example-modal">Open modal</a>
 ```
 
+Rich text and CMS body copy can also open modals through hash links:
+
+```html
+<a href="#modal:context-example-slug">Open modal</a>
+```
+
 ### Modal
 
 ```html
@@ -76,6 +82,35 @@ The script fails silently if this JSON is missing or invalid. Missing keys fall 
 ```
 
 Use a stable CMS-generated slug/id for `data-modal` and `data-modal-open`. Do not use Webflow-generated class names as JavaScript hooks.
+
+Modal content can come from any CMS collection as long as every rendered registry outputs the same technical structure. The JavaScript does not need to know whether a modal came from a general `Modals` collection, a `Contexts` collection, or a `Map Markers` collection.
+
+Recommended ID prefixes:
+
+```text
+modal-{slug}
+context-{slug}
+map-{slug}
+```
+
+Examples:
+
+```text
+modal-about-project
+context-archive-image-01
+map-vienna-studio
+```
+
+Render only the hidden modal registry needed on the current page. For example, standard pages can render a hidden list from `Modals`, context pages can render a hidden list from `Contexts`, and map pages can render a hidden list from `Map Markers`. Each item should still output:
+
+```html
+<div data-modal="context-example-slug" hidden>
+  <div data-modal-panel>
+    <button type="button" data-modal-close>Close</button>
+    ...
+  </div>
+</div>
+```
 
 ## Lightbox API
 
