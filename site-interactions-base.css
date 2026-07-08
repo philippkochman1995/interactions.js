@@ -148,10 +148,10 @@ body.is-lightbox-open {
 
 .fwm-modal__lightbox-icon {
   position: absolute;
-  left: 0.625rem;
-  bottom: 0.625rem;
-  width: 1.875rem;
-  height: 1.875rem;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  width: 2.125rem;
+  height: 2.125rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -159,8 +159,8 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__lightbox-icon svg {
-  width: 1.875rem;
-  height: 1.875rem;
+  width: 2.125rem;
+  height: 2.125rem;
   display: block;
   overflow: visible;
 }
@@ -194,6 +194,36 @@ body.is-lightbox-open {
 
 .fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--top {
   transform: translate3d(4px, 0, 0);
+}
+
+.fwm-modal__lightbox-icon-circle--centered {
+  fill: var(--fw_off_white);
+  opacity: 0.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+}
+
+.fwm-modal__lightbox-icon-arrow--centered-bottom,
+.fwm-modal__lightbox-icon-arrow--centered-top {
+  fill: var(--fw_dark_purple_50);
+  transition: fill 0.18s ease, transform 0.18s ease;
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-circle--centered {
+  fill: var(--fw_rosa);
+  opacity: 1;
+  transform: scale(1.133333);
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--centered-bottom {
+  fill: var(--fw_dark_purple);
+  transform: translate3d(-2px, 2px, 0);
+}
+
+.fwm-modal__image-link:hover .fwm-modal__lightbox-icon-arrow--centered-top {
+  fill: var(--fw_dark_purple);
+  transform: translate3d(2px, -2px, 0);
 }
 
 .fwm-modal__caption {
