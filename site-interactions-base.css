@@ -286,17 +286,18 @@ body.is-lightbox-open {
   position: absolute;
   left: 0.5rem;
   bottom: 0.5rem;
-  width: 2.125rem;
-  height: 2.125rem;
+  width: 1.75rem;
+  height: 1.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  overflow: visible;
 }
 
 .fwm-modal__lightbox-icon svg {
-  width: 2.125rem;
-  height: 2.125rem;
+  width: 1.75rem;
+  height: 1.75rem;
   display: block;
   overflow: visible;
 }
