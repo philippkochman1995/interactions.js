@@ -186,7 +186,9 @@ function N() {
 	if (c.classList.add("site-lightbox"), c.setAttribute("data-site-lightbox", ""), c.setAttribute("role", "dialog"), c.setAttribute("aria-modal", "true"), c.setAttribute("aria-hidden", "true"), c.setAttribute("aria-label", (e = T == null ? void 0 : T.t("openImage", "Image preview")) == null ? "Image preview" : e), c.hidden = !0, c.tabIndex = -1, !s) {
 		var l, u, d;
 		c.innerHTML = "";
-		let e = M((l = T == null ? void 0 : T.t("close", "Close")) == null ? "Close" : l, "data-lightbox-close", "×", "site-lightbox__close"), t = M((u = T == null ? void 0 : T.t("previous", "Previous")) == null ? "Previous" : u, "data-lightbox-prev", "‹", "site-lightbox__previous"), n = M((d = T == null ? void 0 : T.t("next", "Next")) == null ? "Next" : d, "data-lightbox-next", "›", "site-lightbox__next"), r = document.createElement("figure");
+		let e = M((l = T == null ? void 0 : T.t("close", "Close")) == null ? "Close" : l, "data-lightbox-close", "", "site-lightbox__close");
+		e.innerHTML = "\n      <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n        <circle cx=\"20\" cy=\"20\" r=\"20\"/>\n        <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\"/>\n      </svg>\n    ";
+		let t = M((u = T == null ? void 0 : T.t("previous", "Previous")) == null ? "Previous" : u, "data-lightbox-prev", "‹", "site-lightbox__previous"), n = M((d = T == null ? void 0 : T.t("next", "Next")) == null ? "Next" : d, "data-lightbox-next", "›", "site-lightbox__next"), r = document.createElement("figure");
 		r.className = "site-lightbox__figure";
 		let i = document.createElement("img");
 		i.className = "site-lightbox__image", i.setAttribute("data-lightbox-image", ""), i.alt = "";

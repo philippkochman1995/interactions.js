@@ -147,9 +147,15 @@ function ensureLightboxDom(): LightboxElements {
     const closeButton = button(
       i18n?.t('close', 'Close') ?? 'Close',
       'data-lightbox-close',
-      '×',
+      '',
       'site-lightbox__close',
     );
+    closeButton.innerHTML = `
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="20"/>
+        <path d="M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z"/>
+      </svg>
+    `;
     const previousButton = button(
       i18n?.t('previous', 'Previous') ?? 'Previous',
       'data-lightbox-prev',
