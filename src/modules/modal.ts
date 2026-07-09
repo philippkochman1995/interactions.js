@@ -27,6 +27,23 @@ const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
 const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
 const MODAL_HASH_PREFIX = '#modal:';
 const MODAL_CLOSE_DURATION = 220;
+const MODAL_CLOSE_ICON_SELECTOR = '.fwm-modal__close';
+const MODAL_LIGHTBOX_ICON_SELECTOR = '.fwm-modal__lightbox-icon';
+
+const MODAL_CLOSE_ICON_SVG = `
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="20" cy="20" r="20" fill="#F3F2F4"/>
+    <path d="M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z" fill="#444153"/>
+  </svg>
+`;
+
+const MODAL_LIGHTBOX_ICON_SVG = `
+  <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <circle class="fwm-modal__lightbox-icon-circle--centered" cx="15" cy="15" r="15"/>
+    <path class="fwm-modal__lightbox-icon-arrow--centered-bottom" d="M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z"/>
+    <path class="fwm-modal__lightbox-icon-arrow--centered-top" d="M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z"/>
+  </svg>
+`;
 
 let initialized = false;
 let closeOnBackdrop = true;
@@ -54,9 +71,20 @@ function getModalIdFromHashLink(link: HTMLElement): string {
   return decodeURIComponent(href.slice(MODAL_HASH_PREFIX.length)).trim();
 }
 
+function normalizeModalChrome(modal: HTMLElement): void {
+  qsa<HTMLElement>(MODAL_CLOSE_ICON_SELECTOR, modal).forEach((element) => {
+    element.innerHTML = MODAL_CLOSE_ICON_SVG;
+  });
+
+  qsa<HTMLElement>(MODAL_LIGHTBOX_ICON_SELECTOR, modal).forEach((element) => {
+    element.innerHTML = MODAL_LIGHTBOX_ICON_SVG;
+  });
+}
+
 function prepareModal(modal: HTMLElement): void {
   const panel = getModalPanel(modal);
 
+  normalizeModalChrome(modal);
   modal.hidden = true;
   modal.setAttribute('aria-hidden', 'true');
   panel.setAttribute('role', 'dialog');
@@ -139,6 +167,7 @@ export function openModal(id: string, trigger?: HTMLElement): void {
   activePanel = getModalPanel(modal);
   activeModalId = normalizedId;
 
+  normalizeModalChrome(modal);
   showModal(modal);
   lockScroll();
   focusModal(modal);
