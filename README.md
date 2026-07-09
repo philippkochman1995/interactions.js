@@ -15,6 +15,7 @@ The production file is generated at:
 
 ```text
 /dist/site-interactions.js
+/dist/cms-canvas.js
 ```
 
 The default Vite config outputs an ES module, so include it with `type="module"`.
@@ -139,6 +140,85 @@ Set the public Mapbox token once on the existing map element through Webflow cus
 ```html
 <div id="wmMap" data-mapbox-token="pk..."></div>
 ```
+
+## CMS Canvas
+
+The CMS Canvas is delivered by `cms-canvas.css` and `dist/cms-canvas.js`. It reads a
+hidden Webflow Collection List, creates the visible tiles, distributes them
+deterministically, and opens the existing site modal on click.
+
+Load the shared modal assets first. Pin every jsDelivr URL to the same Git commit.
+
+Page head:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/site-interactions-base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/cms-canvas.css">
+```
+
+Before `</body>`:
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/dist/site-interactions.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/dist/cms-canvas.js"></script>
+```
+
+### Webflow structure
+
+Add one canvas wrapper to the page. Its Collection List may be nested inside the
+wrapper or placed elsewhere on the same page.
+
+```html
+<main
+  data-cms-canvas
+  data-canvas-width="4200"
+  data-canvas-height="2800"
+  data-canvas-gap="150"
+  data-canvas-padding="220"
+  data-canvas-item-widths="180,240,300"
+>
+  <div data-cms-canvas-source>
+    <div class="w-dyn-list">
+      <div class="w-dyn-items">
+        <article
+          class="w-dyn-item"
+          data-cms-canvas-item
+          data-canvas-id="cms-slug"
+        >
+          <img data-canvas-thumbnail src="thumbnail.jpg" alt="Project title">
+          <div data-canvas-title>Project title</div>
+
+          <div data-canvas-modal-address>Project title | Vienna</div>
+          <img data-canvas-modal-image src="large-image.jpg" alt="Project title">
+          <div data-canvas-modal-caption>Image credit</div>
+          <div data-canvas-modal-body class="rich-text">
+            <p>CMS rich text content</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+```
+
+In Webflow, apply the attributes to the corresponding Collection Item and its CMS
+field elements. Bind `data-canvas-id` to the CMS slug so positions stay stable.
+The modal address, large image, caption, and body are optional. If the large image
+is missing, the thumbnail is used.
+
+All root configuration attributes are optional:
+
+```text
+data-canvas-width          Canvas width in pixels (default: max of 3600 or 3.2 viewports)
+data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 viewports)
+data-canvas-gap            Minimum tile spacing in pixels (default: 150)
+data-canvas-padding        Empty outer edge in pixels (default: 220)
+data-canvas-item-widths    Comma-separated stable width choices (default: 180,240,300)
+```
+
+The background uses the existing `--fw_off_white` CSS variable. The page supports
+mouse drag and touch pan, but intentionally has no zoom or inertia. Titles appear
+on mouse hover and keyboard focus only.
 
 ## Lightbox API
 

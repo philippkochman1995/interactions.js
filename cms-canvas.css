@@ -1,0 +1,120 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+[data-cms-canvas-source] {
+  display: none !important;
+}
+
+.cms-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--fw_off_white);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
+}
+
+.cms-canvas.is-dragging {
+  cursor: grabbing;
+}
+
+.cms-canvas__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  transition: opacity 180ms ease;
+}
+
+.cms-canvas.is-ready .cms-canvas__stage {
+  opacity: 1;
+}
+
+.cms-canvas.is-settling .cms-canvas__stage {
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cms-canvas__item {
+  position: absolute;
+  display: block;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--fw_dark_purple);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cms-canvas.is-dragging .cms-canvas__item {
+  cursor: grabbing;
+}
+
+.cms-canvas__image {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.cms-canvas__title {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 0;
+  display: block;
+  max-width: 100%;
+  padding-top: 0.55rem;
+  color: var(--fw_dark_purple);
+  font-family: 'StyreneA', sans-serif;
+  font-size: var(--_sizes---p-small-font-size, 0.875rem);
+  line-height: 1.25;
+  opacity: 0;
+  transform: translate3d(0, -100%, 0);
+  transition: opacity 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cms-canvas__item:hover .cms-canvas__title,
+  .cms-canvas__item:focus-visible .cms-canvas__title {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.cms-canvas__item:focus-visible {
+  outline: 2px solid var(--fw_dark_purple);
+  outline-offset: 0.35rem;
+}
+
+@media (max-width: 767px) {
+  .cms-canvas__item {
+    max-width: min(70vw, 15rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cms-canvas__stage,
+  .cms-canvas__title {
+    transition-duration: 1ms !important;
+  }
+}

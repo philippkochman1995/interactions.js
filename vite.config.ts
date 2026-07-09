@@ -14,6 +14,7 @@ export default defineConfig({
       entry: {
         'site-interactions': resolve(currentDir, 'src/main.ts'),
         'west-map': resolve(currentDir, 'src/west-map.ts'),
+        'cms-canvas': resolve(currentDir, 'src/cms-canvas.ts'),
       },
       formats: ['es'],
       fileName: (_format, entryName) => `${entryName}.js`,
