@@ -287,40 +287,48 @@ function ue(e) {
 }
 //#endregion
 //#region src/modules/modal.ts
-var H = "[data-modal]", de = "[data-modal-panel]", fe = "[data-modal-open]", pe = "[data-modal-close]", me = "a[href^=\"#modal:\"]", he = "#modal:", U = !1, W = !0, G = null, K = null, q = "", J = null;
-function ge(e) {
+var H = "[data-modal]", de = "[data-modal-panel]", fe = "[data-modal-open]", pe = "[data-modal-close]", me = "a[href^=\"#modal:\"]", he = "#modal:", ge = 220, U = !1, W = !0, G = null, K = null, q = "", J = null, Y = /* @__PURE__ */ new WeakMap();
+function _e(e) {
 	return c(H, "data-modal", e);
 }
-function Y(e) {
+function X(e) {
 	var t;
 	return (t = e.querySelector(de)) == null ? e : t;
 }
-function _e(e) {
+function ve(e) {
 	var t;
 	let n = (t = e.getAttribute("href")) == null ? "" : t;
 	return n.startsWith(he) ? decodeURIComponent(n.slice(7)).trim() : "";
 }
-function ve(e) {
-	let t = Y(e);
+function ye(e) {
+	let t = X(e);
 	e.hidden = !0, e.setAttribute("aria-hidden", "true"), t.setAttribute("role", "dialog"), t.setAttribute("aria-modal", "true");
 }
-function ye(e) {
+function be(e) {
 	var t;
-	let n = Y(e), r = (t = u(n)[0]) == null ? u(e)[0] : t;
+	let n = X(e), r = (t = u(n)[0]) == null ? u(e)[0] : t;
 	if (r) {
 		d(r);
 		return;
 	}
 	n.hasAttribute("tabindex") || n.setAttribute("tabindex", "-1"), d(n);
 }
-function X(e, t) {
-	e.hidden = !t, e.setAttribute("aria-hidden", String(!t)), e.classList.toggle("is-active", t), e.classList.toggle("is-visible", t), document.documentElement.classList.toggle("is-modal-open", t), document.body.classList.toggle("is-modal-open", t);
+function xe(e) {
+	let t = Y.get(e);
+	t !== void 0 && (window.clearTimeout(t), Y.delete(e)), e.hidden = !1, e.setAttribute("aria-hidden", "false"), e.classList.add("is-active"), e.offsetWidth, e.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
+}
+function Se(e) {
+	e.setAttribute("aria-hidden", "true"), e.classList.remove("is-visible");
+	let t = window.setTimeout(() => {
+		e.hidden = !0, e.classList.remove("is-active"), Y.delete(e);
+	}, ge);
+	Y.set(e, t), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
 }
 function Z(e, t) {
 	let n = e.trim();
 	if (!n) return;
-	let r = ge(n);
-	r && (G && G !== r && Q(), G !== r && (J = t == null ? f() : t, G = r, K = Y(r), q = n, X(r, !0), ee(), ye(r), v(r, "site:modal-open", {
+	let r = _e(n);
+	r && (G && G !== r && Q(), G !== r && (J = t == null ? f() : t, G = r, K = X(r), q = n, xe(r), ee(), be(r), v(r, "site:modal-open", {
 		id: q,
 		modal: r,
 		trigger: t == null ? null : t
@@ -329,12 +337,12 @@ function Z(e, t) {
 function Q() {
 	if (!G) return;
 	let e = G, t = q, n = J;
-	X(e, !1), g(), G = null, K = null, q = "", J = null, v(e, "site:modal-close", {
+	Se(e), g(), G = null, K = null, q = "", J = null, v(e, "site:modal-close", {
 		id: t,
 		modal: e
 	}), p(n);
 }
-function be(e) {
+function Ce(e) {
 	if (!(!G || !K) && !document.body.classList.contains("is-lightbox-open")) {
 		if (e.key === "Escape") {
 			e.preventDefault(), Q();
@@ -343,32 +351,32 @@ function be(e) {
 		m(K, e);
 	}
 }
-function xe(e) {
+function we(e) {
 	if (!W || !G) return;
 	let t = e.target;
-	!i(t) || !G.contains(t) || Y(G).contains(t) || Q();
+	!i(t) || !G.contains(t) || X(G).contains(t) || Q();
 }
-function Se(e) {
+function Te(e) {
 	var t;
-	return W = (t = e.closeOnBackdrop) == null || t, n(H).forEach(ve), U || (_(document, "click", fe, (e, t) => {
+	return W = (t = e.closeOnBackdrop) == null || t, n(H).forEach(ye), U || (_(document, "click", fe, (e, t) => {
 		e.preventDefault(), Z(s(t, "data-modal-open"), t);
 	}), _(document, "click", me, (e, t) => {
-		e.preventDefault(), Z(_e(t), t);
+		e.preventDefault(), Z(ve(t), t);
 	}), _(document, "click", pe, (e, t) => {
 		!G || !G.contains(t) || (e.preventDefault(), Q());
-	}), document.addEventListener("click", xe), document.addEventListener("keydown", be), U = !0), {
+	}), document.addEventListener("click", we), document.addEventListener("keydown", Ce), U = !0), {
 		openModal: Z,
 		closeModal: Q
 	};
 }
 //#endregion
 //#region src/main.ts
-var Ce = !1;
+var Ee = !1;
 function $() {
-	if (Ce) return;
-	Ce = !0;
+	if (Ee) return;
+	Ee = !0;
 	let e = ne();
-	Se({ i18n: e }), ue({ i18n: e }), window.SiteInteractions = {
+	Te({ i18n: e }), ue({ i18n: e }), window.SiteInteractions = {
 		openModal: Z,
 		closeModal: Q,
 		openLightbox: B,

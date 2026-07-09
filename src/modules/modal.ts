@@ -26,6 +26,7 @@ const MODAL_OPEN_SELECTOR = '[data-modal-open]';
 const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
 const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
 const MODAL_HASH_PREFIX = '#modal:';
+const MODAL_CLOSE_DURATION = 220;
 
 let initialized = false;
 let closeOnBackdrop = true;
@@ -33,6 +34,7 @@ let activeModal: HTMLElement | null = null;
 let activePanel: HTMLElement | null = null;
 let activeModalId = '';
 let previouslyFocusedElement: HTMLElement | null = null;
+const closeTimers = new WeakMap<HTMLElement, number>();
 
 function getModalById(id: string): HTMLElement | null {
   return findElementByDataValue<HTMLElement>(MODAL_SELECTOR, 'data-modal', id);
@@ -77,13 +79,38 @@ function focusModal(modal: HTMLElement): void {
   focusElement(panel);
 }
 
-function setModalOpenState(modal: HTMLElement, isOpen: boolean): void {
-  modal.hidden = !isOpen;
-  modal.setAttribute('aria-hidden', String(!isOpen));
-  modal.classList.toggle('is-active', isOpen);
-  modal.classList.toggle('is-visible', isOpen);
-  document.documentElement.classList.toggle('is-modal-open', isOpen);
-  document.body.classList.toggle('is-modal-open', isOpen);
+function showModal(modal: HTMLElement): void {
+  const closeTimer = closeTimers.get(modal);
+
+  if (closeTimer !== undefined) {
+    window.clearTimeout(closeTimer);
+    closeTimers.delete(modal);
+  }
+
+  modal.hidden = false;
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('is-active');
+
+  // Commit the initial animation state after removing `hidden`.
+  void modal.offsetWidth;
+  modal.classList.add('is-visible');
+  document.documentElement.classList.add('is-modal-open');
+  document.body.classList.add('is-modal-open');
+}
+
+function hideModal(modal: HTMLElement): void {
+  modal.setAttribute('aria-hidden', 'true');
+  modal.classList.remove('is-visible');
+
+  const closeTimer = window.setTimeout(() => {
+    modal.hidden = true;
+    modal.classList.remove('is-active');
+    closeTimers.delete(modal);
+  }, MODAL_CLOSE_DURATION);
+
+  closeTimers.set(modal, closeTimer);
+  document.documentElement.classList.remove('is-modal-open');
+  document.body.classList.remove('is-modal-open');
 }
 
 export function openModal(id: string, trigger?: HTMLElement): void {
@@ -112,7 +139,7 @@ export function openModal(id: string, trigger?: HTMLElement): void {
   activePanel = getModalPanel(modal);
   activeModalId = normalizedId;
 
-  setModalOpenState(modal, true);
+  showModal(modal);
   lockScroll();
   focusModal(modal);
 
@@ -132,7 +159,7 @@ export function closeModal(): void {
   const id = activeModalId;
   const focusTarget = previouslyFocusedElement;
 
-  setModalOpenState(modal, false);
+  hideModal(modal);
   unlockScroll();
 
   activeModal = null;
