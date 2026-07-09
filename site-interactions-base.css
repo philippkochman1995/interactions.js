@@ -84,8 +84,8 @@ body.is-lightbox-open {
   top: 2rem;
   right: 2rem;
   z-index: 2;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -95,8 +95,8 @@ body.is-lightbox-open {
 
 .site-lightbox__close svg {
   display: block;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .site-lightbox__close circle {
@@ -216,8 +216,8 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__close {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -232,8 +232,8 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__close svg {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   display: block;
 }
 
