@@ -91,12 +91,14 @@ body.is-lightbox-open {
   border-radius: 50%;
   background: transparent;
   line-height: 0;
+  overflow: visible;
 }
 
 .site-lightbox__close svg {
   display: block;
   width: 1.75rem;
   height: 1.75rem;
+  overflow: visible;
 }
 
 .site-lightbox__close circle {
@@ -232,12 +234,14 @@ body.is-lightbox-open {
   line-height: 0;
   flex: 0 0 auto;
   color: var(--fw_dark_purple);
+  overflow: visible;
 }
 
 .fwm-modal__close svg {
   width: 1.75rem;
   height: 1.75rem;
   display: block;
+  overflow: visible;
 }
 
 .fwm-modal__close svg circle,
