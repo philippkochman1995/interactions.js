@@ -11,13 +11,16 @@ export default defineConfig({
     sourcemap: true,
     target: 'es2018',
     lib: {
-      entry: resolve(currentDir, 'src/main.ts'),
+      entry: {
+        'site-interactions': resolve(currentDir, 'src/main.ts'),
+        'west-map': resolve(currentDir, 'src/west-map.ts'),
+      },
       formats: ['es'],
-      fileName: () => 'site-interactions.js',
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rolldownOptions: {
       output: {
-        entryFileNames: 'site-interactions.js',
+        entryFileNames: '[name].js',
         chunkFileNames: 'site-interactions-[hash].js',
         assetFileNames: 'site-interactions-[name][extname]',
       },

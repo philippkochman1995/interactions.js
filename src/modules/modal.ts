@@ -1,12 +1,12 @@
-import type { I18nApi, ModalApi } from '../types';
+import type { ContentModalData, I18nApi, ModalApi } from '../types';
 import {
   delegate,
   dispatchSiteEvent,
-  findElementByDataValue,
   focusElement,
   getActiveHTMLElement,
   getDataId,
   getFocusableElements,
+  getStringAttr,
   isHTMLElement,
   lockScroll,
   qsa,
@@ -20,15 +20,25 @@ interface ModalInitOptions {
   closeOnBackdrop?: boolean;
 }
 
-const MODAL_SELECTOR = '[data-modal]';
-const MODAL_PANEL_SELECTOR = '[data-modal-panel]';
+interface SingletonElements {
+  root: HTMLElement;
+  panel: HTMLElement;
+  address: HTMLElement;
+  closeButton: HTMLButtonElement;
+  imageLink: HTMLAnchorElement;
+  image: HTMLImageElement;
+  lightboxIcon: HTMLElement;
+  caption: HTMLElement;
+  text: HTMLElement;
+}
+
+const LEGACY_MODAL_SELECTOR = '[data-modal]';
+const CONTENT_SELECTOR = '[data-modal-content]';
 const MODAL_OPEN_SELECTOR = '[data-modal-open]';
 const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
 const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
 const MODAL_HASH_PREFIX = '#modal:';
 const MODAL_CLOSE_DURATION = 220;
-const MODAL_CLOSE_ICON_SELECTOR = '.fwm-modal__close';
-const MODAL_LIGHTBOX_ICON_SELECTOR = '.fwm-modal__lightbox-icon';
 
 const MODAL_CLOSE_ICON_SVG = `
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -47,19 +57,12 @@ const MODAL_LIGHTBOX_ICON_SVG = `
 
 let initialized = false;
 let closeOnBackdrop = true;
-let activeModal: HTMLElement | null = null;
-let activePanel: HTMLElement | null = null;
+let i18n: I18nApi | null = null;
+let elements: SingletonElements | null = null;
 let activeModalId = '';
 let previouslyFocusedElement: HTMLElement | null = null;
-const closeTimers = new WeakMap<HTMLElement, number>();
-
-function getModalById(id: string): HTMLElement | null {
-  return findElementByDataValue<HTMLElement>(MODAL_SELECTOR, 'data-modal', id);
-}
-
-function getModalPanel(modal: HTMLElement): HTMLElement {
-  return modal.querySelector<HTMLElement>(MODAL_PANEL_SELECTOR) ?? modal;
-}
+let closeTimer: number | null = null;
+const contentRegistry = new Map<string, ContentModalData>();
 
 function getModalIdFromHashLink(link: HTMLElement): string {
   const href = link.getAttribute('href') ?? '';
@@ -71,145 +74,270 @@ function getModalIdFromHashLink(link: HTMLElement): string {
   return decodeURIComponent(href.slice(MODAL_HASH_PREFIX.length)).trim();
 }
 
-function normalizeModalChrome(modal: HTMLElement): void {
-  qsa<HTMLElement>(MODAL_CLOSE_ICON_SELECTOR, modal).forEach((element) => {
-    element.innerHTML = MODAL_CLOSE_ICON_SVG;
-  });
+function createSingleton(): SingletonElements {
+  const root = document.createElement('div');
+  root.className = 'fwm-modal';
+  root.setAttribute('data-site-modal', '');
+  root.setAttribute('aria-hidden', 'true');
+  root.hidden = true;
 
-  qsa<HTMLElement>(MODAL_LIGHTBOX_ICON_SELECTOR, modal).forEach((element) => {
-    element.innerHTML = MODAL_LIGHTBOX_ICON_SVG;
-  });
+  root.innerHTML = `
+    <div class="fwm-modal__panel" data-modal-panel role="dialog" aria-modal="true" tabindex="-1">
+      <div class="fwm-modal__top">
+        <div class="fwm-modal__address" data-site-modal-address></div>
+        <button class="fwm-modal__close" type="button" data-modal-close></button>
+      </div>
+      <a class="fwm-modal__image-link" href="#" data-lightbox-src="" data-lightbox-caption="">
+        <img class="fwm-modal__image" src="" alt="">
+        <span class="fwm-modal__lightbox-icon" aria-hidden="true"></span>
+        <span class="fwm-modal__caption" data-site-modal-caption></span>
+      </a>
+      <div class="fwm-modal__text" data-site-modal-text></div>
+    </div>
+  `;
+
+  document.body.append(root);
+
+  const result: SingletonElements = {
+    root,
+    panel: root.querySelector<HTMLElement>('[data-modal-panel]')!,
+    address: root.querySelector<HTMLElement>('[data-site-modal-address]')!,
+    closeButton: root.querySelector<HTMLButtonElement>(MODAL_CLOSE_SELECTOR)!,
+    imageLink: root.querySelector<HTMLAnchorElement>('.fwm-modal__image-link')!,
+    image: root.querySelector<HTMLImageElement>('.fwm-modal__image')!,
+    lightboxIcon: root.querySelector<HTMLElement>('.fwm-modal__lightbox-icon')!,
+    caption: root.querySelector<HTMLElement>('[data-site-modal-caption]')!,
+    text: root.querySelector<HTMLElement>('[data-site-modal-text]')!,
+  };
+
+  result.closeButton.innerHTML = MODAL_CLOSE_ICON_SVG;
+  result.lightboxIcon.innerHTML = MODAL_LIGHTBOX_ICON_SVG;
+  updateLabels(result);
+
+  return result;
 }
 
-function prepareModal(modal: HTMLElement): void {
-  const panel = getModalPanel(modal);
-
-  normalizeModalChrome(modal);
-  modal.hidden = true;
-  modal.setAttribute('aria-hidden', 'true');
-  panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-modal', 'true');
-}
-
-function focusModal(modal: HTMLElement): void {
-  const panel = getModalPanel(modal);
-  const firstFocusable = getFocusableElements(panel)[0] ?? getFocusableElements(modal)[0];
-
-  if (firstFocusable) {
-    focusElement(firstFocusable);
-    return;
+function ensureSingleton(): SingletonElements {
+  if (!elements || !document.body.contains(elements.root)) {
+    elements = createSingleton();
   }
 
-  if (!panel.hasAttribute('tabindex')) {
-    panel.setAttribute('tabindex', '-1');
-  }
-
-  focusElement(panel);
+  updateLabels(elements);
+  return elements;
 }
 
-function showModal(modal: HTMLElement): void {
-  const closeTimer = closeTimers.get(modal);
+function updateLabels(singleton: SingletonElements): void {
+  const closeLabel = i18n?.t('close', 'Close') ?? 'Close';
+  const dialogLabel = i18n?.t('openModal', 'Open details') ?? 'Open details';
 
-  if (closeTimer !== undefined) {
+  singleton.closeButton.setAttribute('aria-label', closeLabel);
+  singleton.closeButton.title = closeLabel;
+  singleton.panel.setAttribute('aria-label', dialogLabel);
+}
+
+function readContentElement(element: HTMLElement): ContentModalData | null {
+  const id = getStringAttr(element, 'data-modal-content');
+
+  if (!id) {
+    return null;
+  }
+
+  const address = element.querySelector<HTMLElement>('[data-modal-address]')?.textContent?.trim() ?? '';
+  const imageElement = element.querySelector<HTMLImageElement>('[data-modal-image]');
+  const captionElement = element.querySelector<HTMLElement>('[data-modal-caption]');
+  const bodyElement = element.querySelector<HTMLElement>('[data-modal-body]');
+
+  return {
+    id,
+    address,
+    image: imageElement?.currentSrc || imageElement?.src || '',
+    imageAlt: imageElement?.alt ?? '',
+    caption: captionElement?.textContent?.trim() ?? '',
+    html: bodyElement?.innerHTML ?? '',
+  };
+}
+
+function readLegacyModal(element: HTMLElement): ContentModalData | null {
+  const id = getStringAttr(element, 'data-modal');
+
+  if (!id) {
+    return null;
+  }
+
+  const imageElement = element.querySelector<HTMLImageElement>('.fwm-modal__image');
+
+  return {
+    id,
+    address: element.querySelector<HTMLElement>('.fwm-modal__address')?.textContent?.trim() ?? '',
+    image: imageElement?.currentSrc || imageElement?.src || '',
+    imageAlt: imageElement?.alt ?? '',
+    caption: element.querySelector<HTMLElement>('.fwm-modal__caption')?.textContent?.trim() ?? '',
+    html: element.querySelector<HTMLElement>('.fwm-modal__text')?.innerHTML ?? '',
+  };
+}
+
+function collectRegistryContent(): void {
+  qsa<HTMLElement>(CONTENT_SELECTOR).forEach((element) => {
+    const content = readContentElement(element);
+
+    if (content) {
+      contentRegistry.set(content.id, content);
+    }
+  });
+
+  qsa<HTMLElement>(LEGACY_MODAL_SELECTOR).forEach((element) => {
+    const content = readLegacyModal(element);
+
+    if (content) {
+      contentRegistry.set(content.id, content);
+    }
+
+    element.remove();
+  });
+}
+
+function resolveContent(id: string): ContentModalData | null {
+  const normalizedId = id.trim();
+
+  if (!normalizedId) {
+    return null;
+  }
+
+  const element = qsa<HTMLElement>(CONTENT_SELECTOR).find(
+    (candidate) => getStringAttr(candidate, 'data-modal-content') === normalizedId,
+  );
+  const liveContent = element ? readContentElement(element) : null;
+
+  if (liveContent) {
+    contentRegistry.set(normalizedId, liveContent);
+  }
+
+  return liveContent ?? contentRegistry.get(normalizedId) ?? null;
+}
+
+function renderContent(content: ContentModalData): SingletonElements {
+  const singleton = ensureSingleton();
+  const hasImage = content.image.trim().length > 0;
+
+  singleton.root.dataset.modalId = content.id;
+  singleton.address.textContent = content.address;
+  singleton.imageLink.hidden = !hasImage;
+  singleton.imageLink.href = hasImage ? content.image : '#';
+  singleton.imageLink.setAttribute('data-lightbox-src', hasImage ? content.image : '');
+  singleton.imageLink.setAttribute('data-lightbox-caption', content.caption);
+  singleton.imageLink.setAttribute('data-lightbox-group', `modal-${content.id}`);
+  singleton.image.src = hasImage ? content.image : '';
+  singleton.image.alt = content.imageAlt;
+  singleton.caption.textContent = content.caption;
+  singleton.text.innerHTML = content.html;
+
+  return singleton;
+}
+
+function focusModal(singleton: SingletonElements): void {
+  const firstFocusable = getFocusableElements(singleton.panel)[0];
+  focusElement(firstFocusable ?? singleton.panel);
+}
+
+function showModal(singleton: SingletonElements): void {
+  if (closeTimer !== null) {
     window.clearTimeout(closeTimer);
-    closeTimers.delete(modal);
+    closeTimer = null;
   }
 
-  modal.hidden = false;
-  modal.setAttribute('aria-hidden', 'false');
-  modal.classList.add('is-active');
-
-  // Commit the initial animation state after removing `hidden`.
-  void modal.offsetWidth;
-  modal.classList.add('is-visible');
+  singleton.root.hidden = false;
+  singleton.root.setAttribute('aria-hidden', 'false');
+  singleton.root.classList.add('is-active');
+  void singleton.root.offsetWidth;
+  singleton.root.classList.add('is-visible');
   document.documentElement.classList.add('is-modal-open');
   document.body.classList.add('is-modal-open');
 }
 
-function hideModal(modal: HTMLElement): void {
-  modal.setAttribute('aria-hidden', 'true');
-  modal.classList.remove('is-visible');
+function hideModal(singleton: SingletonElements): void {
+  singleton.root.setAttribute('aria-hidden', 'true');
+  singleton.root.classList.remove('is-visible');
 
-  const closeTimer = window.setTimeout(() => {
-    modal.hidden = true;
-    modal.classList.remove('is-active');
-    closeTimers.delete(modal);
+  closeTimer = window.setTimeout(() => {
+    singleton.root.hidden = true;
+    singleton.root.classList.remove('is-active');
+    closeTimer = null;
   }, MODAL_CLOSE_DURATION);
 
-  closeTimers.set(modal, closeTimer);
   document.documentElement.classList.remove('is-modal-open');
   document.body.classList.remove('is-modal-open');
 }
 
-export function openModal(id: string, trigger?: HTMLElement): void {
-  const normalizedId = id.trim();
+export function openContentModal(content: ContentModalData, trigger?: HTMLElement): void {
+  const normalizedContent: ContentModalData = {
+    id: content.id.trim(),
+    address: content.address ?? '',
+    image: content.image ?? '',
+    imageAlt: content.imageAlt ?? '',
+    caption: content.caption ?? '',
+    html: content.html ?? '',
+  };
 
-  if (!normalizedId) {
+  if (!normalizedContent.id) {
     return;
   }
 
-  const modal = getModalById(normalizedId);
-
-  if (!modal) {
-    return;
-  }
-
-  if (activeModal && activeModal !== modal) {
+  if (activeModalId) {
     closeModal();
   }
 
-  if (activeModal === modal) {
-    return;
-  }
-
+  contentRegistry.set(normalizedContent.id, normalizedContent);
   previouslyFocusedElement = trigger ?? getActiveHTMLElement();
-  activeModal = modal;
-  activePanel = getModalPanel(modal);
-  activeModalId = normalizedId;
+  activeModalId = normalizedContent.id;
 
-  normalizeModalChrome(modal);
-  showModal(modal);
+  const singleton = renderContent(normalizedContent);
+  showModal(singleton);
   lockScroll();
-  focusModal(modal);
+  focusModal(singleton);
 
-  dispatchSiteEvent(modal, 'site:modal-open', {
+  dispatchSiteEvent(singleton.root, 'site:modal-open', {
     id: activeModalId,
-    modal,
+    modal: singleton.root,
+    content: normalizedContent,
     trigger: trigger ?? null,
   });
 }
 
+export function openModal(id: string, trigger?: HTMLElement): void {
+  const content = resolveContent(id);
+
+  if (content) {
+    openContentModal(content, trigger);
+  }
+}
+
 export function closeModal(): void {
-  if (!activeModal) {
+  if (!activeModalId || !elements) {
     return;
   }
 
-  const modal = activeModal;
   const id = activeModalId;
   const focusTarget = previouslyFocusedElement;
 
-  hideModal(modal);
+  hideModal(elements);
   unlockScroll();
 
-  activeModal = null;
-  activePanel = null;
   activeModalId = '';
   previouslyFocusedElement = null;
 
-  dispatchSiteEvent(modal, 'site:modal-close', {
+  dispatchSiteEvent(elements.root, 'site:modal-close', {
     id,
-    modal,
+    modal: elements.root,
   });
 
   restoreFocus(focusTarget);
 }
 
 function onKeydown(event: KeyboardEvent): void {
-  if (!activeModal || !activePanel) {
+  if (!activeModalId || !elements) {
     return;
   }
 
-  // When a lightbox is open over a modal, the lightbox owns top-level keyboard handling.
   if (document.body.classList.contains('is-lightbox-open')) {
     return;
   }
@@ -220,31 +348,28 @@ function onKeydown(event: KeyboardEvent): void {
     return;
   }
 
-  trapFocus(activePanel, event);
+  trapFocus(elements.panel, event);
 }
 
 function onBackdropClick(event: MouseEvent): void {
-  if (!closeOnBackdrop || !activeModal) {
+  if (!closeOnBackdrop || !activeModalId || !elements) {
     return;
   }
 
   const target = event.target;
 
-  if (!isHTMLElement(target) || !activeModal.contains(target)) {
+  if (!isHTMLElement(target) || target !== elements.root) {
     return;
   }
 
-  const panel = getModalPanel(activeModal);
-
-  if (!panel.contains(target)) {
-    closeModal();
-  }
+  closeModal();
 }
 
 export function initModals(options: ModalInitOptions): ModalApi {
   closeOnBackdrop = options.closeOnBackdrop ?? true;
-
-  qsa<HTMLElement>(MODAL_SELECTOR).forEach(prepareModal);
+  i18n = options.i18n;
+  collectRegistryContent();
+  ensureSingleton();
 
   if (!initialized) {
     delegate(document, 'click', MODAL_OPEN_SELECTOR, (event, trigger) => {
@@ -258,7 +383,7 @@ export function initModals(options: ModalInitOptions): ModalApi {
     });
 
     delegate(document, 'click', MODAL_CLOSE_SELECTOR, (event, closeButton) => {
-      if (!activeModal || !activeModal.contains(closeButton)) {
+      if (!elements?.root.contains(closeButton)) {
         return;
       }
 
@@ -268,12 +393,12 @@ export function initModals(options: ModalInitOptions): ModalApi {
 
     document.addEventListener('click', onBackdropClick);
     document.addEventListener('keydown', onKeydown);
-
     initialized = true;
   }
 
   return {
     openModal,
+    openContentModal,
     closeModal,
   };
 }

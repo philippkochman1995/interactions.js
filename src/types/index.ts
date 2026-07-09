@@ -7,7 +7,17 @@ export interface I18nApi {
 
 export interface ModalApi {
   openModal(id: string, trigger?: HTMLElement): void;
+  openContentModal(content: ContentModalData, trigger?: HTMLElement): void;
   closeModal(): void;
+}
+
+export interface ContentModalData {
+  id: string;
+  address: string;
+  image: string;
+  imageAlt: string;
+  caption: string;
+  html: string;
 }
 
 export interface LightboxApi {

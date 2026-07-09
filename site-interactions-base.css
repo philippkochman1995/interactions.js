@@ -11,17 +11,24 @@ body.is-lightbox-open {
 }
 
 [data-modal][hidden],
+[data-site-modal][hidden],
 [data-site-lightbox][hidden] {
   display: none !important;
 }
 
-[data-modal] {
+[data-modal-content] {
+  display: none !important;
+}
+
+[data-modal],
+[data-site-modal] {
   position: fixed;
   inset: 0;
   z-index: 1000;
 }
 
-[data-modal].is-active {
+[data-modal].is-active,
+[data-site-modal].is-active {
   display: flex;
 }
 

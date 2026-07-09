@@ -65,25 +65,25 @@ Rich text and CMS body copy can also open modals through hash links:
 <a href="#modal:context-example-slug">Open modal</a>
 ```
 
-### Modal
+### Modal content registry
+
+The bundle creates exactly one modal shell under `body`. Pages only render hidden content records:
 
 ```html
-<div data-modal="example-modal" hidden>
-  <div data-modal-panel>
-    <button type="button" data-modal-close>Close</button>
-
+<div data-modal-content="example-modal">
+  <div data-modal-address>Esteplatz 3, Vienna</div>
+  <img data-modal-image src="large-image.jpg" alt="Artwork description">
+  <div data-modal-caption>Image credit</div>
+  <div data-modal-body class="rich-text">
     <h2>Modal title from CMS</h2>
-
-    <div class="rich-text">
-      CMS rich text content
-    </div>
+    <p>CMS rich text content</p>
   </div>
 </div>
 ```
 
-Use a stable CMS-generated slug/id for `data-modal` and `data-modal-open`. Do not use Webflow-generated class names as JavaScript hooks.
+Use a stable CMS-generated slug/id for `data-modal-content` and `data-modal-open`. Do not render modal panels, close buttons, or icons in Webflow.
 
-Modal content can come from any CMS collection as long as every rendered registry outputs the same technical structure. The JavaScript does not need to know whether a modal came from a general `Modals` collection, a `Contexts` collection, or a `Map Markers` collection.
+Legacy `[data-modal]` elements are read into the content registry and removed at boot, which permits a staged Webflow migration.
 
 Recommended ID prefixes:
 
@@ -101,15 +101,43 @@ context-archive-image-01
 map-vienna-studio
 ```
 
-Render only the hidden modal registry needed on the current page. For example, standard pages can render a hidden list from `Modals`, context pages can render a hidden list from `Contexts`, and map pages can render a hidden list from `Map Markers`. Each item should still output:
+Render only the hidden content registry needed on the current page. Standard pages can render a list from `Modals`, context pages from `Contexts`, and map pages can call the content API directly:
+
+```js
+window.SiteInteractions.openContentModal({
+  id: 'map-vienna-studio',
+  address: 'Vienna',
+  image: 'large-image.jpg',
+  imageAlt: 'Artwork description',
+  caption: 'Image credit',
+  html: '<h2>Title</h2><p>Body</p>'
+});
+```
+
+## West Map
+
+The West Map is delivered by `west-map.css` and `dist/west-map.js`. Webflow keeps only the Mapbox dependencies and these pinned GitHub imports; map behavior and styling must not be copied into Page Custom Code.
+
+Page head:
 
 ```html
-<div data-modal="context-example-slug" hidden>
-  <div data-modal-panel>
-    <button type="button" data-modal-close>Close</button>
-    ...
-  </div>
-</div>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/west-map.css">
+```
+
+Before `</body>`:
+
+```html
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/dist/west-map.js"></script>
+```
+
+The global `site-interactions-base.css` and `dist/site-interactions.js` imports must use the same pinned commit.
+
+Set the public Mapbox token once on the existing map element through Webflow custom attributes:
+
+```html
+<div id="wmMap" data-mapbox-token="pk..."></div>
 ```
 
 ## Lightbox API
