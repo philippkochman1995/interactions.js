@@ -101,7 +101,9 @@ body.is-lightbox-open {
 
 .site-lightbox__close circle {
   fill: var(--fw_off_white);
-  transition: fill 150ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 150ms ease, transform 150ms ease-out;
 }
 
 .site-lightbox__close path {
@@ -110,6 +112,7 @@ body.is-lightbox-open {
 
 .site-lightbox__close:hover circle {
   fill: var(--fw_rosa);
+  transform: scale(1.15);
 }
 
 .site-lightbox__close:focus-visible {
@@ -242,8 +245,15 @@ body.is-lightbox-open {
   transition: fill 0.18s ease;
 }
 
+.fwm-modal__close svg circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 150ms ease, transform 150ms ease-out;
+}
+
 .fwm-modal__close:hover svg circle {
   fill: var(--fw_rosa);
+  transform: scale(1.15);
 }
 
 .fwm-modal__close:hover svg path {
