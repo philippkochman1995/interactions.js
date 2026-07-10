@@ -1,20 +1,69 @@
 //#region src/cms-canvas.ts
-var e = "[data-cms-canvas-source]", t = .28, n = .08, r = .12;
-function i(e) {
+var e = "[data-cms-canvas-source]", t = .28, n = .08, r = .12, i = {
+	1: [{
+		x: 0,
+		y: 0
+	}],
+	2: [{
+		x: -1,
+		y: 0
+	}, {
+		x: 1,
+		y: 0
+	}],
+	3: [
+		{
+			x: 0,
+			y: -.9
+		},
+		{
+			x: -1,
+			y: .65
+		},
+		{
+			x: 1,
+			y: .65
+		}
+	],
+	4: [
+		{
+			x: -1,
+			y: -.7
+		},
+		{
+			x: 1,
+			y: -.7
+		},
+		{
+			x: -1,
+			y: .7
+		},
+		{
+			x: 1,
+			y: .7
+		}
+	]
+};
+function a(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function a(e, t, n) {
+function o(e, t, n) {
 	var r;
 	let i = Number.parseFloat((r = e.getAttribute(t)) == null ? "" : r);
 	return Number.isFinite(i) && i > 0 ? i : n;
 }
-function o(e, t, n, r, i) {
-	return _(a(e, t, n), r, i);
+function s(e, t, n, r, i) {
+	return y(o(e, t, n), r, i);
 }
-function s(e, t) {
+function c(e, t, n, r, i, a) {
+	var o, s;
+	let c = Number.parseFloat((o = (s = e.getAttribute(t)) == null ? e.getAttribute(n) : s) == null ? "" : o);
+	return Number.isFinite(c) && c > 0 ? y(c, i, a) : r;
+}
+function l(e, t) {
 	return e <= t ? [e, t] : [t, e];
 }
-function c(e, t, n) {
+function u(e, t, n) {
 	let r = e.getAttribute(t);
 	return r === null || r === "" ? n : ![
 		"false",
@@ -23,7 +72,7 @@ function c(e, t, n) {
 		"off"
 	].includes(r.trim().toLowerCase());
 }
-function l(e) {
+function d(e) {
 	var t;
 	let n = ((t = e.getAttribute("data-canvas-item-widths")) == null ? "180,240,300" : t).split(",").map((e) => Number.parseFloat(e.trim())).filter((e) => Number.isFinite(e) && e >= 80);
 	return n.length > 0 ? n : [
@@ -32,51 +81,51 @@ function l(e) {
 		300
 	];
 }
-function u(e) {
+function f(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function d(e, t = "") {
-	return u(`${e}:${t}`) / 4294967295;
+function p(e, t = "") {
+	return f(`${e}:${t}`) / 4294967295;
 }
-function f(e, t) {
+function m(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function p(e, t) {
+function h(e, t) {
 	return e.querySelector(t);
 }
-function m(e, t) {
+function g(e, t) {
 	var n, r, i, a, o, s;
-	let c = (n = p(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = (n = h(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!l) return null;
-	let d = f(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", m = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${u(`${d}-${l}`)}`, h = p(e, "[data-canvas-modal-image]"), g = e.querySelector("[data-canvas-modal-body]");
+	let u = m(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${f(`${u}-${l}`)}`, p = h(e, "[data-canvas-modal-image]"), g = e.querySelector("[data-canvas-modal-body]");
 	return {
-		id: m,
-		title: d,
+		id: d,
+		title: u,
 		thumbnail: l,
-		thumbnailAlt: (o = c == null ? void 0 : c.alt) == null ? d : o,
+		thumbnailAlt: (o = c == null ? void 0 : c.alt) == null ? u : o,
 		modal: {
-			id: `canvas-${m}`,
-			address: f(e, "[data-canvas-modal-address]") || d,
-			image: (h == null ? void 0 : h.currentSrc) || (h == null ? void 0 : h.src) || l,
-			imageAlt: (h == null ? void 0 : h.alt) || (c == null ? void 0 : c.alt) || d,
-			caption: f(e, "[data-canvas-modal-caption]"),
+			id: `canvas-${d}`,
+			address: m(e, "[data-canvas-modal-address]") || u,
+			image: (p == null ? void 0 : p.currentSrc) || (p == null ? void 0 : p.src) || l,
+			imageAlt: (p == null ? void 0 : p.alt) || (c == null ? void 0 : c.alt) || u,
+			caption: m(e, "[data-canvas-modal-caption]"),
 			html: (s = g == null ? void 0 : g.innerHTML) == null ? "" : s
 		}
 	};
 }
-function h(e) {
-	return Array.from(e.querySelectorAll("[data-cms-canvas-item]")).map(m).filter((e) => e !== null);
-}
-function g(e, t, n) {
-	return t.some((t) => e.x < t.x + t.width + n && e.x + e.width + n > t.x && e.y < t.y + t.height + n && e.y + e.height + n > t.y);
-}
-function _(e, t, n) {
-	return Math.min(n, Math.max(t, e));
+function _(e) {
+	return Array.from(e.querySelectorAll("[data-cms-canvas-item]")).map(g).filter((e) => e !== null);
 }
 function v(e, t, n) {
+	return t.some((t) => e.x < t.x + t.width + n && e.x + e.width + n > t.x && e.y < t.y + t.height + n && e.y + e.height + n > t.y);
+}
+function y(e, t, n) {
+	return Math.min(n, Math.max(t, e));
+}
+function b(e, t, n) {
 	let r = e.width / 2 - t / 2, i = e.height / 2 - n / 2, a = Math.ceil(Math.max(e.width / Math.max(1, t), e.height / Math.max(1, n)) / 2) + 2, o = [];
 	for (let s = 0; s <= a; s += 1) for (let a = -s; a <= s; a += 1) for (let c = -s; c <= s; c += 1) {
 		if (Math.max(Math.abs(a), Math.abs(c)) !== s) continue;
@@ -91,9 +140,9 @@ function v(e, t, n) {
 		return n === a ? Math.atan2(e.y - i, e.x - r) - Math.atan2(t.y - i, t.x - r) : n - a;
 	});
 }
-function y(e, t, n) {
+function x(e, t, n) {
 	var r;
-	let i = Math.max(...e.map((e) => e.offsetWidth), (r = n.itemWidths[0]) == null ? 180 : r), a = Math.max(...e.map((e) => e.offsetHeight), i), o = i + n.gap, s = a + n.gap, c = v(n, o, s), l = /* @__PURE__ */ new Set(), u = [];
+	let i = Math.max(...e.map((e) => e.offsetWidth), (r = n.itemWidths[0]) == null ? 180 : r), a = Math.max(...e.map((e) => e.offsetHeight), i), o = i + n.gap, s = a + n.gap, c = b(n, o, s), l = /* @__PURE__ */ new Set(), u = [];
 	return e.forEach((r) => {
 		var i;
 		if (!t.get((i = r.dataset.canvasItemId) == null ? "" : i)) return;
@@ -108,7 +157,7 @@ function y(e, t, n) {
 				y: t.y + (s - a.height) / 2,
 				...a
 			};
-			if (!g(r, u, Math.max(24, n.gap * .42))) {
+			if (!v(r, u, Math.max(24, n.gap * .42))) {
 				d = r, l.add(e);
 				break;
 			}
@@ -126,12 +175,12 @@ function y(e, t, n) {
 		});
 	}), u;
 }
-function b(e, t, n) {
+function S(e, t, n) {
 	let r = e.width / 14, i = e.height / 2 - n / 2, a = [];
 	for (let o = 0; o <= 24; o += 1) for (let s = -o; s <= o; s += 1) for (let c = 0; c < 14; c += 1) {
 		let l = Math.abs(c - 6.5), u = Math.abs(s);
 		if (Math.ceil(Math.max(l / 1.65, u)) !== o) continue;
-		let f = (d(`${c}:${s}`, "slot-x") - .5) * t * .42, p = (d(`${c}:${s}`, "slot-y") - .5) * n * .34, m = c * r + (r - t) / 2 + f, h = i + s * n + p;
+		let d = (p(`${c}:${s}`, "slot-x") - .5) * t * .42, f = (p(`${c}:${s}`, "slot-y") - .5) * n * .34, m = c * r + (r - t) / 2 + d, h = i + s * n + f;
 		m < e.padding || h < e.padding || m + t > e.width - e.padding || h + n > e.height - e.padding || a.push({
 			x: m,
 			y: h
@@ -142,26 +191,26 @@ function b(e, t, n) {
 		return s === c ? r.y - a.y || r.x - a.x : s - c;
 	});
 }
-function x(e, t, n) {
-	let [r, i] = s(n.itemWidthMin, n.itemWidthMax), [a, o] = s(n.itemGapMin, n.itemGapMax), c = n.viewportWidth * i / 100, l = n.viewportWidth * o / 100, u = c + l, f = c * .34 + l * .38, p = b(n, u, f), m = /* @__PURE__ */ new Set(), h = [];
+function C(e, t, n) {
+	let [r, i] = l(n.itemWidthMin, n.itemWidthMax), [a, o] = l(n.itemGapMin, n.itemGapMax), s = n.viewportWidth * i / 100, c = n.viewportWidth * o / 100, u = s + c, d = s * .34 + c * .38, f = S(n, u, d), m = /* @__PURE__ */ new Set(), h = [];
 	return e.forEach((s) => {
 		var c;
 		let l = t.get((c = s.dataset.canvasItemId) == null ? "" : c);
 		if (!l) return;
-		let _ = r + d(l.id, "width") * (i - r), v = a + d(l.id, "gap") * (o - a), y = n.viewportWidth * _ / 100, b = n.viewportWidth * v / 100;
+		let g = r + p(l.id, "width") * (i - r), _ = a + p(l.id, "gap") * (o - a), y = n.viewportWidth * g / 100, b = n.viewportWidth * _ / 100;
 		s.style.width = `${y}px`;
 		let x = {
 			width: s.offsetWidth,
 			height: s.offsetHeight
 		}, S = null;
-		for (let e = 0; e < p.length; e += 1) {
+		for (let e = 0; e < f.length; e += 1) {
 			if (m.has(e)) continue;
-			let t = p[e], r = (d(l.id, "offset-x") - .5) * b * n.itemJitter, i = (d(l.id, "offset-y") - .5) * b * n.itemJitter * .42, a = {
+			let t = f[e], r = (p(l.id, "offset-x") - .5) * b * n.itemJitter, i = (p(l.id, "offset-y") - .5) * b * n.itemJitter * .42, a = {
 				x: t.x + (u - x.width) / 2 + r,
-				y: t.y + (f - x.height) / 2 + i,
+				y: t.y + (d - x.height) / 2 + i,
 				...x
 			};
-			if (!g(a, h, Math.max(18, b * (.22 + d(l.id, "overlap-gap") * .34)))) {
+			if (!v(a, h, Math.max(18, b * (.22 + p(l.id, "overlap-gap") * .34)))) {
 				S = a, m.add(e);
 				break;
 			}
@@ -170,7 +219,7 @@ function x(e, t, n) {
 			let t = h.length, r = Math.max(1, Math.floor(Math.sqrt(e.length)));
 			S = {
 				x: n.width / 2 + (t % r - r / 2) * u,
-				y: n.height / 2 + (Math.floor(t / r) - 1) * f
+				y: n.height / 2 + (Math.floor(t / r) - 1) * d
 			};
 		}
 		s.style.left = `${S.x}px`, s.style.top = `${S.y}px`, h.push({
@@ -179,10 +228,285 @@ function x(e, t, n) {
 		});
 	}), h;
 }
-function S(e, t, n) {
-	return n.layout === "percent-grid" ? x(e, t, n) : y(e, t, n);
+function w(e, t) {
+	let [n, r] = l(t.itemGapMin, t.itemGapMax), i = t.viewportWidth * n / 100, a = t.viewportWidth * r / 100;
+	return y(Math.min(e.width, e.height) * .16, i, a);
 }
-function C(e, t) {
+function T(e, t, n) {
+	let [r, i] = l(n.itemWidthMin, n.itemWidthMax);
+	return e.map((e) => {
+		var a, o;
+		let s = t.get((a = e.dataset.canvasItemId) == null ? "" : a);
+		if (!s) return null;
+		let c = r + p(s.id, "width") * (i - r);
+		e.style.width = `${n.viewportWidth * c / 100}px`;
+		let l = e.offsetWidth, u = e.offsetHeight, d = l / Math.max(1, u);
+		return {
+			tile: e,
+			item: s,
+			width: l,
+			height: u,
+			area: l * u,
+			visualWeight: Math.sqrt(l * u),
+			aspect: d < .82 ? "portrait" : d > 1.22 ? "landscape" : "square",
+			priority: Number.parseFloat((o = e.dataset.canvasPriority) == null ? "" : o) || 0
+		};
+	}).filter((e) => e !== null);
+}
+function E(e) {
+	return [...e].sort((e, t) => e.priority === t.priority ? e.visualWeight === t.visualWeight ? f(e.item.id) - f(t.item.id) : t.visualWeight - e.visualWeight : t.priority - e.priority);
+}
+function D(e) {
+	return {
+		x: e.x + e.width / 2,
+		y: e.y + e.height / 2
+	};
+}
+function O(e, t) {
+	let n = 0, r = 0, i = 0;
+	return e.forEach((e) => {
+		let t = D(e);
+		n += t.x * e.visualWeight, r += t.y * e.visualWeight, i += e.visualWeight;
+	}), i <= 0 ? t : {
+		x: n / i,
+		y: r / i
+	};
+}
+function k(e) {
+	return e.reduce((e, t) => ({
+		left: Math.min(e.left, t.x),
+		top: Math.min(e.top, t.y),
+		right: Math.max(e.right, t.x + t.width),
+		bottom: Math.max(e.bottom, t.y + t.height)
+	}), {
+		left: Infinity,
+		top: Infinity,
+		right: -Infinity,
+		bottom: -Infinity
+	});
+}
+function A(e, t) {
+	return {
+		...e,
+		id: t.item.id,
+		visualWeight: t.visualWeight
+	};
+}
+function j(e) {
+	let t = [];
+	return e.forEach((e) => {
+		t.some((t) => Math.abs(t.x - e.x) <= 12 && Math.abs(t.y - e.y) <= 12) || t.push(e);
+	}), t;
+}
+function M(e, t, n) {
+	let r = t.width, i = t.height, a = [
+		-.25,
+		0,
+		.25
+	].map((t) => e.x + (e.width - r) * (.5 + t)), o = [
+		-.25,
+		0,
+		.25
+	].map((t) => e.y + (e.height - i) * (.5 + t)), s = [
+		{
+			x: e.x + e.width + n,
+			y: e.y + (e.height - i) / 2,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x - r - n,
+			y: e.y + (e.height - i) / 2,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x + (e.width - r) / 2,
+			y: e.y + e.height + n,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x + (e.width - r) / 2,
+			y: e.y - i - n,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x + e.width + n,
+			y: e.y - i - n,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x - r - n,
+			y: e.y - i - n,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x + e.width + n,
+			y: e.y + e.height + n,
+			width: r,
+			height: i
+		},
+		{
+			x: e.x - r - n,
+			y: e.y + e.height + n,
+			width: r,
+			height: i
+		}
+	];
+	return a.forEach((t) => {
+		s.push({
+			x: t,
+			y: e.y + e.height + n,
+			width: r,
+			height: i
+		}), s.push({
+			x: t,
+			y: e.y - i - n,
+			width: r,
+			height: i
+		});
+	}), o.forEach((t) => {
+		s.push({
+			x: e.x + e.width + n,
+			y: t,
+			width: r,
+			height: i
+		}), s.push({
+			x: e.x - r - n,
+			y: t,
+			width: r,
+			height: i
+		});
+	}), s;
+}
+function N(e, t, n) {
+	let r = {
+		x: n.width / 2,
+		y: n.height / 2
+	};
+	if (t.length === 0) return [{
+		x: r.x - e.width / 2,
+		y: r.y - e.height / 2,
+		width: e.width,
+		height: e.height
+	}];
+	let i = w(e, n), a = t.flatMap((t) => M(t, e, i)), o = i + e.visualWeight * .55;
+	for (let n = 0; n < Math.min(16, t.length * 2 + 8); n += 1) {
+		let t = p(`${e.item.id}:${n}`, "ring-angle") * Math.PI * 2, i = o * (1 + Math.floor(n / 8));
+		a.push({
+			x: r.x + Math.cos(t) * i - e.width / 2,
+			y: r.y + Math.sin(t) * i * .78 - e.height / 2,
+			width: e.width,
+			height: e.height
+		});
+	}
+	return j(a.filter((r) => r.x >= n.padding && r.y >= n.padding && r.x + r.width <= n.width - n.padding && r.y + r.height <= n.height - n.padding && !v(r, t, w(e, n))));
+}
+function P(e, t) {
+	let n = [
+		0,
+		0,
+		0,
+		0
+	];
+	e.forEach((e) => {
+		let r = D(e), i = r.x < t.x ? 0 : 1, a = r.y < t.y ? 0 : 2;
+		n[i + a] += e.visualWeight;
+	});
+	let r = n.reduce((e, t) => e + t, 0) / n.length;
+	return n.reduce((e, t) => e + Math.abs(t - r), 0) / Math.max(1, r);
+}
+function F(e, t) {
+	let n = D(e);
+	return t.reduce((e, t) => Math.min(e, Math.hypot(n.x - D(t).x, n.y - D(t).y)), Infinity);
+}
+function I(e, t, n, r) {
+	let i = D(e), a = [...n, A(e, t)], o = O(a, r.center), s = k(a), c = r.center.x - s.left, l = s.right - r.center.x, u = r.center.y - s.top, d = s.bottom - r.center.y, f = Math.hypot(i.x - r.center.x, i.y - r.center.y) / r.maxDistance, m = Math.hypot(o.x - r.center.x, o.y - r.center.y) / r.maxDistance * 5, h = P(a, r.center) * 4, g = Math.abs(c - l) / r.maxDistance * 2.5 + Math.abs(u - d) / r.maxDistance * 2, _ = F(e, n) / r.maxDistance * 1.5, v = r.previousRect ? D(r.previousRect) : null, y = v ? {
+		x: r.center.x - (v.x - r.center.x),
+		y: r.center.y - (v.y - r.center.y)
+	} : r.center, b = r.previousRect && Math.abs(r.previousRect.visualWeight - t.visualWeight) / Math.max(t.visualWeight, r.previousRect.visualWeight) < .38 ? Math.hypot(i.x - y.x, i.y - y.y) / r.maxDistance * 2.5 : 0, x = p(`${t.item.id}:${Math.round(e.x)}:${Math.round(e.y)}`, "placement") * .01;
+	return f + m + h + g + _ + b + x;
+}
+function L(e, t) {
+	var n;
+	let r = (n = i[e.length]) == null ? i[1] : n, a = {
+		x: t.width / 2,
+		y: t.height / 2
+	}, o = Math.max(...e.map((e) => e.width)), s = Math.max(...e.map((e) => e.height)), c = t.viewportWidth * t.itemGapMax / 100 || 120, l = Math.max(o + c, s + c);
+	for (let n = 0; n < 12; n += 1) {
+		let n = e.map((e, t) => A({
+			x: a.x + r[t].x * l - e.width / 2,
+			y: a.y + r[t].y * l * .72 - e.height / 2,
+			width: e.width,
+			height: e.height
+		}, e));
+		if (n.every((r, i) => !v(r, n.slice(0, i), w(e[i], t)))) return n;
+		l *= 1.12;
+	}
+	return e.map((t, n) => A({
+		x: a.x + (n - (e.length - 1) / 2) * l - t.width / 2,
+		y: a.y - t.height / 2,
+		width: t.width,
+		height: t.height
+	}, t));
+}
+function R(e, t) {
+	let n = {
+		x: t.width / 2,
+		y: t.height / 2
+	}, r = Math.hypot(t.width, t.height), i = [];
+	return e.forEach((e) => {
+		var a, o;
+		let s = N(e, i, t), c = {
+			center: n,
+			previousRect: (a = i[i.length - 1]) == null ? null : a,
+			maxDistance: r
+		}, l = (o = s.sort((t, n) => I(t, e, i, c) - I(n, e, i, c))[0]) == null ? {
+			x: n.x - e.width / 2 + (p(e.item.id, "fallback-x") - .5) * e.visualWeight,
+			y: n.y - e.height / 2 + (p(e.item.id, "fallback-y") - .5) * e.visualWeight,
+			width: e.width,
+			height: e.height
+		} : o;
+		i.push(A(l, e));
+	}), i;
+}
+function z(e, t) {
+	let n = {
+		x: t.width / 2,
+		y: t.height / 2
+	}, r = O(e, n), i = n.x - r.x, a = n.y - r.y;
+	return e.map((e) => ({
+		...e,
+		x: e.x + i,
+		y: e.y + a
+	}));
+}
+function B(e, t, n) {
+	let r = Math.max(0, n.itemJitter), i = new Map(t.map((e) => [e.item.id, e])), a = [];
+	return e.forEach((e, t) => {
+		let o = i.get(e.id), s = o ? w(o, n) : 80, c = t % 2 == 0 ? 1 : -1, l = {
+			...e,
+			x: e.x + (p(e.id, "final-jitter-x") - .5) * s * r * c,
+			y: e.y + (p(e.id, "final-jitter-y") - .5) * s * r * .75 * c
+		};
+		v(l, a, o ? w(o, n) : 24) ? a.push(e) : a.push(l);
+	}), a;
+}
+function V(e, t, n) {
+	let r = E(T(e, t, n)), i = B(z(r.length <= 4 ? L(r, n) : R(r, n), n), r, n);
+	return i.forEach((e) => {
+		let t = r.find((t) => t.item.id === e.id);
+		t && (t.tile.style.left = `${e.x}px`, t.tile.style.top = `${e.y}px`);
+	}), i;
+}
+function H(e, t, n) {
+	return n.layout === "pixel-grid" ? x(e, t, n) : n.layout === "percent-grid" ? C(e, t, n) : V(e, t, n);
+}
+function U(e, t) {
 	return e.length === 0 ? {
 		left: t.width / 2,
 		top: t.height / 2,
@@ -200,76 +524,76 @@ function C(e, t) {
 		bottom: -Infinity
 	});
 }
-function w(e, t) {
+function ee(e, t) {
 	let n = document.createElement("button"), r = document.createElement("img"), i = document.createElement("span");
 	return n.type = "button", n.className = "cms-canvas__item", n.dataset.canvasItemId = e.id, n.style.width = `${t}px`, n.setAttribute("aria-label", e.title || "Details öffnen"), r.className = "cms-canvas__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.draggable = !1, i.className = "cms-canvas__title", i.textContent = e.title, i.hidden = !e.title, n.append(r, i), n;
 }
-function T(e) {
+function te(e) {
 	return e.complete ? Promise.resolve() : new Promise((t) => {
 		e.addEventListener("load", () => t(), { once: !0 }), e.addEventListener("error", () => t(), { once: !0 });
 	});
 }
-function E(e, t) {
+function W(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-async function D(i) {
-	var s;
+async function G(i) {
+	var a;
 	if (i.dataset.canvasInitialized === "true") return;
-	let d = (s = i.querySelector(e)) == null ? document.querySelector(e) : s;
-	if (!d) {
+	let l = (a = i.querySelector(e)) == null ? document.querySelector(e) : a;
+	if (!l) {
 		console.error("CMS Canvas: Element mit data-cms-canvas-source wurde nicht gefunden.");
 		return;
 	}
-	let f = h(d), p = Math.max(i.clientWidth, window.innerWidth), m = Math.max(i.clientHeight, window.innerHeight), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, v = i.getAttribute("data-canvas-motion") === "instant" ? "instant" : "eased", y = i.getAttribute("data-canvas-layout") === "pixel-grid" ? "pixel-grid" : "percent-grid", b = p < 768, x = {
-		width: a(i, "data-canvas-width", Math.max(3600, p * 3.2)),
-		height: a(i, "data-canvas-height", Math.max(2400, m * 3)),
-		viewportWidth: p,
-		gap: a(i, "data-canvas-gap", 150),
-		padding: a(i, "data-canvas-padding", 220),
-		itemWidths: l(i),
-		layout: y,
-		itemWidthMin: o(i, "data-canvas-item-width-min", b ? 36 : 12, 6, 95),
-		itemWidthMax: o(i, "data-canvas-item-width-max", b ? 68 : 24, 6, 95),
-		itemGapMin: o(i, "data-canvas-item-gap-min", b ? 2 : 1.5, 0, 30),
-		itemGapMax: o(i, "data-canvas-item-gap-max", b ? 8 : 6, 0, 30),
-		itemJitter: o(i, "data-canvas-item-jitter", 1.55, 0, 3),
+	let p = _(l), m = Math.max(i.clientWidth, window.innerWidth), h = Math.max(i.clientHeight, window.innerHeight), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, v = i.getAttribute("data-canvas-motion") === "instant" ? "instant" : "eased", b = i.getAttribute("data-canvas-layout"), x = b === "pixel-grid" || b === "percent-grid" ? b : "center-out", S = m < 768, C = {
+		width: o(i, "data-canvas-width", Math.max(3600, m * 3.2)),
+		height: o(i, "data-canvas-height", Math.max(2400, h * 3)),
+		viewportWidth: m,
+		gap: o(i, "data-canvas-gap", 150),
+		padding: o(i, "data-canvas-padding", 220),
+		itemWidths: d(i),
+		layout: x,
+		itemWidthMin: s(i, "data-canvas-item-width-min", S ? 80 : 15, 6, 95),
+		itemWidthMax: s(i, "data-canvas-item-width-max", S ? 90 : 20, 6, 95),
+		itemGapMin: s(i, "data-canvas-item-gap-min", S ? 3 : 4, 0, 30),
+		itemGapMax: c(i, "data-canvas-item-gap-max", "data-canvas-item-gap-map", 8, 0, 30),
+		itemJitter: s(i, "data-canvas-item-jitter", .04, 0, 3),
 		motion: g ? "instant" : v,
-		inertia: !g && c(i, "data-canvas-inertia", !0),
-		ease: g ? 1 : o(i, "data-canvas-ease", .16, .04, 1),
-		friction: g ? 0 : o(i, "data-canvas-friction", .92, .5, .98),
-		velocity: g ? 0 : o(i, "data-canvas-velocity", .85, .1, 2),
-		boundsPadding: a(i, "data-canvas-bounds-padding", 140)
+		inertia: !g && u(i, "data-canvas-inertia", !0),
+		ease: g ? 1 : s(i, "data-canvas-ease", .16, .04, 1),
+		friction: g ? 0 : s(i, "data-canvas-friction", .92, .5, .98),
+		velocity: g ? 0 : s(i, "data-canvas-velocity", .85, .1, 2),
+		boundsPadding: o(i, "data-canvas-bounds-padding", 120)
 	};
 	i.dataset.canvasInitialized = "true", i.classList.add("cms-canvas");
-	let D = document.createElement("div");
-	D.className = "cms-canvas__stage", D.style.width = `${x.width}px`, D.style.height = `${x.height}px`, i.insertBefore(D, d);
-	let O = /* @__PURE__ */ new Map(), k = f.map((e) => {
-		let t = x.itemWidths[u(e.id) % x.itemWidths.length], n = w(e, t);
-		return O.set(e.id, e), D.append(n), n;
+	let w = document.createElement("div");
+	w.className = "cms-canvas__stage", w.style.width = `${C.width}px`, w.style.height = `${C.height}px`, i.insertBefore(w, l);
+	let T = /* @__PURE__ */ new Map(), E = p.map((e) => {
+		let t = C.itemWidths[f(e.id) % C.itemWidths.length], n = ee(e, t);
+		return T.set(e.id, e), w.append(n), n;
 	});
-	await Promise.all(k.map((e) => T(e.querySelector(".cms-canvas__image"))));
-	let A = C(S(k, O, x), x), j = {
-		x: i.clientWidth / 2 - (A.left + A.right) / 2,
-		y: i.clientHeight / 2 - (A.top + A.bottom) / 2
-	}, M = { ...j }, N = {
+	await Promise.all(E.map((e) => te(e.querySelector(".cms-canvas__image"))));
+	let D = U(H(E, T, C), C), O = {
+		x: i.clientWidth / 2 - (D.left + D.right) / 2,
+		y: i.clientHeight / 2 - (D.top + D.bottom) / 2
+	}, k = { ...O }, A = {
 		x: 0,
 		y: 0
-	}, P = null, F = {
+	}, j = null, M = {
 		x: 0,
 		y: 0
-	}, I = {
+	}, N = {
 		x: 0,
 		y: 0
-	}, L = 0, R = {
+	}, P = 0, F = {
 		x: 0,
 		y: 0
-	}, z = null, B = !1, V = !1, H = null, U = !1;
-	function W() {
-		let e = A.left - x.boundsPadding, t = A.right + x.boundsPadding, n = A.top - x.boundsPadding, r = A.bottom + x.boundsPadding;
+	}, I = null, L = !1, R = !1, z = null, B = !1;
+	function V() {
+		let e = D.left - C.boundsPadding, t = D.right + C.boundsPadding, n = D.top - C.boundsPadding, r = D.bottom + C.boundsPadding;
 		return {
 			minX: Math.min(i.clientWidth / 2 - (e + t) / 2, i.clientWidth - t),
 			maxX: Math.max(i.clientWidth / 2 - (e + t) / 2, -e),
@@ -281,129 +605,129 @@ async function D(i) {
 		return e < n ? n + (e - n) * t : e > r ? r + (e - r) * t : e;
 	}
 	function K(e) {
-		let t = W();
+		let t = V();
 		return {
-			x: _(e.x, t.minX, t.maxX),
-			y: _(e.y, t.minY, t.maxY)
+			x: y(e.x, t.minX, t.maxX),
+			y: y(e.y, t.minY, t.maxY)
 		};
 	}
-	function ee(e, t) {
+	function ne(e, t) {
 		return {
-			x: e.x === t.x ? 0 : _((t.x - e.x) * r, -18, 18),
-			y: e.y === t.y ? 0 : _((t.y - e.y) * r, -18, 18)
+			x: e.x === t.x ? 0 : y((t.x - e.x) * r, -18, 18),
+			y: e.y === t.y ? 0 : y((t.y - e.y) * r, -18, 18)
 		};
 	}
 	function q(e) {
-		let t = W();
+		let t = V();
 		return {
 			x: G(e.x, t.minX, t.maxX),
 			y: G(e.y, t.minY, t.maxY)
 		};
 	}
-	function te(e, t) {
+	function re(e, t) {
 		return Math.hypot(e.x - t.x, e.y - t.y);
 	}
 	function J() {
-		D.style.transform = `translate3d(${j.x}px, ${j.y}px, 0)`;
+		w.style.transform = `translate3d(${O.x}px, ${O.y}px, 0)`;
 	}
-	function ne(e, t) {
-		M = t ? q(e) : K(e);
+	function ie(e, t) {
+		k = t ? q(e) : K(e);
 	}
 	function Y(e) {
-		U !== e && (U = e, i.classList.toggle("is-settling", e));
+		B !== e && (B = e, i.classList.toggle("is-settling", e));
 	}
 	function X() {
-		if (H = null, P === null) {
-			let e = Math.hypot(N.x, N.y);
-			if (x.inertia && e > n && !U) {
+		if (z = null, j === null) {
+			let e = Math.hypot(A.x, A.y);
+			if (C.inertia && e > n && !B) {
 				let e = q({
-					x: M.x + N.x,
-					y: M.y + N.y
-				}), t = ee(e, K(e));
-				M = e, N = {
-					x: t.x || N.x * x.friction,
-					y: t.y || N.y * x.friction
+					x: k.x + A.x,
+					y: k.y + A.y
+				}), t = ne(e, K(e));
+				k = e, A = {
+					x: t.x || A.x * C.friction,
+					y: t.y || A.y * C.friction
 				};
-			} else M = K(M), N = {
+			} else k = K(k), A = {
 				x: 0,
 				y: 0
 			}, Y(!0);
 		}
-		j = x.motion === "instant" ? { ...M } : {
-			x: j.x + (M.x - j.x) * x.ease,
-			y: j.y + (M.y - j.y) * x.ease
+		O = C.motion === "instant" ? { ...k } : {
+			x: O.x + (k.x - O.x) * C.ease,
+			y: O.y + (k.y - O.y) * C.ease
 		}, J();
-		let e = Math.hypot(N.x, N.y) > n, t = te(j, M) > .12;
-		if (P !== null || e || t) {
-			H = window.requestAnimationFrame(X);
+		let e = Math.hypot(A.x, A.y) > n, t = re(O, k) > .12;
+		if (j !== null || e || t) {
+			z = window.requestAnimationFrame(X);
 			return;
 		}
-		j = { ...M }, J(), Y(!1);
+		O = { ...k }, J(), Y(!1);
 	}
 	function Z() {
-		H === null && (H = window.requestAnimationFrame(X));
+		z === null && (z = window.requestAnimationFrame(X));
 	}
 	function Q() {
-		M = K(M), N = {
+		k = K(k), A = {
 			x: 0,
 			y: 0
 		}, Y(!0), Z();
 	}
 	J(), requestAnimationFrame(() => i.classList.add("is-ready")), i.addEventListener("pointerdown", (e) => {
-		e.button !== 0 || P !== null || (P = e.pointerId, F = {
+		e.button !== 0 || j !== null || (j = e.pointerId, M = {
 			x: e.clientX,
 			y: e.clientY
-		}, I = { ...F }, L = performance.now(), R = { ...M }, z = e.target.closest(".cms-canvas__item"), N = {
+		}, N = { ...M }, P = performance.now(), F = { ...k }, I = e.target.closest(".cms-canvas__item"), A = {
 			x: 0,
 			y: 0
-		}, B = !1, Y(!1), i.setPointerCapture(e.pointerId), i.classList.add("is-dragging"), Z());
+		}, L = !1, Y(!1), i.setPointerCapture(e.pointerId), i.classList.add("is-dragging"), Z());
 	}), i.addEventListener("pointermove", (e) => {
-		if (e.pointerId !== P) return;
-		let t = e.clientX - F.x, n = e.clientY - F.y;
-		if (Math.hypot(t, n) >= 6 && (B = !0), !B) return;
-		let r = performance.now(), i = Math.max(16, r - L);
-		N = {
-			x: (e.clientX - I.x) / i * 16.67 * x.velocity,
-			y: (e.clientY - I.y) / i * 16.67 * x.velocity
-		}, I = {
+		if (e.pointerId !== j) return;
+		let t = e.clientX - M.x, n = e.clientY - M.y;
+		if (Math.hypot(t, n) >= 6 && (L = !0), !L) return;
+		let r = performance.now(), i = Math.max(16, r - P);
+		A = {
+			x: (e.clientX - N.x) / i * 16.67 * C.velocity,
+			y: (e.clientY - N.y) / i * 16.67 * C.velocity
+		}, N = {
 			x: e.clientX,
 			y: e.clientY
-		}, L = r, ne({
-			x: R.x + t,
-			y: R.y + n
+		}, P = r, ie({
+			x: F.x + t,
+			y: F.y + n
 		}, !0), Z();
 	});
 	function $(e) {
-		if (e.pointerId !== P) return;
-		let t = B, n = z;
-		if (P = null, z = null, i.classList.remove("is-dragging"), !t || !x.inertia ? (N = {
+		if (e.pointerId !== j) return;
+		let t = L, n = I;
+		if (j = null, I = null, i.classList.remove("is-dragging"), !t || !C.inertia ? (A = {
 			x: 0,
 			y: 0
 		}, Q()) : Z(), !t && n) {
 			var r;
-			let e = O.get((r = n.dataset.canvasItemId) == null ? "" : r);
-			e && (V = !0, E(e, n));
+			let e = T.get((r = n.dataset.canvasItemId) == null ? "" : r);
+			e && (R = !0, W(e, n));
 		}
 	}
 	i.addEventListener("pointerup", $), i.addEventListener("pointercancel", $), i.addEventListener("click", (e) => {
 		var t;
-		if (V) {
-			e.preventDefault(), e.stopPropagation(), V = !1;
+		if (R) {
+			e.preventDefault(), e.stopPropagation(), R = !1;
 			return;
 		}
 		let n = e.target.closest(".cms-canvas__item");
 		if (!n) return;
-		if (B) {
-			e.preventDefault(), e.stopPropagation(), B = !1;
+		if (L) {
+			e.preventDefault(), e.stopPropagation(), L = !1;
 			return;
 		}
-		let r = O.get((t = n.dataset.canvasItemId) == null ? "" : t);
-		r && E(r, n);
+		let r = T.get((t = n.dataset.canvasItemId) == null ? "" : t);
+		r && W(r, n);
 	}), window.addEventListener("resize", Q);
 }
-i(() => {
+a(() => {
 	document.querySelectorAll("[data-cms-canvas]").forEach((e) => {
-		D(e);
+		G(e);
 	});
 });
 //#endregion

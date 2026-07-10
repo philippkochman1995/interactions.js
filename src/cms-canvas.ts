@@ -32,6 +32,28 @@ interface ContentBounds {
   bottom: number;
 }
 
+interface MeasuredCanvasItem {
+  tile: HTMLButtonElement;
+  item: CanvasItem;
+  width: number;
+  height: number;
+  area: number;
+  visualWeight: number;
+  aspect: 'portrait' | 'square' | 'landscape';
+  priority: number;
+}
+
+interface WeightedRect extends Rect {
+  id: string;
+  visualWeight: number;
+}
+
+interface LayoutContext {
+  center: Point;
+  previousRect: WeightedRect | null;
+  maxDistance: number;
+}
+
 interface CanvasConfig {
   width: number;
   height: number;
@@ -39,7 +61,7 @@ interface CanvasConfig {
   gap: number;
   padding: number;
   itemWidths: number[];
-  layout: 'percent-grid' | 'pixel-grid';
+  layout: 'center-out' | 'percent-grid' | 'pixel-grid';
   itemWidthMin: number;
   itemWidthMax: number;
   itemGapMin: number;
@@ -64,6 +86,25 @@ const BOUNCE_OVERSHOOT = 0.12;
 const BOUNCE_MAX_VELOCITY = 18;
 const PERCENT_GRID_COLUMNS = 14;
 const PERCENT_GRID_MAX_RINGS = 24;
+const POSITION_EPSILON = 12;
+const SMALL_COUNT_PATTERNS: Record<number, Point[]> = {
+  1: [{ x: 0, y: 0 }],
+  2: [
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+  ],
+  3: [
+    { x: 0, y: -0.9 },
+    { x: -1, y: 0.65 },
+    { x: 1, y: 0.65 },
+  ],
+  4: [
+    { x: -1, y: -0.7 },
+    { x: 1, y: -0.7 },
+    { x: -1, y: 0.7 },
+    { x: 1, y: 0.7 },
+  ],
+};
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -86,6 +127,18 @@ function boundedNumberAttribute(
   max: number,
 ): number {
   return clamp(numberAttribute(element, name, fallback), min, max);
+}
+
+function boundedNumberAttributeWithFallback(
+  element: HTMLElement,
+  name: string,
+  fallbackName: string,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const value = Number.parseFloat(element.getAttribute(name) ?? element.getAttribute(fallbackName) ?? '');
+  return Number.isFinite(value) && value > 0 ? clamp(value, min, max) : fallback;
 }
 
 function normalizeRange(min: number, max: number): [number, number] {
@@ -422,14 +475,401 @@ function placeTilesOnPercentGrid(
   return placed;
 }
 
+function itemGapPx(item: MeasuredCanvasItem, config: CanvasConfig): number {
+  const [gapMin, gapMax] = normalizeRange(config.itemGapMin, config.itemGapMax);
+  const min = (config.viewportWidth * gapMin) / 100;
+  const max = (config.viewportWidth * gapMax) / 100;
+  return clamp(Math.min(item.width, item.height) * 0.16, min, max);
+}
+
+function measureCanvasItems(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): MeasuredCanvasItem[] {
+  const [itemWidthMin, itemWidthMax] = normalizeRange(config.itemWidthMin, config.itemWidthMax);
+
+  return tiles
+    .map((tile) => {
+      const item = itemMap.get(tile.dataset.canvasItemId ?? '');
+
+      if (!item) {
+        return null;
+      }
+
+      const widthPercent = itemWidthMin + stableUnit(item.id, 'width') * (itemWidthMax - itemWidthMin);
+      tile.style.width = `${(config.viewportWidth * widthPercent) / 100}px`;
+
+      const width = tile.offsetWidth;
+      const height = tile.offsetHeight;
+      const ratio = width / Math.max(1, height);
+
+      return {
+        tile,
+        item,
+        width,
+        height,
+        area: width * height,
+        visualWeight: Math.sqrt(width * height),
+        aspect: ratio < 0.82 ? 'portrait' : ratio > 1.22 ? 'landscape' : 'square',
+        priority: Number.parseFloat(tile.dataset.canvasPriority ?? '') || 0,
+      } satisfies MeasuredCanvasItem;
+    })
+    .filter((item): item is MeasuredCanvasItem => item !== null);
+}
+
+function sortCanvasItems(items: MeasuredCanvasItem[]): MeasuredCanvasItem[] {
+  return [...items].sort((a, b) => {
+    if (a.priority !== b.priority) {
+      return b.priority - a.priority;
+    }
+
+    if (a.visualWeight !== b.visualWeight) {
+      return b.visualWeight - a.visualWeight;
+    }
+
+    return hashString(a.item.id) - hashString(b.item.id);
+  });
+}
+
+function rectCenter(rect: Rect): Point {
+  return {
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2,
+  };
+}
+
+function getVisualCentroid(rects: WeightedRect[], fallback: Point): Point {
+  let weightedX = 0;
+  let weightedY = 0;
+  let totalWeight = 0;
+
+  rects.forEach((rect) => {
+    const center = rectCenter(rect);
+    weightedX += center.x * rect.visualWeight;
+    weightedY += center.y * rect.visualWeight;
+    totalWeight += rect.visualWeight;
+  });
+
+  if (totalWeight <= 0) {
+    return fallback;
+  }
+
+  return {
+    x: weightedX / totalWeight,
+    y: weightedY / totalWeight,
+  };
+}
+
+function getWeightedBounds(rects: WeightedRect[]): ContentBounds {
+  return rects.reduce<ContentBounds>(
+    (bounds, rect) => ({
+      left: Math.min(bounds.left, rect.x),
+      top: Math.min(bounds.top, rect.y),
+      right: Math.max(bounds.right, rect.x + rect.width),
+      bottom: Math.max(bounds.bottom, rect.y + rect.height),
+    }),
+    {
+      left: Number.POSITIVE_INFINITY,
+      top: Number.POSITIVE_INFINITY,
+      right: Number.NEGATIVE_INFINITY,
+      bottom: Number.NEGATIVE_INFINITY,
+    },
+  );
+}
+
+function toWeightedRect(rect: Rect, item: MeasuredCanvasItem): WeightedRect {
+  return {
+    ...rect,
+    id: item.item.id,
+    visualWeight: item.visualWeight,
+  };
+}
+
+function dedupeCandidates(candidates: Rect[]): Rect[] {
+  const deduped: Rect[] = [];
+
+  candidates.forEach((candidate) => {
+    if (
+      !deduped.some(
+        (existing) =>
+          Math.abs(existing.x - candidate.x) <= POSITION_EPSILON &&
+          Math.abs(existing.y - candidate.y) <= POSITION_EPSILON,
+      )
+    ) {
+      deduped.push(candidate);
+    }
+  });
+
+  return deduped;
+}
+
+function createCandidatesAroundRect(rect: Rect, item: MeasuredCanvasItem, gap: number): Rect[] {
+  const width = item.width;
+  const height = item.height;
+  const horizontalOffsets = [-0.25, 0, 0.25].map((offset) => rect.x + (rect.width - width) * (0.5 + offset));
+  const verticalOffsets = [-0.25, 0, 0.25].map((offset) => rect.y + (rect.height - height) * (0.5 + offset));
+  const candidates: Rect[] = [
+    { x: rect.x + rect.width + gap, y: rect.y + (rect.height - height) / 2, width, height },
+    { x: rect.x - width - gap, y: rect.y + (rect.height - height) / 2, width, height },
+    { x: rect.x + (rect.width - width) / 2, y: rect.y + rect.height + gap, width, height },
+    { x: rect.x + (rect.width - width) / 2, y: rect.y - height - gap, width, height },
+    { x: rect.x + rect.width + gap, y: rect.y - height - gap, width, height },
+    { x: rect.x - width - gap, y: rect.y - height - gap, width, height },
+    { x: rect.x + rect.width + gap, y: rect.y + rect.height + gap, width, height },
+    { x: rect.x - width - gap, y: rect.y + rect.height + gap, width, height },
+  ];
+
+  horizontalOffsets.forEach((x) => {
+    candidates.push({ x, y: rect.y + rect.height + gap, width, height });
+    candidates.push({ x, y: rect.y - height - gap, width, height });
+  });
+
+  verticalOffsets.forEach((y) => {
+    candidates.push({ x: rect.x + rect.width + gap, y, width, height });
+    candidates.push({ x: rect.x - width - gap, y, width, height });
+  });
+
+  return candidates;
+}
+
+function createFrontierCandidates(item: MeasuredCanvasItem, placed: WeightedRect[], config: CanvasConfig): Rect[] {
+  const center = { x: config.width / 2, y: config.height / 2 };
+
+  if (placed.length === 0) {
+    return [{ x: center.x - item.width / 2, y: center.y - item.height / 2, width: item.width, height: item.height }];
+  }
+
+  const gap = itemGapPx(item, config);
+  const candidates = placed.flatMap((rect) => createCandidatesAroundRect(rect, item, gap));
+  const ringGap = gap + item.visualWeight * 0.55;
+
+  for (let index = 0; index < Math.min(16, placed.length * 2 + 8); index += 1) {
+    const angle = stableUnit(`${item.item.id}:${index}`, 'ring-angle') * Math.PI * 2;
+    const radius = ringGap * (1 + Math.floor(index / 8));
+    candidates.push({
+      x: center.x + Math.cos(angle) * radius - item.width / 2,
+      y: center.y + Math.sin(angle) * radius * 0.78 - item.height / 2,
+      width: item.width,
+      height: item.height,
+    });
+  }
+
+  return dedupeCandidates(
+    candidates.filter(
+      (candidate) =>
+        candidate.x >= config.padding &&
+        candidate.y >= config.padding &&
+        candidate.x + candidate.width <= config.width - config.padding &&
+        candidate.y + candidate.height <= config.height - config.padding &&
+        !overlaps(candidate, placed, itemGapPx(item, config)),
+    ),
+  );
+}
+
+function quadrantVariance(rects: WeightedRect[], center: Point): number {
+  const quadrants = [0, 0, 0, 0];
+
+  rects.forEach((rect) => {
+    const point = rectCenter(rect);
+    const horizontal = point.x < center.x ? 0 : 1;
+    const vertical = point.y < center.y ? 0 : 2;
+    quadrants[horizontal + vertical] += rect.visualWeight;
+  });
+
+  const average = quadrants.reduce((sum, value) => sum + value, 0) / quadrants.length;
+  return quadrants.reduce((sum, value) => sum + Math.abs(value - average), 0) / Math.max(1, average);
+}
+
+function nearestRectDistance(candidate: Rect, placed: WeightedRect[]): number {
+  const center = rectCenter(candidate);
+  return placed.reduce((minimum, rect) => Math.min(minimum, Math.hypot(center.x - rectCenter(rect).x, center.y - rectCenter(rect).y)), Number.POSITIVE_INFINITY);
+}
+
+function scoreCandidate(candidate: Rect, item: MeasuredCanvasItem, placed: WeightedRect[], context: LayoutContext): number {
+  const candidateCenter = rectCenter(candidate);
+  const next = [...placed, toWeightedRect(candidate, item)];
+  const centroid = getVisualCentroid(next, context.center);
+  const bounds = getWeightedBounds(next);
+  const leftExtent = context.center.x - bounds.left;
+  const rightExtent = bounds.right - context.center.x;
+  const topExtent = context.center.y - bounds.top;
+  const bottomExtent = bounds.bottom - context.center.y;
+  const centerDistanceScore = Math.hypot(candidateCenter.x - context.center.x, candidateCenter.y - context.center.y) / context.maxDistance;
+  const centroidScore = (Math.hypot(centroid.x - context.center.x, centroid.y - context.center.y) / context.maxDistance) * 5;
+  const quadrantScore = quadrantVariance(next, context.center) * 4;
+  const boundsBalanceScore =
+    (Math.abs(leftExtent - rightExtent) / context.maxDistance) * 2.5 +
+    (Math.abs(topExtent - bottomExtent) / context.maxDistance) * 2;
+  const emptySpaceScore = (nearestRectDistance(candidate, placed) / context.maxDistance) * 1.5;
+  const previousCenter = context.previousRect ? rectCenter(context.previousRect) : null;
+  const mirroredTarget = previousCenter
+    ? {
+        x: context.center.x - (previousCenter.x - context.center.x),
+        y: context.center.y - (previousCenter.y - context.center.y),
+      }
+    : context.center;
+  const oppositePairScore =
+    context.previousRect && Math.abs(context.previousRect.visualWeight - item.visualWeight) / Math.max(item.visualWeight, context.previousRect.visualWeight) < 0.38
+      ? (Math.hypot(candidateCenter.x - mirroredTarget.x, candidateCenter.y - mirroredTarget.y) / context.maxDistance) * 2.5
+      : 0;
+  const deterministicTieBreaker = stableUnit(`${item.item.id}:${Math.round(candidate.x)}:${Math.round(candidate.y)}`, 'placement') * 0.01;
+
+  return (
+    centerDistanceScore +
+    centroidScore +
+    quadrantScore +
+    boundsBalanceScore +
+    emptySpaceScore +
+    oppositePairScore +
+    deterministicTieBreaker
+  );
+}
+
+function placeSmallCountPattern(items: MeasuredCanvasItem[], config: CanvasConfig): WeightedRect[] {
+  const pattern = SMALL_COUNT_PATTERNS[items.length] ?? SMALL_COUNT_PATTERNS[1];
+  const center = { x: config.width / 2, y: config.height / 2 };
+  const maxWidth = Math.max(...items.map((item) => item.width));
+  const maxHeight = Math.max(...items.map((item) => item.height));
+  const baseGap = ((config.viewportWidth * config.itemGapMax) / 100) || 120;
+  let scale = Math.max(maxWidth + baseGap, maxHeight + baseGap);
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const rects = items.map((item, index) =>
+      toWeightedRect(
+        {
+          x: center.x + pattern[index].x * scale - item.width / 2,
+          y: center.y + pattern[index].y * scale * 0.72 - item.height / 2,
+          width: item.width,
+          height: item.height,
+        },
+        item,
+      ),
+    );
+
+    if (rects.every((rect, index) => !overlaps(rect, rects.slice(0, index), itemGapPx(items[index], config)))) {
+      return rects;
+    }
+
+    scale *= 1.12;
+  }
+
+  return items.map((item, index) =>
+    toWeightedRect(
+      {
+        x: center.x + (index - (items.length - 1) / 2) * scale - item.width / 2,
+        y: center.y - item.height / 2,
+        width: item.width,
+        height: item.height,
+      },
+      item,
+    ),
+  );
+}
+
+function placeCenterOutMasonry(items: MeasuredCanvasItem[], config: CanvasConfig): WeightedRect[] {
+  const center = { x: config.width / 2, y: config.height / 2 };
+  const maxDistance = Math.hypot(config.width, config.height);
+  const placed: WeightedRect[] = [];
+
+  items.forEach((item) => {
+    const candidates = createFrontierCandidates(item, placed, config);
+    const context = { center, previousRect: placed[placed.length - 1] ?? null, maxDistance };
+    const best =
+      candidates.sort((a, b) => scoreCandidate(a, item, placed, context) - scoreCandidate(b, item, placed, context))[0] ??
+      {
+        x: center.x - item.width / 2 + (stableUnit(item.item.id, 'fallback-x') - 0.5) * item.visualWeight,
+        y: center.y - item.height / 2 + (stableUnit(item.item.id, 'fallback-y') - 0.5) * item.visualWeight,
+        width: item.width,
+        height: item.height,
+      };
+
+    placed.push(toWeightedRect(best, item));
+  });
+
+  return placed;
+}
+
+function centerVisualComposition(rects: WeightedRect[], config: CanvasConfig): WeightedRect[] {
+  const center = { x: config.width / 2, y: config.height / 2 };
+  const centroid = getVisualCentroid(rects, center);
+  const offsetX = center.x - centroid.x;
+  const offsetY = center.y - centroid.y;
+
+  return rects.map((rect) => ({
+    ...rect,
+    x: rect.x + offsetX,
+    y: rect.y + offsetY,
+  }));
+}
+
+function applyDeterministicJitter(
+  rects: WeightedRect[],
+  items: MeasuredCanvasItem[],
+  config: CanvasConfig,
+): WeightedRect[] {
+  const jitterBase = Math.max(0, config.itemJitter);
+  const byId = new Map(items.map((item) => [item.item.id, item]));
+  const jittered: WeightedRect[] = [];
+
+  rects.forEach((rect, index) => {
+    const item = byId.get(rect.id);
+    const gap = item ? itemGapPx(item, config) : 80;
+    const sign = index % 2 === 0 ? 1 : -1;
+    const candidate = {
+      ...rect,
+      x: rect.x + (stableUnit(rect.id, 'final-jitter-x') - 0.5) * gap * jitterBase * sign,
+      y: rect.y + (stableUnit(rect.id, 'final-jitter-y') - 0.5) * gap * jitterBase * 0.75 * sign,
+    };
+
+    if (!overlaps(candidate, jittered, item ? itemGapPx(item, config) : 24)) {
+      jittered.push(candidate);
+    } else {
+      jittered.push(rect);
+    }
+  });
+
+  return jittered;
+}
+
+function placeTilesCenterOut(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): Rect[] {
+  const measured = sortCanvasItems(measureCanvasItems(tiles, itemMap, config));
+  const rects = measured.length <= 4 ? placeSmallCountPattern(measured, config) : placeCenterOutMasonry(measured, config);
+  const centered = centerVisualComposition(rects, config);
+  const jittered = applyDeterministicJitter(centered, measured, config);
+
+  jittered.forEach((rect) => {
+    const item = measured.find((candidate) => candidate.item.id === rect.id);
+
+    if (!item) {
+      return;
+    }
+
+    item.tile.style.left = `${rect.x}px`;
+    item.tile.style.top = `${rect.y}px`;
+  });
+
+  return jittered;
+}
+
 function placeTiles(
   tiles: HTMLButtonElement[],
   itemMap: Map<string, CanvasItem>,
   config: CanvasConfig,
 ): Rect[] {
-  return config.layout === 'percent-grid'
-    ? placeTilesOnPercentGrid(tiles, itemMap, config)
-    : placeTilesOnPixelGrid(tiles, itemMap, config);
+  if (config.layout === 'pixel-grid') {
+    return placeTilesOnPixelGrid(tiles, itemMap, config);
+  }
+
+  if (config.layout === 'percent-grid') {
+    return placeTilesOnPercentGrid(tiles, itemMap, config);
+  }
+
+  return placeTilesCenterOut(tiles, itemMap, config);
 }
 
 function getContentBounds(rects: Rect[], config: CanvasConfig): ContentBounds {
@@ -521,7 +961,11 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   const viewportHeight = Math.max(root.clientHeight, window.innerHeight);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const requestedMotion = root.getAttribute('data-canvas-motion') === 'instant' ? 'instant' : 'eased';
-  const layout = root.getAttribute('data-canvas-layout') === 'pixel-grid' ? 'pixel-grid' : 'percent-grid';
+  const layoutAttribute = root.getAttribute('data-canvas-layout');
+  const layout =
+    layoutAttribute === 'pixel-grid' || layoutAttribute === 'percent-grid'
+      ? layoutAttribute
+      : 'center-out';
   const isMobileViewport = viewportWidth < 768;
   const config: CanvasConfig = {
     width: numberAttribute(root, 'data-canvas-width', Math.max(3600, viewportWidth * 3.2)),
@@ -531,17 +975,17 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     padding: numberAttribute(root, 'data-canvas-padding', 220),
     itemWidths: parseWidths(root),
     layout,
-    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 36 : 12, 6, 95),
-    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 68 : 24, 6, 95),
-    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 2 : 1.5, 0, 30),
-    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 8 : 6, 0, 30),
-    itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', 1.55, 0, 3),
+    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 80 : 15, 6, 95),
+    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 90 : 20, 6, 95),
+    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 3 : 4, 0, 30),
+    itemGapMax: boundedNumberAttributeWithFallback(root, 'data-canvas-item-gap-max', 'data-canvas-item-gap-map', isMobileViewport ? 8 : 8, 0, 30),
+    itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', 0.04, 0, 3),
     motion: reducedMotion ? 'instant' : requestedMotion,
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
     friction: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-friction', 0.92, 0.5, 0.98),
     velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
-    boundsPadding: numberAttribute(root, 'data-canvas-bounds-padding', 140),
+    boundsPadding: numberAttribute(root, 'data-canvas-bounds-padding', 120),
   };
 
   root.dataset.canvasInitialized = 'true';
