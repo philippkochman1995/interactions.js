@@ -44,6 +44,7 @@ interface CanvasConfig {
   itemWidthMax: number;
   itemGapMin: number;
   itemGapMax: number;
+  itemJitter: number;
   motion: 'eased' | 'instant';
   inertia: boolean;
   ease: number;
@@ -61,7 +62,7 @@ const MOTION_STOP_THRESHOLD = 0.08;
 const POSITION_STOP_THRESHOLD = 0.12;
 const BOUNCE_OVERSHOOT = 0.12;
 const BOUNCE_MAX_VELOCITY = 18;
-const PERCENT_GRID_COLUMNS = 12;
+const PERCENT_GRID_COLUMNS = 14;
 const PERCENT_GRID_MAX_RINGS = 24;
 
 function ready(callback: () => void): void {
@@ -315,8 +316,10 @@ function makePercentGridSlots(config: CanvasConfig, slotWidth: number, slotHeigh
           continue;
         }
 
-        const x = column * columnWidth + (columnWidth - slotWidth) / 2;
-        const y = centerY + row * slotHeight;
+        const columnJitter = (stableUnit(`${column}:${row}`, 'slot-x') - 0.5) * slotWidth * 0.42;
+        const rowJitter = (stableUnit(`${column}:${row}`, 'slot-y') - 0.5) * slotHeight * 0.5;
+        const x = column * columnWidth + (columnWidth - slotWidth) / 2 + columnJitter;
+        const y = centerY + row * slotHeight + rowJitter;
 
         if (
           x < config.padding ||
@@ -355,7 +358,7 @@ function placeTilesOnPercentGrid(
   const maxWidthPx = (config.viewportWidth * itemWidthMax) / 100;
   const maxGapPx = (config.viewportWidth * gapMax) / 100;
   const slotWidth = maxWidthPx + maxGapPx;
-  const slotHeight = maxWidthPx * 0.7 + maxGapPx;
+  const slotHeight = maxWidthPx * 0.62 + maxGapPx * 1.1;
   const slots = makePercentGridSlots(config, slotWidth, slotHeight);
   const usedSlots = new Set<number>();
   const placed: Rect[] = [];
@@ -386,15 +389,15 @@ function placeTilesOnPercentGrid(
       }
 
       const slot = slots[slotIndex];
-      const offsetX = (stableUnit(item.id, 'offset-x') - 0.5) * gap * 0.62;
-      const offsetY = (stableUnit(item.id, 'offset-y') - 0.5) * gap * 0.48;
+      const offsetX = (stableUnit(item.id, 'offset-x') - 0.5) * gap * config.itemJitter;
+      const offsetY = (stableUnit(item.id, 'offset-y') - 0.5) * gap * config.itemJitter * 0.82;
       const candidate: Rect = {
         x: slot.x + (slotWidth - rect.width) / 2 + offsetX,
         y: slot.y + (slotHeight - rect.height) / 2 + offsetY,
         ...rect,
       };
 
-      if (!overlaps(candidate, placed, Math.max(24, gap * 0.42))) {
+      if (!overlaps(candidate, placed, Math.max(18, gap * (0.22 + stableUnit(item.id, 'overlap-gap') * 0.34)))) {
         point = candidate;
         usedSlots.add(slotIndex);
         break;
@@ -528,10 +531,11 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     padding: numberAttribute(root, 'data-canvas-padding', 220),
     itemWidths: parseWidths(root),
     layout,
-    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 42 : 15, 6, 95),
-    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 56 : 20, 6, 95),
-    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 6 : 4, 0, 30),
-    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 10 : 8, 0, 30),
+    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 36 : 12, 6, 95),
+    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 68 : 24, 6, 95),
+    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 4 : 3, 0, 30),
+    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 14 : 12, 0, 30),
+    itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', 1.55, 0, 3),
     motion: reducedMotion ? 'instant' : requestedMotion,
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),

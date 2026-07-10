@@ -127,14 +127,14 @@ function y(e, t, n) {
 	}), u;
 }
 function b(e, t, n) {
-	let r = e.width / 12, i = e.height / 2 - n / 2, a = [];
-	for (let o = 0; o <= 24; o += 1) for (let s = -o; s <= o; s += 1) for (let c = 0; c < 12; c += 1) {
-		let l = Math.abs(c - 5.5), u = Math.abs(s);
+	let r = e.width / 14, i = e.height / 2 - n / 2, a = [];
+	for (let o = 0; o <= 24; o += 1) for (let s = -o; s <= o; s += 1) for (let c = 0; c < 14; c += 1) {
+		let l = Math.abs(c - 6.5), u = Math.abs(s);
 		if (Math.ceil(Math.max(l / 1.65, u)) !== o) continue;
-		let d = c * r + (r - t) / 2, f = i + s * n;
-		d < e.padding || f < e.padding || d + t > e.width - e.padding || f + n > e.height - e.padding || a.push({
-			x: d,
-			y: f
+		let f = (d(`${c}:${s}`, "slot-x") - .5) * t * .42, p = (d(`${c}:${s}`, "slot-y") - .5) * n * .5, m = c * r + (r - t) / 2 + f, h = i + s * n + p;
+		m < e.padding || h < e.padding || m + t > e.width - e.padding || h + n > e.height - e.padding || a.push({
+			x: m,
+			y: h
 		});
 	}
 	return a.sort((r, a) => {
@@ -143,7 +143,7 @@ function b(e, t, n) {
 	});
 }
 function x(e, t, n) {
-	let [r, i] = s(n.itemWidthMin, n.itemWidthMax), [a, o] = s(n.itemGapMin, n.itemGapMax), c = n.viewportWidth * i / 100, l = n.viewportWidth * o / 100, u = c + l, f = c * .7 + l, p = b(n, u, f), m = /* @__PURE__ */ new Set(), h = [];
+	let [r, i] = s(n.itemWidthMin, n.itemWidthMax), [a, o] = s(n.itemGapMin, n.itemGapMax), c = n.viewportWidth * i / 100, l = n.viewportWidth * o / 100, u = c + l, f = c * .62 + l * 1.1, p = b(n, u, f), m = /* @__PURE__ */ new Set(), h = [];
 	return e.forEach((s) => {
 		var c;
 		let l = t.get((c = s.dataset.canvasItemId) == null ? "" : c);
@@ -156,13 +156,13 @@ function x(e, t, n) {
 		}, S = null;
 		for (let e = 0; e < p.length; e += 1) {
 			if (m.has(e)) continue;
-			let t = p[e], n = (d(l.id, "offset-x") - .5) * b * .62, r = (d(l.id, "offset-y") - .5) * b * .48, i = {
-				x: t.x + (u - x.width) / 2 + n,
-				y: t.y + (f - x.height) / 2 + r,
+			let t = p[e], r = (d(l.id, "offset-x") - .5) * b * n.itemJitter, i = (d(l.id, "offset-y") - .5) * b * n.itemJitter * .82, a = {
+				x: t.x + (u - x.width) / 2 + r,
+				y: t.y + (f - x.height) / 2 + i,
 				...x
 			};
-			if (!g(i, h, Math.max(24, b * .42))) {
-				S = i, m.add(e);
+			if (!g(a, h, Math.max(18, b * (.22 + d(l.id, "overlap-gap") * .34)))) {
+				S = a, m.add(e);
 				break;
 			}
 		}
@@ -232,10 +232,11 @@ async function D(i) {
 		padding: a(i, "data-canvas-padding", 220),
 		itemWidths: l(i),
 		layout: y,
-		itemWidthMin: o(i, "data-canvas-item-width-min", b ? 42 : 15, 6, 95),
-		itemWidthMax: o(i, "data-canvas-item-width-max", b ? 56 : 20, 6, 95),
-		itemGapMin: o(i, "data-canvas-item-gap-min", b ? 6 : 4, 0, 30),
-		itemGapMax: o(i, "data-canvas-item-gap-max", b ? 10 : 8, 0, 30),
+		itemWidthMin: o(i, "data-canvas-item-width-min", b ? 36 : 12, 6, 95),
+		itemWidthMax: o(i, "data-canvas-item-width-max", b ? 68 : 24, 6, 95),
+		itemGapMin: o(i, "data-canvas-item-gap-min", b ? 4 : 3, 0, 30),
+		itemGapMax: o(i, "data-canvas-item-gap-max", b ? 14 : 12, 0, 30),
+		itemJitter: o(i, "data-canvas-item-jitter", 1.55, 0, 3),
 		motion: g ? "instant" : v,
 		inertia: !g && c(i, "data-canvas-inertia", !0),
 		ease: g ? 1 : o(i, "data-canvas-ease", .16, .04, 1),

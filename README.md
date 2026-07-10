@@ -176,10 +176,11 @@ wrapper or placed elsewhere on the same page.
   data-canvas-gap="150"
   data-canvas-padding="220"
   data-canvas-layout="percent-grid"
-  data-canvas-item-width-min="15"
-  data-canvas-item-width-max="20"
-  data-canvas-item-gap-min="4"
-  data-canvas-item-gap-max="8"
+  data-canvas-item-width-min="12"
+  data-canvas-item-width-max="24"
+  data-canvas-item-gap-min="3"
+  data-canvas-item-gap-max="12"
+  data-canvas-item-jitter="1.55"
   data-canvas-motion="eased"
   data-canvas-inertia="true"
 >
@@ -220,10 +221,11 @@ data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 vi
 data-canvas-gap            Minimum tile spacing in pixels (default: 150)
 data-canvas-padding        Empty outer edge in pixels (default: 220)
 data-canvas-layout         "percent-grid" or "pixel-grid" (default: percent-grid)
-data-canvas-item-width-min Minimum percent-grid tile width in vw-like viewport % (default: 15 desktop, 42 mobile)
-data-canvas-item-width-max Maximum percent-grid tile width in vw-like viewport % (default: 20 desktop, 56 mobile)
-data-canvas-item-gap-min   Minimum percent-grid spacing in vw-like viewport % (default: 4 desktop, 6 mobile)
-data-canvas-item-gap-max   Maximum percent-grid spacing in vw-like viewport % (default: 8 desktop, 10 mobile)
+data-canvas-item-width-min Minimum percent-grid tile width in vw-like viewport % (default: 12 desktop, 36 mobile)
+data-canvas-item-width-max Maximum percent-grid tile width in vw-like viewport % (default: 24 desktop, 68 mobile)
+data-canvas-item-gap-min   Minimum percent-grid spacing in vw-like viewport % (default: 3 desktop, 4 mobile)
+data-canvas-item-gap-max   Maximum percent-grid spacing in vw-like viewport % (default: 12 desktop, 14 mobile)
+data-canvas-item-jitter    Strength of per-item slot offset from 0 to 3 (default: 1.55)
 data-canvas-item-widths    Legacy pixel-grid width choices (default: 180,240,300)
 data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 140)
 data-canvas-motion         "eased" or "instant" panning (default: eased)
