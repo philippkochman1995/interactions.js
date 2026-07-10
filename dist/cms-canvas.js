@@ -581,9 +581,9 @@ function te(e, t) {
 		bottom: -Infinity
 	});
 }
-function ne(e, t) {
-	let n = document.createElement("button"), r = document.createElement("img"), i = document.createElement("span");
-	return n.type = "button", n.className = "cms-canvas__item", n.dataset.canvasItemId = e.id, n.style.width = `${t}px`, n.setAttribute("aria-label", e.title || "Details öffnen"), r.className = "cms-canvas__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.draggable = !1, i.className = "cms-canvas__title", i.textContent = e.title, i.hidden = !e.title, n.append(r, i), n;
+function ne(e, t, n = e.id) {
+	let r = document.createElement("button"), i = document.createElement("img"), a = document.createElement("span");
+	return r.type = "button", r.className = "cms-canvas__item", r.dataset.canvasItemId = n, r.dataset.canvasSourceItemId = e.id, r.style.width = `${t}px`, r.setAttribute("aria-label", e.title || "Details öffnen"), i.className = "cms-canvas__image", i.src = e.thumbnail, i.alt = e.thumbnailAlt, i.draggable = !1, a.className = "cms-canvas__title", a.textContent = e.title, a.hidden = !e.title, r.append(i, a), r;
 }
 function re(e) {
 	return e.complete ? Promise.resolve() : new Promise((t) => {
@@ -619,6 +619,7 @@ async function J(i) {
 		itemGapMin: s(i, "data-canvas-item-gap-min", S ? 3 : 4, 0, 30),
 		itemGapMax: c(i, "data-canvas-item-gap-max", "data-canvas-item-gap-map", 8, 0, 30),
 		itemJitter: s(i, "data-canvas-item-jitter", x === "klaffensteiner" ? 1 : .04, 0, 3),
+		repeat: Math.round(s(i, "data-canvas-repeat", x === "klaffensteiner" ? 4 : 1, 1, 12)),
 		portraitItemWidthMin: s(i, "data-canvas-portrait-width-min", S ? 80 : 8, 6, 95),
 		portraitItemWidthMax: s(i, "data-canvas-portrait-width-max", S ? 90 : 12, 6, 95),
 		motion: g ? "instant" : v,
@@ -631,11 +632,17 @@ async function J(i) {
 	i.dataset.canvasInitialized = "true", i.classList.add("cms-canvas"), i.classList.toggle("cms-canvas--no-hover", x === "klaffensteiner");
 	let w = document.createElement("div");
 	w.className = "cms-canvas__stage", w.style.width = `${C.width}px`, w.style.height = `${C.height}px`, i.insertBefore(w, l);
-	let T = /* @__PURE__ */ new Map(), E = p.map((e) => {
-		let t = C.itemWidths[f(e.id) % C.itemWidths.length], n = ne(e, t);
-		return T.set(e.id, e), w.append(n), n;
-	});
-	await Promise.all(E.map((e) => re(e.querySelector(".cms-canvas__image"))));
+	let T = /* @__PURE__ */ new Map(), E = [];
+	p.forEach((e) => {
+		T.set(e.id, e);
+		for (let t = 0; t < C.repeat; t += 1) {
+			let n = t === 0 ? e.id : `${e.id}--copy-${t + 1}`, r = C.itemWidths[f(n) % C.itemWidths.length], i = ne(e, r, n);
+			T.set(n, {
+				...e,
+				id: n
+			}), w.append(i), E.push(i);
+		}
+	}), await Promise.all(E.map((e) => re(e.querySelector(".cms-canvas__image"))));
 	let D = te(ee(E, T, C), C), O = {
 		x: i.clientWidth / 2 - (D.left + D.right) / 2,
 		y: i.clientHeight / 2 - (D.top + D.bottom) / 2

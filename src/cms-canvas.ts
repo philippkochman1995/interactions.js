@@ -68,6 +68,7 @@ interface CanvasConfig {
   itemGapMin: number;
   itemGapMax: number;
   itemJitter: number;
+  repeat: number;
   portraitItemWidthMin: number;
   portraitItemWidthMax: number;
   motion: 'eased' | 'instant';
@@ -1049,14 +1050,15 @@ function getContentBounds(rects: Rect[], config: CanvasConfig): ContentBounds {
   );
 }
 
-function createTile(item: CanvasItem, width: number): HTMLButtonElement {
+function createTile(item: CanvasItem, width: number, instanceId = item.id): HTMLButtonElement {
   const tile = document.createElement('button');
   const image = document.createElement('img');
   const title = document.createElement('span');
 
   tile.type = 'button';
   tile.className = 'cms-canvas__item';
-  tile.dataset.canvasItemId = item.id;
+  tile.dataset.canvasItemId = instanceId;
+  tile.dataset.canvasSourceItemId = item.id;
   tile.style.width = `${width}px`;
   tile.setAttribute('aria-label', item.title || 'Details öffnen');
 
@@ -1132,6 +1134,7 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 3 : 4, 0, 30),
     itemGapMax: boundedNumberAttributeWithFallback(root, 'data-canvas-item-gap-max', 'data-canvas-item-gap-map', isMobileViewport ? 8 : 8, 0, 30),
     itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', layout === 'klaffensteiner' ? 1 : 0.04, 0, 3),
+    repeat: Math.round(boundedNumberAttribute(root, 'data-canvas-repeat', layout === 'klaffensteiner' ? 4 : 1, 1, 12)),
     portraitItemWidthMin: boundedNumberAttribute(root, 'data-canvas-portrait-width-min', isMobileViewport ? 80 : 8, 6, 95),
     portraitItemWidthMax: boundedNumberAttribute(root, 'data-canvas-portrait-width-max', isMobileViewport ? 90 : 12, 6, 95),
     motion: reducedMotion ? 'instant' : requestedMotion,
@@ -1153,12 +1156,23 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   root.insertBefore(stage, source);
 
   const itemMap = new Map<string, CanvasItem>();
-  const tiles = items.map((item) => {
-    const width = config.itemWidths[hashString(item.id) % config.itemWidths.length];
-    const tile = createTile(item, width);
+  const tiles: HTMLButtonElement[] = [];
+
+  items.forEach((item) => {
     itemMap.set(item.id, item);
-    stage.append(tile);
-    return tile;
+
+    for (let copyIndex = 0; copyIndex < config.repeat; copyIndex += 1) {
+      const instanceId = copyIndex === 0 ? item.id : `${item.id}--copy-${copyIndex + 1}`;
+      const width = config.itemWidths[hashString(instanceId) % config.itemWidths.length];
+      const tile = createTile(item, width, instanceId);
+
+      itemMap.set(instanceId, {
+        ...item,
+        id: instanceId,
+      });
+      stage.append(tile);
+      tiles.push(tile);
+    }
   });
 
   await Promise.all(

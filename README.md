@@ -183,6 +183,7 @@ wrapper or placed elsewhere on the same page.
   data-canvas-item-gap-min="4"
   data-canvas-item-gap-max="8"
   data-canvas-item-jitter="1"
+  data-canvas-repeat="4"
   data-canvas-motion="eased"
   data-canvas-inertia="true"
 >
@@ -232,6 +233,7 @@ data-canvas-item-gap-min   Minimum item spacing in vw-like viewport % (default: 
 data-canvas-item-gap-max   Maximum item spacing in vw-like viewport % (default: 8)
 data-canvas-item-gap-map   Accepted typo fallback for data-canvas-item-gap-max
 data-canvas-item-jitter    Deterministic placement looseness from 0 to 3 (default: 1 for klaffensteiner, 0.04 otherwise)
+data-canvas-repeat         Visible copies per CMS item for layout testing/filling (default: 4 for klaffensteiner, 1 otherwise)
 data-canvas-item-widths    Legacy pixel-grid width choices (default: 180,240,300)
 data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 120)
 data-canvas-motion         "eased" or "instant" panning (default: eased)
