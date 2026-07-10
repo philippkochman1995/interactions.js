@@ -31,6 +31,7 @@ const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const EDGE_RESISTANCE = 0.28;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -138,19 +139,33 @@ function overlaps(candidate: Rect, placed: Rect[], gap: number): boolean {
   );
 }
 
-function findPosition(item: CanvasItem, rect: Omit<Rect, 'x' | 'y'>, placed: Rect[], config: CanvasConfig): Point {
-  const random = randomFrom(hashString(item.id));
-  const availableWidth = Math.max(1, config.width - config.padding * 2 - rect.width);
-  const availableHeight = Math.max(1, config.height - config.padding * 2 - rect.height);
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
-  for (let attempt = 0; attempt < 180; attempt += 1) {
-    const xFactor =
-      attempt < 80 ? 0.12 + ((random() + random() + random()) / 3) * 0.76 : random();
-    const yFactor =
-      attempt < 80 ? 0.12 + ((random() + random() + random()) / 3) * 0.76 : random();
+function findPosition(
+  item: CanvasItem,
+  rect: Omit<Rect, 'x' | 'y'>,
+  placed: Rect[],
+  config: CanvasConfig,
+): Point {
+  const seed = hashString(item.id);
+  const random = randomFrom(seed);
+  const minX = config.padding;
+  const maxX = Math.max(minX, config.width - config.padding - rect.width);
+  const minY = config.padding;
+  const maxY = Math.max(minY, config.height - config.padding - rect.height);
+  const centerX = config.width / 2 - rect.width / 2;
+  const centerY = config.height / 2 - rect.height / 2;
+  const baseAngle = random() * Math.PI * 2;
+  const radialStep = Math.max(rect.width, rect.height, 160) + config.gap * 0.72;
+
+  for (let attempt = 0; attempt < 260; attempt += 1) {
+    const radius = Math.sqrt(attempt) * radialStep;
+    const angle = baseAngle + attempt * GOLDEN_ANGLE;
     const candidate: Rect = {
-      x: config.padding + xFactor * availableWidth,
-      y: config.padding + yFactor * availableHeight,
+      x: clamp(centerX + Math.cos(angle) * radius, minX, maxX),
+      y: clamp(centerY + Math.sin(angle) * radius, minY, maxY),
       ...rect,
     };
 
@@ -159,27 +174,42 @@ function findPosition(item: CanvasItem, rect: Omit<Rect, 'x' | 'y'>, placed: Rec
     }
   }
 
-  const columns = Math.max(1, Math.floor(availableWidth / (rect.width + config.gap)));
-  const start = hashString(item.id) % Math.max(1, columns);
+  const cellWidth = rect.width + config.gap;
+  const cellHeight = rect.height + config.gap;
+  const columns = Math.max(1, Math.floor((maxX - minX + rect.width) / cellWidth));
+  const rows = Math.max(1, Math.floor((maxY - minY + rect.height) / cellHeight));
+  const cells: Point[] = [];
 
-  for (let row = 0; row < 100; row += 1) {
-    for (let offset = 0; offset < columns; offset += 1) {
-      const column = (start + offset) % columns;
-      const candidate: Rect = {
-        x: config.padding + column * (rect.width + config.gap),
-        y: config.padding + row * (rect.height + config.gap),
-        ...rect,
-      };
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      cells.push({
+        x: minX + column * cellWidth,
+        y: minY + row * cellHeight,
+      });
+    }
+  }
 
-      if (candidate.y + rect.height <= config.height - config.padding && !overlaps(candidate, placed, config.gap)) {
-        return candidate;
-      }
+  cells.sort((a, b) => {
+    const distanceA = Math.hypot(a.x - centerX, a.y - centerY);
+    const distanceB = Math.hypot(b.x - centerX, b.y - centerY);
+    return distanceA - distanceB;
+  });
+
+  for (const cell of cells) {
+    const candidate: Rect = {
+      x: clamp(cell.x, minX, maxX),
+      y: clamp(cell.y, minY, maxY),
+      ...rect,
+    };
+
+    if (!overlaps(candidate, placed, config.gap)) {
+      return candidate;
     }
   }
 
   return {
-    x: config.padding + random() * availableWidth,
-    y: config.padding + random() * availableHeight,
+    x: clamp(centerX, minX, maxX),
+    y: clamp(centerY, minY, maxY),
   };
 }
 
