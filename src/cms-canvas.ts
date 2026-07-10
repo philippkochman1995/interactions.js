@@ -317,7 +317,7 @@ function makePercentGridSlots(config: CanvasConfig, slotWidth: number, slotHeigh
         }
 
         const columnJitter = (stableUnit(`${column}:${row}`, 'slot-x') - 0.5) * slotWidth * 0.42;
-        const rowJitter = (stableUnit(`${column}:${row}`, 'slot-y') - 0.5) * slotHeight * 0.5;
+        const rowJitter = (stableUnit(`${column}:${row}`, 'slot-y') - 0.5) * slotHeight * 0.34;
         const x = column * columnWidth + (columnWidth - slotWidth) / 2 + columnJitter;
         const y = centerY + row * slotHeight + rowJitter;
 
@@ -358,7 +358,7 @@ function placeTilesOnPercentGrid(
   const maxWidthPx = (config.viewportWidth * itemWidthMax) / 100;
   const maxGapPx = (config.viewportWidth * gapMax) / 100;
   const slotWidth = maxWidthPx + maxGapPx;
-  const slotHeight = maxWidthPx * 0.62 + maxGapPx * 1.1;
+  const slotHeight = maxWidthPx * 0.34 + maxGapPx * 0.38;
   const slots = makePercentGridSlots(config, slotWidth, slotHeight);
   const usedSlots = new Set<number>();
   const placed: Rect[] = [];
@@ -390,7 +390,7 @@ function placeTilesOnPercentGrid(
 
       const slot = slots[slotIndex];
       const offsetX = (stableUnit(item.id, 'offset-x') - 0.5) * gap * config.itemJitter;
-      const offsetY = (stableUnit(item.id, 'offset-y') - 0.5) * gap * config.itemJitter * 0.82;
+      const offsetY = (stableUnit(item.id, 'offset-y') - 0.5) * gap * config.itemJitter * 0.42;
       const candidate: Rect = {
         x: slot.x + (slotWidth - rect.width) / 2 + offsetX,
         y: slot.y + (slotHeight - rect.height) / 2 + offsetY,
@@ -533,8 +533,8 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     layout,
     itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 36 : 12, 6, 95),
     itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 68 : 24, 6, 95),
-    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 4 : 3, 0, 30),
-    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 14 : 12, 0, 30),
+    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 2 : 1.5, 0, 30),
+    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 8 : 6, 0, 30),
     itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', 1.55, 0, 3),
     motion: reducedMotion ? 'instant' : requestedMotion,
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
