@@ -18,6 +18,20 @@ interface Rect extends Point {
   height: number;
 }
 
+interface Bounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
+interface ContentBounds {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
 interface CanvasConfig {
   width: number;
   height: number;
@@ -29,6 +43,7 @@ interface CanvasConfig {
   ease: number;
   friction: number;
   velocity: number;
+  boundsPadding: number;
 }
 
 const ROOT_SELECTOR = '[data-cms-canvas]';
@@ -36,9 +51,10 @@ const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const EDGE_RESISTANCE = 0.28;
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 const MOTION_STOP_THRESHOLD = 0.08;
 const POSITION_STOP_THRESHOLD = 0.12;
+const BOUNCE_OVERSHOOT = 0.12;
+const BOUNCE_MAX_VELOCITY = 18;
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -91,18 +107,6 @@ function hashString(value: string): number {
   }
 
   return hash >>> 0;
-}
-
-function randomFrom(seed: number): () => number {
-  let state = seed || 1;
-
-  return () => {
-    state += 0x6d2b79f5;
-    let value = state;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-  };
 }
 
 function textFrom(element: HTMLElement, selector: string): string {
@@ -170,74 +174,139 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function findPosition(
-  item: CanvasItem,
-  rect: Omit<Rect, 'x' | 'y'>,
-  placed: Rect[],
-  config: CanvasConfig,
-): Point {
-  const seed = hashString(item.id);
-  const random = randomFrom(seed);
-  const minX = config.padding;
-  const maxX = Math.max(minX, config.width - config.padding - rect.width);
-  const minY = config.padding;
-  const maxY = Math.max(minY, config.height - config.padding - rect.height);
-  const centerX = config.width / 2 - rect.width / 2;
-  const centerY = config.height / 2 - rect.height / 2;
-  const baseAngle = random() * Math.PI * 2;
-  const radialStep = Math.max(rect.width, rect.height, 160) + config.gap * 0.72;
-
-  for (let attempt = 0; attempt < 260; attempt += 1) {
-    const radius = Math.sqrt(attempt) * radialStep;
-    const angle = baseAngle + attempt * GOLDEN_ANGLE;
-    const candidate: Rect = {
-      x: clamp(centerX + Math.cos(angle) * radius, minX, maxX),
-      y: clamp(centerY + Math.sin(angle) * radius, minY, maxY),
-      ...rect,
-    };
-
-    if (!overlaps(candidate, placed, config.gap)) {
-      return candidate;
-    }
-  }
-
-  const cellWidth = rect.width + config.gap;
-  const cellHeight = rect.height + config.gap;
-  const columns = Math.max(1, Math.floor((maxX - minX + rect.width) / cellWidth));
-  const rows = Math.max(1, Math.floor((maxY - minY + rect.height) / cellHeight));
+function makeCenteredGridCells(config: CanvasConfig, cellWidth: number, cellHeight: number): Point[] {
+  const centerX = config.width / 2 - cellWidth / 2;
+  const centerY = config.height / 2 - cellHeight / 2;
+  const maxRing = Math.ceil(
+    Math.max(config.width / Math.max(1, cellWidth), config.height / Math.max(1, cellHeight)) / 2,
+  ) + 2;
   const cells: Point[] = [];
 
-  for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      cells.push({
-        x: minX + column * cellWidth,
-        y: minY + row * cellHeight,
-      });
+  for (let ring = 0; ring <= maxRing; ring += 1) {
+    for (let row = -ring; row <= ring; row += 1) {
+      for (let column = -ring; column <= ring; column += 1) {
+        if (Math.max(Math.abs(row), Math.abs(column)) !== ring) {
+          continue;
+        }
+
+        const x = centerX + column * cellWidth;
+        const y = centerY + row * cellHeight;
+
+        if (
+          x < config.padding ||
+          y < config.padding ||
+          x + cellWidth > config.width - config.padding ||
+          y + cellHeight > config.height - config.padding
+        ) {
+          continue;
+        }
+
+        cells.push({ x, y });
+      }
     }
   }
 
-  cells.sort((a, b) => {
+  return cells.sort((a, b) => {
     const distanceA = Math.hypot(a.x - centerX, a.y - centerY);
     const distanceB = Math.hypot(b.x - centerX, b.y - centerY);
-    return distanceA - distanceB;
+
+    if (distanceA !== distanceB) {
+      return distanceA - distanceB;
+    }
+
+    return Math.atan2(a.y - centerY, a.x - centerX) - Math.atan2(b.y - centerY, b.x - centerX);
+  });
+}
+
+function placeTiles(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): Rect[] {
+  const maxItemWidth = Math.max(...tiles.map((tile) => tile.offsetWidth), config.itemWidths[0] ?? 180);
+  const maxItemHeight = Math.max(...tiles.map((tile) => tile.offsetHeight), maxItemWidth);
+  const cellWidth = maxItemWidth + config.gap;
+  const cellHeight = maxItemHeight + config.gap;
+  const gridCells = makeCenteredGridCells(config, cellWidth, cellHeight);
+  const usedCells = new Set<number>();
+  const placed: Rect[] = [];
+
+  tiles.forEach((tile) => {
+    const item = itemMap.get(tile.dataset.canvasItemId ?? '');
+
+    if (!item) {
+      return;
+    }
+
+    const rect = {
+      width: tile.offsetWidth,
+      height: tile.offsetHeight,
+    };
+    let point: Point | null = null;
+
+    for (let cellIndex = 0; cellIndex < gridCells.length; cellIndex += 1) {
+
+      if (usedCells.has(cellIndex)) {
+        continue;
+      }
+
+      const cell = gridCells[cellIndex];
+      const candidate: Rect = {
+        x: cell.x + (cellWidth - rect.width) / 2,
+        y: cell.y + (cellHeight - rect.height) / 2,
+        ...rect,
+      };
+
+      if (!overlaps(candidate, placed, Math.max(24, config.gap * 0.42))) {
+        point = candidate;
+        usedCells.add(cellIndex);
+        break;
+      }
+    }
+
+    if (!point) {
+      const fallbackIndex = placed.length;
+      const fallbackColumn = fallbackIndex % Math.max(1, Math.floor(Math.sqrt(tiles.length)));
+      const fallbackRow = Math.floor(fallbackIndex / Math.max(1, Math.floor(Math.sqrt(tiles.length))));
+
+      point = {
+        x: config.width / 2 + (fallbackColumn - 1) * cellWidth,
+        y: config.height / 2 + (fallbackRow - 1) * cellHeight,
+      };
+    }
+
+    tile.style.left = `${point.x}px`;
+    tile.style.top = `${point.y}px`;
+    placed.push({ ...point, ...rect });
   });
 
-  for (const cell of cells) {
-    const candidate: Rect = {
-      x: clamp(cell.x, minX, maxX),
-      y: clamp(cell.y, minY, maxY),
-      ...rect,
-    };
+  return placed;
+}
 
-    if (!overlaps(candidate, placed, config.gap)) {
-      return candidate;
-    }
+function getContentBounds(rects: Rect[], config: CanvasConfig): ContentBounds {
+  if (rects.length === 0) {
+    return {
+      left: config.width / 2,
+      top: config.height / 2,
+      right: config.width / 2,
+      bottom: config.height / 2,
+    };
   }
 
-  return {
-    x: clamp(centerX, minX, maxX),
-    y: clamp(centerY, minY, maxY),
-  };
+  return rects.reduce<ContentBounds>(
+    (bounds, rect) => ({
+      left: Math.min(bounds.left, rect.x),
+      top: Math.min(bounds.top, rect.y),
+      right: Math.max(bounds.right, rect.x + rect.width),
+      bottom: Math.max(bounds.bottom, rect.y + rect.height),
+    }),
+    {
+      left: Number.POSITIVE_INFINITY,
+      top: Number.POSITIVE_INFINITY,
+      right: Number.NEGATIVE_INFINITY,
+      bottom: Number.NEGATIVE_INFINITY,
+    },
+  );
 }
 
 function createTile(item: CanvasItem, width: number): HTMLButtonElement {
@@ -314,6 +383,7 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
     friction: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-friction', 0.92, 0.5, 0.98),
     velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
+    boundsPadding: numberAttribute(root, 'data-canvas-bounds-padding', 140),
   };
 
   root.dataset.canvasInitialized = 'true';
@@ -338,28 +408,12 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     tiles.map((tile) => waitForImage(tile.querySelector<HTMLImageElement>('.cms-canvas__image')!)),
   );
 
-  const placed: Rect[] = [];
-
-  tiles.forEach((tile) => {
-    const item = itemMap.get(tile.dataset.canvasItemId ?? '');
-
-    if (!item) {
-      return;
-    }
-
-    const rect = {
-      width: tile.offsetWidth,
-      height: tile.offsetHeight,
-    };
-    const point = findPosition(item, rect, placed, config);
-    tile.style.left = `${point.x}px`;
-    tile.style.top = `${point.y}px`;
-    placed.push({ ...point, ...rect });
-  });
+  const placed = placeTiles(tiles, itemMap, config);
+  const contentBounds = getContentBounds(placed, config);
 
   let position = {
-    x: (root.clientWidth - config.width) / 2,
-    y: (root.clientHeight - config.height) / 2,
+    x: root.clientWidth / 2 - (contentBounds.left + contentBounds.right) / 2,
+    y: root.clientHeight / 2 - (contentBounds.top + contentBounds.bottom) / 2,
   };
   let targetPosition = { ...position };
   let velocity: Point = { x: 0, y: 0 };
@@ -374,13 +428,29 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   let animationFrame: number | null = null;
   let settling = false;
 
-  function bounds(): { minX: number; maxX: number; minY: number; maxY: number } {
-    return {
-      minX: Math.min(0, root.clientWidth - config.width),
-      maxX: Math.max(0, root.clientWidth - config.width),
-      minY: Math.min(0, root.clientHeight - config.height),
-      maxY: Math.max(0, root.clientHeight - config.height),
-    };
+  function bounds(): Bounds {
+    const visibleLeft = contentBounds.left - config.boundsPadding;
+    const visibleRight = contentBounds.right + config.boundsPadding;
+    const visibleTop = contentBounds.top - config.boundsPadding;
+    const visibleBottom = contentBounds.bottom + config.boundsPadding;
+    const minX = Math.min(
+      root.clientWidth / 2 - (visibleLeft + visibleRight) / 2,
+      root.clientWidth - visibleRight,
+    );
+    const maxX = Math.max(
+      root.clientWidth / 2 - (visibleLeft + visibleRight) / 2,
+      -visibleLeft,
+    );
+    const minY = Math.min(
+      root.clientHeight / 2 - (visibleTop + visibleBottom) / 2,
+      root.clientHeight - visibleBottom,
+    );
+    const maxY = Math.max(
+      root.clientHeight / 2 - (visibleTop + visibleBottom) / 2,
+      -visibleTop,
+    );
+
+    return { minX, maxX, minY, maxY };
   }
 
   function resist(value: number, min: number, max: number): number {
@@ -400,6 +470,19 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     return {
       x: clamp(point.x, limit.minX, limit.maxX),
       y: clamp(point.y, limit.minY, limit.maxY),
+    };
+  }
+
+  function bounceVelocity(point: Point, clampedPoint: Point): Point {
+    return {
+      x:
+        point.x === clampedPoint.x
+          ? 0
+          : clamp((clampedPoint.x - point.x) * BOUNCE_OVERSHOOT, -BOUNCE_MAX_VELOCITY, BOUNCE_MAX_VELOCITY),
+      y:
+        point.y === clampedPoint.y
+          ? 0
+          : clamp((clampedPoint.y - point.y) * BOUNCE_OVERSHOOT, -BOUNCE_MAX_VELOCITY, BOUNCE_MAX_VELOCITY),
     };
   }
 
@@ -444,11 +527,12 @@ async function initCanvas(root: HTMLElement): Promise<void> {
           y: targetPosition.y + velocity.y,
         });
         const clampedTarget = clampToBounds(nextTarget);
+        const bounce = bounceVelocity(nextTarget, clampedTarget);
 
         targetPosition = nextTarget;
         velocity = {
-          x: velocity.x * config.friction * (nextTarget.x === clampedTarget.x ? 1 : 0.58),
-          y: velocity.y * config.friction * (nextTarget.y === clampedTarget.y ? 1 : 0.58),
+          x: bounce.x || velocity.x * config.friction,
+          y: bounce.y || velocity.y * config.friction,
         };
       } else {
         targetPosition = clampToBounds(targetPosition);

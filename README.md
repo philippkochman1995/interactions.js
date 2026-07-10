@@ -216,6 +216,7 @@ data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 vi
 data-canvas-gap            Minimum tile spacing in pixels (default: 150)
 data-canvas-padding        Empty outer edge in pixels (default: 220)
 data-canvas-item-widths    Comma-separated stable width choices (default: 180,240,300)
+data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 140)
 data-canvas-motion         "eased" or "instant" panning (default: eased)
 data-canvas-inertia        Enable release momentum unless set to false (default: true)
 data-canvas-ease           Eased panning amount from 0.04 to 1 (default: 0.16)
