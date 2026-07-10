@@ -175,12 +175,14 @@ wrapper or placed elsewhere on the same page.
   data-canvas-height="2800"
   data-canvas-gap="150"
   data-canvas-padding="220"
-  data-canvas-layout="center-out"
+  data-canvas-layout="klaffensteiner"
   data-canvas-item-width-min="15"
   data-canvas-item-width-max="20"
+  data-canvas-portrait-width-min="8"
+  data-canvas-portrait-width-max="12"
   data-canvas-item-gap-min="4"
   data-canvas-item-gap-max="8"
-  data-canvas-item-jitter="0.04"
+  data-canvas-item-jitter="1"
   data-canvas-motion="eased"
   data-canvas-inertia="true"
 >
@@ -217,17 +219,19 @@ is missing, the thumbnail is used.
 All root configuration attributes are optional:
 
 ```text
-data-canvas-width          Canvas width in pixels (default: max of 3600 or 3.2 viewports)
-data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 viewports)
+data-canvas-width          Canvas width in pixels (default: max of 4200 or 3.6 viewports)
+data-canvas-height         Canvas height in pixels (default: max of 2800 or 3.4 viewports)
 data-canvas-gap            Minimum tile spacing in pixels (default: 150)
 data-canvas-padding        Empty outer edge in pixels (default: 220)
-data-canvas-layout         "center-out", "percent-grid", or "pixel-grid" (default: center-out)
+data-canvas-layout         "klaffensteiner", "center-out", "percent-grid", or "pixel-grid" (default: klaffensteiner)
 data-canvas-item-width-min Minimum tile width in vw-like viewport % (default: 15 desktop, 80 mobile)
 data-canvas-item-width-max Maximum tile width in vw-like viewport % (default: 20 desktop, 90 mobile)
+data-canvas-portrait-width-min Minimum portrait tile width in viewport % (default: 8 desktop, 80 mobile)
+data-canvas-portrait-width-max Maximum portrait tile width in viewport % (default: 12 desktop, 90 mobile)
 data-canvas-item-gap-min   Minimum item spacing in vw-like viewport % (default: 4 desktop, 3 mobile)
 data-canvas-item-gap-max   Maximum item spacing in vw-like viewport % (default: 8)
 data-canvas-item-gap-map   Accepted typo fallback for data-canvas-item-gap-max
-data-canvas-item-jitter    Small final deterministic jitter from 0 to 3 (default: 0.04)
+data-canvas-item-jitter    Deterministic placement looseness from 0 to 3 (default: 1 for klaffensteiner, 0.04 otherwise)
 data-canvas-item-widths    Legacy pixel-grid width choices (default: 180,240,300)
 data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 120)
 data-canvas-motion         "eased" or "instant" panning (default: eased)
@@ -239,7 +243,9 @@ data-canvas-velocity       Momentum strength from 0.1 to 2 (default: 0.85)
 
 The background uses the existing `--fw_off_white` CSS variable. The page supports
 mouse drag and touch pan with eased movement and short release momentum, but
-intentionally has no zoom. Titles appear on mouse hover and keyboard focus only.
+intentionally has no zoom. The default `klaffensteiner` layout hides hover titles
+and uses landscape widths of 15–20vw, portrait widths of 8–12vw, 4–8vw spacing,
+and a 12-column random-positioning model inspired by the reference behavior.
 For users with `prefers-reduced-motion: reduce`, momentum and the load scale
 animation are reduced automatically.
 

@@ -503,10 +503,67 @@ function V(e, t, n) {
 		t && (t.tile.style.left = `${e.x}px`, t.tile.style.top = `${e.y}px`);
 	}), i;
 }
-function H(e, t, n) {
-	return n.layout === "pixel-grid" ? x(e, t, n) : n.layout === "percent-grid" ? C(e, t, n) : V(e, t, n);
+function H(e) {
+	let t = e.querySelector(".cms-canvas__image"), n = (t == null ? void 0 : t.naturalWidth) || (t == null ? void 0 : t.width) || e.offsetWidth, r = (t == null ? void 0 : t.naturalHeight) || (t == null ? void 0 : t.height) || e.offsetHeight;
+	return n / Math.max(1, r);
 }
-function U(e, t) {
+function U(e, t, n) {
+	let [r, i] = H(t) < .92 ? l(n.portraitItemWidthMin, n.portraitItemWidthMax) : l(n.itemWidthMin, n.itemWidthMax);
+	return r + p(e.id, "klaffensteiner-width") * (i - r);
+}
+function W(e, t) {
+	let [n, r] = l(t.itemGapMin, t.itemGapMax), i = n + p(e.id, "klaffensteiner-gap") * (r - n);
+	return t.viewportWidth * i / 100;
+}
+function G(e, t, n, r) {
+	let i = Math.min(12, Math.max(1, Math.ceil(Math.sqrt(e + 1) * 2))), a = e % i, o = Math.floor(e / i), s = (r.width - r.padding * 2) / 12, c = Math.max(r.viewportHeight * .28, n.height + r.viewportWidth * .04), l = (i - 1) / 2, u = (p(t.id, "klaffensteiner-fallback-x") - .5) * s * .36, d = (p(t.id, "klaffensteiner-fallback-y") - .5) * c * .28;
+	return {
+		x: r.width / 2 + (a - l) * s - n.width / 2 + u,
+		y: r.height / 2 + (o - Math.floor(e / i) / 2) * c - n.height / 2 + d
+	};
+}
+function K(e, t, n) {
+	let r = e.map((e, r) => {
+		var i;
+		let a = t.get((i = e.dataset.canvasItemId) == null ? "" : i);
+		if (!a) return null;
+		let o = U(a, e, n);
+		return e.style.width = `${n.viewportWidth * o / 100}px`, {
+			tile: e,
+			item: a,
+			index: r
+		};
+	}).filter((e) => e !== null), i = (n.width - n.padding * 2) / 12, a = {
+		x: n.width / 2,
+		y: n.height / 2
+	}, o = [...r].sort((e, t) => Math.abs(e.index - (r.length - 1) / 2) - Math.abs(t.index - (r.length - 1) / 2) || f(e.item.id) - f(t.item.id)), s = [];
+	return o.forEach(({ tile: e, item: t }, r) => {
+		let o = {
+			width: e.offsetWidth,
+			height: e.offsetHeight
+		}, c = W(t, n), l = null, u = Infinity;
+		for (let e = 0; e < 900; e += 1) {
+			let d = Math.floor(Math.sqrt(e)), f = (Math.floor(p(`${t.id}:${e}`, "klaffensteiner-column") * 12) + d) % 12 - 11 / 2, m = p(`${t.id}:${e}`, "klaffensteiner-direction") > .5 ? 1 : -1, h = Math.ceil(d / 2) * m, g = a.x + f * i - o.width / 2 + (p(`${t.id}:${e}`, "klaffensteiner-x") - .5) * i * n.itemJitter, _ = a.y + h * Math.max(n.viewportHeight * .26, o.height + c * .42) - o.height / 2 + (p(`${t.id}:${e}`, "klaffensteiner-y") - .5) * c * n.itemJitter, y = {
+				x: g,
+				y: _,
+				width: o.width,
+				height: o.height
+			};
+			if (y.x < n.padding || y.y < n.padding || y.x + y.width > n.width - n.padding || y.y + y.height > n.height - n.padding || v(y, s, c * .55)) continue;
+			let b = D(y), x = Math.hypot(b.x - a.x, b.y - a.y), S = Math.abs(b.x - a.x) * .45, C = Math.abs(b.y - a.y) * .22, w = p(`${t.id}:${Math.round(g)}:${Math.round(_)}`, "klaffensteiner-score") * 120, T = x + S + C + r * 18 + w;
+			T < u && (l = y, u = T);
+		}
+		l || (l = {
+			...G(r, t, o, n),
+			width: o.width,
+			height: o.height
+		}), e.style.left = `${l.x}px`, e.style.top = `${l.y}px`, s.push(l);
+	}), s;
+}
+function ee(e, t, n) {
+	return n.layout === "klaffensteiner" ? K(e, t, n) : n.layout === "pixel-grid" ? x(e, t, n) : n.layout === "percent-grid" ? C(e, t, n) : V(e, t, n);
+}
+function te(e, t) {
 	return e.length === 0 ? {
 		left: t.width / 2,
 		top: t.height / 2,
@@ -524,23 +581,23 @@ function U(e, t) {
 		bottom: -Infinity
 	});
 }
-function ee(e, t) {
+function ne(e, t) {
 	let n = document.createElement("button"), r = document.createElement("img"), i = document.createElement("span");
 	return n.type = "button", n.className = "cms-canvas__item", n.dataset.canvasItemId = e.id, n.style.width = `${t}px`, n.setAttribute("aria-label", e.title || "Details öffnen"), r.className = "cms-canvas__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.draggable = !1, i.className = "cms-canvas__title", i.textContent = e.title, i.hidden = !e.title, n.append(r, i), n;
 }
-function te(e) {
+function re(e) {
 	return e.complete ? Promise.resolve() : new Promise((t) => {
 		e.addEventListener("load", () => t(), { once: !0 }), e.addEventListener("error", () => t(), { once: !0 });
 	});
 }
-function W(e, t) {
+function q(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-async function G(i) {
+async function J(i) {
 	var a;
 	if (i.dataset.canvasInitialized === "true") return;
 	let l = (a = i.querySelector(e)) == null ? document.querySelector(e) : a;
@@ -548,10 +605,11 @@ async function G(i) {
 		console.error("CMS Canvas: Element mit data-cms-canvas-source wurde nicht gefunden.");
 		return;
 	}
-	let p = _(l), m = Math.max(i.clientWidth, window.innerWidth), h = Math.max(i.clientHeight, window.innerHeight), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, v = i.getAttribute("data-canvas-motion") === "instant" ? "instant" : "eased", b = i.getAttribute("data-canvas-layout"), x = b === "pixel-grid" || b === "percent-grid" ? b : "center-out", S = m < 768, C = {
-		width: o(i, "data-canvas-width", Math.max(3600, m * 3.2)),
-		height: o(i, "data-canvas-height", Math.max(2400, h * 3)),
+	let p = _(l), m = Math.max(i.clientWidth, window.innerWidth), h = Math.max(i.clientHeight, window.innerHeight), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, v = i.getAttribute("data-canvas-motion") === "instant" ? "instant" : "eased", b = i.getAttribute("data-canvas-layout"), x = b === "pixel-grid" || b === "percent-grid" || b === "center-out" ? b : "klaffensteiner", S = m < 768, C = {
+		width: o(i, "data-canvas-width", Math.max(4200, m * 3.6)),
+		height: o(i, "data-canvas-height", Math.max(2800, h * 3.4)),
 		viewportWidth: m,
+		viewportHeight: h,
 		gap: o(i, "data-canvas-gap", 150),
 		padding: o(i, "data-canvas-padding", 220),
 		itemWidths: d(i),
@@ -560,7 +618,9 @@ async function G(i) {
 		itemWidthMax: s(i, "data-canvas-item-width-max", S ? 90 : 20, 6, 95),
 		itemGapMin: s(i, "data-canvas-item-gap-min", S ? 3 : 4, 0, 30),
 		itemGapMax: c(i, "data-canvas-item-gap-max", "data-canvas-item-gap-map", 8, 0, 30),
-		itemJitter: s(i, "data-canvas-item-jitter", .04, 0, 3),
+		itemJitter: s(i, "data-canvas-item-jitter", x === "klaffensteiner" ? 1 : .04, 0, 3),
+		portraitItemWidthMin: s(i, "data-canvas-portrait-width-min", S ? 80 : 8, 6, 95),
+		portraitItemWidthMax: s(i, "data-canvas-portrait-width-max", S ? 90 : 12, 6, 95),
 		motion: g ? "instant" : v,
 		inertia: !g && u(i, "data-canvas-inertia", !0),
 		ease: g ? 1 : s(i, "data-canvas-ease", .16, .04, 1),
@@ -568,15 +628,15 @@ async function G(i) {
 		velocity: g ? 0 : s(i, "data-canvas-velocity", .85, .1, 2),
 		boundsPadding: o(i, "data-canvas-bounds-padding", 120)
 	};
-	i.dataset.canvasInitialized = "true", i.classList.add("cms-canvas");
+	i.dataset.canvasInitialized = "true", i.classList.add("cms-canvas"), i.classList.toggle("cms-canvas--no-hover", x === "klaffensteiner");
 	let w = document.createElement("div");
 	w.className = "cms-canvas__stage", w.style.width = `${C.width}px`, w.style.height = `${C.height}px`, i.insertBefore(w, l);
 	let T = /* @__PURE__ */ new Map(), E = p.map((e) => {
-		let t = C.itemWidths[f(e.id) % C.itemWidths.length], n = ee(e, t);
+		let t = C.itemWidths[f(e.id) % C.itemWidths.length], n = ne(e, t);
 		return T.set(e.id, e), w.append(n), n;
 	});
-	await Promise.all(E.map((e) => te(e.querySelector(".cms-canvas__image"))));
-	let D = U(H(E, T, C), C), O = {
+	await Promise.all(E.map((e) => re(e.querySelector(".cms-canvas__image"))));
+	let D = te(ee(E, T, C), C), O = {
 		x: i.clientWidth / 2 - (D.left + D.right) / 2,
 		y: i.clientHeight / 2 - (D.top + D.bottom) / 2
 	}, k = { ...O }, A = {
@@ -601,37 +661,37 @@ async function G(i) {
 			maxY: Math.max(i.clientHeight / 2 - (n + r) / 2, -n)
 		};
 	}
-	function G(e, n, r) {
+	function H(e, n, r) {
 		return e < n ? n + (e - n) * t : e > r ? r + (e - r) * t : e;
 	}
-	function K(e) {
+	function U(e) {
 		let t = V();
 		return {
 			x: y(e.x, t.minX, t.maxX),
 			y: y(e.y, t.minY, t.maxY)
 		};
 	}
-	function ne(e, t) {
+	function W(e, t) {
 		return {
 			x: e.x === t.x ? 0 : y((t.x - e.x) * r, -18, 18),
 			y: e.y === t.y ? 0 : y((t.y - e.y) * r, -18, 18)
 		};
 	}
-	function q(e) {
+	function G(e) {
 		let t = V();
 		return {
-			x: G(e.x, t.minX, t.maxX),
-			y: G(e.y, t.minY, t.maxY)
+			x: H(e.x, t.minX, t.maxX),
+			y: H(e.y, t.minY, t.maxY)
 		};
 	}
-	function re(e, t) {
+	function K(e, t) {
 		return Math.hypot(e.x - t.x, e.y - t.y);
 	}
 	function J() {
 		w.style.transform = `translate3d(${O.x}px, ${O.y}px, 0)`;
 	}
 	function ie(e, t) {
-		k = t ? q(e) : K(e);
+		k = t ? G(e) : U(e);
 	}
 	function Y(e) {
 		B !== e && (B = e, i.classList.toggle("is-settling", e));
@@ -640,15 +700,15 @@ async function G(i) {
 		if (z = null, j === null) {
 			let e = Math.hypot(A.x, A.y);
 			if (C.inertia && e > n && !B) {
-				let e = q({
+				let e = G({
 					x: k.x + A.x,
 					y: k.y + A.y
-				}), t = ne(e, K(e));
+				}), t = W(e, U(e));
 				k = e, A = {
 					x: t.x || A.x * C.friction,
 					y: t.y || A.y * C.friction
 				};
-			} else k = K(k), A = {
+			} else k = U(k), A = {
 				x: 0,
 				y: 0
 			}, Y(!0);
@@ -657,7 +717,7 @@ async function G(i) {
 			x: O.x + (k.x - O.x) * C.ease,
 			y: O.y + (k.y - O.y) * C.ease
 		}, J();
-		let e = Math.hypot(A.x, A.y) > n, t = re(O, k) > .12;
+		let e = Math.hypot(A.x, A.y) > n, t = K(O, k) > .12;
 		if (j !== null || e || t) {
 			z = window.requestAnimationFrame(X);
 			return;
@@ -668,7 +728,7 @@ async function G(i) {
 		z === null && (z = window.requestAnimationFrame(X));
 	}
 	function Q() {
-		k = K(k), A = {
+		k = U(k), A = {
 			x: 0,
 			y: 0
 		}, Y(!0), Z();
@@ -706,7 +766,7 @@ async function G(i) {
 		}, Q()) : Z(), !t && n) {
 			var r;
 			let e = T.get((r = n.dataset.canvasItemId) == null ? "" : r);
-			e && (R = !0, W(e, n));
+			e && (R = !0, q(e, n));
 		}
 	}
 	i.addEventListener("pointerup", $), i.addEventListener("pointercancel", $), i.addEventListener("click", (e) => {
@@ -722,12 +782,20 @@ async function G(i) {
 			return;
 		}
 		let r = T.get((t = n.dataset.canvasItemId) == null ? "" : t);
-		r && W(r, n);
+		r && q(r, n);
 	}), window.addEventListener("resize", Q);
 }
 a(() => {
-	document.querySelectorAll("[data-cms-canvas]").forEach((e) => {
-		G(e);
+	let t = Array.from(document.querySelectorAll("[data-cms-canvas]"));
+	if (t.length === 0) {
+		document.querySelectorAll(e).forEach((e) => {
+			let t = e.parentElement;
+			t instanceof HTMLElement && J(t);
+		});
+		return;
+	}
+	t.forEach((e) => {
+		J(e);
 	});
 });
 //#endregion

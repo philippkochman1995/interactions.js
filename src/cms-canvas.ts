@@ -58,15 +58,18 @@ interface CanvasConfig {
   width: number;
   height: number;
   viewportWidth: number;
+  viewportHeight: number;
   gap: number;
   padding: number;
   itemWidths: number[];
-  layout: 'center-out' | 'percent-grid' | 'pixel-grid';
+  layout: 'klaffensteiner' | 'center-out' | 'percent-grid' | 'pixel-grid';
   itemWidthMin: number;
   itemWidthMax: number;
   itemGapMin: number;
   itemGapMax: number;
   itemJitter: number;
+  portraitItemWidthMin: number;
+  portraitItemWidthMax: number;
   motion: 'eased' | 'instant';
   inertia: boolean;
   ease: number;
@@ -87,6 +90,8 @@ const BOUNCE_MAX_VELOCITY = 18;
 const PERCENT_GRID_COLUMNS = 14;
 const PERCENT_GRID_MAX_RINGS = 24;
 const POSITION_EPSILON = 12;
+const KLAFFENSTEINER_COLUMNS = 12;
+const KLAFFENSTEINER_MAX_ATTEMPTS = 900;
 const SMALL_COUNT_PATTERNS: Record<number, Point[]> = {
   1: [{ x: 0, y: 0 }],
   2: [
@@ -856,11 +861,157 @@ function placeTilesCenterOut(
   return jittered;
 }
 
+function imageAspectRatio(tile: HTMLButtonElement): number {
+  const image = tile.querySelector<HTMLImageElement>('.cms-canvas__image');
+  const naturalWidth = image?.naturalWidth || image?.width || tile.offsetWidth;
+  const naturalHeight = image?.naturalHeight || image?.height || tile.offsetHeight;
+
+  return naturalWidth / Math.max(1, naturalHeight);
+}
+
+function klaffensteinerWidthPercent(item: CanvasItem, tile: HTMLButtonElement, config: CanvasConfig): number {
+  const ratio = imageAspectRatio(tile);
+  const isPortrait = ratio < 0.92;
+  const [min, max] = isPortrait
+    ? normalizeRange(config.portraitItemWidthMin, config.portraitItemWidthMax)
+    : normalizeRange(config.itemWidthMin, config.itemWidthMax);
+
+  return min + stableUnit(item.id, 'klaffensteiner-width') * (max - min);
+}
+
+function klaffensteinerGapPx(item: CanvasItem, config: CanvasConfig): number {
+  const [gapMin, gapMax] = normalizeRange(config.itemGapMin, config.itemGapMax);
+  const gapPercent = gapMin + stableUnit(item.id, 'klaffensteiner-gap') * (gapMax - gapMin);
+
+  return (config.viewportWidth * gapPercent) / 100;
+}
+
+function makeKlaffensteinerFallbackPoint(index: number, item: CanvasItem, rect: Pick<Rect, 'width' | 'height'>, config: CanvasConfig): Point {
+  const columns = Math.min(KLAFFENSTEINER_COLUMNS, Math.max(1, Math.ceil(Math.sqrt(index + 1) * 2)));
+  const column = index % columns;
+  const row = Math.floor(index / columns);
+  const columnWidth = (config.width - config.padding * 2) / KLAFFENSTEINER_COLUMNS;
+  const rowHeight = Math.max(config.viewportHeight * 0.28, rect.height + config.viewportWidth * 0.04);
+  const centerColumn = (columns - 1) / 2;
+  const xJitter = (stableUnit(item.id, 'klaffensteiner-fallback-x') - 0.5) * columnWidth * 0.36;
+  const yJitter = (stableUnit(item.id, 'klaffensteiner-fallback-y') - 0.5) * rowHeight * 0.28;
+
+  return {
+    x: config.width / 2 + (column - centerColumn) * columnWidth - rect.width / 2 + xJitter,
+    y: config.height / 2 + (row - Math.floor(index / columns) / 2) * rowHeight - rect.height / 2 + yJitter,
+  };
+}
+
+function placeTilesKlaffensteiner(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): Rect[] {
+  const items = tiles
+    .map((tile, index) => {
+      const item = itemMap.get(tile.dataset.canvasItemId ?? '');
+
+      if (!item) {
+        return null;
+      }
+
+      const widthPercent = klaffensteinerWidthPercent(item, tile, config);
+      tile.style.width = `${(config.viewportWidth * widthPercent) / 100}px`;
+
+      return { tile, item, index };
+    })
+    .filter((item): item is { tile: HTMLButtonElement; item: CanvasItem; index: number } => item !== null);
+  const columnWidth = (config.width - config.padding * 2) / KLAFFENSTEINER_COLUMNS;
+  const center = { x: config.width / 2, y: config.height / 2 };
+  const ordered = [...items].sort((a, b) => {
+    const distanceA = Math.abs(a.index - (items.length - 1) / 2);
+    const distanceB = Math.abs(b.index - (items.length - 1) / 2);
+
+    return distanceA - distanceB || hashString(a.item.id) - hashString(b.item.id);
+  });
+  const placed: Rect[] = [];
+
+  ordered.forEach(({ tile, item }, orderIndex) => {
+    const rect = {
+      width: tile.offsetWidth,
+      height: tile.offsetHeight,
+    };
+    const gap = klaffensteinerGapPx(item, config);
+    let best: Rect | null = null;
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (let attempt = 0; attempt < KLAFFENSTEINER_MAX_ATTEMPTS; attempt += 1) {
+      const ring = Math.floor(Math.sqrt(attempt));
+      const columnSeed = Math.floor(stableUnit(`${item.id}:${attempt}`, 'klaffensteiner-column') * KLAFFENSTEINER_COLUMNS);
+      const columnOffset = ((columnSeed + ring) % KLAFFENSTEINER_COLUMNS) - (KLAFFENSTEINER_COLUMNS - 1) / 2;
+      const direction = stableUnit(`${item.id}:${attempt}`, 'klaffensteiner-direction') > 0.5 ? 1 : -1;
+      const rowOffset = Math.ceil(ring / 2) * direction;
+      const x =
+        center.x +
+        columnOffset * columnWidth -
+        rect.width / 2 +
+        (stableUnit(`${item.id}:${attempt}`, 'klaffensteiner-x') - 0.5) * columnWidth * config.itemJitter;
+      const y =
+        center.y +
+        rowOffset * Math.max(config.viewportHeight * 0.26, rect.height + gap * 0.42) -
+        rect.height / 2 +
+        (stableUnit(`${item.id}:${attempt}`, 'klaffensteiner-y') - 0.5) * gap * config.itemJitter;
+      const candidate = {
+        x,
+        y,
+        width: rect.width,
+        height: rect.height,
+      };
+
+      if (
+        candidate.x < config.padding ||
+        candidate.y < config.padding ||
+        candidate.x + candidate.width > config.width - config.padding ||
+        candidate.y + candidate.height > config.height - config.padding ||
+        overlaps(candidate, placed, gap * 0.55)
+      ) {
+        continue;
+      }
+
+      const candidateCenter = rectCenter(candidate);
+      const centerDistance = Math.hypot(candidateCenter.x - center.x, candidateCenter.y - center.y);
+      const balanceX = Math.abs(candidateCenter.x - center.x) * 0.45;
+      const balanceY = Math.abs(candidateCenter.y - center.y) * 0.22;
+      const tieBreaker = stableUnit(`${item.id}:${Math.round(x)}:${Math.round(y)}`, 'klaffensteiner-score') * 120;
+      const score = centerDistance + balanceX + balanceY + orderIndex * 18 + tieBreaker;
+
+      if (score < bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+
+    if (!best) {
+      const fallback = makeKlaffensteinerFallbackPoint(orderIndex, item, rect, config);
+      best = {
+        ...fallback,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
+
+    tile.style.left = `${best.x}px`;
+    tile.style.top = `${best.y}px`;
+    placed.push(best);
+  });
+
+  return placed;
+}
+
 function placeTiles(
   tiles: HTMLButtonElement[],
   itemMap: Map<string, CanvasItem>,
   config: CanvasConfig,
 ): Rect[] {
+  if (config.layout === 'klaffensteiner') {
+    return placeTilesKlaffensteiner(tiles, itemMap, config);
+  }
+
   if (config.layout === 'pixel-grid') {
     return placeTilesOnPixelGrid(tiles, itemMap, config);
   }
@@ -963,14 +1114,15 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   const requestedMotion = root.getAttribute('data-canvas-motion') === 'instant' ? 'instant' : 'eased';
   const layoutAttribute = root.getAttribute('data-canvas-layout');
   const layout =
-    layoutAttribute === 'pixel-grid' || layoutAttribute === 'percent-grid'
+    layoutAttribute === 'pixel-grid' || layoutAttribute === 'percent-grid' || layoutAttribute === 'center-out'
       ? layoutAttribute
-      : 'center-out';
+      : 'klaffensteiner';
   const isMobileViewport = viewportWidth < 768;
   const config: CanvasConfig = {
-    width: numberAttribute(root, 'data-canvas-width', Math.max(3600, viewportWidth * 3.2)),
-    height: numberAttribute(root, 'data-canvas-height', Math.max(2400, viewportHeight * 3)),
+    width: numberAttribute(root, 'data-canvas-width', Math.max(4200, viewportWidth * 3.6)),
+    height: numberAttribute(root, 'data-canvas-height', Math.max(2800, viewportHeight * 3.4)),
     viewportWidth,
+    viewportHeight,
     gap: numberAttribute(root, 'data-canvas-gap', 150),
     padding: numberAttribute(root, 'data-canvas-padding', 220),
     itemWidths: parseWidths(root),
@@ -979,7 +1131,9 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 90 : 20, 6, 95),
     itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 3 : 4, 0, 30),
     itemGapMax: boundedNumberAttributeWithFallback(root, 'data-canvas-item-gap-max', 'data-canvas-item-gap-map', isMobileViewport ? 8 : 8, 0, 30),
-    itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', 0.04, 0, 3),
+    itemJitter: boundedNumberAttribute(root, 'data-canvas-item-jitter', layout === 'klaffensteiner' ? 1 : 0.04, 0, 3),
+    portraitItemWidthMin: boundedNumberAttribute(root, 'data-canvas-portrait-width-min', isMobileViewport ? 80 : 8, 6, 95),
+    portraitItemWidthMax: boundedNumberAttribute(root, 'data-canvas-portrait-width-max', isMobileViewport ? 90 : 12, 6, 95),
     motion: reducedMotion ? 'instant' : requestedMotion,
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
@@ -990,6 +1144,7 @@ async function initCanvas(root: HTMLElement): Promise<void> {
 
   root.dataset.canvasInitialized = 'true';
   root.classList.add('cms-canvas');
+  root.classList.toggle('cms-canvas--no-hover', layout === 'klaffensteiner');
 
   const stage = document.createElement('div');
   stage.className = 'cms-canvas__stage';
@@ -1301,7 +1456,20 @@ async function initCanvas(root: HTMLElement): Promise<void> {
 }
 
 ready(() => {
-  document.querySelectorAll<HTMLElement>(ROOT_SELECTOR).forEach((root) => {
+  const roots = Array.from(document.querySelectorAll<HTMLElement>(ROOT_SELECTOR));
+
+  if (roots.length === 0) {
+    document.querySelectorAll<HTMLElement>(SOURCE_SELECTOR).forEach((source) => {
+      const fallbackRoot = source.parentElement;
+
+      if (fallbackRoot instanceof HTMLElement) {
+        void initCanvas(fallbackRoot);
+      }
+    });
+    return;
+  }
+
+  roots.forEach((root) => {
     void initCanvas(root);
   });
 });

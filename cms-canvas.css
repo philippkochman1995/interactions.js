@@ -59,7 +59,7 @@ body {
   text-align: left;
   cursor: pointer;
   opacity: 0;
-  transform: scale(0.92);
+  transform: scale(0.8);
   transform-origin: center center;
   transition: opacity 700ms ease, transform 1000ms ease-out;
   will-change: transform, opacity;
@@ -70,6 +70,10 @@ body {
 .cms-canvas.is-ready .cms-canvas__item {
   opacity: 1;
   transform: scale(1);
+}
+
+.cms-canvas--no-hover .cms-canvas__title {
+  display: none;
 }
 
 .cms-canvas.is-dragging .cms-canvas__item {
