@@ -35,9 +35,15 @@ interface ContentBounds {
 interface CanvasConfig {
   width: number;
   height: number;
+  viewportWidth: number;
   gap: number;
   padding: number;
   itemWidths: number[];
+  layout: 'percent-grid' | 'pixel-grid';
+  itemWidthMin: number;
+  itemWidthMax: number;
+  itemGapMin: number;
+  itemGapMax: number;
   motion: 'eased' | 'instant';
   inertia: boolean;
   ease: number;
@@ -55,6 +61,8 @@ const MOTION_STOP_THRESHOLD = 0.08;
 const POSITION_STOP_THRESHOLD = 0.12;
 const BOUNCE_OVERSHOOT = 0.12;
 const BOUNCE_MAX_VELOCITY = 18;
+const PERCENT_GRID_COLUMNS = 12;
+const PERCENT_GRID_MAX_RINGS = 24;
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -77,6 +85,10 @@ function boundedNumberAttribute(
   max: number,
 ): number {
   return clamp(numberAttribute(element, name, fallback), min, max);
+}
+
+function normalizeRange(min: number, max: number): [number, number] {
+  return min <= max ? [min, max] : [max, min];
 }
 
 function booleanAttribute(element: HTMLElement, name: string, fallback: boolean): boolean {
@@ -107,6 +119,10 @@ function hashString(value: string): number {
   }
 
   return hash >>> 0;
+}
+
+function stableUnit(value: string, salt = ''): number {
+  return hashString(`${value}:${salt}`) / 4294967295;
 }
 
 function textFrom(element: HTMLElement, selector: string): string {
@@ -218,7 +234,7 @@ function makeCenteredGridCells(config: CanvasConfig, cellWidth: number, cellHeig
   });
 }
 
-function placeTiles(
+function placeTilesOnPixelGrid(
   tiles: HTMLButtonElement[],
   itemMap: Map<string, CanvasItem>,
   config: CanvasConfig,
@@ -281,6 +297,136 @@ function placeTiles(
   });
 
   return placed;
+}
+
+function makePercentGridSlots(config: CanvasConfig, slotWidth: number, slotHeight: number): Point[] {
+  const columnWidth = config.width / PERCENT_GRID_COLUMNS;
+  const centerColumn = (PERCENT_GRID_COLUMNS - 1) / 2;
+  const centerY = config.height / 2 - slotHeight / 2;
+  const slots: Point[] = [];
+
+  for (let ring = 0; ring <= PERCENT_GRID_MAX_RINGS; ring += 1) {
+    for (let row = -ring; row <= ring; row += 1) {
+      for (let column = 0; column < PERCENT_GRID_COLUMNS; column += 1) {
+        const columnDistance = Math.abs(column - centerColumn);
+        const rowDistance = Math.abs(row);
+
+        if (Math.ceil(Math.max(columnDistance / 1.65, rowDistance)) !== ring) {
+          continue;
+        }
+
+        const x = column * columnWidth + (columnWidth - slotWidth) / 2;
+        const y = centerY + row * slotHeight;
+
+        if (
+          x < config.padding ||
+          y < config.padding ||
+          x + slotWidth > config.width - config.padding ||
+          y + slotHeight > config.height - config.padding
+        ) {
+          continue;
+        }
+
+        slots.push({ x, y });
+      }
+    }
+  }
+
+  return slots.sort((a, b) => {
+    const centerX = config.width / 2 - slotWidth / 2;
+    const distanceA = Math.hypot((a.x - centerX) / slotWidth, (a.y - centerY) / slotHeight);
+    const distanceB = Math.hypot((b.x - centerX) / slotWidth, (b.y - centerY) / slotHeight);
+
+    if (distanceA !== distanceB) {
+      return distanceA - distanceB;
+    }
+
+    return a.y - b.y || a.x - b.x;
+  });
+}
+
+function placeTilesOnPercentGrid(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): Rect[] {
+  const [itemWidthMin, itemWidthMax] = normalizeRange(config.itemWidthMin, config.itemWidthMax);
+  const [gapMin, gapMax] = normalizeRange(config.itemGapMin, config.itemGapMax);
+  const maxWidthPx = (config.viewportWidth * itemWidthMax) / 100;
+  const maxGapPx = (config.viewportWidth * gapMax) / 100;
+  const slotWidth = maxWidthPx + maxGapPx;
+  const slotHeight = maxWidthPx * 0.7 + maxGapPx;
+  const slots = makePercentGridSlots(config, slotWidth, slotHeight);
+  const usedSlots = new Set<number>();
+  const placed: Rect[] = [];
+
+  tiles.forEach((tile) => {
+    const item = itemMap.get(tile.dataset.canvasItemId ?? '');
+
+    if (!item) {
+      return;
+    }
+
+    const widthPercent = itemWidthMin + stableUnit(item.id, 'width') * (itemWidthMax - itemWidthMin);
+    const gapPercent = gapMin + stableUnit(item.id, 'gap') * (gapMax - gapMin);
+    const width = (config.viewportWidth * widthPercent) / 100;
+    const gap = (config.viewportWidth * gapPercent) / 100;
+
+    tile.style.width = `${width}px`;
+
+    const rect = {
+      width: tile.offsetWidth,
+      height: tile.offsetHeight,
+    };
+    let point: Point | null = null;
+
+    for (let slotIndex = 0; slotIndex < slots.length; slotIndex += 1) {
+      if (usedSlots.has(slotIndex)) {
+        continue;
+      }
+
+      const slot = slots[slotIndex];
+      const offsetX = (stableUnit(item.id, 'offset-x') - 0.5) * gap * 0.62;
+      const offsetY = (stableUnit(item.id, 'offset-y') - 0.5) * gap * 0.48;
+      const candidate: Rect = {
+        x: slot.x + (slotWidth - rect.width) / 2 + offsetX,
+        y: slot.y + (slotHeight - rect.height) / 2 + offsetY,
+        ...rect,
+      };
+
+      if (!overlaps(candidate, placed, Math.max(24, gap * 0.42))) {
+        point = candidate;
+        usedSlots.add(slotIndex);
+        break;
+      }
+    }
+
+    if (!point) {
+      const fallbackIndex = placed.length;
+      const columns = Math.max(1, Math.floor(Math.sqrt(tiles.length)));
+
+      point = {
+        x: config.width / 2 + (fallbackIndex % columns - columns / 2) * slotWidth,
+        y: config.height / 2 + (Math.floor(fallbackIndex / columns) - 1) * slotHeight,
+      };
+    }
+
+    tile.style.left = `${point.x}px`;
+    tile.style.top = `${point.y}px`;
+    placed.push({ ...point, ...rect });
+  });
+
+  return placed;
+}
+
+function placeTiles(
+  tiles: HTMLButtonElement[],
+  itemMap: Map<string, CanvasItem>,
+  config: CanvasConfig,
+): Rect[] {
+  return config.layout === 'percent-grid'
+    ? placeTilesOnPercentGrid(tiles, itemMap, config)
+    : placeTilesOnPixelGrid(tiles, itemMap, config);
 }
 
 function getContentBounds(rects: Rect[], config: CanvasConfig): ContentBounds {
@@ -372,12 +518,20 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   const viewportHeight = Math.max(root.clientHeight, window.innerHeight);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const requestedMotion = root.getAttribute('data-canvas-motion') === 'instant' ? 'instant' : 'eased';
+  const layout = root.getAttribute('data-canvas-layout') === 'pixel-grid' ? 'pixel-grid' : 'percent-grid';
+  const isMobileViewport = viewportWidth < 768;
   const config: CanvasConfig = {
     width: numberAttribute(root, 'data-canvas-width', Math.max(3600, viewportWidth * 3.2)),
     height: numberAttribute(root, 'data-canvas-height', Math.max(2400, viewportHeight * 3)),
+    viewportWidth,
     gap: numberAttribute(root, 'data-canvas-gap', 150),
     padding: numberAttribute(root, 'data-canvas-padding', 220),
     itemWidths: parseWidths(root),
+    layout,
+    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', isMobileViewport ? 42 : 15, 6, 95),
+    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', isMobileViewport ? 56 : 20, 6, 95),
+    itemGapMin: boundedNumberAttribute(root, 'data-canvas-item-gap-min', isMobileViewport ? 6 : 4, 0, 30),
+    itemGapMax: boundedNumberAttribute(root, 'data-canvas-item-gap-max', isMobileViewport ? 10 : 8, 0, 30),
     motion: reducedMotion ? 'instant' : requestedMotion,
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),

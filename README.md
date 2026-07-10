@@ -175,7 +175,11 @@ wrapper or placed elsewhere on the same page.
   data-canvas-height="2800"
   data-canvas-gap="150"
   data-canvas-padding="220"
-  data-canvas-item-widths="180,240,300"
+  data-canvas-layout="percent-grid"
+  data-canvas-item-width-min="15"
+  data-canvas-item-width-max="20"
+  data-canvas-item-gap-min="4"
+  data-canvas-item-gap-max="8"
   data-canvas-motion="eased"
   data-canvas-inertia="true"
 >
@@ -215,7 +219,12 @@ data-canvas-width          Canvas width in pixels (default: max of 3600 or 3.2 v
 data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 viewports)
 data-canvas-gap            Minimum tile spacing in pixels (default: 150)
 data-canvas-padding        Empty outer edge in pixels (default: 220)
-data-canvas-item-widths    Comma-separated stable width choices (default: 180,240,300)
+data-canvas-layout         "percent-grid" or "pixel-grid" (default: percent-grid)
+data-canvas-item-width-min Minimum percent-grid tile width in vw-like viewport % (default: 15 desktop, 42 mobile)
+data-canvas-item-width-max Maximum percent-grid tile width in vw-like viewport % (default: 20 desktop, 56 mobile)
+data-canvas-item-gap-min   Minimum percent-grid spacing in vw-like viewport % (default: 4 desktop, 6 mobile)
+data-canvas-item-gap-max   Maximum percent-grid spacing in vw-like viewport % (default: 8 desktop, 10 mobile)
+data-canvas-item-widths    Legacy pixel-grid width choices (default: 180,240,300)
 data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 140)
 data-canvas-motion         "eased" or "instant" panning (default: eased)
 data-canvas-inertia        Enable release momentum unless set to false (default: true)
