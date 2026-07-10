@@ -24,6 +24,11 @@ interface CanvasConfig {
   gap: number;
   padding: number;
   itemWidths: number[];
+  motion: 'eased' | 'instant';
+  inertia: boolean;
+  ease: number;
+  friction: number;
+  velocity: number;
 }
 
 const ROOT_SELECTOR = '[data-cms-canvas]';
@@ -32,6 +37,8 @@ const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const EDGE_RESISTANCE = 0.28;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+const MOTION_STOP_THRESHOLD = 0.08;
+const POSITION_STOP_THRESHOLD = 0.12;
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -44,6 +51,26 @@ function ready(callback: () => void): void {
 function numberAttribute(element: HTMLElement, name: string, fallback: number): number {
   const value = Number.parseFloat(element.getAttribute(name) ?? '');
   return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function boundedNumberAttribute(
+  element: HTMLElement,
+  name: string,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  return clamp(numberAttribute(element, name, fallback), min, max);
+}
+
+function booleanAttribute(element: HTMLElement, name: string, fallback: boolean): boolean {
+  const value = element.getAttribute(name);
+
+  if (value === null || value === '') {
+    return fallback;
+  }
+
+  return !['false', '0', 'no', 'off'].includes(value.trim().toLowerCase());
 }
 
 function parseWidths(root: HTMLElement): number[] {
@@ -274,12 +301,19 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   const items = readItems(source);
   const viewportWidth = Math.max(root.clientWidth, window.innerWidth);
   const viewportHeight = Math.max(root.clientHeight, window.innerHeight);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const requestedMotion = root.getAttribute('data-canvas-motion') === 'instant' ? 'instant' : 'eased';
   const config: CanvasConfig = {
     width: numberAttribute(root, 'data-canvas-width', Math.max(3600, viewportWidth * 3.2)),
     height: numberAttribute(root, 'data-canvas-height', Math.max(2400, viewportHeight * 3)),
     gap: numberAttribute(root, 'data-canvas-gap', 150),
     padding: numberAttribute(root, 'data-canvas-padding', 220),
     itemWidths: parseWidths(root),
+    motion: reducedMotion ? 'instant' : requestedMotion,
+    inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
+    ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
+    friction: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-friction', 0.92, 0.5, 0.98),
+    velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
   };
 
   root.dataset.canvasInitialized = 'true';
@@ -327,12 +361,18 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     x: (root.clientWidth - config.width) / 2,
     y: (root.clientHeight - config.height) / 2,
   };
+  let targetPosition = { ...position };
+  let velocity: Point = { x: 0, y: 0 };
   let activePointerId: number | null = null;
   let pointerStart: Point = { x: 0, y: 0 };
+  let pointerPrevious: Point = { x: 0, y: 0 };
+  let pointerPreviousTime = 0;
   let positionStart: Point = { x: 0, y: 0 };
   let pressedTile: HTMLElement | null = null;
   let dragged = false;
   let suppressNextClick = false;
+  let animationFrame: number | null = null;
+  let settling = false;
 
   function bounds(): { minX: number; maxX: number; minY: number; maxY: number } {
     return {
@@ -341,10 +381,6 @@ async function initCanvas(root: HTMLElement): Promise<void> {
       minY: Math.min(0, root.clientHeight - config.height),
       maxY: Math.max(0, root.clientHeight - config.height),
     };
-  }
-
-  function clamp(value: number, min: number, max: number): number {
-    return Math.min(max, Math.max(min, value));
   }
 
   function resist(value: number, min: number, max: number): number {
@@ -359,19 +395,104 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     return value;
   }
 
+  function clampToBounds(point: Point): Point {
+    const limit = bounds();
+    return {
+      x: clamp(point.x, limit.minX, limit.maxX),
+      y: clamp(point.y, limit.minY, limit.maxY),
+    };
+  }
+
+  function resistBounds(point: Point): Point {
+    const limit = bounds();
+    return {
+      x: resist(point.x, limit.minX, limit.maxX),
+      y: resist(point.y, limit.minY, limit.maxY),
+    };
+  }
+
+  function distance(a: Point, b: Point): number {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
   function render(): void {
     stage.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
   }
 
-  function settleIntoBounds(): void {
-    const limit = bounds();
-    position = {
-      x: clamp(position.x, limit.minX, limit.maxX),
-      y: clamp(position.y, limit.minY, limit.maxY),
-    };
-    root.classList.add('is-settling');
+  function applyTarget(nextPosition: Point, withResistance: boolean): void {
+    targetPosition = withResistance ? resistBounds(nextPosition) : clampToBounds(nextPosition);
+  }
+
+  function setSettling(active: boolean): void {
+    if (settling === active) {
+      return;
+    }
+
+    settling = active;
+    root.classList.toggle('is-settling', active);
+  }
+
+  function animate(): void {
+    animationFrame = null;
+
+    if (activePointerId === null) {
+      const speed = Math.hypot(velocity.x, velocity.y);
+
+      if (config.inertia && speed > MOTION_STOP_THRESHOLD && !settling) {
+        const nextTarget = resistBounds({
+          x: targetPosition.x + velocity.x,
+          y: targetPosition.y + velocity.y,
+        });
+        const clampedTarget = clampToBounds(nextTarget);
+
+        targetPosition = nextTarget;
+        velocity = {
+          x: velocity.x * config.friction * (nextTarget.x === clampedTarget.x ? 1 : 0.58),
+          y: velocity.y * config.friction * (nextTarget.y === clampedTarget.y ? 1 : 0.58),
+        };
+      } else {
+        targetPosition = clampToBounds(targetPosition);
+        velocity = { x: 0, y: 0 };
+        setSettling(true);
+      }
+    }
+
+    if (config.motion === 'instant') {
+      position = { ...targetPosition };
+    } else {
+      position = {
+        x: position.x + (targetPosition.x - position.x) * config.ease,
+        y: position.y + (targetPosition.y - position.y) * config.ease,
+      };
+    }
+
     render();
-    window.setTimeout(() => root.classList.remove('is-settling'), 260);
+
+    const hasVelocity = Math.hypot(velocity.x, velocity.y) > MOTION_STOP_THRESHOLD;
+    const hasPositionDelta = distance(position, targetPosition) > POSITION_STOP_THRESHOLD;
+    const shouldContinue = activePointerId !== null || hasVelocity || hasPositionDelta;
+
+    if (shouldContinue) {
+      animationFrame = window.requestAnimationFrame(animate);
+      return;
+    }
+
+    position = { ...targetPosition };
+    render();
+    setSettling(false);
+  }
+
+  function ensureAnimation(): void {
+    if (animationFrame === null) {
+      animationFrame = window.requestAnimationFrame(animate);
+    }
+  }
+
+  function settleIntoBounds(): void {
+    targetPosition = clampToBounds(targetPosition);
+    velocity = { x: 0, y: 0 };
+    setSettling(true);
+    ensureAnimation();
   }
 
   render();
@@ -384,11 +505,16 @@ async function initCanvas(root: HTMLElement): Promise<void> {
 
     activePointerId = event.pointerId;
     pointerStart = { x: event.clientX, y: event.clientY };
-    positionStart = { ...position };
+    pointerPrevious = { ...pointerStart };
+    pointerPreviousTime = performance.now();
+    positionStart = { ...targetPosition };
     pressedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
+    velocity = { x: 0, y: 0 };
     dragged = false;
+    setSettling(false);
     root.setPointerCapture(event.pointerId);
     root.classList.add('is-dragging');
+    ensureAnimation();
   });
 
   root.addEventListener('pointermove', (event) => {
@@ -407,12 +533,24 @@ async function initCanvas(root: HTMLElement): Promise<void> {
       return;
     }
 
-    const limit = bounds();
-    position = {
-      x: resist(positionStart.x + deltaX, limit.minX, limit.maxX),
-      y: resist(positionStart.y + deltaY, limit.minY, limit.maxY),
+    const now = performance.now();
+    const elapsed = Math.max(16, now - pointerPreviousTime);
+
+    velocity = {
+      x: ((event.clientX - pointerPrevious.x) / elapsed) * 16.67 * config.velocity,
+      y: ((event.clientY - pointerPrevious.y) / elapsed) * 16.67 * config.velocity,
     };
-    render();
+    pointerPrevious = { x: event.clientX, y: event.clientY };
+    pointerPreviousTime = now;
+
+    applyTarget(
+      {
+        x: positionStart.x + deltaX,
+        y: positionStart.y + deltaY,
+      },
+      true,
+    );
+    ensureAnimation();
   });
 
   function endPointer(event: PointerEvent): void {
@@ -425,7 +563,13 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     activePointerId = null;
     pressedTile = null;
     root.classList.remove('is-dragging');
-    settleIntoBounds();
+
+    if (!wasDragged || !config.inertia) {
+      velocity = { x: 0, y: 0 };
+      settleIntoBounds();
+    } else {
+      ensureAnimation();
+    }
 
     if (!wasDragged && tile) {
       const item = itemMap.get(tile.dataset.canvasItemId ?? '');

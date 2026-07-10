@@ -33,7 +33,7 @@ body {
   opacity: 0;
   transform-origin: 0 0;
   will-change: transform;
-  transition: opacity 180ms ease;
+  transition: opacity 240ms ease;
 }
 
 .cms-canvas.is-ready .cms-canvas__stage {
@@ -41,7 +41,7 @@ body {
 }
 
 .cms-canvas.is-settling .cms-canvas__stage {
-  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 240ms ease;
 }
 
 .cms-canvas__item {
@@ -58,8 +58,18 @@ body {
   font: inherit;
   text-align: left;
   cursor: pointer;
+  opacity: 0;
+  transform: scale(0.92);
+  transform-origin: center center;
+  transition: opacity 700ms ease, transform 1000ms ease-out;
+  will-change: transform, opacity;
   appearance: none;
   -webkit-appearance: none;
+}
+
+.cms-canvas.is-ready .cms-canvas__item {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .cms-canvas.is-dragging .cms-canvas__item {
@@ -114,7 +124,12 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .cms-canvas__stage,
+  .cms-canvas__item,
   .cms-canvas__title {
     transition-duration: 1ms !important;
+  }
+
+  .cms-canvas__item {
+    transform: scale(1);
   }
 }

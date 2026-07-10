@@ -176,6 +176,8 @@ wrapper or placed elsewhere on the same page.
   data-canvas-gap="150"
   data-canvas-padding="220"
   data-canvas-item-widths="180,240,300"
+  data-canvas-motion="eased"
+  data-canvas-inertia="true"
 >
   <div data-cms-canvas-source>
     <div class="w-dyn-list">
@@ -214,11 +216,18 @@ data-canvas-height         Canvas height in pixels (default: max of 2400 or 3 vi
 data-canvas-gap            Minimum tile spacing in pixels (default: 150)
 data-canvas-padding        Empty outer edge in pixels (default: 220)
 data-canvas-item-widths    Comma-separated stable width choices (default: 180,240,300)
+data-canvas-motion         "eased" or "instant" panning (default: eased)
+data-canvas-inertia        Enable release momentum unless set to false (default: true)
+data-canvas-ease           Eased panning amount from 0.04 to 1 (default: 0.16)
+data-canvas-friction       Momentum friction from 0.5 to 0.98 (default: 0.92)
+data-canvas-velocity       Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
 The background uses the existing `--fw_off_white` CSS variable. The page supports
-mouse drag and touch pan, but intentionally has no zoom or inertia. Titles appear
-on mouse hover and keyboard focus only.
+mouse drag and touch pan with eased movement and short release momentum, but
+intentionally has no zoom. Titles appear on mouse hover and keyboard focus only.
+For users with `prefers-reduced-motion: reduce`, momentum and the load scale
+animation are reduced automatically.
 
 ## Lightbox API
 
