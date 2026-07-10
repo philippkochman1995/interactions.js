@@ -300,7 +300,9 @@ async function initCanvas(root: HTMLElement): Promise<void> {
   let activePointerId: number | null = null;
   let pointerStart: Point = { x: 0, y: 0 };
   let positionStart: Point = { x: 0, y: 0 };
+  let pressedTile: HTMLElement | null = null;
   let dragged = false;
+  let suppressNextClick = false;
 
   function bounds(): { minX: number; maxX: number; minY: number; maxY: number } {
     return {
@@ -353,6 +355,7 @@ async function initCanvas(root: HTMLElement): Promise<void> {
     activePointerId = event.pointerId;
     pointerStart = { x: event.clientX, y: event.clientY };
     positionStart = { ...position };
+    pressedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
     dragged = false;
     root.setPointerCapture(event.pointerId);
     root.classList.add('is-dragging');
@@ -387,14 +390,33 @@ async function initCanvas(root: HTMLElement): Promise<void> {
       return;
     }
 
+    const wasDragged = dragged;
+    const tile = pressedTile;
     activePointerId = null;
+    pressedTile = null;
     root.classList.remove('is-dragging');
     settleIntoBounds();
+
+    if (!wasDragged && tile) {
+      const item = itemMap.get(tile.dataset.canvasItemId ?? '');
+
+      if (item) {
+        suppressNextClick = true;
+        openItemModal(item, tile);
+      }
+    }
   }
 
   root.addEventListener('pointerup', endPointer);
   root.addEventListener('pointercancel', endPointer);
   root.addEventListener('click', (event) => {
+    if (suppressNextClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextClick = false;
+      return;
+    }
+
     const tile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
 
     if (!tile) {
