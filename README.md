@@ -225,14 +225,15 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
 an infinite-feeling repeated column-stack pattern: by default 8 columns with 8
 items stacked inside each column. The same pixel gap is used between columns and
-between items inside a column. Each tile is horizontally centered in its column,
-keeps its natural aspect ratio, and each column gets a small Y start offset so the
-composition does not look completely static. `data-canvas-grid-zoom` makes the
-whole pattern larger while keeping 8 columns, so fewer elements are visible at
-once. The base pattern is rendered around the viewport and wrapped with GSAP while
-dragging, so every column repeats on the Y axis and every row band repeats on the
-X axis without hard bounds. Users with `prefers-reduced-motion: reduce` get reduced
-animation and no momentum.
+between items inside a column, including the seam where a repeated column starts
+again. Each tile is horizontally centered in its column, keeps its natural aspect
+ratio, and each column gets a small Y start offset so the composition does not look
+completely static. `data-canvas-grid-zoom` makes the whole pattern larger while
+keeping 8 columns, so fewer elements are visible at once. The base pattern is
+rendered around the viewport and wrapped with GSAP while dragging, so every column
+repeats on the Y axis and every row band repeats on the X axis without hard
+bounds. Users with `prefers-reduced-motion: reduce` get reduced animation and no
+momentum.
 
 ## Lightbox API
 

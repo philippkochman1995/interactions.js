@@ -394,46 +394,46 @@ function placeTiles(
     ? Math.max(170, viewportWidth * 0.48)
     : Math.max(150, (viewportWidth - (columnCount - 1) * gap) / columnCount);
   const slotWidth = baseSlotWidth * config.gridZoom;
-  const columnStep = slotWidth + gap;
+  const columnWidth = slotWidth;
+  const columnStep = columnWidth + gap;
   const patternWidth = columnCount * columnStep;
-  const patternTiles = shuffled(tiles, random).slice(0, cellCount);
-  const cells = Array.from({ length: cellCount }, (_, index) => patternTiles[index % patternTiles.length]);
-  const cellMetrics = cells.map((tile, index) => {
+  const patternTiles = shuffled(tiles, random).slice(0, rowCount);
+  const stackTiles = Array.from({ length: rowCount }, (_, index) => patternTiles[index % patternTiles.length]);
+  const stackMetrics = stackTiles.map((tile) => {
     const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
-    const isPortrait = aspectRatio < 0.82;
-    const minFactor = mobile ? 0.78 : isPortrait ? 0.58 : 0.72;
-    const maxFactor = mobile ? 0.9 : isPortrait ? 0.68 : 0.84;
-    const width = slotWidth * (minFactor + random() * (maxFactor - minFactor));
+    const minFactor = mobile ? 0.88 : 0.92;
+    const maxFactor = mobile ? 0.98 : 1;
+    const width = columnWidth * (minFactor + random() * (maxFactor - minFactor));
 
     return {
       tile,
-      columnIndex: index % columnCount,
       width,
       height: width / Math.max(aspectRatio, 0.2),
     };
   });
   const columnOffsets = Array.from({ length: columnCount }, () => (random() - 0.5) * Math.min(gap * 1.6, slotWidth * 0.16));
-  const columnTops = [...columnOffsets];
-  const basePlaced = cellMetrics.map((cell) => {
-    const columnCenter = cell.columnIndex * columnStep - patternWidth / 2 + columnStep / 2;
-    const y = columnTops[cell.columnIndex];
+  const stackHeight = stackMetrics.reduce((height, cell) => height + cell.height + gap, 0);
+  const patternHeight = stackHeight;
+  const basePlaced: PlacedTile[] = [];
 
-    columnTops[cell.columnIndex] = y + cell.height + gap;
-    return {
-      tile: cell.tile,
-      x: columnCenter - cell.width / 2,
-      y,
-      width: cell.width,
-      height: cell.height,
-    };
-  });
-  const minTop = Math.min(...basePlaced.map((tile) => tile.y));
-  const maxBottom = Math.max(...basePlaced.map((tile) => tile.y + tile.height));
-  const patternHeight = maxBottom - minTop + gap;
+  Array.from({ length: columnCount }, (_, columnIndex) => columnIndex).forEach((columnIndex) => {
+    const columnCenter = columnIndex * columnStep - patternWidth / 2 + columnWidth / 2;
+    const rotation = columnIndex % rowCount;
+    let y = columnOffsets[columnIndex] - patternHeight / 2;
 
-  basePlaced.forEach((tile) => {
-    tile.y -= minTop + patternHeight / 2;
+    Array.from({ length: rowCount }, (_, rowIndex) => rowIndex).forEach((rowIndex) => {
+      const cell = stackMetrics[(rowIndex + rotation) % rowCount];
+
+      basePlaced.push({
+        tile: cell.tile,
+        x: columnCenter - cell.width / 2,
+        y,
+        width: cell.width,
+        height: cell.height,
+      });
+      y += cell.height + gap;
+    });
   });
   const placed: PlacedTile[] = [];
   const repeatOffsets = [-1, 0, 1];
