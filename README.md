@@ -143,9 +143,10 @@ Set the public Mapbox token once on the existing map element through Webflow cus
 
 ## CMS Canvas
 
-The CMS Canvas is delivered by `cms-canvas.css` and `dist/cms-canvas.js`. It reads a
-hidden Webflow Collection List, creates the visible tiles, distributes them
-deterministically, and opens the existing site modal on click.
+The CMS Canvas is delivered by `cms-canvas.css` and `dist/cms-canvas.js`. It is a
+small React app bundled with GSAP. Webflow still owns the CMS and renders a hidden
+Collection List; React reads that list, renders the visible canvas tiles, and opens
+the existing `SiteInteractions` modal on click.
 
 Load the shared modal assets first. Pin every jsDelivr URL to the same Git commit.
 
@@ -171,21 +172,17 @@ wrapper or placed elsewhere on the same page.
 ```html
 <main
   data-cms-canvas
-  data-canvas-width="4200"
-  data-canvas-height="2800"
-  data-canvas-gap="150"
-  data-canvas-padding="220"
-  data-canvas-layout="klaffensteiner"
-  data-canvas-item-width-min="15"
-  data-canvas-item-width-max="20"
+  data-canvas-repeat="auto"
+  data-canvas-min-visible-items="24"
+  data-canvas-column-count="7"
+  data-canvas-item-width-min="10"
+  data-canvas-item-width-max="17"
   data-canvas-portrait-width-min="8"
-  data-canvas-portrait-width-max="12"
-  data-canvas-item-gap-min="4"
-  data-canvas-item-gap-max="8"
-  data-canvas-item-jitter="1"
-  data-canvas-repeat="4"
-  data-canvas-motion="eased"
-  data-canvas-inertia="true"
+  data-canvas-portrait-width-max="13"
+  data-canvas-column-gap="9"
+  data-canvas-row-gap-min="10"
+  data-canvas-row-gap-max="18"
+  data-canvas-bounds-padding="120"
 >
   <div data-cms-canvas-source>
     <div class="w-dyn-list">
@@ -194,7 +191,6 @@ wrapper or placed elsewhere on the same page.
           class="w-dyn-item"
           data-cms-canvas-item
           data-canvas-id="cms-slug"
-          data-canvas-priority="0"
         >
           <img data-canvas-thumbnail src="thumbnail.jpg" alt="Project title">
           <div data-canvas-title>Project title</div>
@@ -213,43 +209,35 @@ wrapper or placed elsewhere on the same page.
 ```
 
 In Webflow, apply the attributes to the corresponding Collection Item and its CMS
-field elements. Bind `data-canvas-id` to the CMS slug so positions stay stable.
-The modal address, large image, caption, and body are optional. If the large image
-is missing, the thumbnail is used.
+field elements. Bind `data-canvas-id` to the CMS slug. The modal address, large
+image, caption, and body are optional. If the large image is missing, the thumbnail
+is used.
 
 All root configuration attributes are optional:
 
 ```text
-data-canvas-width          Canvas width in pixels (default: max of 4200 or 3.6 viewports)
-data-canvas-height         Canvas height in pixels (default: max of 2800 or 3.4 viewports)
-data-canvas-gap            Minimum tile spacing in pixels (default: 150)
-data-canvas-padding        Empty outer edge in pixels (default: 220)
-data-canvas-layout         "klaffensteiner", "center-out", "percent-grid", or "pixel-grid" (default: klaffensteiner)
-data-canvas-item-width-min Minimum tile width in vw-like viewport % (default: 15 desktop, 80 mobile)
-data-canvas-item-width-max Maximum tile width in vw-like viewport % (default: 20 desktop, 90 mobile)
-data-canvas-portrait-width-min Minimum portrait tile width in viewport % (default: 8 desktop, 80 mobile)
-data-canvas-portrait-width-max Maximum portrait tile width in viewport % (default: 12 desktop, 90 mobile)
-data-canvas-item-gap-min   Minimum item spacing in vw-like viewport % (default: 4 desktop, 3 mobile)
-data-canvas-item-gap-max   Maximum item spacing in vw-like viewport % (default: 8)
-data-canvas-item-gap-map   Accepted typo fallback for data-canvas-item-gap-max
-data-canvas-item-jitter    Deterministic placement looseness from 0 to 3 (default: 1 for klaffensteiner, 0.04 otherwise)
-data-canvas-repeat         Visible copies per CMS item for layout testing/filling (default: 4 for klaffensteiner, 1 otherwise)
-data-canvas-item-widths    Legacy pixel-grid width choices (default: 180,240,300)
-data-canvas-bounds-padding Extra pan space beyond outermost tiles in pixels (default: 120)
-data-canvas-motion         "eased" or "instant" panning (default: eased)
-data-canvas-inertia        Enable release momentum unless set to false (default: true)
-data-canvas-ease           Eased panning amount from 0.04 to 1 (default: 0.16)
-data-canvas-friction       Momentum friction from 0.5 to 0.98 (default: 0.92)
-data-canvas-velocity       Momentum strength from 0.1 to 2 (default: 0.85)
+data-canvas-repeat              "auto" or a number from 1 to 12 (default: auto)
+data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24)
+data-canvas-column-count        Desktop column count (default: 7, mobile max: 3)
+data-canvas-item-width-min      Landscape/square minimum width in viewport % (default: 10)
+data-canvas-item-width-max      Landscape/square maximum width in viewport % (default: 17)
+data-canvas-portrait-width-min  Portrait minimum width in viewport % (default: 8)
+data-canvas-portrait-width-max  Portrait maximum width in viewport % (default: 13)
+data-canvas-column-gap          Column gap in viewport % (default: 9)
+data-canvas-row-gap-min         Minimum vertical gap in viewport % (default: 10)
+data-canvas-row-gap-max         Maximum vertical gap in viewport % (default: 18)
+data-canvas-bounds-padding      Extra pan space beyond outermost tiles in pixels (default: 120)
+data-canvas-inertia             Enable release momentum unless set to false (default: true)
+data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
+data-canvas-friction            Momentum friction from 0.5 to 0.98 (default: 0.92)
+data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
-The background uses the existing `--fw_off_white` CSS variable. The page supports
-mouse drag and touch pan with eased movement and short release momentum, but
-intentionally has no zoom. The default `klaffensteiner` layout hides hover titles
-and uses landscape widths of 15–20vw, portrait widths of 8–12vw, 4–8vw spacing,
-and a 12-column random-positioning model inspired by the reference behavior.
-For users with `prefers-reduced-motion: reduce`, momentum and the load scale
-animation are reduced automatically.
+The background uses the existing `--fw_off_white` CSS variable. The canvas supports
+mouse drag and touch pan with GSAP-powered eased movement, release momentum, a
+small drag scale, and soft bounds. Each refresh creates a new Prince-inspired
+vertical column composition. Users with `prefers-reduced-motion: reduce` get
+reduced animation and no momentum.
 
 ## Lightbox API
 

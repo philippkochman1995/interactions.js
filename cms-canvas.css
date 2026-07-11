@@ -30,18 +30,10 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0;
-  transform-origin: 0 0;
+  width: 1px;
+  height: 1px;
+  transform-origin: 50% 50%;
   will-change: transform;
-  transition: opacity 240ms ease;
-}
-
-.cms-canvas.is-ready .cms-canvas__stage {
-  opacity: 1;
-}
-
-.cms-canvas.is-settling .cms-canvas__stage {
-  transition: opacity 240ms ease;
 }
 
 .cms-canvas__item {
@@ -54,26 +46,12 @@ body {
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--fw_dark_purple);
-  font: inherit;
-  text-align: left;
   cursor: pointer;
   opacity: 0;
-  transform: scale(0.8);
   transform-origin: center center;
-  transition: opacity 700ms ease, transform 1000ms ease-out;
   will-change: transform, opacity;
   appearance: none;
   -webkit-appearance: none;
-}
-
-.cms-canvas.is-ready .cms-canvas__item {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.cms-canvas--no-hover .cms-canvas__title {
-  display: none;
 }
 
 .cms-canvas.is-dragging .cms-canvas__item {
@@ -81,38 +59,11 @@ body {
 }
 
 .cms-canvas__image {
-  position: relative;
-  z-index: 2;
   display: block;
   width: 100%;
   height: auto;
   pointer-events: none;
-}
-
-.cms-canvas__title {
-  position: absolute;
-  z-index: 1;
-  top: 100%;
-  left: 0;
-  display: block;
-  max-width: 100%;
-  padding-top: 0.55rem;
-  color: var(--fw_dark_purple);
-  font-family: 'StyreneA', sans-serif;
-  font-size: var(--_sizes---p-small-font-size, 0.875rem);
-  line-height: 1.25;
-  opacity: 0;
-  transform: translate3d(0, -100%, 0);
-  transition: opacity 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cms-canvas__item:hover .cms-canvas__title,
-  .cms-canvas__item:focus-visible .cms-canvas__title {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
+  -webkit-user-drag: none;
 }
 
 .cms-canvas__item:focus-visible {
@@ -120,19 +71,7 @@ body {
   outline-offset: 0.35rem;
 }
 
-@media (max-width: 767px) {
-  .cms-canvas__item {
-    max-width: min(70vw, 15rem);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .cms-canvas__stage,
-  .cms-canvas__item,
-  .cms-canvas__title {
-    transition-duration: 1ms !important;
-  }
-
   .cms-canvas__item {
     transform: scale(1);
   }
