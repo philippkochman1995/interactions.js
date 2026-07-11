@@ -176,6 +176,7 @@ wrapper or placed elsewhere on the same page.
   data-canvas-column-count="8"
   data-canvas-items-per-column="8"
   data-canvas-grid-gap="25"
+  data-canvas-grid-zoom="1.45"
 >
   <div data-cms-canvas-source>
     <div class="w-dyn-list">
@@ -214,6 +215,7 @@ data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (defaul
 data-canvas-column-count        Desktop columns in the base pattern (default: 8, mobile max: 4)
 data-canvas-items-per-column    Rows per column in the base pattern (default: 8)
 data-canvas-grid-gap            Grid gap in pixels, both X and Y (default: 25)
+data-canvas-grid-zoom           Pattern scale while keeping column count (default: 1.45)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
 data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
 data-canvas-friction            Momentum friction from 0.5 to 0.98 (default: 0.92)
@@ -223,10 +225,12 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
 an infinite-feeling repeated grid pattern: by default 8 columns × 8 rows, a 25px
 gap in both directions, and every tile centered on the X axis of its column. Tile
-widths vary slightly, but row and column rhythm stay regular. The base pattern is
-rendered around the viewport and wrapped with GSAP while dragging, so every column
-repeats on the Y axis and every row repeats on the X axis without hard bounds.
-Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
+widths vary slightly, but row and column rhythm stay regular. `data-canvas-grid-zoom`
+makes the whole pattern larger while keeping 8 columns, so fewer elements are
+visible at once. The base pattern is rendered around the viewport and wrapped with
+GSAP while dragging, so every column repeats on the Y axis and every row repeats
+on the X axis without hard bounds. Users with `prefers-reduced-motion: reduce` get
+reduced animation and no momentum.
 
 ## Lightbox API
 

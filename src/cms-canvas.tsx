@@ -64,6 +64,7 @@ interface CanvasConfig {
   columnCount: number;
   itemsPerColumn: number;
   gridGap: number;
+  gridZoom: number;
   itemWidthMin: number;
   itemWidthMax: number;
   portraitItemWidthMin: number;
@@ -223,6 +224,7 @@ function readConfig(root: HTMLElement): CanvasConfig {
     columnCount: Math.round(boundedNumberAttribute(root, 'data-canvas-column-count', 8, 2, 14)),
     itemsPerColumn: Math.round(boundedNumberAttribute(root, 'data-canvas-items-per-column', 8, 2, 24)),
     gridGap: boundedNumberAttribute(root, 'data-canvas-grid-gap', 25, 0, 240),
+    gridZoom: boundedNumberAttribute(root, 'data-canvas-grid-zoom', 1.45, 0.7, 3),
     itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', 10, 4, 40),
     itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', 17, 4, 48),
     portraitItemWidthMin: boundedNumberAttribute(root, 'data-canvas-portrait-width-min', 8, 4, 40),
@@ -358,6 +360,14 @@ function applyResistance(value: number, min: number, max: number): number {
   return value;
 }
 
+function wrapAroundCenter(value: number, period: number, center: number): number {
+  if (period <= 0) {
+    return value;
+  }
+
+  return ((((value - center + period / 2) % period) + period) % period) - period / 2 + center;
+}
+
 function placeTiles(
   tiles: CanvasTileData[],
   measures: Map<string, ImageMeasure>,
@@ -380,9 +390,10 @@ function placeTiles(
   const rowCount = config.itemsPerColumn;
   const cellCount = columnCount * rowCount;
   const gap = config.gridGap;
-  const slotWidth = mobile
+  const baseSlotWidth = mobile
     ? Math.max(170, viewportWidth * 0.48)
     : Math.max(150, (viewportWidth - (columnCount - 1) * gap) / columnCount);
+  const slotWidth = baseSlotWidth * config.gridZoom;
   const columnStep = slotWidth + gap;
   const patternWidth = columnCount * columnStep;
   const patternTiles = shuffled(tiles, random).slice(0, cellCount);
@@ -562,27 +573,14 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     );
     root.classList.add('is-ready');
 
-    const wrapPosition = () => {
+    const visiblePosition = (): Point => {
       const centerX = root.clientWidth / 2;
       const centerY = root.clientHeight / 2;
-      const halfPatternWidth = pattern.width / 2;
-      const halfPatternHeight = pattern.height / 2;
 
-      if (position.x > centerX + halfPatternWidth) {
-        position.x -= pattern.width;
-        target.x -= pattern.width;
-      } else if (position.x < centerX - halfPatternWidth) {
-        position.x += pattern.width;
-        target.x += pattern.width;
-      }
-
-      if (position.y > centerY + halfPatternHeight) {
-        position.y -= pattern.height;
-        target.y -= pattern.height;
-      } else if (position.y < centerY - halfPatternHeight) {
-        position.y += pattern.height;
-        target.y += pattern.height;
-      }
+      return {
+        x: wrapAroundCenter(position.x, pattern.width, centerX),
+        y: wrapAroundCenter(position.y, pattern.height, centerY),
+      };
     };
 
     const tick = () => {
@@ -595,9 +593,9 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
 
       position.x += (target.x - position.x) * config.ease;
       position.y += (target.y - position.y) * config.ease;
-      wrapPosition();
+      const visible = visiblePosition();
 
-      gsap.set(stage, { x: position.x, y: position.y });
+      gsap.set(stage, { x: visible.x, y: visible.y });
 
       if (Math.abs(velocity.x) < 0.02) {
         velocity.x = 0;

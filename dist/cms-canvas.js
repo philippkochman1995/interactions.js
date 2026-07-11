@@ -9918,6 +9918,7 @@ function ra(e) {
 		columnCount: Math.round(Ji(e, "data-canvas-column-count", 8, 2, 14)),
 		itemsPerColumn: Math.round(Ji(e, "data-canvas-items-per-column", 8, 2, 24)),
 		gridGap: Ji(e, "data-canvas-grid-gap", 25, 0, 240),
+		gridZoom: Ji(e, "data-canvas-grid-zoom", 1.45, .7, 3),
 		itemWidthMin: Ji(e, "data-canvas-item-width-min", 10, 4, 40),
 		itemWidthMax: Ji(e, "data-canvas-item-width-max", 17, 4, 48),
 		portraitItemWidthMin: Ji(e, "data-canvas-portrait-width-min", 8, 4, 40),
@@ -9986,7 +9987,10 @@ function sa(e) {
 		bottom: -Infinity
 	});
 }
-function ca(e, t, n, r, i, a) {
+function ca(e, t, n) {
+	return t <= 0 ? e : ((e - n + t / 2) % t + t) % t - t / 2 + n;
+}
+function la(e, t, n, r, i, a) {
 	if (e.length === 0) return {
 		placed: [],
 		bounds: {
@@ -9998,7 +10002,7 @@ function ca(e, t, n, r, i, a) {
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = r < 768, s = o ? Math.min(4, n.columnCount) : n.columnCount, c = n.itemsPerColumn, l = s * c, u = n.gridGap, d = o ? Math.max(170, r * .48) : Math.max(150, (r - (s - 1) * u) / s), f = d + u, p = s * f, m = Qi(e, a).slice(0, l), h = Array.from({ length: l }, (e, t) => m[t % m.length]).map((e) => {
+	let o = r < 768, s = o ? Math.min(4, n.columnCount) : n.columnCount, c = n.itemsPerColumn, l = s * c, u = n.gridGap, d = (o ? Math.max(170, r * .48) : Math.max(150, (r - (s - 1) * u) / s)) * n.gridZoom, f = d + u, p = s * f, m = Qi(e, a).slice(0, l), h = Array.from({ length: l }, (e, t) => m[t % m.length]).map((e) => {
 		var n;
 		let r = (n = t.get(e.instanceId)) == null ? oa(e) : n, i = r.width / Math.max(r.height, 1), s = i < .82, c = o ? .78 : s ? .58 : .72, l = o ? .9 : s ? .68 : .84, u = d * (c + a() * (l - c));
 		return {
@@ -10048,14 +10052,14 @@ function ca(e, t, n, r, i, a) {
 		patternHeight: y
 	};
 }
-function la(e, t) {
+function ua(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function ua({ placed: e }) {
+function da({ placed: e }) {
 	return /* @__PURE__ */ (0, Ri.jsx)("button", {
 		type: "button",
 		className: "cms-canvas__item",
@@ -10067,7 +10071,7 @@ function ua({ placed: e }) {
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
-		onClick: (t) => la(e.tile, t.currentTarget),
+		onClick: (t) => ua(e.tile, t.currentTarget),
 		children: /* @__PURE__ */ (0, Ri.jsx)("img", {
 			className: "cms-canvas__image",
 			src: e.tile.thumbnail,
@@ -10076,7 +10080,7 @@ function ua({ placed: e }) {
 		})
 	});
 }
-function da({ root: e, items: t, source: n }) {
+function fa({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		left: 0,
 		top: 0,
@@ -10092,7 +10096,7 @@ function da({ root: e, items: t, source: n }) {
 		let n = !1, r = Zi(d.current), i = Math.max(e.clientWidth, window.innerWidth), o = Math.max(e.clientHeight, window.innerHeight), c = ia(t, u);
 		return Promise.all(c.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((e) => {
 			if (n) return;
-			let t = new Map(e), d = ca(c, t, u, i, o, r);
+			let t = new Map(e), d = la(c, t, u, i, o, r);
 			a(d.placed), s(d.bounds), l({
 				width: d.patternWidth,
 				height: d.patternHeight
@@ -10142,12 +10146,17 @@ function da({ root: e, items: t, source: n }) {
 			}
 		}), e.classList.add("is-ready");
 		let g = () => {
-			let t = e.clientWidth / 2, r = e.clientHeight / 2, i = c.width / 2, o = c.height / 2;
-			n.x > t + i ? (n.x -= c.width, a.x -= c.width) : n.x < t - i && (n.x += c.width, a.x += c.width), n.y > r + o ? (n.y -= c.height, a.y -= c.height) : n.y < r - o && (n.y += c.height, a.y += c.height);
+			let t = e.clientWidth / 2, r = e.clientHeight / 2;
+			return {
+				x: ca(n.x, c.width, t),
+				y: ca(n.y, c.height, r)
+			};
 		}, _ = () => {
-			s === null && u.inertia && (a.x += o.x, a.y += o.y, o.x *= u.friction, o.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease, g(), Ii.set(t, {
-				x: n.x,
-				y: n.y
+			s === null && u.inertia && (a.x += o.x, a.y += o.y, o.x *= u.friction, o.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease;
+			let e = g();
+			Ii.set(t, {
+				x: e.x,
+				y: e.y
 			}), Math.abs(o.x) < .02 && (o.x = 0), Math.abs(o.y) < .02 && (o.y = 0);
 		}, v = (n) => {
 			n.button !== 0 && n.pointerType === "mouse" || (s = n.pointerId, l = {
@@ -10204,10 +10213,10 @@ function da({ root: e, items: t, source: n }) {
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ua, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(da, { placed: e }, e.tile.instanceId))
 	});
 }
-function fa(e) {
+function pa(e) {
 	var t;
 	if (Wi.has(e)) {
 		var n;
@@ -10221,7 +10230,7 @@ function fa(e) {
 	let i = na(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(da, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(fa, {
 		root: e,
 		items: i,
 		source: r
@@ -10230,11 +10239,11 @@ function fa(e) {
 Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(fa);
+		e.forEach(pa);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), fa(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), pa(n));
 });
 //#endregion
 
