@@ -486,7 +486,6 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       data-canvas-item-id={placed.tile.instanceId}
       data-canvas-source-item-id={placed.tile.sourceId}
       aria-label={placed.tile.title || 'Details öffnen'}
-      onClick={(event) => openItemModal(placed.tile, event.currentTarget)}
     >
       <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
     </button>
@@ -552,6 +551,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     let positionStart: Point = { x: 0, y: 0 };
     let dragged = false;
     let pressedTile: HTMLElement | null = null;
+    const itemByInstanceId = new Map(placed.map((tile) => [tile.tile.instanceId, tile.tile]));
 
     position = { ...target };
 
@@ -657,13 +657,15 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       root.classList.remove('is-dragging');
       gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
 
-      if (dragged && pressedTile) {
-        const preventClick = (clickEvent: MouseEvent) => {
-          clickEvent.preventDefault();
-          clickEvent.stopPropagation();
-          pressedTile?.removeEventListener('click', preventClick, true);
-        };
-        pressedTile.addEventListener('click', preventClick, true);
+      const releasedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
+
+      if (!dragged && pressedTile && releasedTile === pressedTile) {
+        const itemId = pressedTile.dataset.canvasItemId;
+        const item = itemId ? itemByInstanceId.get(itemId) : undefined;
+
+        if (item) {
+          openItemModal(item, pressedTile);
+        }
       }
 
       pressedTile = null;
@@ -674,11 +676,29 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       target.y = root.clientHeight / 2;
     };
 
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      const tile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
+      const itemId = tile?.dataset.canvasItemId;
+      const item = itemId ? itemByInstanceId.get(itemId) : undefined;
+
+      if (!tile || !item) {
+        return;
+      }
+
+      event.preventDefault();
+      openItemModal(item, tile);
+    };
+
     gsap.ticker.add(tick);
     root.addEventListener('pointerdown', onPointerDown);
     root.addEventListener('pointermove', onPointerMove);
     root.addEventListener('pointerup', onPointerUp);
     root.addEventListener('pointercancel', onPointerUp);
+    root.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize);
 
     return () => {
@@ -687,6 +707,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       root.removeEventListener('pointermove', onPointerMove);
       root.removeEventListener('pointerup', onPointerUp);
       root.removeEventListener('pointercancel', onPointerUp);
+      root.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
     };

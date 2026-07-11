@@ -10071,7 +10071,6 @@ function da({ placed: e }) {
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
-		onClick: (t) => ua(e.tile, t.currentTarget),
 		children: /* @__PURE__ */ (0, Ri.jsx)("img", {
 			className: "cms-canvas__image",
 			src: e.tile.thumbnail,
@@ -10126,7 +10125,7 @@ function fa({ root: e, items: t, source: n }) {
 		}, f = 0, p = {
 			x: 0,
 			y: 0
-		}, m = !1, h = null;
+		}, m = !1, h = null, g = new Map(i.map((e) => [e.tile.instanceId, e.tile]));
 		n = { ...a }, Ii.set(t, {
 			x: n.x,
 			y: n.y,
@@ -10145,20 +10144,20 @@ function fa({ root: e, items: t, source: n }) {
 				from: "random"
 			}
 		}), e.classList.add("is-ready");
-		let g = () => {
+		let _ = () => {
 			let t = e.clientWidth / 2, r = e.clientHeight / 2;
 			return {
 				x: ca(n.x, c.width, t),
 				y: ca(n.y, c.height, r)
 			};
-		}, _ = () => {
+		}, v = () => {
 			s === null && u.inertia && (a.x += o.x, a.y += o.y, o.x *= u.friction, o.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease;
-			let e = g();
+			let e = _();
 			Ii.set(t, {
 				x: e.x,
 				y: e.y
 			}), Math.abs(o.x) < .02 && (o.x = 0), Math.abs(o.y) < .02 && (o.y = 0);
-		}, v = (n) => {
+		}, y = (n) => {
 			n.button !== 0 && n.pointerType === "mouse" || (s = n.pointerId, l = {
 				x: n.clientX,
 				y: n.clientY
@@ -10170,7 +10169,7 @@ function fa({ root: e, items: t, source: n }) {
 				duration: .32,
 				ease: "power2.out"
 			}));
-		}, y = (e) => {
+		}, b = (e) => {
 			if (s !== e.pointerId) return;
 			e.preventDefault();
 			let t = e.clientX - l.x, n = e.clientY - l.y;
@@ -10183,25 +10182,28 @@ function fa({ root: e, items: t, source: n }) {
 				x: e.clientX,
 				y: e.clientY
 			}, f = r;
-		}, b = (n) => {
-			if (s === n.pointerId) {
-				if (s = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Ii.to(t, {
-					scale: 1,
-					duration: u.reducedMotion ? .01 : .45,
-					ease: "elastic.out(1, 0.72)"
-				}), m && h) {
-					let e = (t) => {
-						t.preventDefault(), t.stopPropagation(), h == null || h.removeEventListener("click", e, !0);
-					};
-					h.addEventListener("click", e, !0);
-				}
-				h = null;
+		}, x = (n) => {
+			if (s !== n.pointerId) return;
+			s = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Ii.to(t, {
+				scale: 1,
+				duration: u.reducedMotion ? .01 : .45,
+				ease: "elastic.out(1, 0.72)"
+			});
+			let r = n.target.closest(".cms-canvas__item");
+			if (!m && h && r === h) {
+				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
+				t && ua(t, h);
 			}
-		}, x = () => {
+			h = null;
+		}, S = () => {
 			a.x = e.clientWidth / 2, a.y = e.clientHeight / 2;
+		}, C = (e) => {
+			if (e.key !== "Enter" && e.key !== " ") return;
+			let t = e.target.closest(".cms-canvas__item"), n = t == null ? void 0 : t.dataset.canvasItemId, r = n ? g.get(n) : void 0;
+			!t || !r || (e.preventDefault(), ua(r, t));
 		};
-		return Ii.ticker.add(_), e.addEventListener("pointerdown", v), e.addEventListener("pointermove", y), e.addEventListener("pointerup", b), e.addEventListener("pointercancel", b), window.addEventListener("resize", x), () => {
-			Ii.ticker.remove(_), e.removeEventListener("pointerdown", v), e.removeEventListener("pointermove", y), e.removeEventListener("pointerup", b), e.removeEventListener("pointercancel", b), window.removeEventListener("resize", x), e.classList.remove("is-ready", "is-dragging");
+		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), e.addEventListener("keydown", C), window.addEventListener("resize", S), () => {
+			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("keydown", C), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
 		};
 	}, [
 		o,
