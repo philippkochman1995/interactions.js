@@ -30,6 +30,13 @@ interface PlacedTile {
   height: number;
 }
 
+interface LayoutResult {
+  placed: PlacedTile[];
+  bounds: ContentBounds;
+  patternWidth: number;
+  patternHeight: number;
+}
+
 interface Point {
   x: number;
   y: number;
@@ -55,6 +62,8 @@ interface CanvasConfig {
   repeatMode: 'auto' | 'fixed';
   repeat: number;
   columnCount: number;
+  itemsPerColumn: number;
+  gridGap: number;
   itemWidthMin: number;
   itemWidthMax: number;
   portraitItemWidthMin: number;
@@ -211,7 +220,9 @@ function readConfig(root: HTMLElement): CanvasConfig {
     layoutDensity: root.getAttribute('data-canvas-layout-density') === 'loose' ? 'loose' : 'balanced',
     repeatMode: repeatValue === 'auto' || !repeatValue ? 'auto' : 'fixed',
     repeat: Math.round(boundedNumberAttribute(root, 'data-canvas-repeat', 1, 1, 12)),
-    columnCount: Math.round(boundedNumberAttribute(root, 'data-canvas-column-count', 7, 2, 14)),
+    columnCount: Math.round(boundedNumberAttribute(root, 'data-canvas-column-count', 8, 2, 14)),
+    itemsPerColumn: Math.round(boundedNumberAttribute(root, 'data-canvas-items-per-column', 8, 2, 24)),
+    gridGap: boundedNumberAttribute(root, 'data-canvas-grid-gap', 25, 0, 240),
     itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', 10, 4, 40),
     itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', 17, 4, 48),
     portraitItemWidthMin: boundedNumberAttribute(root, 'data-canvas-portrait-width-min', 8, 4, 40),
@@ -235,7 +246,11 @@ function expandItems(items: CanvasItem[], config: CanvasConfig): CanvasTileData[
 
   const repeat =
     config.repeatMode === 'auto'
-      ? clamp(Math.ceil(config.minVisibleItems / items.length), 1, 12)
+      ? clamp(
+          Math.ceil(Math.max(config.minVisibleItems, config.columnCount * config.itemsPerColumn) / items.length),
+          1,
+          64,
+        )
       : config.repeat;
   const expanded: CanvasTileData[] = [];
 
@@ -350,76 +365,94 @@ function placeTiles(
   viewportWidth: number,
   viewportHeight: number,
   random: () => number,
-): PlacedTile[] {
-  const mobile = viewportWidth < 768;
-  const columnCount = mobile ? Math.min(3, config.columnCount) : config.columnCount;
-  const rowGapMin = (viewportWidth * config.rowGapMin) / 100;
-  const rowGapMax = (viewportWidth * config.rowGapMax) / 100;
-  const columnGap = (viewportWidth * config.columnGap) / 100;
-  const bandHeight = Math.max(viewportHeight * 0.34, rowGapMax * 1.9);
-  const bandColumnOrder = Array.from({ length: columnCount }, (_, index) => index);
-  const columns = Array.from({ length: columnCount }, (_, index) => ({
-    index,
-    x: 0,
-    y: config.layoutDensity === 'balanced' ? (random() - 0.5) * viewportHeight * 0.14 : (random() - 0.5) * viewportHeight * 0.72,
-  }));
-  const baseWidth = mobile ? viewportWidth * 0.62 : viewportWidth * 0.135;
-  const totalWidth = (columnCount - 1) * (baseWidth + columnGap);
-  const ordered = shuffled(tiles, random);
-  const placed: PlacedTile[] = [];
-
-  columns.forEach((column) => {
-    column.x = column.index * (baseWidth + columnGap) - totalWidth / 2;
-  });
-
-  for (let index = bandColumnOrder.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(random() * (index + 1));
-    [bandColumnOrder[index], bandColumnOrder[swapIndex]] = [bandColumnOrder[swapIndex], bandColumnOrder[index]];
+): LayoutResult {
+  if (tiles.length === 0) {
+    return {
+      placed: [],
+      bounds: { left: 0, top: 0, right: 0, bottom: 0 },
+      patternWidth: viewportWidth,
+      patternHeight: viewportHeight,
+    };
   }
 
-  ordered.forEach((tile, index) => {
+  const mobile = viewportWidth < 768;
+  const columnCount = mobile ? Math.min(4, config.columnCount) : config.columnCount;
+  const rowCount = config.itemsPerColumn;
+  const cellCount = columnCount * rowCount;
+  const gap = config.gridGap;
+  const slotWidth = mobile
+    ? Math.max(170, viewportWidth * 0.48)
+    : Math.max(150, (viewportWidth - (columnCount - 1) * gap) / columnCount);
+  const columnStep = slotWidth + gap;
+  const patternWidth = columnCount * columnStep;
+  const patternTiles = shuffled(tiles, random).slice(0, cellCount);
+  const cells = Array.from({ length: cellCount }, (_, index) => patternTiles[index % patternTiles.length]);
+  const cellMetrics = cells.map((tile) => {
     const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
     const isPortrait = aspectRatio < 0.82;
-    const widthMin = mobile ? 48 : isPortrait ? config.portraitItemWidthMin : config.itemWidthMin;
-    const widthMax = mobile ? 76 : isPortrait ? config.portraitItemWidthMax : config.itemWidthMax;
-    const widthPercent = widthMin + random() * Math.max(widthMax - widthMin, 0);
-    const width = clamp((viewportWidth * widthPercent) / 100, mobile ? 150 : 120, mobile ? viewportWidth * 0.78 : 460);
-    const height = width / Math.max(aspectRatio, 0.2);
-    const targetBand = config.layoutDensity === 'balanced' ? Math.floor(index / columnCount) : null;
-    const targetColumnIndex =
-      config.layoutDensity === 'balanced' ? bandColumnOrder[index % columnCount] : null;
-    const candidates =
-      targetBand === null || targetColumnIndex === null
-        ? [...columns]
-        : columns
-            .map((column) => ({
-              column,
-              score:
-                Math.abs(column.index - targetColumnIndex) * bandHeight * 0.5 +
-                Math.abs(column.y - targetBand * bandHeight) +
-                random() * rowGapMin,
-            }))
-            .sort((a, b) => a.score - b.score)
-            .slice(0, Math.min(3, columns.length))
-            .map((candidate) => candidate.column);
-    const column = [...candidates].sort((a, b) => a.y - b.y || random() - 0.5)[0];
-    const x = column.x - width / 2;
-    const baseY = targetBand === null ? column.y : Math.max(column.y, targetBand * bandHeight);
-    const y =
-      baseY +
-      (config.layoutDensity === 'balanced'
-        ? (random() - 0.5) * Math.min(rowGapMin * 0.9, viewportHeight * 0.04)
-        : index < columnCount
-          ? (random() - 0.5) * viewportHeight * 0.28
-          : 0);
-    const rowGap = rowGapMin + random() * Math.max(rowGapMax - rowGapMin, 0);
+    const minFactor = mobile ? 0.78 : isPortrait ? 0.58 : 0.72;
+    const maxFactor = mobile ? 0.9 : isPortrait ? 0.68 : 0.84;
+    const width = slotWidth * (minFactor + random() * (maxFactor - minFactor));
 
-    placed.push({ tile, x, y, width, height });
-    column.y = y + height + rowGap;
+    return {
+      tile,
+      width,
+      height: width / Math.max(aspectRatio, 0.2),
+    };
+  });
+  const rowHeights = Array.from({ length: rowCount }, (_, rowIndex) => {
+    const rowCells = cellMetrics.slice(rowIndex * columnCount, (rowIndex + 1) * columnCount);
+    return Math.max(...rowCells.map((cell) => cell.height), slotWidth * 0.62);
+  });
+  const rowTops: number[] = [];
+  let nextRowTop = 0;
+
+  rowHeights.forEach((height) => {
+    rowTops.push(nextRowTop);
+    nextRowTop += height + gap;
   });
 
-  return placed;
+  const patternHeight = nextRowTop;
+  const basePlaced = cellMetrics.map((cell, index) => {
+    const columnIndex = index % columnCount;
+    const rowIndex = Math.floor(index / columnCount);
+    const columnCenter = columnIndex * columnStep - patternWidth / 2 + columnStep / 2;
+    const rowCenter = rowTops[rowIndex] - patternHeight / 2 + rowHeights[rowIndex] / 2;
+
+    return {
+      tile: cell.tile,
+      x: columnCenter - cell.width / 2,
+      y: rowCenter - cell.height / 2,
+      width: cell.width,
+      height: cell.height,
+    };
+  });
+  const placed: PlacedTile[] = [];
+  const repeatOffsets = [-1, 0, 1];
+
+  repeatOffsets.forEach((repeatY) => {
+    repeatOffsets.forEach((repeatX) => {
+      basePlaced.forEach((tile, index) => {
+        placed.push({
+          ...tile,
+          tile: {
+            ...tile.tile,
+            instanceId: `${tile.tile.instanceId}--grid-${index}--${repeatX}-${repeatY}`,
+          },
+          x: tile.x + repeatX * patternWidth,
+          y: tile.y + repeatY * patternHeight,
+        });
+      });
+    });
+  });
+
+  return {
+    placed,
+    bounds: contentBoundsFrom(placed),
+    patternWidth,
+    patternHeight,
+  };
 }
 
 function openItemModal(item: CanvasTileData, trigger: HTMLElement): void {
@@ -457,6 +490,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [placed, setPlaced] = useState<PlacedTile[]>([]);
   const [bounds, setBounds] = useState<ContentBounds>({ left: 0, top: 0, right: 0, bottom: 0 });
+  const [pattern, setPattern] = useState({ width: 1, height: 1 });
   const config = useMemo(() => readConfig(root), [root]);
   const seedRef = useRef(Math.floor(Math.random() * 0xffffffff));
 
@@ -480,9 +514,10 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       }
 
       const measures = new Map(entries);
-      const nextPlaced = placeTiles(tiles, measures, config, viewportWidth, viewportHeight, random);
-      setPlaced(nextPlaced);
-      setBounds(contentBoundsFrom(nextPlaced));
+      const nextLayout = placeTiles(tiles, measures, config, viewportWidth, viewportHeight, random);
+      setPlaced(nextLayout.placed);
+      setBounds(nextLayout.bounds);
+      setPattern({ width: nextLayout.patternWidth, height: nextLayout.patternHeight });
     });
 
     return () => {
@@ -497,11 +532,9 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       return;
     }
 
-    const panBounds = () => getPanBounds(bounds, root, config.boundsPadding);
-    let currentBounds = panBounds();
     let position: Point = {
-      x: root.clientWidth / 2 - (bounds.left + bounds.right) / 2,
-      y: root.clientHeight / 2 - (bounds.top + bounds.bottom) / 2,
+      x: root.clientWidth / 2,
+      y: root.clientHeight / 2,
     };
     let target: Point = { ...position };
     let velocity: Point = { x: 0, y: 0 };
@@ -513,8 +546,6 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     let dragged = false;
     let pressedTile: HTMLElement | null = null;
 
-    target.x = clamp(target.x, currentBounds.minX, currentBounds.maxX);
-    target.y = clamp(target.y, currentBounds.minY, currentBounds.maxY);
     position = { ...target };
 
     gsap.set(stage, { x: position.x, y: position.y, scale: 1, transformOrigin: '50% 50%' });
@@ -531,9 +562,30 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     );
     root.classList.add('is-ready');
 
-    const tick = () => {
-      currentBounds = panBounds();
+    const wrapPosition = () => {
+      const centerX = root.clientWidth / 2;
+      const centerY = root.clientHeight / 2;
+      const halfPatternWidth = pattern.width / 2;
+      const halfPatternHeight = pattern.height / 2;
 
+      if (position.x > centerX + halfPatternWidth) {
+        position.x -= pattern.width;
+        target.x -= pattern.width;
+      } else if (position.x < centerX - halfPatternWidth) {
+        position.x += pattern.width;
+        target.x += pattern.width;
+      }
+
+      if (position.y > centerY + halfPatternHeight) {
+        position.y -= pattern.height;
+        target.y -= pattern.height;
+      } else if (position.y < centerY - halfPatternHeight) {
+        position.y += pattern.height;
+        target.y += pattern.height;
+      }
+    };
+
+    const tick = () => {
       if (pointerId === null && config.inertia) {
         target.x += velocity.x;
         target.y += velocity.y;
@@ -541,16 +593,9 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
         velocity.y *= config.friction;
       }
 
-      const clampedX = clamp(target.x, currentBounds.minX, currentBounds.maxX);
-      const clampedY = clamp(target.y, currentBounds.minY, currentBounds.maxY);
-
-      if (pointerId === null) {
-        target.x += (clampedX - target.x) * 0.18;
-        target.y += (clampedY - target.y) * 0.18;
-      }
-
       position.x += (target.x - position.x) * config.ease;
       position.y += (target.y - position.y) * config.ease;
+      wrapPosition();
 
       gsap.set(stage, { x: position.x, y: position.y });
 
@@ -595,8 +640,8 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
         dragged = true;
       }
 
-      target.x = applyResistance(positionStart.x + dx, currentBounds.minX, currentBounds.maxX);
-      target.y = applyResistance(positionStart.y + dy, currentBounds.minY, currentBounds.maxY);
+      target.x = positionStart.x + dx;
+      target.y = positionStart.y + dy;
 
       const now = performance.now();
       const deltaTime = Math.max(now - pointerPreviousTime, 16);
@@ -631,9 +676,8 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     };
 
     const onResize = () => {
-      currentBounds = panBounds();
-      target.x = clamp(target.x, currentBounds.minX, currentBounds.maxX);
-      target.y = clamp(target.y, currentBounds.minY, currentBounds.maxY);
+      target.x = root.clientWidth / 2;
+      target.y = root.clientHeight / 2;
     };
 
     gsap.ticker.add(tick);
@@ -652,7 +696,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
     };
-  }, [bounds, config, placed.length, root]);
+  }, [bounds, config, pattern.height, pattern.width, placed.length, root]);
 
   return (
     <div className="cms-canvas__stage" ref={stageRef}>

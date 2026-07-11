@@ -172,18 +172,10 @@ wrapper or placed elsewhere on the same page.
 ```html
 <main
   data-cms-canvas
-  data-canvas-layout-density="balanced"
   data-canvas-repeat="auto"
-  data-canvas-min-visible-items="40"
-  data-canvas-column-count="7"
-  data-canvas-item-width-min="10"
-  data-canvas-item-width-max="14"
-  data-canvas-portrait-width-min="8"
-  data-canvas-portrait-width-max="11"
-  data-canvas-column-gap="7"
-  data-canvas-row-gap-min="7"
-  data-canvas-row-gap-max="12"
-  data-canvas-bounds-padding="120"
+  data-canvas-column-count="8"
+  data-canvas-items-per-column="8"
+  data-canvas-grid-gap="25"
 >
   <div data-cms-canvas-source>
     <div class="w-dyn-list">
@@ -218,32 +210,23 @@ All root configuration attributes are optional:
 
 ```text
 data-canvas-repeat              "auto" or a number from 1 to 12 (default: auto)
-data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24)
-data-canvas-layout-density      "balanced" or "loose" (default: balanced)
-data-canvas-column-count        Desktop column count (default: 7, mobile max: 3)
-data-canvas-item-width-min      Landscape/square minimum width in viewport % (default: 10)
-data-canvas-item-width-max      Landscape/square maximum width in viewport % (default: 17)
-data-canvas-portrait-width-min  Portrait minimum width in viewport % (default: 8)
-data-canvas-portrait-width-max  Portrait maximum width in viewport % (default: 13)
-data-canvas-column-gap          Column gap in viewport % (default: 9)
-data-canvas-row-gap-min         Minimum vertical gap in viewport % (default: 10)
-data-canvas-row-gap-max         Maximum vertical gap in viewport % (default: 18)
-data-canvas-bounds-padding      Extra pan space beyond outermost tiles in pixels (default: 120)
+data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24; at least columns × rows)
+data-canvas-column-count        Desktop columns in the base pattern (default: 8, mobile max: 4)
+data-canvas-items-per-column    Rows per column in the base pattern (default: 8)
+data-canvas-grid-gap            Grid gap in pixels, both X and Y (default: 25)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
 data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
 data-canvas-friction            Momentum friction from 0.5 to 0.98 (default: 0.92)
 data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
-The background uses the existing `--fw_off_white` CSS variable. The canvas supports
-mouse drag and touch pan with GSAP-powered eased movement, release momentum, a
-small drag scale, and soft bounds. Each refresh creates a new Prince-inspired
-vertical column composition. Items are centered on the X axis inside their column;
-only the order, sizes, vertical starts, and vertical gaps vary. The default
-`balanced` density uses loose row bands so adjacent columns stay visually filled
-and large horizontal holes are less likely. Use `data-canvas-layout-density="loose"`
-for the older, freer column behavior. Users with `prefers-reduced-motion: reduce`
-get reduced animation and no momentum.
+The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
+an infinite-feeling repeated grid pattern: by default 8 columns × 8 rows, a 25px
+gap in both directions, and every tile centered on the X axis of its column. Tile
+widths vary slightly, but row and column rhythm stay regular. The base pattern is
+rendered around the viewport and wrapped with GSAP while dragging, so every column
+repeats on the Y axis and every row repeats on the X axis without hard bounds.
+Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 ## Lightbox API
 

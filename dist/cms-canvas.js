@@ -9832,22 +9832,22 @@ var Li = /* @__PURE__ */ o(((e) => {
 	e.jsx = n;
 })), Ri = (/* @__PURE__ */ o(((e, t) => {
 	t.exports = Li();
-})))(), zi = "[data-cms-canvas]", Bi = "[data-cms-canvas-source]", Vi = "[data-cms-canvas-item]", Hi = 6, Ui = .26, Wi = 24, Gi = /* @__PURE__ */ new WeakMap();
-function Ki(e) {
+})))(), zi = "[data-cms-canvas]", Bi = "[data-cms-canvas-source]", Vi = "[data-cms-canvas-item]", Hi = 6, Ui = 24, Wi = /* @__PURE__ */ new WeakMap();
+function Gi(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function qi(e, t, n) {
+function Ki(e, t, n) {
 	return Math.min(Math.max(e, t), n);
 }
-function Ji(e, t, n) {
+function qi(e, t, n) {
 	var r;
 	let i = Number.parseFloat((r = e.getAttribute(t)) == null ? "" : r);
 	return Number.isFinite(i) && i > 0 ? i : n;
 }
-function Yi(e, t, n, r, i) {
-	return qi(Ji(e, t, n), r, i);
+function Ji(e, t, n, r, i) {
+	return Ki(qi(e, t, n), r, i);
 }
-function Xi(e, t, n) {
+function Yi(e, t, n) {
 	let r = e.getAttribute(t);
 	return r === null || r === "" ? n : ![
 		"false",
@@ -9856,12 +9856,12 @@ function Xi(e, t, n) {
 		"off"
 	].includes(r.trim().toLowerCase());
 }
-function Zi(e) {
+function Xi(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function Qi(e = Math.floor(Math.random() * 4294967295)) {
+function Zi(e = Math.floor(Math.random() * 4294967295)) {
 	let t = e >>> 0;
 	return () => {
 		t += 1831565813;
@@ -9869,7 +9869,7 @@ function Qi(e = Math.floor(Math.random() * 4294967295)) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function $i(e, t) {
+function Qi(e, t) {
 	let n = [...e];
 	for (let e = n.length - 1; e > 0; --e) {
 		let r = Math.floor(t() * (e + 1));
@@ -9877,18 +9877,18 @@ function $i(e, t) {
 	}
 	return n;
 }
-function ea(e, t) {
+function $i(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function ta(e, t) {
+function ea(e, t) {
 	return e.querySelector(t);
 }
-function na(e, t) {
+function ta(e, t) {
 	var n, r, i, a, o, s;
-	let c = (n = ta(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = (n = ea(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!l) return null;
-	let u = ea(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Zi(`${u}-${l}`)}`, f = ta(e, "[data-canvas-modal-image]"), p = e.querySelector("[data-canvas-modal-body]");
+	let u = $i(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Xi(`${u}-${l}`)}`, f = ea(e, "[data-canvas-modal-image]"), p = e.querySelector("[data-canvas-modal-body]");
 	return {
 		id: d,
 		title: u,
@@ -9896,44 +9896,46 @@ function na(e, t) {
 		thumbnailAlt: (o = c == null ? void 0 : c.alt) == null ? u : o,
 		modal: {
 			id: `canvas-${d}`,
-			address: ea(e, "[data-canvas-modal-address]") || u,
+			address: $i(e, "[data-canvas-modal-address]") || u,
 			image: (f == null ? void 0 : f.currentSrc) || (f == null ? void 0 : f.src) || l,
 			imageAlt: (f == null ? void 0 : f.alt) || (c == null ? void 0 : c.alt) || u,
-			caption: ea(e, "[data-canvas-modal-caption]"),
+			caption: $i(e, "[data-canvas-modal-caption]"),
 			html: (s = p == null ? void 0 : p.innerHTML) == null ? "" : s
 		}
 	};
 }
-function ra(e) {
-	return Array.from(e.querySelectorAll(Vi)).map(na).filter((e) => e !== null);
+function na(e) {
+	return Array.from(e.querySelectorAll(Vi)).map(ta).filter((e) => e !== null);
 }
-function ia(e) {
+function ra(e) {
 	var t;
 	let n = window.matchMedia("(prefers-reduced-motion: reduce)").matches, r = (t = e.getAttribute("data-canvas-repeat")) == null ? void 0 : t.trim().toLowerCase();
 	return {
-		minVisibleItems: Math.round(Yi(e, "data-canvas-min-visible-items", Wi, 1, 120)),
+		minVisibleItems: Math.round(Ji(e, "data-canvas-min-visible-items", Ui, 1, 120)),
 		layoutDensity: e.getAttribute("data-canvas-layout-density") === "loose" ? "loose" : "balanced",
 		repeatMode: r === "auto" || !r ? "auto" : "fixed",
-		repeat: Math.round(Yi(e, "data-canvas-repeat", 1, 1, 12)),
-		columnCount: Math.round(Yi(e, "data-canvas-column-count", 7, 2, 14)),
-		itemWidthMin: Yi(e, "data-canvas-item-width-min", 10, 4, 40),
-		itemWidthMax: Yi(e, "data-canvas-item-width-max", 17, 4, 48),
-		portraitItemWidthMin: Yi(e, "data-canvas-portrait-width-min", 8, 4, 40),
-		portraitItemWidthMax: Yi(e, "data-canvas-portrait-width-max", 13, 4, 48),
-		columnGap: Yi(e, "data-canvas-column-gap", 9, 1, 24),
-		rowGapMin: Yi(e, "data-canvas-row-gap-min", 10, 1, 34),
-		rowGapMax: Yi(e, "data-canvas-row-gap-max", 18, 1, 40),
-		boundsPadding: Yi(e, "data-canvas-bounds-padding", 120, 0, 800),
-		velocity: n ? 0 : Yi(e, "data-canvas-velocity", .85, .1, 2),
-		friction: n ? 0 : Yi(e, "data-canvas-friction", .92, .5, .98),
-		ease: n ? 1 : Yi(e, "data-canvas-ease", .16, .04, 1),
-		inertia: !n && Xi(e, "data-canvas-inertia", !0),
+		repeat: Math.round(Ji(e, "data-canvas-repeat", 1, 1, 12)),
+		columnCount: Math.round(Ji(e, "data-canvas-column-count", 8, 2, 14)),
+		itemsPerColumn: Math.round(Ji(e, "data-canvas-items-per-column", 8, 2, 24)),
+		gridGap: Ji(e, "data-canvas-grid-gap", 25, 0, 240),
+		itemWidthMin: Ji(e, "data-canvas-item-width-min", 10, 4, 40),
+		itemWidthMax: Ji(e, "data-canvas-item-width-max", 17, 4, 48),
+		portraitItemWidthMin: Ji(e, "data-canvas-portrait-width-min", 8, 4, 40),
+		portraitItemWidthMax: Ji(e, "data-canvas-portrait-width-max", 13, 4, 48),
+		columnGap: Ji(e, "data-canvas-column-gap", 9, 1, 24),
+		rowGapMin: Ji(e, "data-canvas-row-gap-min", 10, 1, 34),
+		rowGapMax: Ji(e, "data-canvas-row-gap-max", 18, 1, 40),
+		boundsPadding: Ji(e, "data-canvas-bounds-padding", 120, 0, 800),
+		velocity: n ? 0 : Ji(e, "data-canvas-velocity", .85, .1, 2),
+		friction: n ? 0 : Ji(e, "data-canvas-friction", .92, .5, .98),
+		ease: n ? 1 : Ji(e, "data-canvas-ease", .16, .04, 1),
+		inertia: !n && Yi(e, "data-canvas-inertia", !0),
 		reducedMotion: n
 	};
 }
-function aa(e, t) {
+function ia(e, t) {
 	if (e.length === 0) return [];
-	let n = t.repeatMode === "auto" ? qi(Math.ceil(t.minVisibleItems / e.length), 1, 12) : t.repeat, r = [];
+	let n = t.repeatMode === "auto" ? Ki(Math.ceil(Math.max(t.minVisibleItems, t.columnCount * t.itemsPerColumn) / e.length), 1, 64) : t.repeat, r = [];
 	return e.forEach((e) => {
 		for (let t = 0; t < n; t += 1) r.push({
 			...e,
@@ -9943,7 +9945,7 @@ function aa(e, t) {
 		});
 	}), r;
 }
-function oa(e) {
+function aa(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -9957,8 +9959,8 @@ function oa(e) {
 		}), n.src = e;
 	});
 }
-function sa(e) {
-	return Zi(`${e.sourceId}:${e.copyIndex}`) % 3 == 0 ? {
+function oa(e) {
+	return Xi(`${e.sourceId}:${e.copyIndex}`) % 3 == 0 ? {
 		width: 10,
 		height: 14
 	} : {
@@ -9966,7 +9968,7 @@ function sa(e) {
 		height: 10
 	};
 }
-function ca(e) {
+function sa(e) {
 	return e.length === 0 ? {
 		left: 0,
 		top: 0,
@@ -9984,63 +9986,76 @@ function ca(e) {
 		bottom: -Infinity
 	});
 }
-function la(e, t, n) {
-	let r = t.clientWidth || window.innerWidth, i = t.clientHeight || window.innerHeight, a = e.right - e.left + n * 2, o = e.bottom - e.top + n * 2;
-	if (a <= r) {
-		let t = r / 2 - (e.left + e.right) / 2;
+function ca(e, t, n, r, i, a) {
+	if (e.length === 0) return {
+		placed: [],
+		bounds: {
+			left: 0,
+			top: 0,
+			right: 0,
+			bottom: 0
+		},
+		patternWidth: r,
+		patternHeight: i
+	};
+	let o = r < 768, s = o ? Math.min(4, n.columnCount) : n.columnCount, c = n.itemsPerColumn, l = s * c, u = n.gridGap, d = o ? Math.max(170, r * .48) : Math.max(150, (r - (s - 1) * u) / s), f = d + u, p = s * f, m = Qi(e, a).slice(0, l), h = Array.from({ length: l }, (e, t) => m[t % m.length]).map((e) => {
+		var n;
+		let r = (n = t.get(e.instanceId)) == null ? oa(e) : n, i = r.width / Math.max(r.height, 1), s = i < .82, c = o ? .78 : s ? .58 : .72, l = o ? .9 : s ? .68 : .84, u = d * (c + a() * (l - c));
 		return {
-			minX: t,
-			maxX: t,
-			minY: o <= i ? i / 2 - (e.top + e.bottom) / 2 : i - e.bottom - n,
-			maxY: o <= i ? i / 2 - (e.top + e.bottom) / 2 : -e.top + n
+			tile: e,
+			width: u,
+			height: u / Math.max(i, .2)
 		};
-	}
-	return {
-		minX: r - e.right - n,
-		maxX: -e.left + n,
-		minY: o <= i ? i / 2 - (e.top + e.bottom) / 2 : i - e.bottom - n,
-		maxY: o <= i ? i / 2 - (e.top + e.bottom) / 2 : -e.top + n
+	}), g = Array.from({ length: c }, (e, t) => {
+		let n = h.slice(t * s, (t + 1) * s);
+		return Math.max(...n.map((e) => e.height), d * .62);
+	}), _ = [], v = 0;
+	g.forEach((e) => {
+		_.push(v), v += e + u;
+	});
+	let y = v, b = h.map((e, t) => {
+		let n = t % s, r = Math.floor(t / s), i = n * f - p / 2 + f / 2, a = _[r] - y / 2 + g[r] / 2;
+		return {
+			tile: e.tile,
+			x: i - e.width / 2,
+			y: a - e.height / 2,
+			width: e.width,
+			height: e.height
+		};
+	}), x = [], S = [
+		-1,
+		0,
+		1
+	];
+	return S.forEach((e) => {
+		S.forEach((t) => {
+			b.forEach((n, r) => {
+				x.push({
+					...n,
+					tile: {
+						...n.tile,
+						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
+					},
+					x: n.x + t * p,
+					y: n.y + e * y
+				});
+			});
+		});
+	}), {
+		placed: x,
+		bounds: sa(x),
+		patternWidth: p,
+		patternHeight: y
 	};
 }
-function ua(e, t, n) {
-	return e < t ? t + (e - t) * Ui : e > n ? n + (e - n) * Ui : e;
-}
-function da(e, t, n, r, i, a) {
-	let o = r < 768, s = o ? Math.min(3, n.columnCount) : n.columnCount, c = r * n.rowGapMin / 100, l = r * n.rowGapMax / 100, u = r * n.columnGap / 100, d = Math.max(i * .34, l * 1.9), f = Array.from({ length: s }, (e, t) => t), p = Array.from({ length: s }, (e, t) => ({
-		index: t,
-		x: 0,
-		y: n.layoutDensity === "balanced" ? (a() - .5) * i * .14 : (a() - .5) * i * .72
-	})), m = o ? r * .62 : r * .135, h = (s - 1) * (m + u), g = $i(e, a), _ = [];
-	p.forEach((e) => {
-		e.x = e.index * (m + u) - h / 2;
-	});
-	for (let e = f.length - 1; e > 0; --e) {
-		let t = Math.floor(a() * (e + 1));
-		[f[e], f[t]] = [f[t], f[e]];
-	}
-	return g.forEach((e, u) => {
-		var m;
-		let h = (m = t.get(e.instanceId)) == null ? sa(e) : m, g = h.width / Math.max(h.height, 1), v = g < .82, y = o ? 48 : v ? n.portraitItemWidthMin : n.itemWidthMin, b = o ? 76 : v ? n.portraitItemWidthMax : n.itemWidthMax, x = qi(r * (y + a() * Math.max(b - y, 0)) / 100, o ? 150 : 120, o ? r * .78 : 460), S = x / Math.max(g, .2), C = n.layoutDensity === "balanced" ? Math.floor(u / s) : null, w = n.layoutDensity === "balanced" ? f[u % s] : null, T = [...C === null || w === null ? [...p] : p.map((e) => ({
-			column: e,
-			score: Math.abs(e.index - w) * d * .5 + Math.abs(e.y - C * d) + a() * c
-		})).sort((e, t) => e.score - t.score).slice(0, Math.min(3, p.length)).map((e) => e.column)].sort((e, t) => e.y - t.y || a() - .5)[0], E = T.x - x / 2, D = (C === null ? T.y : Math.max(T.y, C * d)) + (n.layoutDensity === "balanced" ? (a() - .5) * Math.min(c * .9, i * .04) : u < s ? (a() - .5) * i * .28 : 0), O = c + a() * Math.max(l - c, 0);
-		_.push({
-			tile: e,
-			x: E,
-			y: D,
-			width: x,
-			height: S
-		}), T.y = D + S + O;
-	}), _;
-}
-function fa(e, t) {
+function la(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function pa({ placed: e }) {
+function ua({ placed: e }) {
 	return /* @__PURE__ */ (0, Ri.jsx)("button", {
 		type: "button",
 		className: "cms-canvas__item",
@@ -10052,7 +10067,7 @@ function pa({ placed: e }) {
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
-		onClick: (t) => fa(e.tile, t.currentTarget),
+		onClick: (t) => la(e.tile, t.currentTarget),
 		children: /* @__PURE__ */ (0, Ri.jsx)("img", {
 			className: "cms-canvas__image",
 			src: e.tile.thumbnail,
@@ -10061,156 +10076,165 @@ function pa({ placed: e }) {
 		})
 	});
 }
-function ma({ root: e, items: t, source: n }) {
+function da({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		left: 0,
 		top: 0,
 		right: 0,
 		bottom: 0
-	}), c = (0, _.useMemo)(() => ia(e), [e]), l = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
+	}), [c, l] = (0, _.useState)({
+		width: 1,
+		height: 1
+	}), u = (0, _.useMemo)(() => ra(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
 	return (0, _.useEffect)(() => {
 		n.hidden = !0, n.setAttribute("aria-hidden", "true");
 	}, [n]), (0, _.useEffect)(() => {
-		let n = !1, r = Qi(l.current), i = Math.max(e.clientWidth, window.innerWidth), o = Math.max(e.clientHeight, window.innerHeight), u = aa(t, c);
-		return Promise.all(u.map(async (e) => [e.instanceId, await oa(e.thumbnail)])).then((e) => {
+		let n = !1, r = Zi(d.current), i = Math.max(e.clientWidth, window.innerWidth), o = Math.max(e.clientHeight, window.innerHeight), c = ia(t, u);
+		return Promise.all(c.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((e) => {
 			if (n) return;
-			let t = new Map(e), l = da(u, t, c, i, o, r);
-			a(l), s(ca(l));
+			let t = new Map(e), d = ca(c, t, u, i, o, r);
+			a(d.placed), s(d.bounds), l({
+				width: d.patternWidth,
+				height: d.patternHeight
+			});
 		}), () => {
 			n = !0;
 		};
 	}, [
-		c,
+		u,
 		t,
 		e
 	]), (0, _.useEffect)(() => {
 		let t = r.current;
 		if (!t || i.length === 0) return;
-		let n = () => la(o, e, c.boundsPadding), a = n(), s = {
-			x: e.clientWidth / 2 - (o.left + o.right) / 2,
-			y: e.clientHeight / 2 - (o.top + o.bottom) / 2
-		}, l = { ...s }, u = {
+		let n = {
+			x: e.clientWidth / 2,
+			y: e.clientHeight / 2
+		}, a = { ...n }, o = {
 			x: 0,
 			y: 0
-		}, d = null, f = {
+		}, s = null, l = {
 			x: 0,
 			y: 0
-		}, p = {
+		}, d = {
 			x: 0,
 			y: 0
-		}, m = 0, h = {
+		}, f = 0, p = {
 			x: 0,
 			y: 0
-		}, g = !1, _ = null;
-		l.x = qi(l.x, a.minX, a.maxX), l.y = qi(l.y, a.minY, a.maxY), s = { ...l }, Ii.set(t, {
-			x: s.x,
-			y: s.y,
+		}, m = !1, h = null;
+		n = { ...a }, Ii.set(t, {
+			x: n.x,
+			y: n.y,
 			scale: 1,
 			transformOrigin: "50% 50%"
 		}), Ii.fromTo(t.querySelectorAll(".cms-canvas__item"), {
 			autoAlpha: 0,
-			scale: c.reducedMotion ? 1 : .86
+			scale: u.reducedMotion ? 1 : .86
 		}, {
 			autoAlpha: 1,
 			scale: 1,
-			duration: c.reducedMotion ? .01 : .9,
+			duration: u.reducedMotion ? .01 : .9,
 			ease: "power3.out",
-			stagger: c.reducedMotion ? 0 : {
+			stagger: u.reducedMotion ? 0 : {
 				amount: .45,
 				from: "random"
 			}
 		}), e.classList.add("is-ready");
-		let v = () => {
-			a = n(), d === null && c.inertia && (l.x += u.x, l.y += u.y, u.x *= c.friction, u.y *= c.friction);
-			let e = qi(l.x, a.minX, a.maxX), r = qi(l.y, a.minY, a.maxY);
-			d === null && (l.x += (e - l.x) * .18, l.y += (r - l.y) * .18), s.x += (l.x - s.x) * c.ease, s.y += (l.y - s.y) * c.ease, Ii.set(t, {
-				x: s.x,
-				y: s.y
-			}), Math.abs(u.x) < .02 && (u.x = 0), Math.abs(u.y) < .02 && (u.y = 0);
-		}, y = (n) => {
-			n.button !== 0 && n.pointerType === "mouse" || (d = n.pointerId, f = {
+		let g = () => {
+			let t = e.clientWidth / 2, r = e.clientHeight / 2, i = c.width / 2, o = c.height / 2;
+			n.x > t + i ? (n.x -= c.width, a.x -= c.width) : n.x < t - i && (n.x += c.width, a.x += c.width), n.y > r + o ? (n.y -= c.height, a.y -= c.height) : n.y < r - o && (n.y += c.height, a.y += c.height);
+		}, _ = () => {
+			s === null && u.inertia && (a.x += o.x, a.y += o.y, o.x *= u.friction, o.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease, g(), Ii.set(t, {
+				x: n.x,
+				y: n.y
+			}), Math.abs(o.x) < .02 && (o.x = 0), Math.abs(o.y) < .02 && (o.y = 0);
+		}, v = (n) => {
+			n.button !== 0 && n.pointerType === "mouse" || (s = n.pointerId, l = {
 				x: n.clientX,
 				y: n.clientY
-			}, p = { ...f }, m = performance.now(), h = { ...l }, u = {
+			}, d = { ...l }, f = performance.now(), p = { ...a }, o = {
 				x: 0,
 				y: 0
-			}, g = !1, _ = n.target.closest(".cms-canvas__item"), e.setPointerCapture(n.pointerId), e.classList.add("is-dragging"), Ii.to(t, {
-				scale: c.reducedMotion ? 1 : .985,
+			}, m = !1, h = n.target.closest(".cms-canvas__item"), e.setPointerCapture(n.pointerId), e.classList.add("is-dragging"), Ii.to(t, {
+				scale: u.reducedMotion ? 1 : .985,
 				duration: .32,
 				ease: "power2.out"
 			}));
-		}, b = (e) => {
-			if (d !== e.pointerId) return;
+		}, y = (e) => {
+			if (s !== e.pointerId) return;
 			e.preventDefault();
-			let t = e.clientX - f.x, n = e.clientY - f.y;
-			Math.hypot(t, n) > Hi && (g = !0), l.x = ua(h.x + t, a.minX, a.maxX), l.y = ua(h.y + n, a.minY, a.maxY);
-			let r = performance.now(), i = Math.max(r - m, 16);
-			u = {
-				x: (e.clientX - p.x) / i * 16 * c.velocity,
-				y: (e.clientY - p.y) / i * 16 * c.velocity
-			}, p = {
+			let t = e.clientX - l.x, n = e.clientY - l.y;
+			Math.hypot(t, n) > Hi && (m = !0), a.x = p.x + t, a.y = p.y + n;
+			let r = performance.now(), i = Math.max(r - f, 16);
+			o = {
+				x: (e.clientX - d.x) / i * 16 * u.velocity,
+				y: (e.clientY - d.y) / i * 16 * u.velocity
+			}, d = {
 				x: e.clientX,
 				y: e.clientY
-			}, m = r;
-		}, x = (n) => {
-			if (d === n.pointerId) {
-				if (d = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Ii.to(t, {
+			}, f = r;
+		}, b = (n) => {
+			if (s === n.pointerId) {
+				if (s = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Ii.to(t, {
 					scale: 1,
-					duration: c.reducedMotion ? .01 : .45,
+					duration: u.reducedMotion ? .01 : .45,
 					ease: "elastic.out(1, 0.72)"
-				}), g && _) {
+				}), m && h) {
 					let e = (t) => {
-						t.preventDefault(), t.stopPropagation(), _ == null || _.removeEventListener("click", e, !0);
+						t.preventDefault(), t.stopPropagation(), h == null || h.removeEventListener("click", e, !0);
 					};
-					_.addEventListener("click", e, !0);
+					h.addEventListener("click", e, !0);
 				}
-				_ = null;
+				h = null;
 			}
-		}, S = () => {
-			a = n(), l.x = qi(l.x, a.minX, a.maxX), l.y = qi(l.y, a.minY, a.maxY);
+		}, x = () => {
+			a.x = e.clientWidth / 2, a.y = e.clientHeight / 2;
 		};
-		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), window.addEventListener("resize", S), () => {
-			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
+		return Ii.ticker.add(_), e.addEventListener("pointerdown", v), e.addEventListener("pointermove", y), e.addEventListener("pointerup", b), e.addEventListener("pointercancel", b), window.addEventListener("resize", x), () => {
+			Ii.ticker.remove(_), e.removeEventListener("pointerdown", v), e.removeEventListener("pointermove", y), e.removeEventListener("pointerup", b), e.removeEventListener("pointercancel", b), window.removeEventListener("resize", x), e.classList.remove("is-ready", "is-dragging");
 		};
 	}, [
 		o,
-		c,
+		u,
+		c.height,
+		c.width,
 		i.length,
 		e
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(pa, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ua, { placed: e }, e.tile.instanceId))
 	});
 }
-function ha(e) {
+function fa(e) {
 	var t;
-	if (Gi.has(e)) {
+	if (Wi.has(e)) {
 		var n;
-		(n = Gi.get(e)) == null || n.unmount(), Gi.delete(e);
+		(n = Wi.get(e)) == null || n.unmount(), Wi.delete(e);
 	}
 	let r = (t = e.querySelector(Bi)) == null ? document.querySelector(Bi) : t;
 	if (!r) {
 		console.error("CMS Canvas: Element mit data-cms-canvas-source wurde nicht gefunden.");
 		return;
 	}
-	let i = ra(r);
+	let i = na(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Gi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ma, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(da, {
 		root: e,
 		items: i,
 		source: r
 	}));
 }
-Ki(() => {
+Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(ha);
+		e.forEach(fa);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), ha(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), fa(n));
 });
 //#endregion
 
