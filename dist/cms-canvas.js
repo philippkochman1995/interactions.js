@@ -10011,17 +10011,17 @@ function da(e, t, n, r, i, a) {
 		y: (a() - .5) * i * .72
 	})), f = o ? r * .62 : r * .135, p = (s - 1) * (f + u), m = $i(e, a), h = [];
 	return d.forEach((e) => {
-		e.x = e.index * (f + u) - p / 2 + (a() - .5) * Math.min(u * .42, r * .05);
-	}), m.forEach((e, f) => {
-		var p;
-		let m = (p = t.get(e.instanceId)) == null ? sa(e) : p, g = m.width / Math.max(m.height, 1), _ = g < .82, v = o ? 48 : _ ? n.portraitItemWidthMin : n.itemWidthMin, y = o ? 76 : _ ? n.portraitItemWidthMax : n.itemWidthMax, b = qi(r * (v + a() * Math.max(y - v, 0)) / 100, o ? 150 : 120, o ? r * .78 : 460), x = b / Math.max(g, .2), S = [...d].sort((e, t) => e.y - t.y || a() - .5)[0], C = S.x - b / 2 + (a() - .5) * Math.min(u * .25, r * .035), w = S.y + (f < s ? (a() - .5) * i * .28 : 0), T = c + a() * Math.max(l - c, 0);
+		e.x = e.index * (f + u) - p / 2;
+	}), m.forEach((e, u) => {
+		var f;
+		let p = (f = t.get(e.instanceId)) == null ? sa(e) : f, m = p.width / Math.max(p.height, 1), g = m < .82, _ = o ? 48 : g ? n.portraitItemWidthMin : n.itemWidthMin, v = o ? 76 : g ? n.portraitItemWidthMax : n.itemWidthMax, y = qi(r * (_ + a() * Math.max(v - _, 0)) / 100, o ? 150 : 120, o ? r * .78 : 460), b = y / Math.max(m, .2), x = [...d].sort((e, t) => e.y - t.y || a() - .5)[0], S = x.x - y / 2, C = x.y + (u < s ? (a() - .5) * i * .28 : 0), w = c + a() * Math.max(l - c, 0);
 		h.push({
 			tile: e,
-			x: C,
-			y: w,
-			width: b,
-			height: x
-		}), S.y = w + x + T;
+			x: S,
+			y: C,
+			width: y,
+			height: b
+		}), x.y = C + b + w;
 	}), h;
 }
 function fa(e, t) {

@@ -236,8 +236,9 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 The background uses the existing `--fw_off_white` CSS variable. The canvas supports
 mouse drag and touch pan with GSAP-powered eased movement, release momentum, a
 small drag scale, and soft bounds. Each refresh creates a new Prince-inspired
-vertical column composition. Users with `prefers-reduced-motion: reduce` get
-reduced animation and no momentum.
+vertical column composition. Items are centered on the X axis inside their column;
+only the order, sizes, vertical starts, and vertical gaps vary. Users with
+`prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 ## Lightbox API
 

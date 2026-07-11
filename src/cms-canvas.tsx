@@ -365,10 +365,7 @@ function placeTiles(
   const placed: PlacedTile[] = [];
 
   columns.forEach((column) => {
-    column.x =
-      column.index * (baseWidth + columnGap) -
-      totalWidth / 2 +
-      (random() - 0.5) * Math.min(columnGap * 0.42, viewportWidth * 0.05);
+    column.x = column.index * (baseWidth + columnGap) - totalWidth / 2;
   });
 
   ordered.forEach((tile, index) => {
@@ -381,7 +378,7 @@ function placeTiles(
     const width = clamp((viewportWidth * widthPercent) / 100, mobile ? 150 : 120, mobile ? viewportWidth * 0.78 : 460);
     const height = width / Math.max(aspectRatio, 0.2);
     const shortest = [...columns].sort((a, b) => a.y - b.y || random() - 0.5)[0];
-    const x = shortest.x - width / 2 + (random() - 0.5) * Math.min(columnGap * 0.25, viewportWidth * 0.035);
+    const x = shortest.x - width / 2;
     const y = shortest.y + (index < columnCount ? (random() - 0.5) * viewportHeight * 0.28 : 0);
     const rowGap = rowGapMin + random() * Math.max(rowGapMax - rowGapMin, 0);
 
