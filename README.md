@@ -172,16 +172,17 @@ wrapper or placed elsewhere on the same page.
 ```html
 <main
   data-cms-canvas
+  data-canvas-layout-density="balanced"
   data-canvas-repeat="auto"
-  data-canvas-min-visible-items="24"
+  data-canvas-min-visible-items="40"
   data-canvas-column-count="7"
   data-canvas-item-width-min="10"
-  data-canvas-item-width-max="17"
+  data-canvas-item-width-max="14"
   data-canvas-portrait-width-min="8"
-  data-canvas-portrait-width-max="13"
-  data-canvas-column-gap="9"
-  data-canvas-row-gap-min="10"
-  data-canvas-row-gap-max="18"
+  data-canvas-portrait-width-max="11"
+  data-canvas-column-gap="7"
+  data-canvas-row-gap-min="7"
+  data-canvas-row-gap-max="12"
   data-canvas-bounds-padding="120"
 >
   <div data-cms-canvas-source>
@@ -218,6 +219,7 @@ All root configuration attributes are optional:
 ```text
 data-canvas-repeat              "auto" or a number from 1 to 12 (default: auto)
 data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24)
+data-canvas-layout-density      "balanced" or "loose" (default: balanced)
 data-canvas-column-count        Desktop column count (default: 7, mobile max: 3)
 data-canvas-item-width-min      Landscape/square minimum width in viewport % (default: 10)
 data-canvas-item-width-max      Landscape/square maximum width in viewport % (default: 17)
@@ -237,8 +239,11 @@ The background uses the existing `--fw_off_white` CSS variable. The canvas suppo
 mouse drag and touch pan with GSAP-powered eased movement, release momentum, a
 small drag scale, and soft bounds. Each refresh creates a new Prince-inspired
 vertical column composition. Items are centered on the X axis inside their column;
-only the order, sizes, vertical starts, and vertical gaps vary. Users with
-`prefers-reduced-motion: reduce` get reduced animation and no momentum.
+only the order, sizes, vertical starts, and vertical gaps vary. The default
+`balanced` density uses loose row bands so adjacent columns stay visually filled
+and large horizontal holes are less likely. Use `data-canvas-layout-density="loose"`
+for the older, freer column behavior. Users with `prefers-reduced-motion: reduce`
+get reduced animation and no momentum.
 
 ## Lightbox API
 

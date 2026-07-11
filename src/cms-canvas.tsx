@@ -50,6 +50,7 @@ interface PanBounds {
 }
 
 interface CanvasConfig {
+  layoutDensity: 'balanced' | 'loose';
   minVisibleItems: number;
   repeatMode: 'auto' | 'fixed';
   repeat: number;
@@ -207,6 +208,7 @@ function readConfig(root: HTMLElement): CanvasConfig {
     minVisibleItems: Math.round(
       boundedNumberAttribute(root, 'data-canvas-min-visible-items', DEFAULT_MIN_VISIBLE_ITEMS, 1, 120),
     ),
+    layoutDensity: root.getAttribute('data-canvas-layout-density') === 'loose' ? 'loose' : 'balanced',
     repeatMode: repeatValue === 'auto' || !repeatValue ? 'auto' : 'fixed',
     repeat: Math.round(boundedNumberAttribute(root, 'data-canvas-repeat', 1, 1, 12)),
     columnCount: Math.round(boundedNumberAttribute(root, 'data-canvas-column-count', 7, 2, 14)),
@@ -354,10 +356,12 @@ function placeTiles(
   const rowGapMin = (viewportWidth * config.rowGapMin) / 100;
   const rowGapMax = (viewportWidth * config.rowGapMax) / 100;
   const columnGap = (viewportWidth * config.columnGap) / 100;
+  const bandHeight = Math.max(viewportHeight * 0.34, rowGapMax * 1.9);
+  const bandColumnOrder = Array.from({ length: columnCount }, (_, index) => index);
   const columns = Array.from({ length: columnCount }, (_, index) => ({
     index,
     x: 0,
-    y: (random() - 0.5) * viewportHeight * 0.72,
+    y: config.layoutDensity === 'balanced' ? (random() - 0.5) * viewportHeight * 0.14 : (random() - 0.5) * viewportHeight * 0.72,
   }));
   const baseWidth = mobile ? viewportWidth * 0.62 : viewportWidth * 0.135;
   const totalWidth = (columnCount - 1) * (baseWidth + columnGap);
@@ -368,6 +372,11 @@ function placeTiles(
     column.x = column.index * (baseWidth + columnGap) - totalWidth / 2;
   });
 
+  for (let index = bandColumnOrder.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [bandColumnOrder[index], bandColumnOrder[swapIndex]] = [bandColumnOrder[swapIndex], bandColumnOrder[index]];
+  }
+
   ordered.forEach((tile, index) => {
     const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
@@ -377,13 +386,37 @@ function placeTiles(
     const widthPercent = widthMin + random() * Math.max(widthMax - widthMin, 0);
     const width = clamp((viewportWidth * widthPercent) / 100, mobile ? 150 : 120, mobile ? viewportWidth * 0.78 : 460);
     const height = width / Math.max(aspectRatio, 0.2);
-    const shortest = [...columns].sort((a, b) => a.y - b.y || random() - 0.5)[0];
-    const x = shortest.x - width / 2;
-    const y = shortest.y + (index < columnCount ? (random() - 0.5) * viewportHeight * 0.28 : 0);
+    const targetBand = config.layoutDensity === 'balanced' ? Math.floor(index / columnCount) : null;
+    const targetColumnIndex =
+      config.layoutDensity === 'balanced' ? bandColumnOrder[index % columnCount] : null;
+    const candidates =
+      targetBand === null || targetColumnIndex === null
+        ? [...columns]
+        : columns
+            .map((column) => ({
+              column,
+              score:
+                Math.abs(column.index - targetColumnIndex) * bandHeight * 0.5 +
+                Math.abs(column.y - targetBand * bandHeight) +
+                random() * rowGapMin,
+            }))
+            .sort((a, b) => a.score - b.score)
+            .slice(0, Math.min(3, columns.length))
+            .map((candidate) => candidate.column);
+    const column = [...candidates].sort((a, b) => a.y - b.y || random() - 0.5)[0];
+    const x = column.x - width / 2;
+    const baseY = targetBand === null ? column.y : Math.max(column.y, targetBand * bandHeight);
+    const y =
+      baseY +
+      (config.layoutDensity === 'balanced'
+        ? (random() - 0.5) * Math.min(rowGapMin * 0.9, viewportHeight * 0.04)
+        : index < columnCount
+          ? (random() - 0.5) * viewportHeight * 0.28
+          : 0);
     const rowGap = rowGapMin + random() * Math.max(rowGapMax - rowGapMin, 0);
 
     placed.push({ tile, x, y, width, height });
-    shortest.y = y + height + rowGap;
+    column.y = y + height + rowGap;
   });
 
   return placed;

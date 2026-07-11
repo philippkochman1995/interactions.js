@@ -9912,6 +9912,7 @@ function ia(e) {
 	let n = window.matchMedia("(prefers-reduced-motion: reduce)").matches, r = (t = e.getAttribute("data-canvas-repeat")) == null ? void 0 : t.trim().toLowerCase();
 	return {
 		minVisibleItems: Math.round(Yi(e, "data-canvas-min-visible-items", Wi, 1, 120)),
+		layoutDensity: e.getAttribute("data-canvas-layout-density") === "loose" ? "loose" : "balanced",
 		repeatMode: r === "auto" || !r ? "auto" : "fixed",
 		repeat: Math.round(Yi(e, "data-canvas-repeat", 1, 1, 12)),
 		columnCount: Math.round(Yi(e, "data-canvas-column-count", 7, 2, 14)),
@@ -10005,24 +10006,32 @@ function ua(e, t, n) {
 	return e < t ? t + (e - t) * Ui : e > n ? n + (e - n) * Ui : e;
 }
 function da(e, t, n, r, i, a) {
-	let o = r < 768, s = o ? Math.min(3, n.columnCount) : n.columnCount, c = r * n.rowGapMin / 100, l = r * n.rowGapMax / 100, u = r * n.columnGap / 100, d = Array.from({ length: s }, (e, t) => ({
+	let o = r < 768, s = o ? Math.min(3, n.columnCount) : n.columnCount, c = r * n.rowGapMin / 100, l = r * n.rowGapMax / 100, u = r * n.columnGap / 100, d = Math.max(i * .34, l * 1.9), f = Array.from({ length: s }, (e, t) => t), p = Array.from({ length: s }, (e, t) => ({
 		index: t,
 		x: 0,
-		y: (a() - .5) * i * .72
-	})), f = o ? r * .62 : r * .135, p = (s - 1) * (f + u), m = $i(e, a), h = [];
-	return d.forEach((e) => {
-		e.x = e.index * (f + u) - p / 2;
-	}), m.forEach((e, u) => {
-		var f;
-		let p = (f = t.get(e.instanceId)) == null ? sa(e) : f, m = p.width / Math.max(p.height, 1), g = m < .82, _ = o ? 48 : g ? n.portraitItemWidthMin : n.itemWidthMin, v = o ? 76 : g ? n.portraitItemWidthMax : n.itemWidthMax, y = qi(r * (_ + a() * Math.max(v - _, 0)) / 100, o ? 150 : 120, o ? r * .78 : 460), b = y / Math.max(m, .2), x = [...d].sort((e, t) => e.y - t.y || a() - .5)[0], S = x.x - y / 2, C = x.y + (u < s ? (a() - .5) * i * .28 : 0), w = c + a() * Math.max(l - c, 0);
-		h.push({
+		y: n.layoutDensity === "balanced" ? (a() - .5) * i * .14 : (a() - .5) * i * .72
+	})), m = o ? r * .62 : r * .135, h = (s - 1) * (m + u), g = $i(e, a), _ = [];
+	p.forEach((e) => {
+		e.x = e.index * (m + u) - h / 2;
+	});
+	for (let e = f.length - 1; e > 0; --e) {
+		let t = Math.floor(a() * (e + 1));
+		[f[e], f[t]] = [f[t], f[e]];
+	}
+	return g.forEach((e, u) => {
+		var m;
+		let h = (m = t.get(e.instanceId)) == null ? sa(e) : m, g = h.width / Math.max(h.height, 1), v = g < .82, y = o ? 48 : v ? n.portraitItemWidthMin : n.itemWidthMin, b = o ? 76 : v ? n.portraitItemWidthMax : n.itemWidthMax, x = qi(r * (y + a() * Math.max(b - y, 0)) / 100, o ? 150 : 120, o ? r * .78 : 460), S = x / Math.max(g, .2), C = n.layoutDensity === "balanced" ? Math.floor(u / s) : null, w = n.layoutDensity === "balanced" ? f[u % s] : null, T = [...C === null || w === null ? [...p] : p.map((e) => ({
+			column: e,
+			score: Math.abs(e.index - w) * d * .5 + Math.abs(e.y - C * d) + a() * c
+		})).sort((e, t) => e.score - t.score).slice(0, Math.min(3, p.length)).map((e) => e.column)].sort((e, t) => e.y - t.y || a() - .5)[0], E = T.x - x / 2, D = (C === null ? T.y : Math.max(T.y, C * d)) + (n.layoutDensity === "balanced" ? (a() - .5) * Math.min(c * .9, i * .04) : u < s ? (a() - .5) * i * .28 : 0), O = c + a() * Math.max(l - c, 0);
+		_.push({
 			tile: e,
-			x: S,
-			y: C,
-			width: y,
-			height: b
-		}), x.y = C + b + w;
-	}), h;
+			x: E,
+			y: D,
+			width: x,
+			height: S
+		}), T.y = D + S + O;
+	}), _;
 }
 function fa(e, t) {
 	if (!window.SiteInteractions) {
