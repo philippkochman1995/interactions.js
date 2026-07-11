@@ -398,7 +398,7 @@ function placeTiles(
   const patternWidth = columnCount * columnStep;
   const patternTiles = shuffled(tiles, random).slice(0, cellCount);
   const cells = Array.from({ length: cellCount }, (_, index) => patternTiles[index % patternTiles.length]);
-  const cellMetrics = cells.map((tile) => {
+  const cellMetrics = cells.map((tile, index) => {
     const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
     const isPortrait = aspectRatio < 0.82;
@@ -408,36 +408,32 @@ function placeTiles(
 
     return {
       tile,
+      columnIndex: index % columnCount,
       width,
       height: width / Math.max(aspectRatio, 0.2),
     };
   });
-  const rowHeights = Array.from({ length: rowCount }, (_, rowIndex) => {
-    const rowCells = cellMetrics.slice(rowIndex * columnCount, (rowIndex + 1) * columnCount);
-    return Math.max(...rowCells.map((cell) => cell.height), slotWidth * 0.62);
-  });
-  const rowTops: number[] = [];
-  let nextRowTop = 0;
+  const columnOffsets = Array.from({ length: columnCount }, () => (random() - 0.5) * Math.min(gap * 1.6, slotWidth * 0.16));
+  const columnTops = [...columnOffsets];
+  const basePlaced = cellMetrics.map((cell) => {
+    const columnCenter = cell.columnIndex * columnStep - patternWidth / 2 + columnStep / 2;
+    const y = columnTops[cell.columnIndex];
 
-  rowHeights.forEach((height) => {
-    rowTops.push(nextRowTop);
-    nextRowTop += height + gap;
-  });
-
-  const patternHeight = nextRowTop;
-  const basePlaced = cellMetrics.map((cell, index) => {
-    const columnIndex = index % columnCount;
-    const rowIndex = Math.floor(index / columnCount);
-    const columnCenter = columnIndex * columnStep - patternWidth / 2 + columnStep / 2;
-    const rowCenter = rowTops[rowIndex] - patternHeight / 2 + rowHeights[rowIndex] / 2;
-
+    columnTops[cell.columnIndex] = y + cell.height + gap;
     return {
       tile: cell.tile,
       x: columnCenter - cell.width / 2,
-      y: rowCenter - cell.height / 2,
+      y,
       width: cell.width,
       height: cell.height,
     };
+  });
+  const minTop = Math.min(...basePlaced.map((tile) => tile.y));
+  const maxBottom = Math.max(...basePlaced.map((tile) => tile.y + tile.height));
+  const patternHeight = maxBottom - minTop + gap;
+
+  basePlaced.forEach((tile) => {
+    tile.y -= minTop + patternHeight / 2;
   });
   const placed: PlacedTile[] = [];
   const repeatOffsets = [-1, 0, 1];

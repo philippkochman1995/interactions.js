@@ -213,8 +213,8 @@ All root configuration attributes are optional:
 data-canvas-repeat              "auto" or a number from 1 to 12 (default: auto)
 data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24; at least columns × rows)
 data-canvas-column-count        Desktop columns in the base pattern (default: 8, mobile max: 4)
-data-canvas-items-per-column    Rows per column in the base pattern (default: 8)
-data-canvas-grid-gap            Grid gap in pixels, both X and Y (default: 25)
+data-canvas-items-per-column    Items stacked inside each column in the base pattern (default: 8)
+data-canvas-grid-gap            Shared gap in pixels between columns and stacked items (default: 25)
 data-canvas-grid-zoom           Pattern scale while keeping column count (default: 1.45)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
 data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
@@ -223,14 +223,16 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
 The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
-an infinite-feeling repeated grid pattern: by default 8 columns × 8 rows, a 25px
-gap in both directions, and every tile centered on the X axis of its column. Tile
-widths vary slightly, but row and column rhythm stay regular. `data-canvas-grid-zoom`
-makes the whole pattern larger while keeping 8 columns, so fewer elements are
-visible at once. The base pattern is rendered around the viewport and wrapped with
-GSAP while dragging, so every column repeats on the Y axis and every row repeats
-on the X axis without hard bounds. Users with `prefers-reduced-motion: reduce` get
-reduced animation and no momentum.
+an infinite-feeling repeated column-stack pattern: by default 8 columns with 8
+items stacked inside each column. The same pixel gap is used between columns and
+between items inside a column. Each tile is horizontally centered in its column,
+keeps its natural aspect ratio, and each column gets a small Y start offset so the
+composition does not look completely static. `data-canvas-grid-zoom` makes the
+whole pattern larger while keeping 8 columns, so fewer elements are visible at
+once. The base pattern is rendered around the viewport and wrapped with GSAP while
+dragging, so every column repeats on the Y axis and every row band repeats on the
+X axis without hard bounds. Users with `prefers-reduced-motion: reduce` get reduced
+animation and no momentum.
 
 ## Lightbox API
 

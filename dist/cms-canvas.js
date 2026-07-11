@@ -10002,54 +10002,52 @@ function la(e, t, n, r, i, a) {
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = r < 768, s = o ? Math.min(4, n.columnCount) : n.columnCount, c = n.itemsPerColumn, l = s * c, u = n.gridGap, d = (o ? Math.max(170, r * .48) : Math.max(150, (r - (s - 1) * u) / s)) * n.gridZoom, f = d + u, p = s * f, m = Qi(e, a).slice(0, l), h = Array.from({ length: l }, (e, t) => m[t % m.length]).map((e) => {
-		var n;
-		let r = (n = t.get(e.instanceId)) == null ? oa(e) : n, i = r.width / Math.max(r.height, 1), s = i < .82, c = o ? .78 : s ? .58 : .72, l = o ? .9 : s ? .68 : .84, u = d * (c + a() * (l - c));
+	let o = r < 768, s = o ? Math.min(4, n.columnCount) : n.columnCount, c = s * n.itemsPerColumn, l = n.gridGap, u = (o ? Math.max(170, r * .48) : Math.max(150, (r - (s - 1) * l) / s)) * n.gridZoom, d = u + l, f = s * d, p = Qi(e, a).slice(0, c), m = Array.from({ length: c }, (e, t) => p[t % p.length]).map((e, n) => {
+		var r;
+		let i = (r = t.get(e.instanceId)) == null ? oa(e) : r, c = i.width / Math.max(i.height, 1), l = c < .82, d = o ? .78 : l ? .58 : .72, f = o ? .9 : l ? .68 : .84, p = u * (d + a() * (f - d));
 		return {
 			tile: e,
-			width: u,
-			height: u / Math.max(i, .2)
+			columnIndex: n % s,
+			width: p,
+			height: p / Math.max(c, .2)
 		};
-	}), g = Array.from({ length: c }, (e, t) => {
-		let n = h.slice(t * s, (t + 1) * s);
-		return Math.max(...n.map((e) => e.height), d * .62);
-	}), _ = [], v = 0;
-	g.forEach((e) => {
-		_.push(v), v += e + u;
-	});
-	let y = v, b = h.map((e, t) => {
-		let n = t % s, r = Math.floor(t / s), i = n * f - p / 2 + f / 2, a = _[r] - y / 2 + g[r] / 2;
-		return {
+	}), h = [...Array.from({ length: s }, () => (a() - .5) * Math.min(l * 1.6, u * .16))], g = m.map((e) => {
+		let t = e.columnIndex * d - f / 2 + d / 2, n = h[e.columnIndex];
+		return h[e.columnIndex] = n + e.height + l, {
 			tile: e.tile,
-			x: i - e.width / 2,
-			y: a - e.height / 2,
+			x: t - e.width / 2,
+			y: n,
 			width: e.width,
 			height: e.height
 		};
-	}), x = [], S = [
+	}), _ = Math.min(...g.map((e) => e.y)), v = Math.max(...g.map((e) => e.y + e.height)) - _ + l;
+	g.forEach((e) => {
+		e.y -= _ + v / 2;
+	});
+	let y = [], b = [
 		-1,
 		0,
 		1
 	];
-	return S.forEach((e) => {
-		S.forEach((t) => {
-			b.forEach((n, r) => {
-				x.push({
+	return b.forEach((e) => {
+		b.forEach((t) => {
+			g.forEach((n, r) => {
+				y.push({
 					...n,
 					tile: {
 						...n.tile,
 						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
 					},
-					x: n.x + t * p,
-					y: n.y + e * y
+					x: n.x + t * f,
+					y: n.y + e * v
 				});
 			});
 		});
 	}), {
-		placed: x,
-		bounds: sa(x),
-		patternWidth: p,
-		patternHeight: y
+		placed: y,
+		bounds: sa(y),
+		patternWidth: f,
+		patternHeight: v
 	};
 }
 function ua(e, t) {
