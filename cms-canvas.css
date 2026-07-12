@@ -63,6 +63,7 @@ body {
   z-index: 2;
   display: block;
   width: 100%;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -84,7 +85,7 @@ body {
   left: 0;
   display: block;
   width: 100%;
-  padding-top: 0.45rem;
+  padding-top: 0.8rem;
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
   font-family: "StyreneB", "Styrene B", StyreneB, sans-serif !important;
   font-size: var(--p-font-size, clamp(0.75rem, 0.85vw, 1rem));
@@ -107,7 +108,7 @@ body {
 @media (hover: hover) and (pointer: fine) {
   .cms-canvas__item:hover .cms-canvas__image,
   .cms-canvas__item:focus-visible .cms-canvas__image {
-    transform: scale(1.035);
+    transform: scale(1.055);
   }
 
   .cms-canvas__item:hover .cms-canvas__title,

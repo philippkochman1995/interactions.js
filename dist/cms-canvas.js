@@ -10066,25 +10066,42 @@ function pa({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		width: 1,
 		height: 1
-	}), c = (0, _.useMemo)(() => ra(e), [e]), l = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
+	}), [c, l] = (0, _.useState)(() => ({
+		width: Math.max(e.clientWidth, window.innerWidth),
+		height: Math.max(e.clientHeight, window.innerHeight)
+	})), u = (0, _.useMemo)(() => ra(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
 	return (0, _.useEffect)(() => {
 		n.hidden = !0, n.setAttribute("aria-hidden", "true");
 	}, [n]), (0, _.useEffect)(() => {
-		let n = !1, r = Zi(l.current), i = Math.max(e.clientWidth, window.innerWidth), o = Math.max(e.clientHeight, window.innerHeight), u = ia(t);
-		return Promise.all(u.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((e) => {
-			if (n) return;
-			let t = new Map(e), l = ua(u, t, c, i, o, r);
-			a(l.placed), s({
-				width: l.patternWidth,
-				height: l.patternHeight
+		let t = 0, n = () => {
+			window.cancelAnimationFrame(t), t = window.requestAnimationFrame(() => {
+				l({
+					width: Math.max(e.clientWidth, window.innerWidth),
+					height: Math.max(e.clientHeight, window.innerHeight)
+				});
+			});
+		};
+		return window.addEventListener("resize", n), () => {
+			window.cancelAnimationFrame(t), window.removeEventListener("resize", n);
+		};
+	}, [e]), (0, _.useEffect)(() => {
+		let e = !1, n = Zi(d.current), r = ia(t);
+		return Promise.all(r.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((t) => {
+			if (e) return;
+			let i = new Map(t), o = ua(r, i, u, c.width, c.height, n);
+			a(o.placed), s({
+				width: o.patternWidth,
+				height: o.patternHeight
 			});
 		}), () => {
-			n = !0;
+			e = !0;
 		};
 	}, [
-		c,
+		u,
 		t,
-		e
+		e,
+		c.height,
+		c.width
 	]), (0, _.useEffect)(() => {
 		let t = r.current;
 		if (!t || i.length === 0) return;
@@ -10094,7 +10111,7 @@ function pa({ root: e, items: t, source: n }) {
 		}, a = { ...n }, s = {
 			x: 0,
 			y: 0
-		}, l = null, u = {
+		}, c = null, l = {
 			x: 0,
 			y: 0
 		}, d = {
@@ -10111,13 +10128,13 @@ function pa({ root: e, items: t, source: n }) {
 			transformOrigin: "50% 50%"
 		}), Li.fromTo(t.querySelectorAll(".cms-canvas__item"), {
 			autoAlpha: 0,
-			scale: c.reducedMotion ? 1 : .86
+			scale: u.reducedMotion ? 1 : .86
 		}, {
 			autoAlpha: 1,
 			scale: 1,
-			duration: c.reducedMotion ? .01 : .9,
+			duration: u.reducedMotion ? .01 : .9,
 			ease: "power3.out",
-			stagger: c.reducedMotion ? 0 : {
+			stagger: u.reducedMotion ? 0 : {
 				amount: .45,
 				from: "random"
 			}
@@ -10129,42 +10146,42 @@ function pa({ root: e, items: t, source: n }) {
 				y: sa(n.y, o.height, r)
 			};
 		}, v = () => {
-			l === null && c.inertia && (a.x += s.x, a.y += s.y, s.x *= c.friction, s.y *= c.friction), n.x += (a.x - n.x) * c.ease, n.y += (a.y - n.y) * c.ease;
+			c === null && u.inertia && (a.x += s.x, a.y += s.y, s.x *= u.friction, s.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease;
 			let e = _();
 			Li.set(t, {
 				x: e.x,
 				y: e.y
 			}), Math.abs(s.x) < .02 && (s.x = 0), Math.abs(s.y) < .02 && (s.y = 0);
-		}, y = (n) => {
-			n.button !== 0 && n.pointerType === "mouse" || (l = n.pointerId, u = {
-				x: n.clientX,
-				y: n.clientY
-			}, d = { ...u }, f = performance.now(), p = { ...a }, s = {
+		}, y = (t) => {
+			t.button !== 0 && t.pointerType === "mouse" || (c = t.pointerId, l = {
+				x: t.clientX,
+				y: t.clientY
+			}, d = { ...l }, f = performance.now(), p = { ...a }, s = {
 				x: 0,
 				y: 0
-			}, m = !1, h = n.target.closest(".cms-canvas__item"), e.setPointerCapture(n.pointerId), e.classList.add("is-dragging"), Li.to(t, {
-				scale: c.reducedMotion ? 1 : .985,
+			}, m = !1, h = t.target.closest(".cms-canvas__item"), e.setPointerCapture(t.pointerId));
+		}, b = (n) => {
+			if (c !== n.pointerId) return;
+			n.preventDefault();
+			let r = n.clientX - l.x, i = n.clientY - l.y;
+			Math.hypot(r, i) > Ui && !m && (m = !0, e.classList.add("is-dragging"), Li.to(t, {
+				scale: u.reducedMotion ? 1 : .985,
 				duration: .32,
 				ease: "power2.out"
-			}));
-		}, b = (e) => {
-			if (l !== e.pointerId) return;
-			e.preventDefault();
-			let t = e.clientX - u.x, n = e.clientY - u.y;
-			Math.hypot(t, n) > Ui && (m = !0), a.x = p.x + t, a.y = p.y + n;
-			let r = performance.now(), i = Math.max(r - f, 16);
+			})), a.x = p.x + r, a.y = p.y + i;
+			let o = performance.now(), h = Math.max(o - f, 16);
 			s = {
-				x: (e.clientX - d.x) / i * 16 * c.velocity,
-				y: (e.clientY - d.y) / i * 16 * c.velocity
+				x: (n.clientX - d.x) / h * 16 * u.velocity,
+				y: (n.clientY - d.y) / h * 16 * u.velocity
 			}, d = {
-				x: e.clientX,
-				y: e.clientY
-			}, f = r;
+				x: n.clientX,
+				y: n.clientY
+			}, f = o;
 		}, x = (n) => {
-			if (l === n.pointerId) {
-				if (l = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Li.to(t, {
+			if (c === n.pointerId) {
+				if (c = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), m && Li.to(t, {
 					scale: 1,
-					duration: c.reducedMotion ? .01 : .45,
+					duration: u.reducedMotion ? .01 : .45,
 					ease: "elastic.out(1, 0.72)"
 				}), !m && h) {
 					let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
@@ -10183,7 +10200,7 @@ function pa({ root: e, items: t, source: n }) {
 			Li.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("keydown", C), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
 		};
 	}, [
-		c,
+		u,
 		o.height,
 		o.width,
 		i.length,

@@ -408,6 +408,10 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [placed, setPlaced] = useState<PlacedTile[]>([]);
   const [pattern, setPattern] = useState({ width: 1, height: 1 });
+  const [viewport, setViewport] = useState(() => ({
+    width: Math.max(root.clientWidth, window.innerWidth),
+    height: Math.max(root.clientHeight, window.innerHeight),
+  }));
   const config = useMemo(() => readConfig(root), [root]);
   const seedRef = useRef(Math.floor(Math.random() * 0xffffffff));
 
@@ -417,10 +421,29 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
   }, [source]);
 
   useEffect(() => {
+    let animationFrame = 0;
+
+    const updateViewport = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        setViewport({
+          width: Math.max(root.clientWidth, window.innerWidth),
+          height: Math.max(root.clientHeight, window.innerHeight),
+        });
+      });
+    };
+
+    window.addEventListener('resize', updateViewport);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, [root]);
+
+  useEffect(() => {
     let cancelled = false;
     const random = createRandom(seedRef.current);
-    const viewportWidth = Math.max(root.clientWidth, window.innerWidth);
-    const viewportHeight = Math.max(root.clientHeight, window.innerHeight);
     const tiles = itemsToTiles(items);
 
     Promise.all(
@@ -431,7 +454,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       }
 
       const measures = new Map(entries);
-      const nextLayout = placeTiles(tiles, measures, config, viewportWidth, viewportHeight, random);
+      const nextLayout = placeTiles(tiles, measures, config, viewport.width, viewport.height, random);
       setPlaced(nextLayout.placed);
       setPattern({ width: nextLayout.patternWidth, height: nextLayout.patternHeight });
     });
@@ -439,7 +462,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     return () => {
       cancelled = true;
     };
-  }, [config, items, root]);
+  }, [config, items, root, viewport.height, viewport.width]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -526,8 +549,6 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       dragged = false;
       pressedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
       root.setPointerCapture(event.pointerId);
-      root.classList.add('is-dragging');
-      gsap.to(stage, { scale: config.reducedMotion ? 1 : 0.985, duration: 0.32, ease: 'power2.out' });
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -540,8 +561,10 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       const dy = event.clientY - pointerStart.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance > DRAG_THRESHOLD) {
+      if (distance > DRAG_THRESHOLD && !dragged) {
         dragged = true;
+        root.classList.add('is-dragging');
+        gsap.to(stage, { scale: config.reducedMotion ? 1 : 0.985, duration: 0.32, ease: 'power2.out' });
       }
 
       target.x = positionStart.x + dx;
@@ -565,7 +588,9 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       pointerId = null;
       root.releasePointerCapture(event.pointerId);
       root.classList.remove('is-dragging');
-      gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
+      if (dragged) {
+        gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
+      }
 
       if (!dragged && pressedTile) {
         const itemId = pressedTile.dataset.canvasItemId;
