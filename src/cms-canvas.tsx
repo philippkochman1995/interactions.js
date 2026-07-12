@@ -62,6 +62,7 @@ const ROOT_SELECTOR = '[data-cms-canvas]';
 const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
+const WHEEL_PAN_SPEED = 1.1;
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -634,6 +635,20 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       target.y = root.clientHeight / 2;
     };
 
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      const deltaX = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaX * 16 : event.deltaX;
+      const deltaY = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 16 : event.deltaY;
+
+      target.x -= deltaX * WHEEL_PAN_SPEED;
+      target.y -= deltaY * WHEEL_PAN_SPEED;
+      velocity = {
+        x: -deltaX * 0.08 * config.velocity,
+        y: -deltaY * 0.08 * config.velocity,
+      };
+    };
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Enter' && event.key !== ' ') {
         return;
@@ -656,6 +671,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     root.addEventListener('pointermove', onPointerMove);
     root.addEventListener('pointerup', onPointerUp);
     root.addEventListener('pointercancel', onPointerUp);
+    root.addEventListener('wheel', onWheel, { passive: false });
     root.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize);
 
@@ -665,6 +681,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       root.removeEventListener('pointermove', onPointerMove);
       root.removeEventListener('pointerup', onPointerUp);
       root.removeEventListener('pointercancel', onPointerUp);
+      root.removeEventListener('wheel', onWheel);
       root.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
