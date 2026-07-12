@@ -9962,14 +9962,38 @@ function ca(e, t) {
 	let n = Math.max(1, Math.ceil(t / Math.max(e, 1)));
 	return Array.from({ length: n * 2 + 1 }, (e, t) => t - n);
 }
-function la(e, t) {
+function la(e) {
+	return e.tile.thumbnailAlt.trim().toLowerCase() === "signatur";
+}
+function ua(e) {
+	return {
+		x: e.x + e.offsetX + e.width / 2,
+		y: e.y + e.offsetY + e.height / 2
+	};
+}
+function da(e, t) {
+	let n = {
+		x: t.clientWidth / 2,
+		y: t.clientHeight / 2
+	}, r = e.filter(la).sort((e, t) => {
+		let n = ua(e), r = ua(t);
+		return Math.hypot(n.x, n.y) - Math.hypot(r.x, r.y);
+	})[0];
+	if (!r) return n;
+	let i = ua(r);
+	return {
+		x: n.x - i.x,
+		y: n.y - i.y
+	};
+}
+function fa(e, t) {
 	let n = Math.ceil(e.length / t), r = Array.from({ length: t }, () => []);
 	return e.forEach((e, i) => {
 		let a = Math.min(Math.floor(i / n), t - 1);
 		r[a].push(e);
 	}), r;
 }
-function ua(e, t) {
+function pa(e, t) {
 	let n = Math.max(...e.map((e) => e.length));
 	return n <= 0 ? e : e.map((r, i) => {
 		let a = [...r], o = 0;
@@ -9984,13 +10008,13 @@ function ua(e, t) {
 		return a;
 	});
 }
-function da(e, t, n, r, i, a) {
+function ma(e, t, n, r, i, a) {
 	if (e.length === 0) return {
 		placed: [],
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = ua(la(Qi(e, a), o), a), f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = [], h = [];
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = pa(fa(Qi(e, a), o), a), f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = [], h = [];
 	d.forEach((e, n) => {
 		let r = n * s - u / 2 + s / 2, i = 0;
 		e.forEach((e) => {
@@ -10031,14 +10055,14 @@ function da(e, t, n, r, i, a) {
 		patternHeight: g
 	};
 }
-function fa(e, t) {
+function ha(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function pa({ placed: e }) {
+function ga({ placed: e }) {
 	return /* @__PURE__ */ (0, Ri.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
@@ -10064,7 +10088,7 @@ function pa({ placed: e }) {
 		}) : null]
 	});
 }
-function ma({ root: e, items: t, source: n }) {
+function _a({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		width: 1,
 		height: 1
@@ -10090,7 +10114,7 @@ function ma({ root: e, items: t, source: n }) {
 		let e = !1, n = Zi(d.current), r = ia(t);
 		return Promise.all(r.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((t) => {
 			if (e) return;
-			let i = new Map(t), o = da(r, i, u, c.width, c.height, n);
+			let i = new Map(t), o = ma(r, i, u, c.width, c.height, n);
 			a(o.placed), s({
 				width: o.patternWidth,
 				height: o.patternHeight
@@ -10107,10 +10131,7 @@ function ma({ root: e, items: t, source: n }) {
 	]), (0, _.useEffect)(() => {
 		let t = r.current;
 		if (!t || i.length === 0) return;
-		let n = {
-			x: e.clientWidth / 2,
-			y: e.clientHeight / 2
-		}, a = { ...n }, s = {
+		let n = da(i, e), a = { ...n }, s = {
 			x: 0,
 			y: 0
 		}, c = null, l = {
@@ -10189,11 +10210,11 @@ function ma({ root: e, items: t, source: n }) {
 			let r = Math.hypot(n.clientX - l.x, n.clientY - l.y), i = n.pointerType === "touch" ? 14 : Hi;
 			if (!m && r <= i && h) {
 				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-				t && fa(t, h);
+				t && ha(t, h);
 			}
 			h = null;
 		}, S = () => {
-			a.x = e.clientWidth / 2, a.y = e.clientHeight / 2;
+			a = da(i, e);
 		}, C = (e) => {
 			e.preventDefault();
 			let t = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaX * 16 : e.deltaX, n = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 16 : e.deltaY;
@@ -10204,7 +10225,7 @@ function ma({ root: e, items: t, source: n }) {
 		}, w = (e) => {
 			if (e.key !== "Enter" && e.key !== " ") return;
 			let t = e.target.closest(".cms-canvas__item"), n = t == null ? void 0 : t.dataset.canvasItemId, r = n ? g.get(n) : void 0;
-			!t || !r || (e.preventDefault(), fa(r, t));
+			!t || !r || (e.preventDefault(), ha(r, t));
 		};
 		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), e.addEventListener("wheel", C, { passive: !1 }), e.addEventListener("keydown", w), window.addEventListener("resize", S), () => {
 			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("wheel", C), e.removeEventListener("keydown", w), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
@@ -10213,15 +10234,15 @@ function ma({ root: e, items: t, source: n }) {
 		u,
 		o.height,
 		o.width,
-		i.length,
+		i,
 		e
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(pa, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ga, { placed: e }, e.tile.instanceId))
 	});
 }
-function ha(e) {
+function va(e) {
 	var t;
 	if (Wi.has(e)) {
 		var n;
@@ -10235,7 +10256,7 @@ function ha(e) {
 	let i = na(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ma, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(_a, {
 		root: e,
 		items: i,
 		source: r
@@ -10244,11 +10265,11 @@ function ha(e) {
 Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(ha);
+		e.forEach(va);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), ha(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), va(n));
 });
 //#endregion
 

@@ -249,6 +249,43 @@ function repeatOffsetsFor(period: number, viewportSize: number): number[] {
   return Array.from({ length: range * 2 + 1 }, (_, index) => index - range);
 }
 
+function isSignatureTile(tile: PlacedTile): boolean {
+  return tile.tile.thumbnailAlt.trim().toLowerCase() === 'signatur';
+}
+
+function getTileCenter(tile: PlacedTile): Point {
+  return {
+    x: tile.x + tile.offsetX + tile.width / 2,
+    y: tile.y + tile.offsetY + tile.height / 2,
+  };
+}
+
+function getStartPosition(placed: PlacedTile[], root: HTMLElement): Point {
+  const viewportCenter = {
+    x: root.clientWidth / 2,
+    y: root.clientHeight / 2,
+  };
+  const signatureTile = placed
+    .filter(isSignatureTile)
+    .sort((first, second) => {
+      const firstCenter = getTileCenter(first);
+      const secondCenter = getTileCenter(second);
+
+      return Math.hypot(firstCenter.x, firstCenter.y) - Math.hypot(secondCenter.x, secondCenter.y);
+    })[0];
+
+  if (!signatureTile) {
+    return viewportCenter;
+  }
+
+  const tileCenter = getTileCenter(signatureTile);
+
+  return {
+    x: viewportCenter.x - tileCenter.x,
+    y: viewportCenter.y - tileCenter.y,
+  };
+}
+
 function distributeColumns<T>(items: T[], columnCount: number): T[][] {
   const targetItemsPerColumn = Math.ceil(items.length / columnCount);
   const columns: T[][] = Array.from({ length: columnCount }, () => []);
@@ -483,10 +520,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       return;
     }
 
-    let position: Point = {
-      x: root.clientWidth / 2,
-      y: root.clientHeight / 2,
-    };
+    let position: Point = getStartPosition(placed, root);
     let target: Point = { ...position };
     let velocity: Point = { x: 0, y: 0 };
     let pointerId: number | null = null;
@@ -631,8 +665,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     };
 
     const onResize = () => {
-      target.x = root.clientWidth / 2;
-      target.y = root.clientHeight / 2;
+      target = getStartPosition(placed, root);
     };
 
     const onWheel = (event: WheelEvent) => {
@@ -686,7 +719,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
     };
-  }, [config, pattern.height, pattern.width, placed.length, root]);
+  }, [config, pattern.height, pattern.width, placed, root]);
 
   return (
     <div className="cms-canvas__stage" ref={stageRef}>
