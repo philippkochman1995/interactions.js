@@ -9829,7 +9829,7 @@ var Ri = /* @__PURE__ */ o(((e) => {
 			props: r
 		};
 	}
-	e.jsx = n;
+	e.jsx = n, e.jsxs = n;
 })), zi = (/* @__PURE__ */ o(((e, t) => {
 	t.exports = Ri();
 })))(), Bi = "[data-cms-canvas]", Vi = "[data-cms-canvas-source]", Hi = "[data-cms-canvas-item]", Ui = 6, Wi = /* @__PURE__ */ new WeakMap();
@@ -10042,14 +10042,14 @@ function fa({ placed: e }) {
 		top: e.y,
 		width: e.width
 	}, n = { transform: `translate3d(${e.offsetX}px, ${e.offsetY}px, 0)` };
-	return /* @__PURE__ */ (0, zi.jsx)("button", {
+	return /* @__PURE__ */ (0, zi.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
 		style: t,
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
-		children: /* @__PURE__ */ (0, zi.jsx)("span", {
+		children: [/* @__PURE__ */ (0, zi.jsx)("span", {
 			className: "cms-canvas__image-wrap",
 			style: n,
 			children: /* @__PURE__ */ (0, zi.jsx)("img", {
@@ -10058,7 +10058,10 @@ function fa({ placed: e }) {
 				alt: e.tile.thumbnailAlt,
 				draggable: !1
 			})
-		})
+		}), e.tile.title ? /* @__PURE__ */ (0, zi.jsx)("span", {
+			className: "cms-canvas__title",
+			children: e.tile.title
+		}) : null]
 	});
 }
 function pa({ root: e, items: t, source: n }) {
@@ -10160,18 +10163,17 @@ function pa({ root: e, items: t, source: n }) {
 				y: e.clientY
 			}, f = r;
 		}, x = (n) => {
-			if (l !== n.pointerId) return;
-			l = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Li.to(t, {
-				scale: 1,
-				duration: c.reducedMotion ? .01 : .45,
-				ease: "elastic.out(1, 0.72)"
-			});
-			let r = n.target.closest(".cms-canvas__item");
-			if (!m && h && r === h) {
-				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-				t && da(t, h);
+			if (l === n.pointerId) {
+				if (l = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), Li.to(t, {
+					scale: 1,
+					duration: c.reducedMotion ? .01 : .45,
+					ease: "elastic.out(1, 0.72)"
+				}), !m && h) {
+					let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
+					t && da(t, h);
+				}
+				h = null;
 			}
-			h = null;
 		}, S = () => {
 			a.x = e.clientWidth / 2, a.y = e.clientHeight / 2;
 		}, C = (e) => {

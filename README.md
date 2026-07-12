@@ -238,7 +238,8 @@ for example `data-canvas-item-margin-min="5"` and
 `data-canvas-item-margin-max="5"`. Columns themselves do not get a Y start
 offset. The balanced base pattern is rendered around the viewport and wrapped
 with GSAP while dragging, so it repeats horizontally and vertically without hard
-bounds.
+bounds. On desktop hover and keyboard focus, the image zooms in slightly and the
+CMS title slides down from behind the image. Touch devices keep the title hidden.
 Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 Deprecated legacy attributes such as `data-canvas-column-count`,

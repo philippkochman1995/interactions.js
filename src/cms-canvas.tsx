@@ -402,6 +402,7 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       <span className="cms-canvas__image-wrap" style={imageOffsetStyle}>
         <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
       </span>
+      {placed.tile.title ? <span className="cms-canvas__title">{placed.tile.title}</span> : null}
     </button>
   );
 }
@@ -569,9 +570,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       root.classList.remove('is-dragging');
       gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
 
-      const releasedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
-
-      if (!dragged && pressedTile && releasedTile === pressedTile) {
+      if (!dragged && pressedTile) {
         const itemId = pressedTile.dataset.canvasItemId;
         const item = itemId ? itemByInstanceId.get(itemId) : undefined;
 
