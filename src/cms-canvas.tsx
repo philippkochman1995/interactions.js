@@ -342,7 +342,7 @@ function placeTiles(
   });
   const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
   const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
-  const maxAllowedColumnGap = Math.max(viewportHeight * 0.18, columnWidth * 0.8);
+  const maxAllowedColumnGap = Math.max(marginMax, columnWidth * 0.12);
 
   preparedTiles.forEach((tile) => {
     const columnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
@@ -389,10 +389,14 @@ function placeTiles(
   }
 
   const basePlaced: PlacedTile[] = [];
-  const columnHeights: number[] = [];
+  const patternHeight = Math.max(...preparedColumnHeights, 1);
 
   orderedColumns.forEach((column, columnIndex) => {
     const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
+    const columnContentHeight = column.reduce((height, tile) => height + tile.totalHeight, 0);
+    const distributedLoopGap = column.length > 0
+      ? Math.max(patternHeight - columnContentHeight, 0) / column.length
+      : 0;
     let y = 0;
 
     column.forEach((tile) => {
@@ -405,11 +409,9 @@ function placeTiles(
         offsetX: tile.offsetX,
         offsetY: tile.offsetY,
       });
-      y += tile.totalHeight;
+      y += tile.totalHeight + distributedLoopGap;
     });
-    columnHeights.push(y);
   });
-  const patternHeight = Math.max(...columnHeights, 1);
   const normalizedPlaced = basePlaced.map((tile) => ({
     ...tile,
     y: tile.y - patternHeight / 2,

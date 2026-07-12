@@ -10004,7 +10004,7 @@ function fa(e, t, n, r, i, a) {
 			offsetY: _ * m * h,
 			totalHeight: m + u
 		};
-	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(i * .18, s * .8);
+	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(l, s * .12);
 	p.forEach((e) => {
 		let t = h.indexOf(Math.min(...h));
 		m[t].push(e), h[t] += e.totalHeight;
@@ -10024,43 +10024,43 @@ function fa(e, t, n, r, i, a) {
 		};
 		m[e].push(a), h[e] += a.totalHeight, _ += 1;
 	}
-	let y = [], b = [];
+	let y = [], b = Math.max(...h, 1);
 	m.forEach((e, t) => {
-		let n = t * s - u / 2 + s / 2, r = 0;
+		let n = t * s - u / 2 + s / 2, r = e.reduce((e, t) => e + t.totalHeight, 0), i = e.length > 0 ? Math.max(b - r, 0) / e.length : 0, a = 0;
 		e.forEach((e) => {
 			y.push({
 				tile: e.tile,
 				x: n - e.width / 2,
-				y: r,
+				y: a,
 				width: e.width,
 				height: e.height,
 				offsetX: e.offsetX,
 				offsetY: e.offsetY
-			}), r += e.totalHeight;
-		}), b.push(r);
+			}), a += e.totalHeight + i;
+		});
 	});
-	let x = Math.max(...b, 1), S = y.map((e) => ({
+	let x = y.map((e) => ({
 		...e,
-		y: e.y - x / 2
-	})), C = [], w = ca(u, r);
-	return ca(x, i).forEach((e) => {
-		w.forEach((t) => {
-			S.forEach((n, r) => {
-				C.push({
+		y: e.y - b / 2
+	})), S = [], C = ca(u, r);
+	return ca(b, i).forEach((e) => {
+		C.forEach((t) => {
+			x.forEach((n, r) => {
+				S.push({
 					...n,
 					tile: {
 						...n.tile,
 						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
 					},
 					x: n.x + t * u,
-					y: n.y + e * x
+					y: n.y + e * b
 				});
 			});
 		});
 	}), {
-		placed: C,
+		placed: S,
 		patternWidth: u,
-		patternHeight: x
+		patternHeight: b
 	};
 }
 function pa(e, t) {
