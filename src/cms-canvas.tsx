@@ -45,6 +45,8 @@ interface Point {
 
 interface CanvasConfig {
   columnWidth: number;
+  mobileColumnWidth: number;
+  mobileBreakpoint: number;
   itemMarginMin: number;
   itemMarginMax: number;
   itemOffsetMin: number;
@@ -189,6 +191,8 @@ function readConfig(root: HTMLElement): CanvasConfig {
 
   return {
     columnWidth: boundedNumberAttribute(root, 'data-canvas-column-width', 25, 8, 80),
+    mobileColumnWidth: boundedNumberAttribute(root, 'data-canvas-mobile-column-width', 50, 20, 100),
+    mobileBreakpoint: boundedNumberAttribute(root, 'data-canvas-mobile-breakpoint', 767, 320, 1400),
     itemMarginMin: boundedNumberAttribute(root, 'data-canvas-item-margin-min', 4, 0, 30),
     itemMarginMax: boundedNumberAttribute(root, 'data-canvas-item-margin-max', 6, 0, 40),
     itemOffsetMin: boundedNumberAttribute(root, 'data-canvas-item-offset-min', 3, 0, 30),
@@ -303,7 +307,8 @@ function placeTiles(
   }
 
   const columnCount = Math.max(1, Math.round(Math.sqrt(tiles.length)));
-  const columnWidth = (viewportWidth * config.columnWidth) / 100;
+  const columnWidthPercent = viewportWidth <= config.mobileBreakpoint ? config.mobileColumnWidth : config.columnWidth;
+  const columnWidth = (viewportWidth * columnWidthPercent) / 100;
   const marginMin = (viewportWidth * config.itemMarginMin) / 100;
   const marginMax = (viewportWidth * config.itemMarginMax) / 100;
   const patternWidth = columnCount * columnWidth;

@@ -9911,6 +9911,8 @@ function ra(e) {
 	let t = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	return {
 		columnWidth: Ji(e, "data-canvas-column-width", 25, 8, 80),
+		mobileColumnWidth: Ji(e, "data-canvas-mobile-column-width", 50, 20, 100),
+		mobileBreakpoint: Ji(e, "data-canvas-mobile-breakpoint", 767, 320, 1400),
 		itemMarginMin: Ji(e, "data-canvas-item-margin-min", 4, 0, 30),
 		itemMarginMax: Ji(e, "data-canvas-item-margin-max", 6, 0, 40),
 		itemOffsetMin: Ji(e, "data-canvas-item-offset-min", 3, 0, 30),
@@ -9984,7 +9986,7 @@ function ua(e, t, n, r, i, a) {
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * n.columnWidth / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = la(ca(Qi(e, a), o), a), f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = [], h = [];
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = la(ca(Qi(e, a), o), a), f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = [], h = [];
 	d.forEach((e, n) => {
 		let r = n * s - u / 2 + s / 2, i = 0;
 		e.forEach((e) => {

@@ -211,6 +211,8 @@ All root configuration attributes are optional:
 
 ```text
 data-canvas-column-width        Column width in vw (default: 25)
+data-canvas-mobile-column-width Column width in vw up to the mobile breakpoint (default: 50)
+data-canvas-mobile-breakpoint   Mobile layout breakpoint in px (default: 767)
 data-canvas-item-margin-min     Minimum item spacing in vw, used vertically and horizontally (default: 4)
 data-canvas-item-margin-max     Maximum item spacing in vw, used vertically and horizontally (default: 6)
 data-canvas-item-offset-min     Minimum per-item transform offset in % (default: 3)
@@ -225,11 +227,13 @@ The background uses the existing `--fw_off_white` CSS variable. The canvas now u
 an infinite-feeling repeated column pattern. The number of columns is calculated
 from the real CMS item count with `Math.round(Math.sqrt(count))`, so 15 items
 become 4 columns and distribute as 4/4/4/3. Columns are 25vw by default, so about
-four columns can be visible horizontally. If a column would contain fewer items
-than the others, the base pattern fills that shorter column with visual copies
-from other columns. Those copies open the same modal as their original item. Items
-are stacked inside their column, centered on the X axis, keep their natural aspect
-ratio, and get individual item spacing plus a small per-item transform offset.
+four columns can be visible horizontally. On screens up to 767px, columns are 50vw
+by default, so about two columns are visible. If a column would contain fewer
+items than the others, the base pattern fills that shorter column with visual
+copies from other columns. Those copies open the same modal as their original
+item. Items are stacked inside their column, centered on the X axis, keep their
+natural aspect ratio, and get individual item spacing plus a small per-item
+transform offset.
 The item spacing is the central layout control: vertically it is added after each
 item; horizontally it is applied inside the 25vw column by reducing the rendered
 item width, so the same value controls the visual gap to neighboring
