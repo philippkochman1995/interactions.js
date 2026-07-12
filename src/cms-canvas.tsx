@@ -251,6 +251,41 @@ function distributeColumns<T>(items: T[], columnCount: number): T[][] {
   return columns;
 }
 
+function balanceColumns(
+  columns: CanvasTileData[][],
+  random: () => number,
+): CanvasTileData[][] {
+  const targetItemsPerColumn = Math.max(...columns.map((column) => column.length));
+
+  if (targetItemsPerColumn <= 0) {
+    return columns;
+  }
+
+  return columns.map((column, columnIndex) => {
+    const balancedColumn = [...column];
+    let fillIndex = 0;
+
+    while (balancedColumn.length < targetItemsPerColumn) {
+      const sourceColumns = columns.filter((sourceColumn, sourceColumnIndex) => (
+        sourceColumnIndex !== columnIndex && sourceColumn.length > 0
+      ));
+      const fallbackColumns = columns.filter((sourceColumn) => sourceColumn.length > 0);
+      const sourceColumnPool = sourceColumns.length > 0 ? sourceColumns : fallbackColumns;
+      const sourceColumn = sourceColumnPool[Math.floor(random() * sourceColumnPool.length)];
+      const sourceTile = sourceColumn[Math.floor(random() * sourceColumn.length)];
+
+      balancedColumn.push({
+        ...sourceTile,
+        instanceId: `${sourceTile.sourceId}--fill-${columnIndex}-${fillIndex}`,
+        copyIndex: sourceTile.copyIndex + fillIndex + 1,
+      });
+      fillIndex += 1;
+    }
+
+    return balancedColumn;
+  });
+}
+
 function placeTiles(
   tiles: CanvasTileData[],
   measures: Map<string, ImageMeasure>,
@@ -272,7 +307,7 @@ function placeTiles(
   const marginMin = (viewportWidth * config.itemMarginMin) / 100;
   const marginMax = (viewportWidth * config.itemMarginMax) / 100;
   const patternWidth = columnCount * columnWidth;
-  const orderedColumns = distributeColumns(shuffled(tiles, random), columnCount);
+  const orderedColumns = balanceColumns(distributeColumns(shuffled(tiles, random), columnCount), random);
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
   const basePlaced: PlacedTile[] = [];
@@ -283,7 +318,7 @@ function placeTiles(
     let y = 0;
 
     column.forEach((tile) => {
-      const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
+      const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
       const aspectRatio = measure.width / Math.max(measure.height, 1);
       const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
       const width = Math.max(columnWidth - margin, columnWidth * 0.35);
@@ -306,52 +341,28 @@ function placeTiles(
     columnHeights.push(y);
   });
   const patternHeight = Math.max(...columnHeights, viewportHeight);
+  const normalizedPlaced = basePlaced.map((tile) => ({
+    ...tile,
+    y: tile.y - patternHeight / 2,
+  }));
   const placed: PlacedTile[] = [];
-  const horizontalRepeatOffsets = [-1, 0, 1];
+  const repeatOffsets = [-1, 0, 1];
 
-  orderedColumns.forEach((_column, columnIndex) => {
-    const columnHeight = Math.max(columnHeights[columnIndex] ?? viewportHeight, 1);
-    const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
-    const columnTiles = basePlaced.filter((tile) => {
-      const tileCenter = tile.x + tile.width / 2;
-      return Math.abs(tileCenter - columnCenter) < 0.5;
-    });
-    const verticalRepeatRange = Math.ceil((viewportHeight + patternHeight) / columnHeight) + 2;
-
-    for (let repeatY = -verticalRepeatRange; repeatY <= verticalRepeatRange; repeatY += 1) {
-      horizontalRepeatOffsets.forEach((repeatX) => {
-        columnTiles.forEach((tile, index) => {
-          const normalizedY = tile.y - columnHeight / 2;
-
-          placed.push({
-            ...tile,
-            tile: {
-              ...tile.tile,
-              instanceId: `${tile.tile.instanceId}--grid-${columnIndex}-${index}--${repeatX}-${repeatY}`,
-            },
-            x: tile.x + repeatX * patternWidth,
-            y: normalizedY + repeatY * columnHeight,
-          });
-        });
-      });
-    }
-  });
-
-  if (placed.length === 0) {
-    horizontalRepeatOffsets.forEach((repeatX) => {
-      basePlaced.forEach((tile, index) => {
+  repeatOffsets.forEach((repeatY) => {
+    repeatOffsets.forEach((repeatX) => {
+      normalizedPlaced.forEach((tile, index) => {
         placed.push({
           ...tile,
           tile: {
             ...tile.tile,
-            instanceId: `${tile.tile.instanceId}--grid-fallback-${index}--${repeatX}`,
+            instanceId: `${tile.tile.instanceId}--grid-${index}--${repeatX}-${repeatY}`,
           },
           x: tile.x + repeatX * patternWidth,
-          y: tile.y - patternHeight / 2,
+          y: tile.y + repeatY * patternHeight,
         });
       });
     });
-  }
+  });
 
   return {
     placed,
