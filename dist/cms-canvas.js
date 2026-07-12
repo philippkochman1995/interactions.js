@@ -9974,16 +9974,16 @@ function la(e, t, n, r, i, a) {
 		let r = n * s - u / 2 + s / 2, i = 0;
 		e.forEach((e) => {
 			var n;
-			let o = (n = t.get(e.instanceId)) == null ? oa(e) : n, u = o.width / Math.max(o.height, 1), d = s * (.72 + a() * .12), h = d / Math.max(u, .2), g = c + a() * Math.max(l - c, 0), _ = f + a() * Math.max(p - f, 0), v = a() > .5 ? 1 : -1, y = a() > .5 ? 1 : -1;
+			let o = (n = t.get(e.instanceId)) == null ? oa(e) : n, u = o.width / Math.max(o.height, 1), d = c + a() * Math.max(l - c, 0), h = Math.max(s - d, s * .35), g = h / Math.max(u, .2), _ = f + a() * Math.max(p - f, 0), v = a() > .5 ? 1 : -1, y = a() > .5 ? 1 : -1;
 			m.push({
 				tile: e,
-				x: r - d / 2,
+				x: r - h / 2,
 				y: i,
-				width: d,
-				height: h,
-				offsetX: v * d * _,
-				offsetY: y * h * _
-			}), i += h + g;
+				width: h,
+				height: g,
+				offsetX: v * h * _,
+				offsetY: y * g * _
+			}), i += g + d;
 		}), h.push(i);
 	});
 	let g = Math.max(...h, i), _ = m.map((e) => ({

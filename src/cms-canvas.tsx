@@ -285,9 +285,9 @@ function placeTiles(
     column.forEach((tile) => {
       const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
       const aspectRatio = measure.width / Math.max(measure.height, 1);
-      const width = columnWidth * (0.72 + random() * 0.12);
-      const height = width / Math.max(aspectRatio, 0.2);
       const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
+      const width = Math.max(columnWidth - margin, columnWidth * 0.35);
+      const height = width / Math.max(aspectRatio, 0.2);
       const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
       const offsetDirectionX = random() > 0.5 ? 1 : -1;
       const offsetDirectionY = random() > 0.5 ? 1 : -1;

@@ -211,8 +211,8 @@ All root configuration attributes are optional:
 
 ```text
 data-canvas-column-width        Column width in vw (default: 25)
-data-canvas-item-margin-min     Minimum item margin in vw (default: 4)
-data-canvas-item-margin-max     Maximum item margin in vw (default: 6)
+data-canvas-item-margin-min     Minimum item spacing in vw, used vertically and horizontally (default: 4)
+data-canvas-item-margin-max     Maximum item spacing in vw, used vertically and horizontally (default: 6)
 data-canvas-item-offset-min     Minimum per-item transform offset in % (default: 3)
 data-canvas-item-offset-max     Maximum per-item transform offset in % (default: 6)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
@@ -227,9 +227,14 @@ from the real CMS item count with `Math.round(Math.sqrt(count))`, so 15 items
 become 4 columns and distribute as 4/4/4/3. Columns are 25vw by default, so about
 four columns can be visible horizontally. Items are stacked inside their column,
 centered on the X axis, keep their natural aspect ratio, and get individual item
-margins plus a small per-item transform offset. Columns themselves do not get a Y
-start offset. The base pattern is rendered around the viewport and wrapped with
-GSAP while dragging, so it repeats horizontally and vertically without hard bounds.
+spacing plus a small per-item transform offset. The item spacing is the central
+layout control: vertically it is added after each item; horizontally it is applied
+inside the 25vw column by reducing the rendered item width, so the same value
+controls the visual gap to neighboring columns/items. Set min and max to the same
+value when you want a more exact grid, for example `data-canvas-item-margin-min="5"`
+and `data-canvas-item-margin-max="5"`. Columns themselves do not get a Y start
+offset. The base pattern is rendered around the viewport and wrapped with GSAP
+while dragging, so it repeats horizontally and vertically without hard bounds.
 Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 Deprecated legacy attributes such as `data-canvas-column-count`,
