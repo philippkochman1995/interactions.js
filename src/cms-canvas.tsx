@@ -306,28 +306,52 @@ function placeTiles(
     columnHeights.push(y);
   });
   const patternHeight = Math.max(...columnHeights, viewportHeight);
-  const normalizedPlaced = basePlaced.map((tile) => ({
-    ...tile,
-    y: tile.y - patternHeight / 2,
-  }));
   const placed: PlacedTile[] = [];
-  const repeatOffsets = [-1, 0, 1];
+  const horizontalRepeatOffsets = [-1, 0, 1];
 
-  repeatOffsets.forEach((repeatY) => {
-    repeatOffsets.forEach((repeatX) => {
-      normalizedPlaced.forEach((tile, index) => {
+  orderedColumns.forEach((_column, columnIndex) => {
+    const columnHeight = Math.max(columnHeights[columnIndex] ?? viewportHeight, 1);
+    const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
+    const columnTiles = basePlaced.filter((tile) => {
+      const tileCenter = tile.x + tile.width / 2;
+      return Math.abs(tileCenter - columnCenter) < 0.5;
+    });
+    const verticalRepeatRange = Math.ceil((viewportHeight + patternHeight) / columnHeight) + 2;
+
+    for (let repeatY = -verticalRepeatRange; repeatY <= verticalRepeatRange; repeatY += 1) {
+      horizontalRepeatOffsets.forEach((repeatX) => {
+        columnTiles.forEach((tile, index) => {
+          const normalizedY = tile.y - columnHeight / 2;
+
+          placed.push({
+            ...tile,
+            tile: {
+              ...tile.tile,
+              instanceId: `${tile.tile.instanceId}--grid-${columnIndex}-${index}--${repeatX}-${repeatY}`,
+            },
+            x: tile.x + repeatX * patternWidth,
+            y: normalizedY + repeatY * columnHeight,
+          });
+        });
+      });
+    }
+  });
+
+  if (placed.length === 0) {
+    horizontalRepeatOffsets.forEach((repeatX) => {
+      basePlaced.forEach((tile, index) => {
         placed.push({
           ...tile,
           tile: {
             ...tile.tile,
-            instanceId: `${tile.tile.instanceId}--grid-${index}--${repeatX}-${repeatY}`,
+            instanceId: `${tile.tile.instanceId}--grid-fallback-${index}--${repeatX}`,
           },
           x: tile.x + repeatX * patternWidth,
-          y: tile.y + repeatY * patternHeight,
+          y: tile.y - patternHeight / 2,
         });
       });
     });
-  });
+  }
 
   return {
     placed,

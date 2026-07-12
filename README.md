@@ -233,8 +233,11 @@ inside the 25vw column by reducing the rendered item width, so the same value
 controls the visual gap to neighboring columns/items. Set min and max to the same
 value when you want a more exact grid, for example `data-canvas-item-margin-min="5"`
 and `data-canvas-item-margin-max="5"`. Columns themselves do not get a Y start
-offset. The base pattern is rendered around the viewport and wrapped with GSAP
-while dragging, so it repeats horizontally and vertically without hard bounds.
+offset. Each column repeats at its own measured height, so shorter columns
+continue directly instead of waiting for the tallest column and creating a
+trailing gap. The base pattern is rendered around the viewport and wrapped with
+GSAP while dragging, so it repeats horizontally and vertically without hard
+bounds.
 Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 Deprecated legacy attributes such as `data-canvas-column-count`,

@@ -9986,30 +9986,45 @@ function la(e, t, n, r, i, a) {
 			}), i += g + d;
 		}), h.push(i);
 	});
-	let g = Math.max(...h, i), _ = m.map((e) => ({
-		...e,
-		y: e.y - g / 2
-	})), v = [], y = [
+	let g = Math.max(...h, i), _ = [], v = [
 		-1,
 		0,
 		1
 	];
-	return y.forEach((e) => {
-		y.forEach((t) => {
-			_.forEach((n, r) => {
-				v.push({
-					...n,
+	return d.forEach((e, t) => {
+		var n;
+		let r = Math.max((n = h[t]) == null ? i : n, 1), a = t * s - u / 2 + s / 2, o = m.filter((e) => {
+			let t = e.x + e.width / 2;
+			return Math.abs(t - a) < .5;
+		}), c = Math.ceil((i + g) / r) + 2;
+		for (let e = -c; e <= c; e += 1) v.forEach((n) => {
+			o.forEach((i, a) => {
+				let o = i.y - r / 2;
+				_.push({
+					...i,
 					tile: {
-						...n.tile,
-						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
+						...i.tile,
+						instanceId: `${i.tile.instanceId}--grid-${t}-${a}--${n}-${e}`
 					},
-					x: n.x + t * u,
-					y: n.y + e * g
+					x: i.x + n * u,
+					y: o + e * r
 				});
 			});
 		});
+	}), _.length === 0 && v.forEach((e) => {
+		m.forEach((t, n) => {
+			_.push({
+				...t,
+				tile: {
+					...t.tile,
+					instanceId: `${t.tile.instanceId}--grid-fallback-${n}--${e}`
+				},
+				x: t.x + e * u,
+				y: t.y - g / 2
+			});
+		});
 	}), {
-		placed: v,
+		placed: _,
 		patternWidth: u,
 		patternHeight: g
 	};
