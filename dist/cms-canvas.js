@@ -10037,21 +10037,19 @@ function da(e, t) {
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
 function fa({ placed: e }) {
-	let t = {
-		left: e.x,
-		top: e.y,
-		width: e.width
-	}, n = { transform: `translate3d(${e.offsetX}px, ${e.offsetY}px, 0)` };
 	return /* @__PURE__ */ (0, zi.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
-		style: t,
+		style: {
+			left: e.x + e.offsetX,
+			top: e.y + e.offsetY,
+			width: e.width
+		},
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
 		children: [/* @__PURE__ */ (0, zi.jsx)("span", {
 			className: "cms-canvas__image-wrap",
-			style: n,
 			children: /* @__PURE__ */ (0, zi.jsx)("img", {
 				className: "cms-canvas__image",
 				src: e.tile.thumbnail,

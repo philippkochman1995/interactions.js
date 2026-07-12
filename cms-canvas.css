@@ -64,7 +64,6 @@ body {
   display: block;
   width: 100%;
   pointer-events: none;
-  will-change: transform;
 }
 
 .cms-canvas__image {
@@ -86,9 +85,9 @@ body {
   display: block;
   width: 100%;
   padding-top: 0.45rem;
-  color: var(--fw_dark_purple, currentColor);
-  font: inherit;
-  font-size: clamp(0.75rem, 0.85vw, 1rem);
+  color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
+  font-family: "StyreneB", inherit;
+  font-size: var(--p-font-size, clamp(0.75rem, 0.85vw, 1rem));
   line-height: 1.1;
   text-align: left;
   pointer-events: none;

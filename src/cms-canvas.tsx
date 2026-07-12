@@ -382,12 +382,9 @@ function openItemModal(item: CanvasTileData, trigger: HTMLElement): void {
 
 function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
   const style: React.CSSProperties = {
-    left: placed.x,
-    top: placed.y,
+    left: placed.x + placed.offsetX,
+    top: placed.y + placed.offsetY,
     width: placed.width,
-  };
-  const imageOffsetStyle: React.CSSProperties = {
-    transform: `translate3d(${placed.offsetX}px, ${placed.offsetY}px, 0)`,
   };
 
   return (
@@ -399,7 +396,7 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       data-canvas-source-item-id={placed.tile.sourceId}
       aria-label={placed.tile.title || 'Details öffnen'}
     >
-      <span className="cms-canvas__image-wrap" style={imageOffsetStyle}>
+      <span className="cms-canvas__image-wrap">
         <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
       </span>
       {placed.tile.title ? <span className="cms-canvas__title">{placed.tile.title}</span> : null}
