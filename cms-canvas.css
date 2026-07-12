@@ -60,11 +60,6 @@ body {
   cursor: grabbing;
 }
 
-.cms-canvas__item--signature {
-  cursor: default;
-  pointer-events: none;
-}
-
 .cms-canvas__image-wrap {
   position: relative;
   z-index: 2;

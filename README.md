@@ -207,12 +207,6 @@ field elements. Bind `data-canvas-id` to the CMS slug. The modal address, large
 image, caption, and body are optional. If the large image is missing, the thumbnail
 is used.
 
-The thumbnail file `6a3a705c3445399a04fbd850_SIGNATUR2.svg` is treated as the
-visual canvas signature. It is placed at the pattern center on startup, rendered
-as a non-clickable visual element, and excluded from the regular column
-distribution. As a fallback, any thumbnail with `alt="signatur"` gets the same
-treatment.
-
 All root configuration attributes are optional:
 
 ```text

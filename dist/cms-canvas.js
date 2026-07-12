@@ -9816,8 +9816,8 @@ Ii.core.Tween;
 //#endregion
 //#region node_modules/react/cjs/react-jsx-runtime.production.js
 var Li = /* @__PURE__ */ o(((e) => {
-	var t = Symbol.for("react.transitional.element"), n = Symbol.for("react.fragment");
-	function r(e, n, r) {
+	var t = Symbol.for("react.transitional.element");
+	function n(e, n, r) {
 		var i = null;
 		if (r !== void 0 && (i = "" + r), n.key !== void 0 && (i = "" + n.key), "key" in n) for (var a in r = {}, n) a !== "key" && (r[a] = n[a]);
 		else r = n;
@@ -9829,25 +9829,25 @@ var Li = /* @__PURE__ */ o(((e) => {
 			props: r
 		};
 	}
-	e.Fragment = n, e.jsx = r, e.jsxs = r;
+	e.jsx = n, e.jsxs = n;
 })), Ri = (/* @__PURE__ */ o(((e, t) => {
 	t.exports = Li();
-})))(), zi = "[data-cms-canvas]", Bi = "[data-cms-canvas-source]", Vi = "[data-cms-canvas-item]", Hi = 6, Ui = 1.1, Wi = "6a3a705c3445399a04fbd850_signatur2.svg", Gi = /* @__PURE__ */ new WeakMap();
-function Ki(e) {
+})))(), zi = "[data-cms-canvas]", Bi = "[data-cms-canvas-source]", Vi = "[data-cms-canvas-item]", Hi = 6, Ui = 1.1, Wi = /* @__PURE__ */ new WeakMap();
+function Gi(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function qi(e, t, n) {
+function Ki(e, t, n) {
 	return Math.min(Math.max(e, t), n);
 }
-function Ji(e, t, n) {
+function qi(e, t, n) {
 	var r;
 	let i = Number.parseFloat((r = e.getAttribute(t)) == null ? "" : r);
 	return Number.isFinite(i) && i > 0 ? i : n;
 }
-function Yi(e, t, n, r, i) {
-	return qi(Ji(e, t, n), r, i);
+function Ji(e, t, n, r, i) {
+	return Ki(qi(e, t, n), r, i);
 }
-function Xi(e, t, n) {
+function Yi(e, t, n) {
 	let r = e.getAttribute(t);
 	return r === null || r === "" ? n : ![
 		"false",
@@ -9856,12 +9856,12 @@ function Xi(e, t, n) {
 		"off"
 	].includes(r.trim().toLowerCase());
 }
-function Zi(e) {
+function Xi(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function Qi(e = Math.floor(Math.random() * 4294967295)) {
+function Zi(e = Math.floor(Math.random() * 4294967295)) {
 	let t = e >>> 0;
 	return () => {
 		t += 1831565813;
@@ -9869,7 +9869,7 @@ function Qi(e = Math.floor(Math.random() * 4294967295)) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function $i(e, t) {
+function Qi(e, t) {
 	let n = [...e];
 	for (let e = n.length - 1; e > 0; --e) {
 		let r = Math.floor(t() * (e + 1));
@@ -9877,18 +9877,18 @@ function $i(e, t) {
 	}
 	return n;
 }
-function ea(e, t) {
+function $i(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function ta(e, t) {
+function ea(e, t) {
 	return e.querySelector(t);
 }
-function na(e, t) {
+function ta(e, t) {
 	var n, r, i, a, o, s;
-	let c = (n = ta(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = (n = ea(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!l) return null;
-	let u = ea(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Zi(`${u}-${l}`)}`, f = ta(e, "[data-canvas-modal-image]"), p = e.querySelector("[data-canvas-modal-body]");
+	let u = $i(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Xi(`${u}-${l}`)}`, f = ea(e, "[data-canvas-modal-image]"), p = e.querySelector("[data-canvas-modal-body]");
 	return {
 		id: d,
 		title: u,
@@ -9896,35 +9896,35 @@ function na(e, t) {
 		thumbnailAlt: (o = c == null ? void 0 : c.alt) == null ? u : o,
 		modal: {
 			id: `canvas-${d}`,
-			address: ea(e, "[data-canvas-modal-address]") || u,
+			address: $i(e, "[data-canvas-modal-address]") || u,
 			image: (f == null ? void 0 : f.currentSrc) || (f == null ? void 0 : f.src) || l,
 			imageAlt: (f == null ? void 0 : f.alt) || (c == null ? void 0 : c.alt) || u,
-			caption: ea(e, "[data-canvas-modal-caption]"),
+			caption: $i(e, "[data-canvas-modal-caption]"),
 			html: (s = p == null ? void 0 : p.innerHTML) == null ? "" : s
 		}
 	};
 }
-function ra(e) {
-	return Array.from(e.querySelectorAll(Vi)).map(na).filter((e) => e !== null);
+function na(e) {
+	return Array.from(e.querySelectorAll(Vi)).map(ta).filter((e) => e !== null);
 }
-function ia(e) {
+function ra(e) {
 	let t = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	return {
-		columnWidth: Yi(e, "data-canvas-column-width", 25, 8, 80),
-		mobileColumnWidth: Yi(e, "data-canvas-mobile-column-width", 50, 20, 100),
-		mobileBreakpoint: Yi(e, "data-canvas-mobile-breakpoint", 767, 320, 1400),
-		itemMarginMin: Yi(e, "data-canvas-item-margin-min", 4, 0, 30),
-		itemMarginMax: Yi(e, "data-canvas-item-margin-max", 6, 0, 40),
-		itemOffsetMin: Yi(e, "data-canvas-item-offset-min", 3, 0, 30),
-		itemOffsetMax: Yi(e, "data-canvas-item-offset-max", 6, 0, 40),
-		velocity: t ? 0 : Yi(e, "data-canvas-velocity", .85, .1, 2),
-		friction: t ? 0 : Yi(e, "data-canvas-friction", .92, .5, .98),
-		ease: t ? 1 : Yi(e, "data-canvas-ease", .16, .04, 1),
-		inertia: !t && Xi(e, "data-canvas-inertia", !0),
+		columnWidth: Ji(e, "data-canvas-column-width", 25, 8, 80),
+		mobileColumnWidth: Ji(e, "data-canvas-mobile-column-width", 50, 20, 100),
+		mobileBreakpoint: Ji(e, "data-canvas-mobile-breakpoint", 767, 320, 1400),
+		itemMarginMin: Ji(e, "data-canvas-item-margin-min", 4, 0, 30),
+		itemMarginMax: Ji(e, "data-canvas-item-margin-max", 6, 0, 40),
+		itemOffsetMin: Ji(e, "data-canvas-item-offset-min", 3, 0, 30),
+		itemOffsetMax: Ji(e, "data-canvas-item-offset-max", 6, 0, 40),
+		velocity: t ? 0 : Ji(e, "data-canvas-velocity", .85, .1, 2),
+		friction: t ? 0 : Ji(e, "data-canvas-friction", .92, .5, .98),
+		ease: t ? 1 : Ji(e, "data-canvas-ease", .16, .04, 1),
+		inertia: !t && Yi(e, "data-canvas-inertia", !0),
 		reducedMotion: t
 	};
 }
-function aa(e) {
+function ia(e) {
 	return e.map((e) => ({
 		...e,
 		instanceId: e.id,
@@ -9932,7 +9932,7 @@ function aa(e) {
 		copyIndex: 0
 	}));
 }
-function oa(e) {
+function aa(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -9946,8 +9946,8 @@ function oa(e) {
 		}), n.src = e;
 	});
 }
-function sa(e) {
-	return Zi(`${e.sourceId}:${e.copyIndex}`) % 3 == 0 ? {
+function oa(e) {
+	return Xi(`${e.sourceId}:${e.copyIndex}`) % 3 == 0 ? {
 		width: 10,
 		height: 14
 	} : {
@@ -9955,184 +9955,155 @@ function sa(e) {
 		height: 10
 	};
 }
-function ca(e, t, n) {
+function sa(e, t, n) {
 	return t <= 0 ? e : ((e - n + t / 2) % t + t) % t - t / 2 + n;
 }
-function la(e, t) {
+function ca(e, t) {
 	let n = Math.max(1, Math.ceil(t / Math.max(e, 1)));
 	return Array.from({ length: n * 2 + 1 }, (e, t) => t - n);
 }
+function la(e) {
+	return e.tile.thumbnailAlt.trim().toLowerCase() === "signatur";
+}
 function ua(e) {
-	try {
-		var t, n;
-		return (t = (n = new URL(e, window.location.href).pathname.split("/").pop()) == null ? void 0 : n.toLowerCase()) == null ? "" : t;
-	} catch (t) {
-		var r, i;
-		return (r = (i = e.split("?")[0].split("#")[0].split("/").pop()) == null ? void 0 : i.toLowerCase()) == null ? "" : r;
-	}
-}
-function da(e) {
-	return ua(e.thumbnail) === Wi || e.thumbnailAlt.trim().toLowerCase() === "signatur";
-}
-function fa(e) {
-	return e.isSignature || da(e.tile);
-}
-function pa(e) {
 	return {
 		x: e.x + e.offsetX + e.width / 2,
 		y: e.y + e.offsetY + e.height / 2
 	};
 }
-function ma(e, t) {
+function da(e, t) {
 	let n = {
 		x: t.clientWidth / 2,
 		y: t.clientHeight / 2
-	}, r = e.filter(fa).sort((e, t) => {
-		let n = pa(e), r = pa(t);
+	}, r = e.filter(la).sort((e, t) => {
+		let n = ua(e), r = ua(t);
 		return Math.hypot(n.x, n.y) - Math.hypot(r.x, r.y);
 	})[0];
 	if (!r) return n;
-	let i = pa(r);
+	let i = ua(r);
 	return {
 		x: n.x - i.x,
 		y: n.y - i.y
 	};
 }
-function ha(e, t, n, r, i, a) {
+function fa(e, t, n, r, i, a) {
 	if (e.length === 0) return {
 		placed: [],
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = e.find(da), s = e.filter((e) => !da(e)), c = Math.max(1, Math.round(Math.sqrt(s.length || 1))), l = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, u = r * n.itemMarginMin / 100, d = r * n.itemMarginMax / 100, f = c * l, p = n.itemOffsetMin / 100, m = n.itemOffsetMax / 100, h = (e) => {
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = Qi(e, a).map((e) => {
 		var n, r;
-		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? sa(e) : n, o = i.width / Math.max(i.height, 1), s = u + a() * Math.max(d - u, 0), c = Math.max(l - s, l * .35), f = c / Math.max(o, .2), h = p + a() * Math.max(m - p, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? oa(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
 		return {
 			tile: e,
-			width: c,
-			height: f,
-			margin: s,
-			offsetX: g * c * h,
-			offsetY: _ * f * h,
-			totalHeight: f + s
+			width: p,
+			height: m,
+			margin: u,
+			offsetX: g * p * h,
+			offsetY: _ * m * h,
+			totalHeight: m + u
 		};
-	}, g = o ? h(o) : null, _ = $i(s, a).map(h), v = Array.from({ length: c }, () => []), y = Array.from({ length: c }, () => 0), b = Math.max(d, l * .12);
-	_.forEach((e) => {
-		let t = y.indexOf(Math.min(...y));
-		v[t].push(e), y[t] += e.totalHeight;
+	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(l, s * .12);
+	p.forEach((e) => {
+		let t = h.indexOf(Math.min(...h));
+		m[t].push(e), h[t] += e.totalHeight;
 	});
-	let x = 0, S = c * Math.max(_.length, 1) * 3;
-	for (; _.length > 0 && Math.max(...y) - Math.min(...y) > b && x < S;) {
-		let e = y.indexOf(Math.min(...y)), t = y.indexOf(Math.max(...y)), n = y[t] - y[e], r = v[t].length > 0 ? v[t] : _, i = r.reduce((e, t) => {
-			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + b;
-			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + b) < r ? t : e;
+	let _ = 0, v = o * Math.max(p.length, 1) * 3;
+	for (; p.length > 0 && Math.max(...h) - Math.min(...h) > g && _ < v;) {
+		let e = h.indexOf(Math.min(...h)), t = h.indexOf(Math.max(...h)), n = h[t] - h[e], r = m[t].length > 0 ? m[t] : p, i = r.reduce((e, t) => {
+			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + g;
+			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + g) < r ? t : e;
 		}, r[0]), a = {
 			...i,
 			tile: {
 				...i.tile,
-				instanceId: `${i.tile.sourceId}--fill-${e}-${x}`,
-				copyIndex: i.tile.copyIndex + x + 1
+				instanceId: `${i.tile.sourceId}--fill-${e}-${_}`,
+				copyIndex: i.tile.copyIndex + _ + 1
 			}
 		};
-		v[e].push(a), y[e] += a.totalHeight, x += 1;
+		m[e].push(a), h[e] += a.totalHeight, _ += 1;
 	}
-	let C = [], w = _.length > 0 ? Math.max(...y, 1) : Math.max(i, 1);
-	g && C.push({
-		tile: g.tile,
-		x: -g.width / 2,
-		y: -g.height / 2,
-		width: g.width,
-		height: g.height,
-		offsetX: 0,
-		offsetY: 0,
-		isSignature: !0
-	}), v.forEach((e, t) => {
-		let n = t * l - f / 2 + l / 2, r = e.reduce((e, t) => e + t.totalHeight, 0), i = e.length > 0 ? Math.max(w - r, 0) / e.length : 0, a = 0;
+	let y = [], b = Math.max(...h, 1);
+	m.forEach((e, t) => {
+		let n = t * s - u / 2 + s / 2, r = e.reduce((e, t) => e + t.totalHeight, 0), i = e.length > 0 ? Math.max(b - r, 0) / e.length : 0, a = 0;
 		e.forEach((e) => {
-			C.push({
+			y.push({
 				tile: e.tile,
 				x: n - e.width / 2,
 				y: a,
 				width: e.width,
 				height: e.height,
 				offsetX: e.offsetX,
-				offsetY: e.offsetY,
-				isSignature: !1
+				offsetY: e.offsetY
 			}), a += e.totalHeight + i;
 		});
 	});
-	let T = C.map((e) => ({
+	let x = y.map((e) => ({
 		...e,
-		y: e.y - w / 2
-	})), E = [], D = la(f, r);
-	return la(w, i).forEach((e) => {
-		D.forEach((t) => {
-			T.forEach((n, r) => {
-				E.push({
+		y: e.y - b / 2
+	})), S = [], C = ca(u, r);
+	return ca(b, i).forEach((e) => {
+		C.forEach((t) => {
+			x.forEach((n, r) => {
+				S.push({
 					...n,
 					tile: {
 						...n.tile,
 						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
 					},
-					x: n.x + t * f,
-					y: n.y + e * w
+					x: n.x + t * u,
+					y: n.y + e * b
 				});
 			});
 		});
 	}), {
-		placed: E,
-		patternWidth: f,
-		patternHeight: w
+		placed: S,
+		patternWidth: u,
+		patternHeight: b
 	};
 }
-function ga(e, t) {
+function pa(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function _a({ placed: e }) {
-	let t = {
-		left: e.x + e.offsetX,
-		top: e.y + e.offsetY,
-		width: e.width
-	}, n = /* @__PURE__ */ (0, Ri.jsxs)(Ri.Fragment, { children: [/* @__PURE__ */ (0, Ri.jsx)("span", {
-		className: "cms-canvas__image-wrap",
-		children: /* @__PURE__ */ (0, Ri.jsx)("img", {
-			className: "cms-canvas__image",
-			src: e.tile.thumbnail,
-			alt: e.tile.thumbnailAlt,
-			draggable: !1
-		})
-	}), e.tile.title ? /* @__PURE__ */ (0, Ri.jsx)("span", {
-		className: "cms-canvas__title",
-		children: e.tile.title
-	}) : null] });
-	return e.isSignature ? /* @__PURE__ */ (0, Ri.jsx)("span", {
-		className: "cms-canvas__item cms-canvas__item--signature",
-		style: t,
-		"data-canvas-source-item-id": e.tile.sourceId,
-		"aria-hidden": "true",
-		children: n
-	}) : /* @__PURE__ */ (0, Ri.jsx)("button", {
+function ma({ placed: e }) {
+	return /* @__PURE__ */ (0, Ri.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
-		style: t,
+		style: {
+			left: e.x + e.offsetX,
+			top: e.y + e.offsetY,
+			width: e.width
+		},
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",
-		children: n
+		children: [/* @__PURE__ */ (0, Ri.jsx)("span", {
+			className: "cms-canvas__image-wrap",
+			children: /* @__PURE__ */ (0, Ri.jsx)("img", {
+				className: "cms-canvas__image",
+				src: e.tile.thumbnail,
+				alt: e.tile.thumbnailAlt,
+				draggable: !1
+			})
+		}), e.tile.title ? /* @__PURE__ */ (0, Ri.jsx)("span", {
+			className: "cms-canvas__title",
+			children: e.tile.title
+		}) : null]
 	});
 }
-function va({ root: e, items: t, source: n }) {
+function ha({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		width: 1,
 		height: 1
 	}), [c, l] = (0, _.useState)(() => ({
 		width: Math.max(e.clientWidth, window.innerWidth),
 		height: Math.max(e.clientHeight, window.innerHeight)
-	})), u = (0, _.useMemo)(() => ia(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
+	})), u = (0, _.useMemo)(() => ra(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
 	return (0, _.useEffect)(() => {
 		n.hidden = !0, n.setAttribute("aria-hidden", "true");
 	}, [n]), (0, _.useEffect)(() => {
@@ -10148,10 +10119,10 @@ function va({ root: e, items: t, source: n }) {
 			window.cancelAnimationFrame(t), window.removeEventListener("resize", n);
 		};
 	}, [e]), (0, _.useEffect)(() => {
-		let e = !1, n = Qi(d.current), r = aa(t);
-		return Promise.all(r.map(async (e) => [e.instanceId, await oa(e.thumbnail)])).then((t) => {
+		let e = !1, n = Zi(d.current), r = ia(t);
+		return Promise.all(r.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((t) => {
 			if (e) return;
-			let i = new Map(t), o = ha(r, i, u, c.width, c.height, n);
+			let i = new Map(t), o = fa(r, i, u, c.width, c.height, n);
 			a(o.placed), s({
 				width: o.patternWidth,
 				height: o.patternHeight
@@ -10168,7 +10139,7 @@ function va({ root: e, items: t, source: n }) {
 	]), (0, _.useEffect)(() => {
 		let t = r.current;
 		if (!t || i.length === 0) return;
-		let n = ma(i, e), a = { ...n }, s = {
+		let n = da(i, e), a = { ...n }, s = {
 			x: 0,
 			y: 0
 		}, c = null, l = {
@@ -10202,8 +10173,8 @@ function va({ root: e, items: t, source: n }) {
 		let _ = () => {
 			let t = e.clientWidth / 2, r = e.clientHeight / 2;
 			return {
-				x: ca(n.x, o.width, t),
-				y: ca(n.y, o.height, r)
+				x: sa(n.x, o.width, t),
+				y: sa(n.y, o.height, r)
 			};
 		}, v = () => {
 			c === null && u.inertia && (a.x += s.x, a.y += s.y, s.x *= u.friction, s.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease;
@@ -10247,11 +10218,11 @@ function va({ root: e, items: t, source: n }) {
 			let r = Math.hypot(n.clientX - l.x, n.clientY - l.y), i = n.pointerType === "touch" ? 14 : Hi;
 			if (!m && r <= i && h) {
 				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-				t && ga(t, h);
+				t && pa(t, h);
 			}
 			h = null;
 		}, S = () => {
-			a = ma(i, e);
+			a = da(i, e);
 		}, C = (e) => {
 			e.preventDefault();
 			let t = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaX * 16 : e.deltaX, n = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 16 : e.deltaY;
@@ -10262,7 +10233,7 @@ function va({ root: e, items: t, source: n }) {
 		}, w = (e) => {
 			if (e.key !== "Enter" && e.key !== " ") return;
 			let t = e.target.closest(".cms-canvas__item"), n = t == null ? void 0 : t.dataset.canvasItemId, r = n ? g.get(n) : void 0;
-			!t || !r || (e.preventDefault(), ga(r, t));
+			!t || !r || (e.preventDefault(), pa(r, t));
 		};
 		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), e.addEventListener("wheel", C, { passive: !1 }), e.addEventListener("keydown", w), window.addEventListener("resize", S), () => {
 			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("wheel", C), e.removeEventListener("keydown", w), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
@@ -10276,37 +10247,37 @@ function va({ root: e, items: t, source: n }) {
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(_a, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ma, { placed: e }, e.tile.instanceId))
 	});
 }
-function ya(e) {
+function ga(e) {
 	var t;
-	if (Gi.has(e)) {
+	if (Wi.has(e)) {
 		var n;
-		(n = Gi.get(e)) == null || n.unmount(), Gi.delete(e);
+		(n = Wi.get(e)) == null || n.unmount(), Wi.delete(e);
 	}
 	let r = (t = e.querySelector(Bi)) == null ? document.querySelector(Bi) : t;
 	if (!r) {
 		console.error("CMS Canvas: Element mit data-cms-canvas-source wurde nicht gefunden.");
 		return;
 	}
-	let i = ra(r);
+	let i = na(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Gi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(va, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ha, {
 		root: e,
 		items: i,
 		source: r
 	}));
 }
-Ki(() => {
+Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(ya);
+		e.forEach(ga);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), ya(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), ga(n));
 });
 //#endregion
 
