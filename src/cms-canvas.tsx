@@ -32,6 +32,16 @@ interface PlacedTile {
   offsetY: number;
 }
 
+interface PreparedTile {
+  tile: CanvasTileData;
+  width: number;
+  height: number;
+  margin: number;
+  offsetX: number;
+  offsetY: number;
+  totalHeight: number;
+}
+
 interface LayoutResult {
   placed: PlacedTile[];
   patternWidth: number;
@@ -286,53 +296,6 @@ function getStartPosition(placed: PlacedTile[], root: HTMLElement): Point {
   };
 }
 
-function distributeColumns<T>(items: T[], columnCount: number): T[][] {
-  const targetItemsPerColumn = Math.ceil(items.length / columnCount);
-  const columns: T[][] = Array.from({ length: columnCount }, () => []);
-
-  items.forEach((item, index) => {
-    const columnIndex = Math.min(Math.floor(index / targetItemsPerColumn), columnCount - 1);
-    columns[columnIndex].push(item);
-  });
-
-  return columns;
-}
-
-function balanceColumns(
-  columns: CanvasTileData[][],
-  random: () => number,
-): CanvasTileData[][] {
-  const targetItemsPerColumn = Math.max(...columns.map((column) => column.length));
-
-  if (targetItemsPerColumn <= 0) {
-    return columns;
-  }
-
-  return columns.map((column, columnIndex) => {
-    const balancedColumn = [...column];
-    let fillIndex = 0;
-
-    while (balancedColumn.length < targetItemsPerColumn) {
-      const sourceColumns = columns.filter((sourceColumn, sourceColumnIndex) => (
-        sourceColumnIndex !== columnIndex && sourceColumn.length > 0
-      ));
-      const fallbackColumns = columns.filter((sourceColumn) => sourceColumn.length > 0);
-      const sourceColumnPool = sourceColumns.length > 0 ? sourceColumns : fallbackColumns;
-      const sourceColumn = sourceColumnPool[Math.floor(random() * sourceColumnPool.length)];
-      const sourceTile = sourceColumn[Math.floor(random() * sourceColumn.length)];
-
-      balancedColumn.push({
-        ...sourceTile,
-        instanceId: `${sourceTile.sourceId}--fill-${columnIndex}-${fillIndex}`,
-        copyIndex: sourceTile.copyIndex + fillIndex + 1,
-      });
-      fillIndex += 1;
-    }
-
-    return balancedColumn;
-  });
-}
-
 function placeTiles(
   tiles: CanvasTileData[],
   measures: Map<string, ImageMeasure>,
@@ -355,9 +318,76 @@ function placeTiles(
   const marginMin = (viewportWidth * config.itemMarginMin) / 100;
   const marginMax = (viewportWidth * config.itemMarginMax) / 100;
   const patternWidth = columnCount * columnWidth;
-  const orderedColumns = balanceColumns(distributeColumns(shuffled(tiles, random), columnCount), random);
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
+  const preparedTiles: PreparedTile[] = shuffled(tiles, random).map((tile) => {
+    const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
+    const aspectRatio = measure.width / Math.max(measure.height, 1);
+    const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
+    const width = Math.max(columnWidth - margin, columnWidth * 0.35);
+    const height = width / Math.max(aspectRatio, 0.2);
+    const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
+    const offsetDirectionX = random() > 0.5 ? 1 : -1;
+    const offsetDirectionY = random() > 0.5 ? 1 : -1;
+
+    return {
+      tile,
+      width,
+      height,
+      margin,
+      offsetX: offsetDirectionX * width * offsetAmount,
+      offsetY: offsetDirectionY * height * offsetAmount,
+      totalHeight: height + margin,
+    };
+  });
+  const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
+  const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
+  const maxAllowedColumnGap = Math.max(viewportHeight * 0.18, columnWidth * 0.8);
+
+  preparedTiles.forEach((tile) => {
+    const columnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
+    orderedColumns[columnIndex].push(tile);
+    preparedColumnHeights[columnIndex] += tile.totalHeight;
+  });
+
+  let fillIndex = 0;
+  const maxFillCopies = columnCount * Math.max(preparedTiles.length, 1) * 3;
+
+  while (
+    preparedTiles.length > 0 &&
+    Math.max(...preparedColumnHeights) - Math.min(...preparedColumnHeights) > maxAllowedColumnGap &&
+    fillIndex < maxFillCopies
+  ) {
+    const shortestColumnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
+    const tallestColumnIndex = preparedColumnHeights.indexOf(Math.max(...preparedColumnHeights));
+    const deficit = preparedColumnHeights[tallestColumnIndex] - preparedColumnHeights[shortestColumnIndex];
+    const sourcePool = orderedColumns[tallestColumnIndex].length > 0
+      ? orderedColumns[tallestColumnIndex]
+      : preparedTiles;
+    const sourceTile = sourcePool.reduce((best, candidate) => {
+      const bestDelta = best.totalHeight <= deficit
+        ? deficit - best.totalHeight
+        : best.totalHeight - deficit + maxAllowedColumnGap;
+      const candidateDelta = candidate.totalHeight <= deficit
+        ? deficit - candidate.totalHeight
+        : candidate.totalHeight - deficit + maxAllowedColumnGap;
+
+      return candidateDelta < bestDelta ? candidate : best;
+    }, sourcePool[0]);
+    const copy: PreparedTile = {
+      ...sourceTile,
+      tile: {
+        ...sourceTile.tile,
+        instanceId: `${sourceTile.tile.sourceId}--fill-${shortestColumnIndex}-${fillIndex}`,
+        copyIndex: sourceTile.tile.copyIndex + fillIndex + 1,
+      },
+    };
+
+    orderedColumns[shortestColumnIndex].push(copy);
+    preparedColumnHeights[shortestColumnIndex] += copy.totalHeight;
+    fillIndex += 1;
+  }
+
   const basePlaced: PlacedTile[] = [];
   const columnHeights: number[] = [];
 
@@ -366,25 +396,16 @@ function placeTiles(
     let y = 0;
 
     column.forEach((tile) => {
-      const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
-      const aspectRatio = measure.width / Math.max(measure.height, 1);
-      const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
-      const width = Math.max(columnWidth - margin, columnWidth * 0.35);
-      const height = width / Math.max(aspectRatio, 0.2);
-      const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
-      const offsetDirectionX = random() > 0.5 ? 1 : -1;
-      const offsetDirectionY = random() > 0.5 ? 1 : -1;
-
       basePlaced.push({
-        tile,
-        x: columnCenter - width / 2,
+        tile: tile.tile,
+        x: columnCenter - tile.width / 2,
         y,
-        width,
-        height,
-        offsetX: offsetDirectionX * width * offsetAmount,
-        offsetY: offsetDirectionY * height * offsetAmount,
+        width: tile.width,
+        height: tile.height,
+        offsetX: tile.offsetX,
+        offsetY: tile.offsetY,
       });
-      y += height + margin;
+      y += tile.totalHeight;
     });
     columnHeights.push(y);
   });

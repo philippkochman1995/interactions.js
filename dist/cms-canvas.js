@@ -9986,83 +9986,91 @@ function da(e, t) {
 		y: n.y - i.y
 	};
 }
-function fa(e, t) {
-	let n = Math.ceil(e.length / t), r = Array.from({ length: t }, () => []);
-	return e.forEach((e, i) => {
-		let a = Math.min(Math.floor(i / n), t - 1);
-		r[a].push(e);
-	}), r;
-}
-function pa(e, t) {
-	let n = Math.max(...e.map((e) => e.length));
-	return n <= 0 ? e : e.map((r, i) => {
-		let a = [...r], o = 0;
-		for (; a.length < n;) {
-			let n = e.filter((e, t) => t !== i && e.length > 0), r = e.filter((e) => e.length > 0), s = n.length > 0 ? n : r, c = s[Math.floor(t() * s.length)], l = c[Math.floor(t() * c.length)];
-			a.push({
-				...l,
-				instanceId: `${l.sourceId}--fill-${i}-${o}`,
-				copyIndex: l.copyIndex + o + 1
-			}), o += 1;
-		}
-		return a;
-	});
-}
-function ma(e, t, n, r, i, a) {
+function fa(e, t, n, r, i, a) {
 	if (e.length === 0) return {
 		placed: [],
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = pa(fa(Qi(e, a), o), a), f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = [], h = [];
-	d.forEach((e, n) => {
-		let r = n * s - u / 2 + s / 2, i = 0;
-		e.forEach((e) => {
-			var n, o;
-			let u = (n = (o = t.get(e.sourceId)) == null ? t.get(e.instanceId) : o) == null ? oa(e) : n, d = u.width / Math.max(u.height, 1), h = c + a() * Math.max(l - c, 0), g = Math.max(s - h, s * .35), _ = g / Math.max(d, .2), v = f + a() * Math.max(p - f, 0), y = a() > .5 ? 1 : -1, b = a() > .5 ? 1 : -1;
-			m.push({
-				tile: e,
-				x: r - g / 2,
-				y: i,
-				width: g,
-				height: _,
-				offsetX: y * g * v,
-				offsetY: b * _ * v
-			}), i += _ + h;
-		}), h.push(i);
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = Qi(e, a).map((e) => {
+		var n, r;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? oa(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
+		return {
+			tile: e,
+			width: p,
+			height: m,
+			margin: u,
+			offsetX: g * p * h,
+			offsetY: _ * m * h,
+			totalHeight: m + u
+		};
+	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(i * .18, s * .8);
+	p.forEach((e) => {
+		let t = h.indexOf(Math.min(...h));
+		m[t].push(e), h[t] += e.totalHeight;
 	});
-	let g = Math.max(...h, 1), _ = m.map((e) => ({
+	let _ = 0, v = o * Math.max(p.length, 1) * 3;
+	for (; p.length > 0 && Math.max(...h) - Math.min(...h) > g && _ < v;) {
+		let e = h.indexOf(Math.min(...h)), t = h.indexOf(Math.max(...h)), n = h[t] - h[e], r = m[t].length > 0 ? m[t] : p, i = r.reduce((e, t) => {
+			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + g;
+			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + g) < r ? t : e;
+		}, r[0]), a = {
+			...i,
+			tile: {
+				...i.tile,
+				instanceId: `${i.tile.sourceId}--fill-${e}-${_}`,
+				copyIndex: i.tile.copyIndex + _ + 1
+			}
+		};
+		m[e].push(a), h[e] += a.totalHeight, _ += 1;
+	}
+	let y = [], b = [];
+	m.forEach((e, t) => {
+		let n = t * s - u / 2 + s / 2, r = 0;
+		e.forEach((e) => {
+			y.push({
+				tile: e.tile,
+				x: n - e.width / 2,
+				y: r,
+				width: e.width,
+				height: e.height,
+				offsetX: e.offsetX,
+				offsetY: e.offsetY
+			}), r += e.totalHeight;
+		}), b.push(r);
+	});
+	let x = Math.max(...b, 1), S = y.map((e) => ({
 		...e,
-		y: e.y - g / 2
-	})), v = [], y = ca(u, r);
-	return ca(g, i).forEach((e) => {
-		y.forEach((t) => {
-			_.forEach((n, r) => {
-				v.push({
+		y: e.y - x / 2
+	})), C = [], w = ca(u, r);
+	return ca(x, i).forEach((e) => {
+		w.forEach((t) => {
+			S.forEach((n, r) => {
+				C.push({
 					...n,
 					tile: {
 						...n.tile,
 						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
 					},
 					x: n.x + t * u,
-					y: n.y + e * g
+					y: n.y + e * x
 				});
 			});
 		});
 	}), {
-		placed: v,
+		placed: C,
 		patternWidth: u,
-		patternHeight: g
+		patternHeight: x
 	};
 }
-function ha(e, t) {
+function pa(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function ga({ placed: e }) {
+function ma({ placed: e }) {
 	return /* @__PURE__ */ (0, Ri.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
@@ -10088,7 +10096,7 @@ function ga({ placed: e }) {
 		}) : null]
 	});
 }
-function _a({ root: e, items: t, source: n }) {
+function ha({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		width: 1,
 		height: 1
@@ -10114,7 +10122,7 @@ function _a({ root: e, items: t, source: n }) {
 		let e = !1, n = Zi(d.current), r = ia(t);
 		return Promise.all(r.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((t) => {
 			if (e) return;
-			let i = new Map(t), o = ma(r, i, u, c.width, c.height, n);
+			let i = new Map(t), o = fa(r, i, u, c.width, c.height, n);
 			a(o.placed), s({
 				width: o.patternWidth,
 				height: o.patternHeight
@@ -10210,7 +10218,7 @@ function _a({ root: e, items: t, source: n }) {
 			let r = Math.hypot(n.clientX - l.x, n.clientY - l.y), i = n.pointerType === "touch" ? 14 : Hi;
 			if (!m && r <= i && h) {
 				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-				t && ha(t, h);
+				t && pa(t, h);
 			}
 			h = null;
 		}, S = () => {
@@ -10225,7 +10233,7 @@ function _a({ root: e, items: t, source: n }) {
 		}, w = (e) => {
 			if (e.key !== "Enter" && e.key !== " ") return;
 			let t = e.target.closest(".cms-canvas__item"), n = t == null ? void 0 : t.dataset.canvasItemId, r = n ? g.get(n) : void 0;
-			!t || !r || (e.preventDefault(), ha(r, t));
+			!t || !r || (e.preventDefault(), pa(r, t));
 		};
 		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), e.addEventListener("wheel", C, { passive: !1 }), e.addEventListener("keydown", w), window.addEventListener("resize", S), () => {
 			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("wheel", C), e.removeEventListener("keydown", w), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
@@ -10239,10 +10247,10 @@ function _a({ root: e, items: t, source: n }) {
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ga, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ma, { placed: e }, e.tile.instanceId))
 	});
 }
-function va(e) {
+function ga(e) {
 	var t;
 	if (Wi.has(e)) {
 		var n;
@@ -10256,7 +10264,7 @@ function va(e) {
 	let i = na(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(_a, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ha, {
 		root: e,
 		items: i,
 		source: r
@@ -10265,11 +10273,11 @@ function va(e) {
 Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(va);
+		e.forEach(ga);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), va(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), ga(n));
 });
 //#endregion
 
