@@ -10161,13 +10161,12 @@ function ma({ root: e, items: t, source: n }) {
 			}, d = { ...l }, f = performance.now(), p = { ...a }, s = {
 				x: 0,
 				y: 0
-			}, m = !1, h = t.target.closest(".cms-canvas__item"), e.setPointerCapture(t.pointerId));
+			}, m = !1, h = t.target.closest(".cms-canvas__item"), t.pointerType !== "touch" && e.setPointerCapture(t.pointerId));
 		}, b = (n) => {
 			if (c !== n.pointerId) return;
-			n.preventDefault();
 			let r = n.clientX - l.x, i = n.clientY - l.y;
 			if (Math.hypot(r, i) <= (n.pointerType === "touch" ? 14 : Ui)) return;
-			m || (m = !0, e.classList.add("is-dragging"), Li.to(t, {
+			n.preventDefault(), m || (m = !0, e.classList.add("is-dragging"), Li.to(t, {
 				scale: u.reducedMotion ? 1 : .985,
 				duration: .32,
 				ease: "power2.out"
@@ -10181,17 +10180,18 @@ function ma({ root: e, items: t, source: n }) {
 				y: n.clientY
 			}, f = o;
 		}, x = (n) => {
-			if (c === n.pointerId) {
-				if (c = null, e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), m && Li.to(t, {
-					scale: 1,
-					duration: u.reducedMotion ? .01 : .45,
-					ease: "elastic.out(1, 0.72)"
-				}), !m && h) {
-					let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-					t && fa(t, h);
-				}
-				h = null;
+			if (c !== n.pointerId) return;
+			c = null, e.hasPointerCapture(n.pointerId) && e.releasePointerCapture(n.pointerId), e.classList.remove("is-dragging"), m && Li.to(t, {
+				scale: 1,
+				duration: u.reducedMotion ? .01 : .45,
+				ease: "elastic.out(1, 0.72)"
+			});
+			let r = Math.hypot(n.clientX - l.x, n.clientY - l.y), i = n.pointerType === "touch" ? 14 : Ui;
+			if (!m && r <= i && h) {
+				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
+				t && fa(t, h);
 			}
+			h = null;
 		}, S = () => {
 			a.x = e.clientWidth / 2, a.y = e.clientHeight / 2;
 		}, C = (e) => {

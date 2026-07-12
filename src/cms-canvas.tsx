@@ -559,7 +559,10 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       velocity = { x: 0, y: 0 };
       dragged = false;
       pressedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
-      root.setPointerCapture(event.pointerId);
+
+      if (event.pointerType !== 'touch') {
+        root.setPointerCapture(event.pointerId);
+      }
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -567,7 +570,6 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
         return;
       }
 
-      event.preventDefault();
       const dx = event.clientX - pointerStart.x;
       const dy = event.clientY - pointerStart.y;
       const distance = Math.hypot(dx, dy);
@@ -576,6 +578,8 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       if (distance <= dragThreshold) {
         return;
       }
+
+      event.preventDefault();
 
       if (!dragged) {
         dragged = true;
@@ -602,13 +606,18 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       }
 
       pointerId = null;
-      root.releasePointerCapture(event.pointerId);
+      if (root.hasPointerCapture(event.pointerId)) {
+        root.releasePointerCapture(event.pointerId);
+      }
       root.classList.remove('is-dragging');
       if (dragged) {
         gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
       }
 
-      if (!dragged && pressedTile) {
+      const releaseDistance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
+      const tapThreshold = event.pointerType === 'touch' ? 14 : DRAG_THRESHOLD;
+
+      if (!dragged && releaseDistance <= tapThreshold && pressedTile) {
         const itemId = pressedTile.dataset.canvasItemId;
         const item = itemId ? itemByInstanceId.get(itemId) : undefined;
 
