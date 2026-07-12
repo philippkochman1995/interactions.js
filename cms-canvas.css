@@ -86,7 +86,7 @@ body {
   width: 100%;
   padding-top: 0.45rem;
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
-  font-family: "StyreneB", inherit;
+  font-family: "StyreneB", "Styrene B", StyreneB, sans-serif !important;
   font-size: var(--p-font-size, clamp(0.75rem, 0.85vw, 1rem));
   line-height: 1.1;
   text-align: left;
