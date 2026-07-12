@@ -30,6 +30,7 @@ interface PlacedTile {
   height: number;
   offsetX: number;
   offsetY: number;
+  isSignature: boolean;
 }
 
 interface PreparedTile {
@@ -73,6 +74,7 @@ const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
+const SIGNATURE_FILENAME = '6a3a705c3445399a04fbd850_signatur2.svg';
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -259,8 +261,23 @@ function repeatOffsetsFor(period: number, viewportSize: number): number[] {
   return Array.from({ length: range * 2 + 1 }, (_, index) => index - range);
 }
 
+function imageFilename(src: string): string {
+  try {
+    return new URL(src, window.location.href).pathname.split('/').pop()?.toLowerCase() ?? '';
+  } catch {
+    return src.split('?')[0].split('#')[0].split('/').pop()?.toLowerCase() ?? '';
+  }
+}
+
+function isSignatureData(tile: CanvasTileData): boolean {
+  return (
+    imageFilename(tile.thumbnail) === SIGNATURE_FILENAME ||
+    tile.thumbnailAlt.trim().toLowerCase() === 'signatur'
+  );
+}
+
 function isSignatureTile(tile: PlacedTile): boolean {
-  return tile.tile.thumbnailAlt.trim().toLowerCase() === 'signatur';
+  return tile.isSignature || isSignatureData(tile.tile);
 }
 
 function getTileCenter(tile: PlacedTile): Point {
@@ -312,7 +329,9 @@ function placeTiles(
     };
   }
 
-  const columnCount = Math.max(1, Math.round(Math.sqrt(tiles.length)));
+  const signatureTile = tiles.find(isSignatureData);
+  const layoutTiles = tiles.filter((tile) => !isSignatureData(tile));
+  const columnCount = Math.max(1, Math.round(Math.sqrt(layoutTiles.length || 1)));
   const columnWidthPercent = viewportWidth <= config.mobileBreakpoint ? config.mobileColumnWidth : config.columnWidth;
   const columnWidth = (viewportWidth * columnWidthPercent) / 100;
   const marginMin = (viewportWidth * config.itemMarginMin) / 100;
@@ -320,7 +339,7 @@ function placeTiles(
   const patternWidth = columnCount * columnWidth;
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
-  const preparedTiles: PreparedTile[] = shuffled(tiles, random).map((tile) => {
+  const prepareTile = (tile: CanvasTileData): PreparedTile => {
     const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
     const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
@@ -339,7 +358,9 @@ function placeTiles(
       offsetY: offsetDirectionY * height * offsetAmount,
       totalHeight: height + margin,
     };
-  });
+  };
+  const preparedSignature = signatureTile ? prepareTile(signatureTile) : null;
+  const preparedTiles: PreparedTile[] = shuffled(layoutTiles, random).map(prepareTile);
   const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
   const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
   const maxAllowedColumnGap = Math.max(marginMax, columnWidth * 0.12);
@@ -389,7 +410,22 @@ function placeTiles(
   }
 
   const basePlaced: PlacedTile[] = [];
-  const patternHeight = Math.max(...preparedColumnHeights, 1);
+  const patternHeight = preparedTiles.length > 0
+    ? Math.max(...preparedColumnHeights, 1)
+    : Math.max(viewportHeight, 1);
+
+  if (preparedSignature) {
+    basePlaced.push({
+      tile: preparedSignature.tile,
+      x: -preparedSignature.width / 2,
+      y: -preparedSignature.height / 2,
+      width: preparedSignature.width,
+      height: preparedSignature.height,
+      offsetX: 0,
+      offsetY: 0,
+      isSignature: true,
+    });
+  }
 
   orderedColumns.forEach((column, columnIndex) => {
     const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
@@ -408,6 +444,7 @@ function placeTiles(
         height: tile.height,
         offsetX: tile.offsetX,
         offsetY: tile.offsetY,
+        isSignature: false,
       });
       y += tile.totalHeight + distributedLoopGap;
     });
@@ -458,6 +495,27 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
     top: placed.y + placed.offsetY,
     width: placed.width,
   };
+  const content = (
+    <>
+      <span className="cms-canvas__image-wrap">
+        <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
+      </span>
+      {placed.tile.title ? <span className="cms-canvas__title">{placed.tile.title}</span> : null}
+    </>
+  );
+
+  if (placed.isSignature) {
+    return (
+      <span
+        className="cms-canvas__item cms-canvas__item--signature"
+        style={style}
+        data-canvas-source-item-id={placed.tile.sourceId}
+        aria-hidden="true"
+      >
+        {content}
+      </span>
+    );
+  }
 
   return (
     <button
@@ -468,10 +526,7 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       data-canvas-source-item-id={placed.tile.sourceId}
       aria-label={placed.tile.title || 'Details öffnen'}
     >
-      <span className="cms-canvas__image-wrap">
-        <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
-      </span>
-      {placed.tile.title ? <span className="cms-canvas__title">{placed.tile.title}</span> : null}
+      {content}
     </button>
   );
 }
