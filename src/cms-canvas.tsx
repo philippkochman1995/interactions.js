@@ -75,7 +75,6 @@ const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
 const SIGNATURE_FILENAME = '6a3a705c3445399a04fbd850_signatur2.svg';
-const SIGNATURE_SRC = 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/6a3a705c3445399a04fbd850_SIGNATUR2.svg';
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -271,37 +270,14 @@ function imageFilename(src: string): string {
 }
 
 function isSignatureData(tile: CanvasTileData): boolean {
-  const filename = imageFilename(tile.thumbnail);
-
   return (
-    filename === SIGNATURE_FILENAME ||
-    (filename.endsWith('.svg') && filename.includes('signatur')) ||
+    imageFilename(tile.thumbnail) === SIGNATURE_FILENAME ||
     tile.thumbnailAlt.trim().toLowerCase() === 'signatur'
   );
 }
 
 function isSignatureTile(tile: PlacedTile): boolean {
   return tile.isSignature || isSignatureData(tile.tile);
-}
-
-function signatureTileData(): CanvasTileData {
-  return {
-    id: 'canvas-signature',
-    title: '',
-    thumbnail: SIGNATURE_SRC,
-    thumbnailAlt: 'signatur',
-    modal: {
-      id: 'canvas-signature',
-      address: '',
-      image: SIGNATURE_SRC,
-      imageAlt: 'signatur',
-      caption: '',
-      html: '',
-    },
-    instanceId: 'canvas-signature',
-    sourceId: 'canvas-signature',
-    copyIndex: 0,
-  };
 }
 
 function getTileCenter(tile: PlacedTile): Point {
@@ -345,6 +321,15 @@ function placeTiles(
   viewportHeight: number,
   random: () => number,
 ): LayoutResult {
+  if (tiles.length === 0) {
+    return {
+      placed: [],
+      patternWidth: viewportWidth,
+      patternHeight: viewportHeight,
+    };
+  }
+
+  const signatureTile = tiles.find(isSignatureData);
   const layoutTiles = tiles.filter((tile) => !isSignatureData(tile));
   const columnCount = Math.max(1, Math.round(Math.sqrt(layoutTiles.length || 1)));
   const columnWidthPercent = viewportWidth <= config.mobileBreakpoint ? config.mobileColumnWidth : config.columnWidth;
@@ -374,7 +359,7 @@ function placeTiles(
       totalHeight: height + margin,
     };
   };
-  const preparedSignature = prepareTile(signatureTileData());
+  const preparedSignature = signatureTile ? prepareTile(signatureTile) : null;
   const preparedTiles: PreparedTile[] = shuffled(layoutTiles, random).map(prepareTile);
   const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
   const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
@@ -466,7 +451,7 @@ function placeTiles(
   });
   const normalizedPlaced = basePlaced.map((tile) => ({
     ...tile,
-    y: tile.isSignature ? tile.y : tile.y - patternHeight / 2,
+    y: tile.y - patternHeight / 2,
   }));
   const placed: PlacedTile[] = [];
   const repeatXOffsets = repeatOffsetsFor(patternWidth, viewportWidth);

@@ -207,11 +207,11 @@ field elements. Bind `data-canvas-id` to the CMS slug. The modal address, large
 image, caption, and body are optional. If the large image is missing, the thumbnail
 is used.
 
-The visual canvas signature is loaded directly from the shared Webflow asset
-`6a3a705c3445399a04fbd850_SIGNATUR2.svg`. It is placed at the pattern center on
-startup and rendered as a non-clickable visual element. CMS items whose thumbnail
-is a signature SVG, or whose thumbnail uses `alt="signatur"`, are excluded from
-the regular column distribution so duplicate signatures do not appear.
+The thumbnail file `6a3a705c3445399a04fbd850_SIGNATUR2.svg` is treated as the
+visual canvas signature. It is placed at the pattern center on startup, rendered
+as a non-clickable visual element, and excluded from the regular column
+distribution. As a fallback, any thumbnail with `alt="signatur"` gets the same
+treatment.
 
 All root configuration attributes are optional:
 
