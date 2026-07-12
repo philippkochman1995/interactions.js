@@ -172,11 +172,11 @@ wrapper or placed elsewhere on the same page.
 ```html
 <main
   data-cms-canvas
-  data-canvas-repeat="auto"
-  data-canvas-column-count="8"
-  data-canvas-items-per-column="8"
-  data-canvas-grid-gap="25"
-  data-canvas-grid-zoom="1.45"
+  data-canvas-column-width="25"
+  data-canvas-item-margin-min="4"
+  data-canvas-item-margin-max="6"
+  data-canvas-item-offset-min="3"
+  data-canvas-item-offset-max="6"
 >
   <div data-cms-canvas-source>
     <div class="w-dyn-list">
@@ -210,12 +210,11 @@ is used.
 All root configuration attributes are optional:
 
 ```text
-data-canvas-repeat              "auto" or a number from 1 to 12 (default: auto)
-data-canvas-min-visible-items   Minimum visual tiles when repeat is auto (default: 24; at least columns × rows)
-data-canvas-column-count        Desktop columns in the base pattern (default: 8, mobile max: 4)
-data-canvas-items-per-column    Items stacked inside each column in the base pattern (default: 8)
-data-canvas-grid-gap            Shared gap in pixels between columns and stacked items (default: 25)
-data-canvas-grid-zoom           Pattern scale while keeping column count (default: 1.45)
+data-canvas-column-width        Column width in vw (default: 25)
+data-canvas-item-margin-min     Minimum item margin in vw (default: 4)
+data-canvas-item-margin-max     Maximum item margin in vw (default: 6)
+data-canvas-item-offset-min     Minimum per-item transform offset in % (default: 3)
+data-canvas-item-offset-max     Maximum per-item transform offset in % (default: 6)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
 data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
 data-canvas-friction            Momentum friction from 0.5 to 0.98 (default: 0.92)
@@ -223,17 +222,19 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
 The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
-an infinite-feeling repeated column-stack pattern: by default 8 columns with 8
-items stacked inside each column. The same pixel gap is used between columns and
-between items inside a column, including the seam where a repeated column starts
-again. Each tile is horizontally centered in its column, keeps its natural aspect
-ratio, and each column gets a small Y start offset so the composition does not look
-completely static. `data-canvas-grid-zoom` makes the whole pattern larger while
-keeping 8 columns, so fewer elements are visible at once. The base pattern is
-rendered around the viewport and wrapped with GSAP while dragging, so every column
-repeats on the Y axis and every row band repeats on the X axis without hard
-bounds. Users with `prefers-reduced-motion: reduce` get reduced animation and no
-momentum.
+an infinite-feeling repeated column pattern. The number of columns is calculated
+from the real CMS item count with `Math.round(Math.sqrt(count))`, so 15 items
+become 4 columns and distribute as 4/4/4/3. Columns are 25vw by default, so about
+four columns can be visible horizontally. Items are stacked inside their column,
+centered on the X axis, keep their natural aspect ratio, and get individual item
+margins plus a small per-item transform offset. Columns themselves do not get a Y
+start offset. The base pattern is rendered around the viewport and wrapped with
+GSAP while dragging, so it repeats horizontally and vertically without hard bounds.
+Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
+
+Deprecated legacy attributes such as `data-canvas-column-count`,
+`data-canvas-items-per-column`, `data-canvas-grid-gap`, and
+`data-canvas-grid-zoom` are ignored by the current layout.
 
 ## Lightbox API
 

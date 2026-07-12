@@ -28,11 +28,12 @@ interface PlacedTile {
   y: number;
   width: number;
   height: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 interface LayoutResult {
   placed: PlacedTile[];
-  bounds: ContentBounds;
   patternWidth: number;
   patternHeight: number;
 }
@@ -42,37 +43,12 @@ interface Point {
   y: number;
 }
 
-interface ContentBounds {
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
-}
-
-interface PanBounds {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-}
-
 interface CanvasConfig {
-  layoutDensity: 'balanced' | 'loose';
-  minVisibleItems: number;
-  repeatMode: 'auto' | 'fixed';
-  repeat: number;
-  columnCount: number;
-  itemsPerColumn: number;
-  gridGap: number;
-  gridZoom: number;
-  itemWidthMin: number;
-  itemWidthMax: number;
-  portraitItemWidthMin: number;
-  portraitItemWidthMax: number;
-  columnGap: number;
-  rowGapMin: number;
-  rowGapMax: number;
-  boundsPadding: number;
+  columnWidth: number;
+  itemMarginMin: number;
+  itemMarginMax: number;
+  itemOffsetMin: number;
+  itemOffsetMax: number;
   velocity: number;
   friction: number;
   ease: number;
@@ -84,8 +60,6 @@ const ROOT_SELECTOR = '[data-cms-canvas]';
 const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
-const EDGE_RESISTANCE = 0.26;
-const DEFAULT_MIN_VISIBLE_ITEMS = 24;
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -212,27 +186,13 @@ function readItems(source: HTMLElement): CanvasItem[] {
 
 function readConfig(root: HTMLElement): CanvasConfig {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const repeatValue = root.getAttribute('data-canvas-repeat')?.trim().toLowerCase();
 
   return {
-    minVisibleItems: Math.round(
-      boundedNumberAttribute(root, 'data-canvas-min-visible-items', DEFAULT_MIN_VISIBLE_ITEMS, 1, 120),
-    ),
-    layoutDensity: root.getAttribute('data-canvas-layout-density') === 'loose' ? 'loose' : 'balanced',
-    repeatMode: repeatValue === 'auto' || !repeatValue ? 'auto' : 'fixed',
-    repeat: Math.round(boundedNumberAttribute(root, 'data-canvas-repeat', 1, 1, 12)),
-    columnCount: Math.round(boundedNumberAttribute(root, 'data-canvas-column-count', 8, 2, 14)),
-    itemsPerColumn: Math.round(boundedNumberAttribute(root, 'data-canvas-items-per-column', 8, 2, 24)),
-    gridGap: boundedNumberAttribute(root, 'data-canvas-grid-gap', 25, 0, 240),
-    gridZoom: boundedNumberAttribute(root, 'data-canvas-grid-zoom', 1.45, 0.7, 3),
-    itemWidthMin: boundedNumberAttribute(root, 'data-canvas-item-width-min', 10, 4, 40),
-    itemWidthMax: boundedNumberAttribute(root, 'data-canvas-item-width-max', 17, 4, 48),
-    portraitItemWidthMin: boundedNumberAttribute(root, 'data-canvas-portrait-width-min', 8, 4, 40),
-    portraitItemWidthMax: boundedNumberAttribute(root, 'data-canvas-portrait-width-max', 13, 4, 48),
-    columnGap: boundedNumberAttribute(root, 'data-canvas-column-gap', 9, 1, 24),
-    rowGapMin: boundedNumberAttribute(root, 'data-canvas-row-gap-min', 10, 1, 34),
-    rowGapMax: boundedNumberAttribute(root, 'data-canvas-row-gap-max', 18, 1, 40),
-    boundsPadding: boundedNumberAttribute(root, 'data-canvas-bounds-padding', 120, 0, 800),
+    columnWidth: boundedNumberAttribute(root, 'data-canvas-column-width', 25, 8, 80),
+    itemMarginMin: boundedNumberAttribute(root, 'data-canvas-item-margin-min', 4, 0, 30),
+    itemMarginMax: boundedNumberAttribute(root, 'data-canvas-item-margin-max', 6, 0, 40),
+    itemOffsetMin: boundedNumberAttribute(root, 'data-canvas-item-offset-min', 3, 0, 30),
+    itemOffsetMax: boundedNumberAttribute(root, 'data-canvas-item-offset-max', 6, 0, 40),
     velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
     friction: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-friction', 0.92, 0.5, 0.98),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
@@ -241,33 +201,13 @@ function readConfig(root: HTMLElement): CanvasConfig {
   };
 }
 
-function expandItems(items: CanvasItem[], config: CanvasConfig): CanvasTileData[] {
-  if (items.length === 0) {
-    return [];
-  }
-
-  const repeat =
-    config.repeatMode === 'auto'
-      ? clamp(
-          Math.ceil(Math.max(config.minVisibleItems, config.columnCount * config.itemsPerColumn) / items.length),
-          1,
-          64,
-        )
-      : config.repeat;
-  const expanded: CanvasTileData[] = [];
-
-  items.forEach((item) => {
-    for (let copyIndex = 0; copyIndex < repeat; copyIndex += 1) {
-      expanded.push({
-        ...item,
-        instanceId: copyIndex === 0 ? item.id : `${item.id}--copy-${copyIndex + 1}`,
-        sourceId: item.id,
-        copyIndex,
-      });
-    }
-  });
-
-  return expanded;
+function itemsToTiles(items: CanvasItem[]): CanvasTileData[] {
+  return items.map((item) => ({
+    ...item,
+    instanceId: item.id,
+    sourceId: item.id,
+    copyIndex: 0,
+  }));
 }
 
 function measureImage(src: string): Promise<ImageMeasure> {
@@ -291,81 +231,24 @@ function fallbackMeasure(tile: CanvasTileData): ImageMeasure {
   return landscape ? { width: 16, height: 10 } : { width: 10, height: 14 };
 }
 
-function contentBoundsFrom(placed: PlacedTile[]): ContentBounds {
-  if (placed.length === 0) {
-    return { left: 0, top: 0, right: 0, bottom: 0 };
-  }
-
-  return placed.reduce<ContentBounds>(
-    (bounds, tile) => ({
-      left: Math.min(bounds.left, tile.x),
-      top: Math.min(bounds.top, tile.y),
-      right: Math.max(bounds.right, tile.x + tile.width),
-      bottom: Math.max(bounds.bottom, tile.y + tile.height),
-    }),
-    {
-      left: Number.POSITIVE_INFINITY,
-      top: Number.POSITIVE_INFINITY,
-      right: Number.NEGATIVE_INFINITY,
-      bottom: Number.NEGATIVE_INFINITY,
-    },
-  );
-}
-
-function getPanBounds(bounds: ContentBounds, root: HTMLElement, padding: number): PanBounds {
-  const rootWidth = root.clientWidth || window.innerWidth;
-  const rootHeight = root.clientHeight || window.innerHeight;
-  const contentWidth = bounds.right - bounds.left + padding * 2;
-  const contentHeight = bounds.bottom - bounds.top + padding * 2;
-
-  if (contentWidth <= rootWidth) {
-    const centeredX = rootWidth / 2 - (bounds.left + bounds.right) / 2;
-    return {
-      minX: centeredX,
-      maxX: centeredX,
-      minY:
-        contentHeight <= rootHeight
-          ? rootHeight / 2 - (bounds.top + bounds.bottom) / 2
-          : rootHeight - bounds.bottom - padding,
-      maxY:
-        contentHeight <= rootHeight
-          ? rootHeight / 2 - (bounds.top + bounds.bottom) / 2
-          : -bounds.top + padding,
-    };
-  }
-
-  return {
-    minX: rootWidth - bounds.right - padding,
-    maxX: -bounds.left + padding,
-    minY:
-      contentHeight <= rootHeight
-        ? rootHeight / 2 - (bounds.top + bounds.bottom) / 2
-        : rootHeight - bounds.bottom - padding,
-    maxY:
-      contentHeight <= rootHeight
-        ? rootHeight / 2 - (bounds.top + bounds.bottom) / 2
-        : -bounds.top + padding,
-  };
-}
-
-function applyResistance(value: number, min: number, max: number): number {
-  if (value < min) {
-    return min + (value - min) * EDGE_RESISTANCE;
-  }
-
-  if (value > max) {
-    return max + (value - max) * EDGE_RESISTANCE;
-  }
-
-  return value;
-}
-
 function wrapAroundCenter(value: number, period: number, center: number): number {
   if (period <= 0) {
     return value;
   }
 
   return ((((value - center + period / 2) % period) + period) % period) - period / 2 + center;
+}
+
+function distributeColumns<T>(items: T[], columnCount: number): T[][] {
+  const targetItemsPerColumn = Math.ceil(items.length / columnCount);
+  const columns: T[][] = Array.from({ length: columnCount }, () => []);
+
+  items.forEach((item, index) => {
+    const columnIndex = Math.min(Math.floor(index / targetItemsPerColumn), columnCount - 1);
+    columns[columnIndex].push(item);
+  });
+
+  return columns;
 }
 
 function placeTiles(
@@ -379,68 +262,60 @@ function placeTiles(
   if (tiles.length === 0) {
     return {
       placed: [],
-      bounds: { left: 0, top: 0, right: 0, bottom: 0 },
       patternWidth: viewportWidth,
       patternHeight: viewportHeight,
     };
   }
 
-  const mobile = viewportWidth < 768;
-  const columnCount = mobile ? Math.min(4, config.columnCount) : config.columnCount;
-  const rowCount = config.itemsPerColumn;
-  const cellCount = columnCount * rowCount;
-  const gap = config.gridGap;
-  const baseSlotWidth = mobile
-    ? Math.max(170, viewportWidth * 0.48)
-    : Math.max(150, (viewportWidth - (columnCount - 1) * gap) / columnCount);
-  const slotWidth = baseSlotWidth * config.gridZoom;
-  const columnWidth = slotWidth;
-  const columnStep = columnWidth + gap;
-  const patternWidth = columnCount * columnStep;
-  const patternTiles = shuffled(tiles, random).slice(0, rowCount);
-  const stackTiles = Array.from({ length: rowCount }, (_, index) => patternTiles[index % patternTiles.length]);
-  const stackMetrics = stackTiles.map((tile) => {
-    const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
-    const aspectRatio = measure.width / Math.max(measure.height, 1);
-    const minFactor = mobile ? 0.88 : 0.92;
-    const maxFactor = mobile ? 0.98 : 1;
-    const width = columnWidth * (minFactor + random() * (maxFactor - minFactor));
-
-    return {
-      tile,
-      width,
-      height: width / Math.max(aspectRatio, 0.2),
-    };
-  });
-  const columnOffsets = Array.from({ length: columnCount }, () => (random() - 0.5) * Math.min(gap * 1.6, slotWidth * 0.16));
-  const stackHeight = stackMetrics.reduce((height, cell) => height + cell.height + gap, 0);
-  const patternHeight = stackHeight;
+  const columnCount = Math.max(1, Math.round(Math.sqrt(tiles.length)));
+  const columnWidth = (viewportWidth * config.columnWidth) / 100;
+  const marginMin = (viewportWidth * config.itemMarginMin) / 100;
+  const marginMax = (viewportWidth * config.itemMarginMax) / 100;
+  const patternWidth = columnCount * columnWidth;
+  const orderedColumns = distributeColumns(shuffled(tiles, random), columnCount);
+  const offsetMin = config.itemOffsetMin / 100;
+  const offsetMax = config.itemOffsetMax / 100;
   const basePlaced: PlacedTile[] = [];
+  const columnHeights: number[] = [];
 
-  Array.from({ length: columnCount }, (_, columnIndex) => columnIndex).forEach((columnIndex) => {
-    const columnCenter = columnIndex * columnStep - patternWidth / 2 + columnWidth / 2;
-    const rotation = columnIndex % rowCount;
-    let y = columnOffsets[columnIndex] - patternHeight / 2;
+  orderedColumns.forEach((column, columnIndex) => {
+    const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
+    let y = 0;
 
-    Array.from({ length: rowCount }, (_, rowIndex) => rowIndex).forEach((rowIndex) => {
-      const cell = stackMetrics[(rowIndex + rotation) % rowCount];
+    column.forEach((tile) => {
+      const measure = measures.get(tile.instanceId) ?? fallbackMeasure(tile);
+      const aspectRatio = measure.width / Math.max(measure.height, 1);
+      const width = columnWidth * (0.72 + random() * 0.12);
+      const height = width / Math.max(aspectRatio, 0.2);
+      const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
+      const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
+      const offsetDirectionX = random() > 0.5 ? 1 : -1;
+      const offsetDirectionY = random() > 0.5 ? 1 : -1;
 
       basePlaced.push({
-        tile: cell.tile,
-        x: columnCenter - cell.width / 2,
+        tile,
+        x: columnCenter - width / 2,
         y,
-        width: cell.width,
-        height: cell.height,
+        width,
+        height,
+        offsetX: offsetDirectionX * width * offsetAmount,
+        offsetY: offsetDirectionY * height * offsetAmount,
       });
-      y += cell.height + gap;
+      y += height + margin;
     });
+    columnHeights.push(y);
   });
+  const patternHeight = Math.max(...columnHeights, viewportHeight);
+  const normalizedPlaced = basePlaced.map((tile) => ({
+    ...tile,
+    y: tile.y - patternHeight / 2,
+  }));
   const placed: PlacedTile[] = [];
   const repeatOffsets = [-1, 0, 1];
 
   repeatOffsets.forEach((repeatY) => {
     repeatOffsets.forEach((repeatX) => {
-      basePlaced.forEach((tile, index) => {
+      normalizedPlaced.forEach((tile, index) => {
         placed.push({
           ...tile,
           tile: {
@@ -456,7 +331,6 @@ function placeTiles(
 
   return {
     placed,
-    bounds: contentBoundsFrom(placed),
     patternWidth,
     patternHeight,
   };
@@ -477,6 +351,9 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
     top: placed.y,
     width: placed.width,
   };
+  const imageOffsetStyle: React.CSSProperties = {
+    transform: `translate3d(${placed.offsetX}px, ${placed.offsetY}px, 0)`,
+  };
 
   return (
     <button
@@ -487,7 +364,9 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       data-canvas-source-item-id={placed.tile.sourceId}
       aria-label={placed.tile.title || 'Details öffnen'}
     >
-      <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
+      <span className="cms-canvas__image-wrap" style={imageOffsetStyle}>
+        <img className="cms-canvas__image" src={placed.tile.thumbnail} alt={placed.tile.thumbnailAlt} draggable={false} />
+      </span>
     </button>
   );
 }
@@ -495,7 +374,6 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
 function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: CanvasItem[]; source: HTMLElement }): React.ReactElement {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [placed, setPlaced] = useState<PlacedTile[]>([]);
-  const [bounds, setBounds] = useState<ContentBounds>({ left: 0, top: 0, right: 0, bottom: 0 });
   const [pattern, setPattern] = useState({ width: 1, height: 1 });
   const config = useMemo(() => readConfig(root), [root]);
   const seedRef = useRef(Math.floor(Math.random() * 0xffffffff));
@@ -510,7 +388,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     const random = createRandom(seedRef.current);
     const viewportWidth = Math.max(root.clientWidth, window.innerWidth);
     const viewportHeight = Math.max(root.clientHeight, window.innerHeight);
-    const tiles = expandItems(items, config);
+    const tiles = itemsToTiles(items);
 
     Promise.all(
       tiles.map(async (tile) => [tile.instanceId, await measureImage(tile.thumbnail)] as const),
@@ -522,7 +400,6 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       const measures = new Map(entries);
       const nextLayout = placeTiles(tiles, measures, config, viewportWidth, viewportHeight, random);
       setPlaced(nextLayout.placed);
-      setBounds(nextLayout.bounds);
       setPattern({ width: nextLayout.patternWidth, height: nextLayout.patternHeight });
     });
 
@@ -711,7 +588,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
     };
-  }, [bounds, config, pattern.height, pattern.width, placed.length, root]);
+  }, [config, pattern.height, pattern.width, placed.length, root]);
 
   return (
     <div className="cms-canvas__stage" ref={stageRef}>

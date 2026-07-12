@@ -58,6 +58,13 @@ body {
   cursor: grabbing;
 }
 
+.cms-canvas__image-wrap {
+  display: block;
+  width: 100%;
+  pointer-events: none;
+  will-change: transform;
+}
+
 .cms-canvas__image {
   display: block;
   width: 100%;
