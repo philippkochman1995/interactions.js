@@ -243,6 +243,11 @@ function wrapAroundCenter(value: number, period: number, center: number): number
   return ((((value - center + period / 2) % period) + period) % period) - period / 2 + center;
 }
 
+function repeatOffsetsFor(period: number, viewportSize: number): number[] {
+  const range = Math.max(1, Math.ceil(viewportSize / Math.max(period, 1)));
+  return Array.from({ length: range * 2 + 1 }, (_, index) => index - range);
+}
+
 function distributeColumns<T>(items: T[], columnCount: number): T[][] {
   const targetItemsPerColumn = Math.ceil(items.length / columnCount);
   const columns: T[][] = Array.from({ length: columnCount }, () => []);
@@ -345,16 +350,17 @@ function placeTiles(
     });
     columnHeights.push(y);
   });
-  const patternHeight = Math.max(...columnHeights, viewportHeight);
+  const patternHeight = Math.max(...columnHeights, 1);
   const normalizedPlaced = basePlaced.map((tile) => ({
     ...tile,
     y: tile.y - patternHeight / 2,
   }));
   const placed: PlacedTile[] = [];
-  const repeatOffsets = [-1, 0, 1];
+  const repeatXOffsets = repeatOffsetsFor(patternWidth, viewportWidth);
+  const repeatYOffsets = repeatOffsetsFor(patternHeight, viewportHeight);
 
-  repeatOffsets.forEach((repeatY) => {
-    repeatOffsets.forEach((repeatX) => {
+  repeatYOffsets.forEach((repeatY) => {
+    repeatXOffsets.forEach((repeatX) => {
       normalizedPlaced.forEach((tile, index) => {
         placed.push({
           ...tile,
@@ -565,8 +571,13 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       const dx = event.clientX - pointerStart.x;
       const dy = event.clientY - pointerStart.y;
       const distance = Math.hypot(dx, dy);
+      const dragThreshold = event.pointerType === 'touch' ? 14 : DRAG_THRESHOLD;
 
-      if (distance > DRAG_THRESHOLD && !dragged) {
+      if (distance <= dragThreshold) {
+        return;
+      }
+
+      if (!dragged) {
         dragged = true;
         root.classList.add('is-dragging');
         gsap.to(stage, { scale: config.reducedMotion ? 1 : 0.985, duration: 0.32, ease: 'power2.out' });

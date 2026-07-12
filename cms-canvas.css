@@ -118,6 +118,12 @@ body {
   }
 }
 
+@media (hover: none), (pointer: coarse) {
+  .cms-canvas__title {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cms-canvas__item {
     transform: scale(1);
