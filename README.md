@@ -223,6 +223,9 @@ data-canvas-item-margin-min     Minimum item spacing in vw, used vertically and 
 data-canvas-item-margin-max     Maximum item spacing in vw, used vertically and horizontally (default: 6)
 data-canvas-item-offset-min     Minimum per-item transform offset in % (default: 3)
 data-canvas-item-offset-max     Maximum per-item transform offset in % (default: 6)
+data-canvas-constellation-scale Constellation spacing multiplier on desktop (default: 1)
+data-canvas-mobile-constellation-scale Constellation spacing multiplier on mobile (default: 0.85)
+data-canvas-signature-width     Signature width in vw; 0 uses the responsive default (default: 0)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
 data-canvas-ease                Eased panning amount from 0.04 to 1 (default: 0.16)
 data-canvas-friction            Momentum friction from 0.5 to 0.98 (default: 0.92)
@@ -230,28 +233,20 @@ data-canvas-velocity            Momentum strength from 0.1 to 2 (default: 0.85)
 ```
 
 The background uses the existing `--fw_off_white` CSS variable. The canvas now uses
-an infinite-feeling repeated column pattern. The number of columns is calculated
-from the real CMS item count with `Math.round(Math.sqrt(count))`, so 15 items
-become 4 columns. Columns are 25vw by default, so about four columns can be
-visible horizontally. On screens up to 767px, columns are 50vw by default, so
-about two columns are visible. Items are measured first and then assigned to the
-currently shortest column, so the distribution balances actual rendered height
-instead of only item count. If a column would still be much shorter than the
-tallest column, the base pattern fills it with visual copies from other columns.
-Those copies open the same modal as their original item. Items are stacked inside
-their column, centered on the X axis, keep their natural aspect ratio, and get
-individual item spacing plus a small per-item transform offset.
-The item spacing is the central layout control: vertically it is added after each
-item; horizontally it is applied inside the 25vw column by reducing the rendered
-item width, so the same value controls the visual gap to neighboring
-columns/items. Set min and max to the same value when you want a more exact grid,
-for example `data-canvas-item-margin-min="5"` and
-`data-canvas-item-margin-max="5"`. Columns themselves do not get a Y start
-offset. The balanced base pattern is rendered around the viewport and wrapped
-with GSAP while dragging, so it repeats horizontally and vertically without hard
-bounds. On desktop hover and keyboard focus, the image zooms in slightly and the
-CMS title slides down from behind the image. Touch devices keep the title hidden.
-Users with `prefers-reduced-motion: reduce` get reduced animation and no momentum.
+a signature-centered constellation pattern. The signature is a non-clickable
+visual anchor at the initial center. Normal CMS items are measured, filtered for
+duplicate signatures, then assigned to 48 deterministic slots arranged in four
+rings around the center. If fewer than 48 CMS items exist, visual copies fill the
+remaining slots and keep opening the same modal as their original item. The normal
+item constellation is repeated around the viewport and wrapped with GSAP while
+dragging, so it feels infinite without letting regular items cover the initial
+signature center.
+
+The item margin attributes reduce the rendered item size inside each constellation
+slot, while the item offset attributes add a small bounded jitter. On desktop
+hover and keyboard focus, the image zooms in slightly and the CMS title slides
+down from behind the image. Touch devices keep the title hidden. Users with
+`prefers-reduced-motion: reduce` get reduced animation and no momentum.
 
 Deprecated legacy attributes such as `data-canvas-column-count`,
 `data-canvas-items-per-column`, `data-canvas-grid-gap`, and

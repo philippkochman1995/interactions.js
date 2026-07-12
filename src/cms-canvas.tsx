@@ -33,14 +33,13 @@ interface PlacedTile {
   isSignature: boolean;
 }
 
-interface PreparedTile {
-  tile: CanvasTileData;
-  width: number;
-  height: number;
-  margin: number;
-  offsetX: number;
-  offsetY: number;
-  totalHeight: number;
+interface ConstellationSlot {
+  id: string;
+  x: number;
+  y: number;
+  ring: number;
+  maxWidth: number;
+  maxHeight: number;
 }
 
 interface LayoutResult {
@@ -67,6 +66,9 @@ interface CanvasConfig {
   ease: number;
   inertia: boolean;
   reducedMotion: boolean;
+  constellationScale: number;
+  mobileConstellationScale: number;
+  signatureWidth: number;
 }
 
 const ROOT_SELECTOR = '[data-cms-canvas]';
@@ -76,6 +78,7 @@ const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
 const SIGNATURE_FILENAME = '6a3a705c3445399a04fbd850_signatur2.svg';
 const SIGNATURE_SRC = 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/6a3a705c3445399a04fbd850_SIGNATUR2.svg';
+const CONSTELLATION_SLOT_COUNT = 48;
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -216,6 +219,9 @@ function readConfig(root: HTMLElement): CanvasConfig {
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
     inertia: reducedMotion ? false : booleanAttribute(root, 'data-canvas-inertia', true),
     reducedMotion,
+    constellationScale: boundedNumberAttribute(root, 'data-canvas-constellation-scale', 1, 0.55, 1.8),
+    mobileConstellationScale: boundedNumberAttribute(root, 'data-canvas-mobile-constellation-scale', 0.85, 0.45, 1.4),
+    signatureWidth: boundedNumberAttribute(root, 'data-canvas-signature-width', 0, 0, 60),
   };
 }
 
@@ -304,6 +310,86 @@ function signatureTileData(): CanvasTileData {
   };
 }
 
+function fitSize(measure: ImageMeasure, maxWidth: number, maxHeight: number): { width: number; height: number } {
+  const aspectRatio = measure.width / Math.max(measure.height, 1);
+  const widthFromHeight = maxHeight * aspectRatio;
+
+  if (widthFromHeight <= maxWidth) {
+    return {
+      width: Math.max(widthFromHeight, 1),
+      height: Math.max(maxHeight, 1),
+    };
+  }
+
+  return {
+    width: Math.max(maxWidth, 1),
+    height: Math.max(maxWidth / Math.max(aspectRatio, 0.2), 1),
+  };
+}
+
+function createConstellationSlots(
+  viewportWidth: number,
+  viewportHeight: number,
+  config: CanvasConfig,
+  random: () => number,
+): { slots: ConstellationSlot[]; patternWidth: number; patternHeight: number } {
+  const scale = viewportWidth <= config.mobileBreakpoint
+    ? config.mobileConstellationScale
+    : config.constellationScale;
+  const baseRadius = clamp(Math.min(viewportWidth, viewportHeight) * 0.24 * scale, 120, 280);
+  const ringCounts = [6, 10, 16, 16];
+  const ringRadii = [1.05, 1.72, 2.42, 3.14].map((factor) => factor * baseRadius);
+  const itemSpacing = clamp(((config.itemMarginMin + config.itemMarginMax) / 2) / 100, 0, 0.24);
+  const itemScale = 1 - itemSpacing;
+  const maxItemWidth = baseRadius * 1.08 * itemScale;
+  const maxItemHeight = baseRadius * 0.82 * itemScale;
+  const slots: ConstellationSlot[] = [];
+
+  ringCounts.forEach((count, ringIndex) => {
+    const ring = ringIndex + 1;
+    const radius = ringRadii[ringIndex];
+    const startAngle = ringIndex % 2 === 0 ? -Math.PI / 2 : -Math.PI / 2 + Math.PI / count;
+
+    for (let index = 0; index < count; index += 1) {
+      const angle = startAngle + (index / count) * Math.PI * 2;
+      const tangentJitter = (random() - 0.5) * baseRadius * 0.18;
+      const radiusJitter = (random() - 0.5) * baseRadius * 0.14;
+      const jitteredRadius = radius + radiusJitter;
+      const tangentX = -Math.sin(angle) * tangentJitter;
+      const tangentY = Math.cos(angle) * tangentJitter;
+
+      slots.push({
+        id: `r${ring}-${index}`,
+        x: Math.cos(angle) * jitteredRadius + tangentX,
+        y: Math.sin(angle) * jitteredRadius + tangentY,
+        ring,
+        maxWidth: maxItemWidth * (ring === 1 ? 0.86 : 1),
+        maxHeight: maxItemHeight * (ring === 1 ? 0.86 : 1),
+      });
+    }
+  });
+
+  const outerRadius = ringRadii[ringRadii.length - 1] + baseRadius * 1.35;
+
+  return {
+    slots,
+    patternWidth: outerRadius * 2,
+    patternHeight: outerRadius * 2,
+  };
+}
+
+function tileForSlot(tile: CanvasTileData, slotIndex: number): CanvasTileData {
+  if (slotIndex === 0) {
+    return tile;
+  }
+
+  return {
+    ...tile,
+    instanceId: `${tile.sourceId}--slot-${slotIndex}`,
+    copyIndex: tile.copyIndex + slotIndex,
+  };
+}
+
 function getTileCenter(tile: PlacedTile): Point {
   return {
     x: tile.x + tile.offsetX + tile.width / 2,
@@ -337,7 +423,7 @@ function getStartPosition(placed: PlacedTile[], root: HTMLElement): Point {
   };
 }
 
-function placeTiles(
+function createCanvasLayout(
   tiles: CanvasTileData[],
   measures: Map<string, ImageMeasure>,
   config: CanvasConfig,
@@ -346,143 +432,72 @@ function placeTiles(
   random: () => number,
 ): LayoutResult {
   const layoutTiles = tiles.filter((tile) => !isSignatureData(tile));
-  const columnCount = Math.max(1, Math.round(Math.sqrt(layoutTiles.length || 1)));
-  const columnWidthPercent = viewportWidth <= config.mobileBreakpoint ? config.mobileColumnWidth : config.columnWidth;
-  const columnWidth = (viewportWidth * columnWidthPercent) / 100;
-  const marginMin = (viewportWidth * config.itemMarginMin) / 100;
-  const marginMax = (viewportWidth * config.itemMarginMax) / 100;
-  const patternWidth = columnCount * columnWidth;
+  const signatureTile = signatureTileData();
+  const signatureMeasure = measures.get(signatureTile.sourceId) ?? fallbackMeasure(signatureTile);
+  const signatureWidth = config.signatureWidth > 0
+    ? (viewportWidth * config.signatureWidth) / 100
+    : clamp(Math.min(viewportWidth * 0.18, viewportHeight * 0.28), 120, 265);
+  const signatureSize = fitSize(signatureMeasure, signatureWidth, signatureWidth);
+  const constellation = createConstellationSlots(viewportWidth, viewportHeight, config, random);
+  const slotSource = shuffled(layoutTiles, random);
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
-  const prepareTile = (tile: CanvasTileData): PreparedTile => {
+  const placed: PlacedTile[] = [{
+    tile: signatureTile,
+    x: -signatureSize.width / 2,
+    y: -signatureSize.height / 2,
+    width: signatureSize.width,
+    height: signatureSize.height,
+    offsetX: 0,
+    offsetY: 0,
+    isSignature: true,
+  }];
+
+  if (slotSource.length === 0) {
+    return {
+      placed,
+      patternWidth: constellation.patternWidth,
+      patternHeight: constellation.patternHeight,
+    };
+  }
+
+  const basePlaced: PlacedTile[] = constellation.slots.slice(0, CONSTELLATION_SLOT_COUNT).map((slot, slotIndex) => {
+    const sourceTile = slotSource[slotIndex % slotSource.length];
+    const tile = tileForSlot(sourceTile, slotIndex);
     const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
-    const aspectRatio = measure.width / Math.max(measure.height, 1);
-    const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
-    const width = Math.max(columnWidth - margin, columnWidth * 0.35);
-    const height = width / Math.max(aspectRatio, 0.2);
-    const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
-    const offsetDirectionX = random() > 0.5 ? 1 : -1;
-    const offsetDirectionY = random() > 0.5 ? 1 : -1;
+    const size = fitSize(measure, slot.maxWidth, slot.maxHeight);
+    const offsetAmount = Math.min(
+      offsetMin + random() * Math.max(offsetMax - offsetMin, 0),
+      0.08,
+    );
+    const offsetX = (random() > 0.5 ? 1 : -1) * slot.maxWidth * offsetAmount;
+    const offsetY = (random() > 0.5 ? 1 : -1) * slot.maxHeight * offsetAmount;
 
     return {
       tile,
-      width,
-      height,
-      margin,
-      offsetX: offsetDirectionX * width * offsetAmount,
-      offsetY: offsetDirectionY * height * offsetAmount,
-      totalHeight: height + margin,
+      x: slot.x - size.width / 2,
+      y: slot.y - size.height / 2,
+      width: size.width,
+      height: size.height,
+      offsetX,
+      offsetY,
+      isSignature: false,
     };
-  };
-  const preparedSignature = prepareTile(signatureTileData());
-  const preparedTiles: PreparedTile[] = shuffled(layoutTiles, random).map(prepareTile);
-  const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
-  const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
-  const maxAllowedColumnGap = Math.max(marginMax, columnWidth * 0.12);
-
-  preparedTiles.forEach((tile) => {
-    const columnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
-    orderedColumns[columnIndex].push(tile);
-    preparedColumnHeights[columnIndex] += tile.totalHeight;
   });
-
-  let fillIndex = 0;
-  const maxFillCopies = columnCount * Math.max(preparedTiles.length, 1) * 3;
-
-  while (
-    preparedTiles.length > 0 &&
-    Math.max(...preparedColumnHeights) - Math.min(...preparedColumnHeights) > maxAllowedColumnGap &&
-    fillIndex < maxFillCopies
-  ) {
-    const shortestColumnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
-    const tallestColumnIndex = preparedColumnHeights.indexOf(Math.max(...preparedColumnHeights));
-    const deficit = preparedColumnHeights[tallestColumnIndex] - preparedColumnHeights[shortestColumnIndex];
-    const sourcePool = orderedColumns[tallestColumnIndex].length > 0
-      ? orderedColumns[tallestColumnIndex]
-      : preparedTiles;
-    const sourceTile = sourcePool.reduce((best, candidate) => {
-      const bestDelta = best.totalHeight <= deficit
-        ? deficit - best.totalHeight
-        : best.totalHeight - deficit + maxAllowedColumnGap;
-      const candidateDelta = candidate.totalHeight <= deficit
-        ? deficit - candidate.totalHeight
-        : candidate.totalHeight - deficit + maxAllowedColumnGap;
-
-      return candidateDelta < bestDelta ? candidate : best;
-    }, sourcePool[0]);
-    const copy: PreparedTile = {
-      ...sourceTile,
-      tile: {
-        ...sourceTile.tile,
-        instanceId: `${sourceTile.tile.sourceId}--fill-${shortestColumnIndex}-${fillIndex}`,
-        copyIndex: sourceTile.tile.copyIndex + fillIndex + 1,
-      },
-    };
-
-    orderedColumns[shortestColumnIndex].push(copy);
-    preparedColumnHeights[shortestColumnIndex] += copy.totalHeight;
-    fillIndex += 1;
-  }
-
-  const basePlaced: PlacedTile[] = [];
-  const patternHeight = preparedTiles.length > 0
-    ? Math.max(...preparedColumnHeights, 1)
-    : Math.max(viewportHeight, 1);
-
-  if (preparedSignature) {
-    basePlaced.push({
-      tile: preparedSignature.tile,
-      x: -preparedSignature.width / 2,
-      y: -preparedSignature.height / 2,
-      width: preparedSignature.width,
-      height: preparedSignature.height,
-      offsetX: 0,
-      offsetY: 0,
-      isSignature: true,
-    });
-  }
-
-  orderedColumns.forEach((column, columnIndex) => {
-    const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
-    const columnContentHeight = column.reduce((height, tile) => height + tile.totalHeight, 0);
-    const distributedLoopGap = column.length > 0
-      ? Math.max(patternHeight - columnContentHeight, 0) / column.length
-      : 0;
-    let y = 0;
-
-    column.forEach((tile) => {
-      basePlaced.push({
-        tile: tile.tile,
-        x: columnCenter - tile.width / 2,
-        y,
-        width: tile.width,
-        height: tile.height,
-        offsetX: tile.offsetX,
-        offsetY: tile.offsetY,
-        isSignature: false,
-      });
-      y += tile.totalHeight + distributedLoopGap;
-    });
-  });
-  const normalizedPlaced = basePlaced.map((tile) => ({
-    ...tile,
-    y: tile.isSignature ? tile.y : tile.y - patternHeight / 2,
-  }));
-  const placed: PlacedTile[] = [];
-  const repeatXOffsets = repeatOffsetsFor(patternWidth, viewportWidth);
-  const repeatYOffsets = repeatOffsetsFor(patternHeight, viewportHeight);
+  const repeatXOffsets = repeatOffsetsFor(constellation.patternWidth, viewportWidth);
+  const repeatYOffsets = repeatOffsetsFor(constellation.patternHeight, viewportHeight);
 
   repeatYOffsets.forEach((repeatY) => {
     repeatXOffsets.forEach((repeatX) => {
-      normalizedPlaced.forEach((tile, index) => {
+      basePlaced.forEach((tile, index) => {
         placed.push({
           ...tile,
           tile: {
             ...tile.tile,
-            instanceId: `${tile.tile.instanceId}--grid-${index}--${repeatX}-${repeatY}`,
+            instanceId: `${tile.tile.instanceId}--repeat-${index}--${repeatX}-${repeatY}`,
           },
-          x: tile.x + repeatX * patternWidth,
-          y: tile.y + repeatY * patternHeight,
+          x: tile.x + repeatX * constellation.patternWidth,
+          y: tile.y + repeatY * constellation.patternHeight,
         });
       });
     });
@@ -490,8 +505,8 @@ function placeTiles(
 
   return {
     placed,
-    patternWidth,
-    patternHeight,
+    patternWidth: constellation.patternWidth,
+    patternHeight: constellation.patternHeight,
   };
 }
 
@@ -587,16 +602,17 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     let cancelled = false;
     const random = createRandom(seedRef.current);
     const tiles = itemsToTiles(items);
+    const signatureTile = signatureTileData();
 
     Promise.all(
-      tiles.map(async (tile) => [tile.instanceId, await measureImage(tile.thumbnail)] as const),
+      [...tiles, signatureTile].map(async (tile) => [tile.instanceId, await measureImage(tile.thumbnail)] as const),
     ).then((entries) => {
       if (cancelled) {
         return;
       }
 
       const measures = new Map(entries);
-      const nextLayout = placeTiles(tiles, measures, config, viewport.width, viewport.height, random);
+      const nextLayout = createCanvasLayout(tiles, measures, config, viewport.width, viewport.height, random);
       setPlaced(nextLayout.placed);
       setPattern({ width: nextLayout.patternWidth, height: nextLayout.patternHeight });
     });
