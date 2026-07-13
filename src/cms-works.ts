@@ -306,12 +306,12 @@ function distributeItems(items: WorkItem[], measures: Map<string, ImageMeasure>,
     height: 0,
   }));
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const measure = measures.get(item.id) ?? { width: 1, height: 1 };
-    const shortestColumn = columns.reduce((shortest, column) => (column.height < shortest.height ? column : shortest), columns[0]);
+    const column = columns[index % columnCount];
 
-    shortestColumn.items.push(item);
-    shortestColumn.height += measure.height / Math.max(measure.width, 1);
+    column.items.push(item);
+    column.height += measure.height / Math.max(measure.width, 1);
   });
 
   return columns;

@@ -203,13 +203,13 @@ function N(e, t, n) {
 		items: [],
 		height: 0
 	}));
-	return e.forEach((e) => {
-		var n;
-		let i = (n = t.get(e.id)) == null ? {
+	return e.forEach((e, i) => {
+		var a;
+		let o = (a = t.get(e.id)) == null ? {
 			width: 1,
 			height: 1
-		} : n, a = r.reduce((e, t) => t.height < e.height ? t : e, r[0]);
-		a.items.push(e), a.height += i.height / Math.max(i.width, 1);
+		} : a, s = r[i % n];
+		s.items.push(e), s.height += o.height / Math.max(o.width, 1);
 	}), r;
 }
 function P(e, t, n) {
