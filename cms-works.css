@@ -39,7 +39,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.146rem 0;
+  padding: 0.5rem 0;
   border: 0;
   background: var(--cms-works-dark-5);
   color: inherit;
@@ -189,6 +189,7 @@
 .cms-works-filter__sort-option {
   display: inline-block;
   max-width: 11rem;
+  margin-left: clamp(1rem, 3vw, 3rem);
   overflow: hidden;
   padding: 0;
   border: 0;
@@ -205,10 +206,6 @@
     opacity 160ms ease,
     transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
     color 160ms ease;
-}
-
-.cms-works-filter__sort-option + .cms-works-filter__sort-option {
-  margin-left: clamp(1rem, 3vw, 3rem);
 }
 
 .cms-works-filter__sort-option.is-collapsed {
