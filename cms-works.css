@@ -31,13 +31,14 @@
   display: block;
   margin-top: var(--cms-works-title-gap, 0.45rem);
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
+  font-family: "StyreneA", "Styrene A", StyreneA, sans-serif;
   font-size: var(--p-font-size, 1rem);
   line-height: 1.15;
 }
 
 @media (max-width: 991px) {
   .cms-works__grid {
-    column-count: var(--cms-works-tablet-columns, 3);
+    column-count: var(--cms-works-tablet-columns, 4);
   }
 }
 
