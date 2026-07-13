@@ -235,21 +235,25 @@ function I(e, t) {
 		pendingSortMode: T(e),
 		open: !1
 	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = 0, l = 0, u = 0, d = [], f = /* @__PURE__ */ new Map();
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(o, s), Promise.all(n.map(async (e) => [e.id, await M(e.thumbnail)])).then((t) => {
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s), Promise.all(n.map(async (e) => [e.id, await M(e.thumbnail)])).then((t) => {
 		f = new Map(t);
 		let p = () => O(k(n, r.appliedCategories), r.appliedSortMode, e), m = (t = !1) => {
 			window.cancelAnimationFrame(c), c = window.requestAnimationFrame(() => {
 				let n = N(e), r = Math.round(e.getBoundingClientRect().width);
 				!t && n === l && r === u || (l = n, u = r, F(s, d, f));
 			});
-		}, h = i(n, r, () => {
-			d = p(), m(!0), h.sync();
+		}, h = () => {
+			var e;
+			let t = g.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? g.element.getBoundingClientRect().bottom : e;
+			o.style.setProperty("--cms-works-overlay-top", `${Math.max(0, n)}px`);
+		}, g = i(n, r, () => {
+			d = p(), m(!0), g.sync();
 		}, { onOpenChange: (t) => {
-			e.classList.toggle("is-filter-open", t);
+			e.classList.toggle("is-filter-open", t), t && h();
 		} });
-		o.addEventListener("click", () => h.close(!0)), d = p(), e.replaceChildren(h.element, a);
-		let g = new ResizeObserver(() => m());
-		m(!0), g.observe(e), window.addEventListener("orientationchange", () => m(!0));
+		o.addEventListener("click", () => g.close(!0)), d = p(), e.replaceChildren(g.element, o, a);
+		let _ = new ResizeObserver(() => m());
+		m(!0), _.observe(e), window.addEventListener("orientationchange", () => m(!0)), window.addEventListener("resize", h), window.addEventListener("scroll", h, { passive: !0 });
 	});
 }
 function L(e) {

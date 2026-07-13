@@ -369,7 +369,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   collectionOverlay.type = 'button';
   collectionOverlay.setAttribute('aria-label', 'Filter schliessen');
   gridMount.className = 'cms-works__grid-mount';
-  gridHost.append(collectionOverlay, gridMount);
+  gridHost.append(gridMount);
 
   Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
     measures = new Map(entries);
@@ -391,6 +391,12 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
         renderGrid(gridMount, currentItems, measures);
       });
     };
+    const updateOverlayTop = () => {
+      const panel = controls.element.querySelector<HTMLElement>('.cms-works-filter__panel');
+      const bottom = panel?.getBoundingClientRect().bottom ?? controls.element.getBoundingClientRect().bottom;
+
+      collectionOverlay.style.setProperty('--cms-works-overlay-top', `${Math.max(0, bottom)}px`);
+    };
     const controls = createWorksFilterInterface(items, state, () => {
       currentItems = getRenderedItems();
       renderCurrentItems(true);
@@ -398,18 +404,24 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
     }, {
       onOpenChange: (open) => {
         root.classList.toggle('is-filter-open', open);
+
+        if (open) {
+          updateOverlayTop();
+        }
       },
     });
     collectionOverlay.addEventListener('click', () => controls.close(true));
 
     currentItems = getRenderedItems();
-    root.replaceChildren(controls.element, gridHost);
+    root.replaceChildren(controls.element, collectionOverlay, gridHost);
 
     const resizeObserver = new ResizeObserver(() => renderCurrentItems());
 
     renderCurrentItems(true);
     resizeObserver.observe(root);
     window.addEventListener('orientationchange', () => renderCurrentItems(true));
+    window.addEventListener('resize', updateOverlayTop);
+    window.addEventListener('scroll', updateOverlayTop, { passive: true });
   });
 }
 
