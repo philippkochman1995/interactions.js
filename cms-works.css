@@ -10,7 +10,7 @@
   --cms-works-dark-75: var(--FW_Dark_Purple_75, var(--fw_dark_purple_75, #444153));
   --cms-works-dark-50: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c));
   --cms-works-dark-12: var(--FW_Dark_Purple_12, var(--fw_dark_purple_12, rgba(16, 13, 36, 0.12)));
-  --cms-works-dark-5: var(--FW_Dark_Purple_5, var(--fw_dark_purple_5, #f1f1f3));
+  --cms-works-dark-5: var(--fw_dark_purple_5, var(--FW_Dark_Purple_5, #f1f1f3));
   --cms-works-rosa: var(--FW_Rosa, var(--fw_rosa, #ffc0cb));
   --cms-works-off-white: var(--FW_Off_White, var(--fw_off_white, #f7f7f8));
 }
@@ -85,6 +85,7 @@
 }
 
 .cms-works-filter__bar-right {
+  position: relative;
   justify-content: flex-end;
   overflow: hidden;
 }
@@ -114,14 +115,12 @@
   max-width: 12rem;
   opacity: 1;
   overflow: hidden;
+  text-transform: none;
   white-space: nowrap;
-  transition:
-    max-width 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 140ms ease;
+  transition: opacity 160ms ease;
 }
 
 .cms-works-filter.is-open .cms-works-filter__active-sort {
-  max-width: 0;
   opacity: 0;
 }
 
@@ -218,28 +217,26 @@
 }
 
 .cms-works-filter__sort-controls {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
   display: flex;
-  max-width: 0;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: flex-end;
   gap: clamp(1rem, 3vw, 3rem);
   opacity: 0;
-  overflow: hidden;
   pointer-events: none;
-  transform: translate3d(1.5rem, 0, 0);
-  transition:
-    max-width 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 180ms ease,
-    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(0, -50%, 0);
+  transition: opacity 160ms ease;
+  visibility: hidden;
   white-space: nowrap;
 }
 
 .cms-works-filter.is-open .cms-works-filter__sort-controls {
-  max-width: 40rem;
   opacity: 1;
   pointer-events: auto;
-  transform: translate3d(0, 0, 0);
+  visibility: visible;
 }
 
 .cms-works-filter__sort-option {
@@ -252,6 +249,7 @@
   font-size: var(--_sizes---footer-14, 0.875rem);
   font-weight: 600;
   line-height: 1;
+  text-transform: none;
   transition: color 160ms ease;
 }
 
