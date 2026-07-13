@@ -39,7 +39,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1rem 0;
+  padding: 1.146rem 0;
   border: 0;
   background: var(--cms-works-dark-5);
   color: inherit;
@@ -85,7 +85,6 @@
 .cms-works-filter__label {
   color: var(--cms-works-dark);
   font-size: var(--_sizes---footer-14, 0.875rem);
-  font-weight: 600;
   line-height: 1;
 }
 
@@ -97,7 +96,6 @@
 .cms-works-filter__sort-label {
   color: var(--cms-works-dark-50);
   font-size: var(--_sizes---footer-14, 0.875rem);
-  font-weight: 600;
   line-height: 1;
 }
 
@@ -113,6 +111,8 @@
   width: 100%;
   background: var(--cms-works-dark-5);
   border-top: 1px solid var(--cms-works-dark-50);
+  padding-top: 0;
+  padding-bottom: 0;
   box-sizing: border-box;
   opacity: 0;
   pointer-events: none;
@@ -156,7 +156,6 @@
   cursor: pointer;
   font: inherit;
   font-size: var(--_sizes---footer-14, 0.875rem);
-  font-weight: 600;
   line-height: 1;
   transition:
     background-color 160ms ease,
@@ -198,7 +197,6 @@
   cursor: pointer;
   font: inherit;
   font-size: var(--_sizes---footer-14, 0.875rem);
-  font-weight: 600;
   line-height: 1;
   text-transform: none;
   transition:
@@ -233,14 +231,13 @@
   width: 100%;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0;
+  padding: 1.146rem 0;
   border: 0;
   background: transparent;
   color: var(--cms-works-dark-75);
   cursor: pointer;
   font: inherit;
   font-size: var(--_sizes---footer-14, 0.875rem);
-  font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1;
   text-decoration: none;
