@@ -111,7 +111,6 @@
   z-index: 4;
   width: 100%;
   background: var(--cms-works-dark-5);
-  border-top: 1px solid var(--cms-works-dark-50);
   padding-top: 0;
   padding-bottom: 0;
   box-sizing: border-box;
@@ -133,6 +132,7 @@
   padding-top: 0.875rem;
   padding-bottom: 0.875rem;
   box-sizing: border-box;
+  border-top: 1px solid var(--cms-works-dark-50);
   border-bottom: 1px solid var(--cms-works-dark-50);
 }
 
