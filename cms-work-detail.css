@@ -57,7 +57,7 @@
 }
 
 .cms-work-detail__text {
-  margin-top: clamp(1.5rem, 3.5vw, 3.5rem);
+  margin-top: 1.458rem;
   color: var(--cms-work-detail-dark);
   font-size: var(--p-font-size, 1rem);
   font-weight: 500;
