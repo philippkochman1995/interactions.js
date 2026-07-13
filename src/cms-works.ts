@@ -11,6 +11,16 @@ interface WorkItem {
 
 type WorksSortMode = 'curated' | 'random' | 'alphabetical';
 
+interface ImageMeasure {
+  width: number;
+  height: number;
+}
+
+interface PlacedWorkColumn {
+  items: WorkItem[];
+  height: number;
+}
+
 const ROOT_SELECTOR = '[data-cms-works]';
 const SOURCE_SELECTOR = '[data-cms-works-source]';
 const ITEM_SELECTOR = '[data-cms-works-item], [data-cms-canvas-item]';
@@ -195,21 +205,76 @@ function createWorkCard(item: WorkItem): HTMLElement {
   return card;
 }
 
-function renderWorks(root: HTMLElement, source: HTMLElement): void {
-  const items = sortItems(readItems(source), readSortMode(root), root);
-  const grid = document.createElement('div');
+function measureImage(src: string): Promise<ImageMeasure> {
+  return new Promise((resolve) => {
+    const image = new Image();
 
-  source.hidden = true;
-  source.setAttribute('aria-hidden', 'true');
-  root.classList.add('cms-works');
-  grid.className = 'cms-works__grid';
+    image.onload = () => {
+      resolve({
+        width: image.naturalWidth || 1,
+        height: image.naturalHeight || 1,
+      });
+    };
+    image.onerror = () => resolve({ width: 1, height: 1 });
+    image.src = src;
+  });
+}
+
+function getColumnCount(root: HTMLElement): number {
+  const styles = window.getComputedStyle(root);
+  const rawValue = styles.getPropertyValue('--cms-works-active-columns').trim();
+  const columnCount = Number.parseInt(rawValue, 10);
+
+  return Number.isFinite(columnCount) && columnCount > 0 ? columnCount : 4;
+}
+
+function distributeItems(items: WorkItem[], measures: Map<string, ImageMeasure>, columnCount: number): PlacedWorkColumn[] {
+  const columns: PlacedWorkColumn[] = Array.from({ length: columnCount }, () => ({
+    items: [],
+    height: 0,
+  }));
 
   items.forEach((item) => {
-    grid.append(createWorkCard(item));
+    const measure = measures.get(item.id) ?? { width: 1, height: 1 };
+    const shortestColumn = columns.reduce((shortest, column) => (column.height < shortest.height ? column : shortest), columns[0]);
+
+    shortestColumn.items.push(item);
+    shortestColumn.height += measure.height / Math.max(measure.width, 1);
+  });
+
+  return columns;
+}
+
+function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, ImageMeasure>): void {
+  const grid = document.createElement('div');
+  const columns = distributeItems(items, measures, getColumnCount(root));
+
+  grid.className = 'cms-works__grid';
+
+  columns.forEach((columnItems) => {
+    const column = document.createElement('div');
+
+    column.className = 'cms-works__column';
+    columnItems.items.forEach((item) => {
+      column.append(createWorkCard(item));
+    });
+    grid.append(column);
   });
 
   root.replaceChildren(grid);
   root.classList.add('is-ready');
+}
+
+function renderWorks(root: HTMLElement, source: HTMLElement): void {
+  const items = sortItems(readItems(source), readSortMode(root), root);
+
+  source.hidden = true;
+  source.setAttribute('aria-hidden', 'true');
+  root.classList.add('cms-works');
+
+  Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
+    renderGrid(root, items, new Map(entries));
+  });
 }
 
 function mount(root: HTMLElement): void {

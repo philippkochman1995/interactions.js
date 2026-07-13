@@ -83,23 +83,64 @@ function m(e) {
 	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("img"), r = document.createElement("span");
 	return t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && t.setAttribute("href", e.href), n.className = "cms-works__image", n.src = e.thumbnail, n.alt = e.thumbnailAlt, n.loading = "lazy", n.decoding = "async", r.className = "cms-works__title", r.textContent = e.title, t.append(n, r), t;
 }
-function h(e, t) {
-	let n = p(d(t), f(e), e), r = document.createElement("div");
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), r.className = "cms-works__grid", n.forEach((e) => {
-		r.append(m(e));
+function h(e) {
+	return new Promise((t) => {
+		let n = new Image();
+		n.onload = () => {
+			t({
+				width: n.naturalWidth || 1,
+				height: n.naturalHeight || 1
+			});
+		}, n.onerror = () => t({
+			width: 1,
+			height: 1
+		}), n.src = e;
+	});
+}
+function g(e) {
+	let t = window.getComputedStyle(e).getPropertyValue("--cms-works-active-columns").trim(), n = Number.parseInt(t, 10);
+	return Number.isFinite(n) && n > 0 ? n : 4;
+}
+function _(e, t, n) {
+	let r = Array.from({ length: n }, () => ({
+		items: [],
+		height: 0
+	}));
+	return e.forEach((e) => {
+		var n;
+		let i = (n = t.get(e.id)) == null ? {
+			width: 1,
+			height: 1
+		} : n, a = r.reduce((e, t) => t.height < e.height ? t : e, r[0]);
+		a.items.push(e), a.height += i.height / Math.max(i.width, 1);
+	}), r;
+}
+function v(e, t, n) {
+	let r = document.createElement("div"), i = _(t, n, g(e));
+	r.className = "cms-works__grid", i.forEach((e) => {
+		let t = document.createElement("div");
+		t.className = "cms-works__column", e.items.forEach((e) => {
+			t.append(m(e));
+		}), r.append(t);
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
-function g(t) {
+function y(e, t) {
+	let n = p(d(t), f(e), e);
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), Promise.all(n.map(async (e) => [e.id, await h(e.thumbnail)])).then((t) => {
+		v(e, n, new Map(t));
+	});
+}
+function b(t) {
 	var n;
 	let r = (n = t.querySelector(e)) == null ? document.querySelector(e) : n;
 	if (!r) {
 		console.error("CMS Works: Element mit data-cms-works-source wurde nicht gefunden.");
 		return;
 	}
-	h(t, r);
+	y(t, r);
 }
 t(() => {
-	Array.from(document.querySelectorAll("[data-cms-works]")).forEach(g);
+	Array.from(document.querySelectorAll("[data-cms-works]")).forEach(b);
 });
 //#endregion
 
