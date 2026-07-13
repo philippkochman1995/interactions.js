@@ -305,7 +305,7 @@ function createRelatedSection(root: HTMLElement, relatedItems: WorkItem[]): HTML
   const heading = document.createElement('h2');
   const grid = document.createElement('div');
 
-  section.className = 'cms-work-detail__related';
+  section.className = 'cms-work-detail cms-work-detail__related';
   inner.className = 'cms-work-detail__related-inner';
   heading.className = 'cms-work-detail__related-heading';
   heading.textContent = root.getAttribute('data-work-detail-related-label')?.trim() || 'Ähnliche Werke';
@@ -346,7 +346,7 @@ function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
   root.replaceChildren(detailSection);
 
   if (relatedSection) {
-    root.append(relatedSection);
+    root.after(relatedSection);
   }
 }
 

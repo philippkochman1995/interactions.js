@@ -90,7 +90,7 @@ function _(e, t) {
 	let i = ((n = e.getAttribute("data-work-detail-overview-href")) == null ? void 0 : n.trim()) || "";
 	if (t.length === 0 && !i) return null;
 	let a = document.createElement("section"), o = document.createElement("div"), s = document.createElement("h2"), c = document.createElement("div");
-	if (a.className = "cms-work-detail__related", o.className = "cms-work-detail__related-inner", s.className = "cms-work-detail__related-heading", s.textContent = ((r = e.getAttribute("data-work-detail-related-label")) == null ? void 0 : r.trim()) || "Ähnliche Werke", c.className = "cms-work-detail__related-grid", t.forEach((e) => {
+	if (a.className = "cms-work-detail cms-work-detail__related", o.className = "cms-work-detail__related-inner", s.className = "cms-work-detail__related-heading", s.textContent = ((r = e.getAttribute("data-work-detail-related-label")) == null ? void 0 : r.trim()) || "Ähnliche Werke", c.className = "cms-work-detail__related-grid", t.forEach((e) => {
 		c.append(m(e));
 	}), o.append(s, c), i) {
 		var l;
@@ -101,7 +101,7 @@ function _(e, t) {
 }
 function v(e, t) {
 	let n = f(e), r = t ? h(d(t), n) : [], i = g(n), a = _(e, r);
-	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.append(a);
+	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.after(a);
 }
 function y(t) {
 	var n;
