@@ -16,6 +16,7 @@ The production file is generated at:
 ```text
 /dist/site-interactions.js
 /dist/cms-canvas.js
+/dist/cms-work-detail.js
 ```
 
 The default Vite config outputs an ES module, so include it with `type="module"`.
@@ -250,6 +251,59 @@ Users with `prefers-reduced-motion: reduce` get reduced animation and no momentu
 Deprecated legacy attributes such as `data-canvas-column-count`,
 `data-canvas-items-per-column`, `data-canvas-grid-gap`, and
 `data-canvas-grid-zoom` are ignored by the current layout.
+
+## CMS Work Detail
+
+The CMS Work Detail view is delivered by `cms-work-detail.css` and
+`dist/cms-work-detail.js`. Webflow renders the current work fields and a hidden
+Collection List of works. The script rebuilds the page into the detail layout and
+renders up to four related works from the same category.
+
+Page head:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/cms-work-detail.css">
+```
+
+Before `</body>`:
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/gh/philippkochman1995/interactions.js@COMMIT/dist/cms-work-detail.js"></script>
+```
+
+### Webflow structure
+
+```html
+<main
+  data-cms-work-detail
+  data-work-detail-id="current-cms-slug"
+  data-work-detail-categories="Möbel, Skulptur"
+  data-work-detail-overview-href="/werke"
+>
+  <h1 data-work-detail-title>Liege (Vermeer) 1989</h1>
+  <div data-work-detail-properties>Stahl<br>88 x 136 x 50 cm</div>
+  <div data-work-detail-text class="rich-text">
+    <p>CMS rich text content.</p>
+  </div>
+  <img data-work-detail-image src="large-image.jpg" alt="Liege (Vermeer)">
+  <div data-work-detail-caption>© Archiv Franz West, © Estate Franz West</div>
+
+  <div data-cms-work-related-source>
+    <article data-cms-works-item data-works-id="cms-slug" data-works-categories="Möbel, Skulptur">
+      <a data-works-link href="/werke/example"></a>
+      <img data-works-thumbnail src="thumbnail.jpg" alt="Project title">
+      <div data-works-title>Project title</div>
+      <div data-works-year>[1991]</div>
+    </article>
+  </div>
+</main>
+```
+
+The related list may also use the existing overview attributes
+`data-cms-works-source`, `data-cms-works-item`, `data-works-thumbnail`,
+`data-works-title`, `data-works-year`, `data-works-link`, and
+`data-works-categories`. Bind `data-work-detail-id` and each related
+`data-works-id` to the CMS slug so the current work can be excluded.
 
 ## Lightbox API
 
