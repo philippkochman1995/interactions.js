@@ -36,6 +36,11 @@ const SORT_LABELS: Record<Exclude<WorksSortMode, 'random'>, string> = {
   alphabetical: 'Alphabetisch',
   year: 'Entstehungsjahr',
 };
+const SORT_MODES = ['year', 'alphabetical', 'curated'] as const;
+
+interface WorksFilterOptions {
+  onOpenChange?: (open: boolean) => void;
+}
 
 function getCategoryCounts(items: WorksFilterItem[]): CategoryCount[] {
   const counts = new Map<string, number>();
@@ -60,20 +65,17 @@ function createIconMarkup(markup: string, className: string): HTMLElement {
   return icon;
 }
 
-function getVisibleSortLabel(mode: WorksSortMode): string {
-  return mode === 'random' ? SORT_LABELS.curated : SORT_LABELS[mode];
-}
-
 export function createWorksFilterInterface(
   items: WorksFilterItem[],
   state: WorksFilterState,
   onApply: () => void,
+  options: WorksFilterOptions = {},
 ): {
   element: HTMLElement;
   sync: () => void;
+  close: (discardPending: boolean) => void;
 } {
   const section = document.createElement('section');
-  const overlay = document.createElement('button');
   const container = document.createElement('div');
   const topbar = document.createElement('div');
   const left = document.createElement('span');
@@ -81,7 +83,6 @@ export function createWorksFilterInterface(
   const count = document.createElement('span');
   const right = document.createElement('span');
   const sortLabel = document.createElement('span');
-  const activeSort = document.createElement('span');
   const panel = document.createElement('div');
   const panelInner = document.createElement('div');
   const categories = document.createElement('div');
@@ -92,9 +93,6 @@ export function createWorksFilterInterface(
   const sortButtons = new Map<WorksSortMode, HTMLButtonElement>();
 
   section.className = 'cms-works-filter u-section';
-  overlay.className = 'cms-works-filter__overlay';
-  overlay.type = 'button';
-  overlay.setAttribute('aria-label', 'Filter schliessen');
 
   container.className = 'cms-works-filter__container u-container';
 
@@ -113,15 +111,14 @@ export function createWorksFilterInterface(
   right.className = 'cms-works-filter__bar-right';
   sortLabel.className = 'cms-works-filter__sort-label';
   sortLabel.textContent = 'SORTIERUNG';
-  activeSort.className = 'cms-works-filter__active-sort';
-  right.append(sortLabel, sortControls, activeSort, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
+  sortControls.className = 'cms-works-filter__sort-controls';
+  right.append(sortLabel, sortControls, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
 
   topbar.append(left, right);
 
   panel.className = 'cms-works-filter__panel u-section';
   panelInner.className = 'cms-works-filter__panel-inner u-container';
   categories.className = 'cms-works-filter__categories';
-  sortControls.className = 'cms-works-filter__sort-controls';
 
   categoryCounts.forEach((category) => {
     const button = document.createElement('button');
@@ -149,14 +146,20 @@ export function createWorksFilterInterface(
     categories.append(button);
   });
 
-  (['year', 'alphabetical', 'curated'] as const).forEach((mode) => {
+  SORT_MODES.forEach((mode) => {
     const button = document.createElement('button');
 
     button.className = 'cms-works-filter__sort-option';
     button.type = 'button';
     button.textContent = SORT_LABELS[mode];
     button.setAttribute('aria-pressed', 'false');
-    button.addEventListener('click', () => {
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      if (!state.open) {
+        openFilter();
+      }
+
       state.pendingSortMode = mode;
       sync();
     });
@@ -179,11 +182,10 @@ export function createWorksFilterInterface(
   panelInner.append(categories);
   panel.append(panelInner, applyLink);
   container.append(topbar);
-  section.append(overlay, container, panel);
+  section.append(container, panel);
 
   function sync(): void {
     count.textContent = `[${state.appliedCategories.size}]`;
-    activeSort.textContent = getVisibleSortLabel(state.appliedSortMode);
     section.classList.toggle('is-open', state.open);
     topbar.setAttribute('aria-expanded', state.open ? 'true' : 'false');
 
@@ -208,21 +210,34 @@ export function createWorksFilterInterface(
     });
 
     sortButtons.forEach((button, mode) => {
-      const active = state.pendingSortMode === mode;
+      const activeMode = state.open ? state.pendingSortMode : state.appliedSortMode;
+      const active = activeMode === mode || (activeMode === 'random' && mode === 'curated');
+      const visible = state.open || active;
 
       button.classList.toggle('is-active', active);
+      button.classList.toggle('is-collapsed', !visible);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      button.setAttribute('tabindex', visible ? '0' : '-1');
     });
   }
 
   function openFilter(): void {
+    if (state.open) {
+      return;
+    }
+
     state.pendingCategories = new Set(state.appliedCategories);
     state.pendingSortMode = state.appliedSortMode;
     state.open = true;
     sync();
+    options.onOpenChange?.(true);
   }
 
   function closeFilter(discardPending: boolean): void {
+    if (!state.open) {
+      return;
+    }
+
     if (discardPending) {
       state.pendingCategories = new Set(state.appliedCategories);
       state.pendingSortMode = state.appliedSortMode;
@@ -230,6 +245,7 @@ export function createWorksFilterInterface(
 
     state.open = false;
     sync();
+    options.onOpenChange?.(false);
   }
 
   topbar.addEventListener('click', (event) => {
@@ -256,7 +272,6 @@ export function createWorksFilterInterface(
       openFilter();
     }
   });
-  overlay.addEventListener('click', () => closeFilter(true));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && state.open) {
       closeFilter(true);
@@ -272,5 +287,5 @@ export function createWorksFilterInterface(
 
   sync();
 
-  return { element: section, sync };
+  return { element: section, sync, close: closeFilter };
 }

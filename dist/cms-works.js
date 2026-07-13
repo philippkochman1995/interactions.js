@@ -3,8 +3,12 @@ var e = {
 	curated: "Kuratiert",
 	alphabetical: "Alphabetisch",
 	year: "Entstehungsjahr"
-};
-function t(e) {
+}, t = [
+	"year",
+	"alphabetical",
+	"curated"
+];
+function n(e) {
 	let t = /* @__PURE__ */ new Map();
 	return e.forEach((e) => {
 		e.categories.forEach((e) => {
@@ -16,34 +20,27 @@ function t(e) {
 		count: t
 	})).sort((e, t) => e.name.localeCompare(t.name, "de", { sensitivity: "base" }));
 }
-function n(e, t) {
+function r(e, t) {
 	let n = document.createElement("span");
 	return n.className = t, n.innerHTML = e, n;
 }
-function r(t) {
-	return t === "random" ? e.curated : e[t];
-}
-function i(i, a, o) {
-	let s = document.createElement("section"), c = document.createElement("button"), l = document.createElement("div"), u = document.createElement("div"), d = document.createElement("span"), f = document.createElement("span"), p = document.createElement("span"), m = document.createElement("span"), h = document.createElement("span"), g = document.createElement("span"), _ = document.createElement("div"), v = document.createElement("div"), y = document.createElement("div"), b = document.createElement("div"), x = document.createElement("a"), S = t(i), C = /* @__PURE__ */ new Map(), w = /* @__PURE__ */ new Map();
-	s.className = "cms-works-filter u-section", c.className = "cms-works-filter__overlay", c.type = "button", c.setAttribute("aria-label", "Filter schliessen"), l.className = "cms-works-filter__container u-container", u.className = "cms-works-filter__bar", u.setAttribute("role", "button"), u.setAttribute("tabindex", "0"), u.setAttribute("aria-expanded", "false"), d.className = "cms-works-filter__bar-left", f.className = "cms-works-filter__label", f.textContent = "FILTER", p.className = "cms-works-filter__count", d.append(n("\n  <svg width=\"17\" height=\"12\" viewBox=\"0 0 17 12\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M8.50754 0.799805L0.608478 0.799805L0.308594 1.25064L1.3437 2.7998H8.50264H8.50754H15.6582L16.6932 1.25064L16.3933 0.799805L8.50754 0.799805Z\" fill=\"currentColor\"/>\n    <path d=\"M9.13695 5H3.29988C3.17037 5.1947 3 5.45083 3 5.45083L4.03511 7H9.13205H9.13695H13.2339L14.2689 5.45083C14.1393 5.25613 14.0985 5.1947 13.969 5H9.13695Z\" fill=\"currentColor\"/>\n    <path d=\"M8.08318 9.2002H6.29988L6 9.65103L7.03511 11.2002H8.07828H8.08318H10.1264L11.1613 9.65103L10.8614 9.2002H8.08318Z\" fill=\"currentColor\"/>\n  </svg>\n", "cms-works-filter__filter-icon"), f, p), m.className = "cms-works-filter__bar-right", h.className = "cms-works-filter__sort-label", h.textContent = "SORTIERUNG", g.className = "cms-works-filter__active-sort", m.append(h, b, g, n("\n  <svg width=\"10\" height=\"11\" viewBox=\"0 0 10 11\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M6 9L6 0L4 -8.74228e-08L4 9L6 9Z\" fill=\"currentColor\"/>\n    <path d=\"M5.49717 10.9999L10 7.18921L8.59139 6L5.13553 8.92743L4.86446 8.92743L1.40861 6L-5.26956e-07 7.18921L4.50283 10.9999C4.69696 11 5.30303 11 5.49717 10.9999Z\" fill=\"currentColor\"/>\n  </svg>\n", "cms-works-filter__arrow-icon")), u.append(d, m), _.className = "cms-works-filter__panel u-section", v.className = "cms-works-filter__panel-inner u-container", y.className = "cms-works-filter__categories", b.className = "cms-works-filter__sort-controls", S.forEach((e) => {
+function i(i, a, o, s = {}) {
+	let c = document.createElement("section"), l = document.createElement("div"), u = document.createElement("div"), d = document.createElement("span"), f = document.createElement("span"), p = document.createElement("span"), m = document.createElement("span"), h = document.createElement("span"), g = document.createElement("div"), _ = document.createElement("div"), v = document.createElement("div"), y = document.createElement("div"), b = document.createElement("a"), x = n(i), S = /* @__PURE__ */ new Map(), C = /* @__PURE__ */ new Map();
+	c.className = "cms-works-filter u-section", l.className = "cms-works-filter__container u-container", u.className = "cms-works-filter__bar", u.setAttribute("role", "button"), u.setAttribute("tabindex", "0"), u.setAttribute("aria-expanded", "false"), d.className = "cms-works-filter__bar-left", f.className = "cms-works-filter__label", f.textContent = "FILTER", p.className = "cms-works-filter__count", d.append(r("\n  <svg width=\"17\" height=\"12\" viewBox=\"0 0 17 12\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M8.50754 0.799805L0.608478 0.799805L0.308594 1.25064L1.3437 2.7998H8.50264H8.50754H15.6582L16.6932 1.25064L16.3933 0.799805L8.50754 0.799805Z\" fill=\"currentColor\"/>\n    <path d=\"M9.13695 5H3.29988C3.17037 5.1947 3 5.45083 3 5.45083L4.03511 7H9.13205H9.13695H13.2339L14.2689 5.45083C14.1393 5.25613 14.0985 5.1947 13.969 5H9.13695Z\" fill=\"currentColor\"/>\n    <path d=\"M8.08318 9.2002H6.29988L6 9.65103L7.03511 11.2002H8.07828H8.08318H10.1264L11.1613 9.65103L10.8614 9.2002H8.08318Z\" fill=\"currentColor\"/>\n  </svg>\n", "cms-works-filter__filter-icon"), f, p), m.className = "cms-works-filter__bar-right", h.className = "cms-works-filter__sort-label", h.textContent = "SORTIERUNG", y.className = "cms-works-filter__sort-controls", m.append(h, y, r("\n  <svg width=\"10\" height=\"11\" viewBox=\"0 0 10 11\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M6 9L6 0L4 -8.74228e-08L4 9L6 9Z\" fill=\"currentColor\"/>\n    <path d=\"M5.49717 10.9999L10 7.18921L8.59139 6L5.13553 8.92743L4.86446 8.92743L1.40861 6L-5.26956e-07 7.18921L4.50283 10.9999C4.69696 11 5.30303 11 5.49717 10.9999Z\" fill=\"currentColor\"/>\n  </svg>\n", "cms-works-filter__arrow-icon")), u.append(d, m), g.className = "cms-works-filter__panel u-section", _.className = "cms-works-filter__panel-inner u-container", v.className = "cms-works-filter__categories", x.forEach((e) => {
 		let t = document.createElement("button"), n = document.createElement("span"), r = document.createElement("span");
 		t.className = "cms-works-filter__pill", t.type = "button", t.setAttribute("aria-pressed", "false"), n.textContent = e.name, r.className = "cms-works-filter__pill-count", r.textContent = `[${e.count}]`, t.append(n, r), t.addEventListener("click", () => {
-			a.pendingCategories.has(e.name) ? a.pendingCategories.delete(e.name) : a.pendingCategories.add(e.name), T();
-		}), C.set(e.name, t), y.append(t);
-	}), [
-		"year",
-		"alphabetical",
-		"curated"
-	].forEach((t) => {
+			a.pendingCategories.has(e.name) ? a.pendingCategories.delete(e.name) : a.pendingCategories.add(e.name), w();
+		}), S.set(e.name, t), v.append(t);
+	}), t.forEach((t) => {
 		let n = document.createElement("button");
-		n.className = "cms-works-filter__sort-option", n.type = "button", n.textContent = e[t], n.setAttribute("aria-pressed", "false"), n.addEventListener("click", () => {
-			a.pendingSortMode = t, T();
-		}), w.set(t, n), b.append(n);
-	}), x.className = "cms-works-filter__apply", x.href = "#", x.textContent = "ANWENDEN", x.addEventListener("click", (e) => {
-		e.preventDefault(), a.appliedCategories = new Set(a.pendingCategories), a.appliedSortMode = a.pendingSortMode, D(!1), o();
-	}), v.append(y), _.append(v, x), l.append(u), s.append(c, l, _);
-	function T() {
-		p.textContent = `[${a.appliedCategories.size}]`, g.textContent = r(a.appliedSortMode), s.classList.toggle("is-open", a.open), u.setAttribute("aria-expanded", a.open ? "true" : "false"), C.forEach((e, t) => {
+		n.className = "cms-works-filter__sort-option", n.type = "button", n.textContent = e[t], n.setAttribute("aria-pressed", "false"), n.addEventListener("click", (e) => {
+			e.stopPropagation(), a.open || T(), a.pendingSortMode = t, w();
+		}), C.set(t, n), y.append(n);
+	}), b.className = "cms-works-filter__apply", b.href = "#", b.textContent = "ANWENDEN", b.addEventListener("click", (e) => {
+		e.preventDefault(), a.appliedCategories = new Set(a.pendingCategories), a.appliedSortMode = a.pendingSortMode, E(!1), o();
+	}), _.append(v), g.append(_, b), l.append(u), c.append(l, g);
+	function w() {
+		p.textContent = `[${a.appliedCategories.size}]`, c.classList.toggle("is-open", a.open), u.setAttribute("aria-expanded", a.open ? "true" : "false"), S.forEach((e, t) => {
 			var n, r;
 			let i = a.pendingCategories.has(t), o = e.querySelector(".cms-works-filter__pill-count");
 			if (e.classList.toggle("is-active", i), e.setAttribute("aria-pressed", i ? "true" : "false"), o) {
@@ -51,30 +48,33 @@ function i(i, a, o) {
 					o.textContent = "x";
 					return;
 				}
-				o.textContent = `[${(n = (r = S.find((e) => e.name === t)) == null ? void 0 : r.count) == null ? 0 : n}]`;
+				o.textContent = `[${(n = (r = x.find((e) => e.name === t)) == null ? void 0 : r.count) == null ? 0 : n}]`;
 			}
-		}), w.forEach((e, t) => {
-			let n = a.pendingSortMode === t;
-			e.classList.toggle("is-active", n), e.setAttribute("aria-pressed", n ? "true" : "false");
+		}), C.forEach((e, t) => {
+			let n = a.open ? a.pendingSortMode : a.appliedSortMode, r = n === t || n === "random" && t === "curated", i = a.open || r;
+			e.classList.toggle("is-active", r), e.classList.toggle("is-collapsed", !i), e.setAttribute("aria-pressed", r ? "true" : "false"), e.setAttribute("tabindex", i ? "0" : "-1");
 		});
 	}
-	function E() {
-		a.pendingCategories = new Set(a.appliedCategories), a.pendingSortMode = a.appliedSortMode, a.open = !0, T();
+	function T() {
+		var e;
+		a.open || (a.pendingCategories = new Set(a.appliedCategories), a.pendingSortMode = a.appliedSortMode, a.open = !0, w(), (e = s.onOpenChange) == null || e.call(s, !0));
 	}
-	function D(e) {
-		e && (a.pendingCategories = new Set(a.appliedCategories), a.pendingSortMode = a.appliedSortMode), a.open = !1, T();
+	function E(e) {
+		var t;
+		a.open && (e && (a.pendingCategories = new Set(a.appliedCategories), a.pendingSortMode = a.appliedSortMode), a.open = !1, w(), (t = s.onOpenChange) == null || t.call(s, !1));
 	}
 	return u.addEventListener("click", (e) => {
-		b.contains(e.target) || (a.open ? D(!0) : E());
+		y.contains(e.target) || (a.open ? E(!0) : T());
 	}), u.addEventListener("keydown", (e) => {
-		e.target !== u || e.key !== "Enter" && e.key !== " " || (e.preventDefault(), a.open ? D(!0) : E());
-	}), c.addEventListener("click", () => D(!0)), document.addEventListener("keydown", (e) => {
-		e.key === "Escape" && a.open && D(!0);
+		e.target !== u || e.key !== "Enter" && e.key !== " " || (e.preventDefault(), a.open ? E(!0) : T());
+	}), document.addEventListener("keydown", (e) => {
+		e.key === "Escape" && a.open && E(!0);
 	}), document.addEventListener("pointerdown", (e) => {
-		!a.open || s.contains(e.target) || D(!0);
-	}), T(), {
-		element: s,
-		sync: T
+		!a.open || c.contains(e.target) || E(!0);
+	}), w(), {
+		element: c,
+		sync: w,
+		close: E
 	};
 }
 //#endregion
@@ -230,20 +230,22 @@ function F(e, t) {
 		appliedSortMode: T(e),
 		pendingSortMode: T(e),
 		open: !1
-	}, a = document.createElement("div"), o = 0, s = 0, c = 0, l = [], u = /* @__PURE__ */ new Map();
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", Promise.all(n.map(async (e) => [e.id, await j(e.thumbnail)])).then((t) => {
-		u = new Map(t);
-		let d = () => D(O(n, r.appliedCategories), r.appliedSortMode, e), f = (t = !1) => {
-			window.cancelAnimationFrame(o), o = window.requestAnimationFrame(() => {
+	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = 0, l = 0, u = 0, d = [], f = /* @__PURE__ */ new Map();
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(o, s), Promise.all(n.map(async (e) => [e.id, await j(e.thumbnail)])).then((t) => {
+		f = new Map(t);
+		let p = () => D(O(n, r.appliedCategories), r.appliedSortMode, e), m = (t = !1) => {
+			window.cancelAnimationFrame(c), c = window.requestAnimationFrame(() => {
 				let n = M(e), r = Math.round(e.getBoundingClientRect().width);
-				!t && n === s && r === c || (s = n, c = r, P(a, l, u));
+				!t && n === l && r === u || (l = n, u = r, P(s, d, f));
 			});
-		}, p = i(n, r, () => {
-			l = d(), f(!0), p.sync();
-		});
-		l = d(), e.replaceChildren(p.element, a);
-		let m = new ResizeObserver(() => f());
-		f(!0), m.observe(e), window.addEventListener("orientationchange", () => f(!0));
+		}, h = i(n, r, () => {
+			d = p(), m(!0), h.sync();
+		}, { onOpenChange: (t) => {
+			e.classList.toggle("is-filter-open", t);
+		} });
+		o.addEventListener("click", () => h.close(!0)), d = p(), e.replaceChildren(h.element, a);
+		let g = new ResizeObserver(() => m());
+		m(!0), g.observe(e), window.addEventListener("orientationchange", () => m(!0));
 	});
 }
 function I(e) {

@@ -347,6 +347,8 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
     open: false,
   };
   const gridHost = document.createElement('div');
+  const collectionOverlay = document.createElement('button');
+  const gridMount = document.createElement('div');
   let animationFrame = 0;
   let previousColumnCount = 0;
   let previousWidth = 0;
@@ -357,6 +359,11 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   source.setAttribute('aria-hidden', 'true');
   root.classList.add('cms-works');
   gridHost.className = 'cms-works__grid-host u-section';
+  collectionOverlay.className = 'cms-works__collection-overlay';
+  collectionOverlay.type = 'button';
+  collectionOverlay.setAttribute('aria-label', 'Filter schliessen');
+  gridMount.className = 'cms-works__grid-mount';
+  gridHost.append(collectionOverlay, gridMount);
 
   Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
     measures = new Map(entries);
@@ -375,14 +382,19 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
         previousColumnCount = nextColumnCount;
         previousWidth = nextWidth;
-        renderGrid(gridHost, currentItems, measures);
+        renderGrid(gridMount, currentItems, measures);
       });
     };
     const controls = createWorksFilterInterface(items, state, () => {
       currentItems = getRenderedItems();
       renderCurrentItems(true);
       controls.sync();
+    }, {
+      onOpenChange: (open) => {
+        root.classList.toggle('is-filter-open', open);
+      },
     });
+    collectionOverlay.addEventListener('click', () => controls.close(true));
 
     currentItems = getRenderedItems();
     root.replaceChildren(controls.element, gridHost);
