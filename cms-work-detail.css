@@ -93,6 +93,7 @@
   font-size: var(--_sizes---footer-14, 0.875rem);
   font-weight: 500;
   line-height: 1;
+  text-align: left;
 }
 
 .cms-work-detail__related {
