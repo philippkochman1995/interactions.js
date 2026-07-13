@@ -46,7 +46,13 @@ function htmlFrom(element: HTMLElement, selector: string): string {
 }
 
 function imageFrom(element: HTMLElement, selector: string): HTMLImageElement | null {
-  return element.querySelector<HTMLImageElement>(selector) ?? element.querySelector<HTMLImageElement>('img');
+  const target = element.querySelector<HTMLElement>(selector);
+
+  if (target instanceof HTMLImageElement) {
+    return target;
+  }
+
+  return target?.querySelector<HTMLImageElement>('img') ?? element.querySelector<HTMLImageElement>('img');
 }
 
 function hashString(value: string): number {
@@ -131,6 +137,7 @@ function readDetail(root: HTMLElement): WorkDetail {
   const imageElement = imageFrom(root, '[data-work-detail-image]');
   const title = textFrom(root, '[data-work-detail-title]') || root.getAttribute('data-work-detail-title')?.trim() || '';
   const image = imageElement?.currentSrc || imageElement?.src || '';
+  const imageAlt = imageElement?.alt.trim() || title;
 
   return {
     id:
@@ -141,8 +148,8 @@ function readDetail(root: HTMLElement): WorkDetail {
     properties: htmlFrom(root, '[data-work-detail-properties]'),
     html: htmlFrom(root, '[data-work-detail-text]'),
     image,
-    imageAlt: imageElement?.alt || title,
-    caption: textFrom(root, '[data-work-detail-caption]'),
+    imageAlt,
+    caption: textFrom(root, '[data-work-detail-caption]') || imageAlt,
     categories: readCategories(root, true),
   };
 }

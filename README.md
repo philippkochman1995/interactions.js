@@ -281,12 +281,13 @@ Before `</body>`:
   data-work-detail-overview-href="/werke"
 >
   <h1 data-work-detail-title>Liege (Vermeer) 1989</h1>
-  <div data-work-detail-properties>Stahl<br>88 x 136 x 50 cm</div>
+  <div data-work-detail-properties class="rich-text">Stahl<br>88 x 136 x 50 cm</div>
   <div data-work-detail-text class="rich-text">
     <p>CMS rich text content.</p>
   </div>
-  <img data-work-detail-image src="large-image.jpg" alt="Liege (Vermeer)">
-  <div data-work-detail-caption>© Archiv Franz West, © Estate Franz West</div>
+  <div data-work-detail-image>
+    <img src="large-image.jpg" alt="© Archiv Franz West, © Estate Franz West">
+  </div>
 
   <div data-cms-work-related-source>
     <article data-cms-works-item data-works-id="cms-slug" data-works-categories="Möbel, Skulptur">
@@ -304,6 +305,10 @@ The related list may also use the existing overview attributes
 `data-works-title`, `data-works-year`, `data-works-link`, and
 `data-works-categories`. Bind `data-work-detail-id` and each related
 `data-works-id` to the CMS slug so the current work can be excluded.
+`data-work-detail-properties` and `data-work-detail-text` may be Webflow Rich Text
+elements. `data-work-detail-image` may be placed on an image or on a gallery
+wrapper; the first image is used. If `data-work-detail-caption` is omitted or
+empty, the image alt text is used as the caption.
 
 ## Lightbox API
 

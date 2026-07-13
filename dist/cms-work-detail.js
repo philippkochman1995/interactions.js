@@ -13,7 +13,8 @@ function i(e, t) {
 }
 function a(e, t) {
 	var n;
-	return (n = e.querySelector(t)) == null ? e.querySelector("img") : n;
+	let r = e.querySelector(t);
+	return r instanceof HTMLImageElement ? r : (n = r == null ? void 0 : r.querySelector("img")) == null ? e.querySelector("img") : n;
 }
 function o(e) {
 	let t = 2166136261;
@@ -52,15 +53,15 @@ function d(e) {
 }
 function f(e) {
 	var t, n;
-	let s = a(e, "[data-work-detail-image]"), l = r(e, "[data-work-detail-title]") || ((t = e.getAttribute("data-work-detail-title")) == null ? void 0 : t.trim()) || "", u = (s == null ? void 0 : s.currentSrc) || (s == null ? void 0 : s.src) || "";
+	let s = a(e, "[data-work-detail-image]"), l = r(e, "[data-work-detail-title]") || ((t = e.getAttribute("data-work-detail-title")) == null ? void 0 : t.trim()) || "", u = (s == null ? void 0 : s.currentSrc) || (s == null ? void 0 : s.src) || "", d = (s == null ? void 0 : s.alt.trim()) || l;
 	return {
 		id: ((n = e.getAttribute("data-work-detail-id")) == null ? void 0 : n.trim()) || r(e, "[data-work-detail-id]") || `current-work-${o(`${l}-${u}`)}`,
 		title: l,
 		properties: i(e, "[data-work-detail-properties]"),
 		html: i(e, "[data-work-detail-text]"),
 		image: u,
-		imageAlt: (s == null ? void 0 : s.alt) || l,
-		caption: r(e, "[data-work-detail-caption]"),
+		imageAlt: d,
+		caption: r(e, "[data-work-detail-caption]") || d,
 		categories: c(e, !0)
 	};
 }
