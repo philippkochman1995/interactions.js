@@ -16,8 +16,9 @@
 }
 
 .cms-works-filter {
-  position: relative;
-  z-index: 40;
+  position: sticky;
+  top: var(--cms-works-filter-sticky-top, 0);
+  z-index: 80;
   box-sizing: border-box;
   width: 100%;
   background: var(--cms-works-dark-5);
