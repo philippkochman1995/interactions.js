@@ -19,8 +19,15 @@
   z-index: 20;
   box-sizing: border-box;
   width: 100%;
+  background: var(--cms-works-off-white);
   color: var(--cms-works-dark);
   font-family: "StyreneA", "Styrene A", StyreneA, sans-serif;
+}
+
+.cms-works-filter__container {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
 }
 
 .cms-works-filter__overlay {
@@ -54,7 +61,7 @@
   gap: 1.5rem;
   padding: 0;
   border: 0;
-  background: var(--cms-works-off-white);
+  background: transparent;
   color: inherit;
   cursor: pointer;
   font: inherit;
