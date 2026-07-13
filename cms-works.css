@@ -188,7 +188,7 @@
 
 .cms-works-filter__sort-option {
   display: inline-block;
-  max-width: 11rem;
+  max-width: 100vw;
   margin-left: clamp(1rem, 3vw, 3rem);
   overflow: hidden;
   padding: 0;
