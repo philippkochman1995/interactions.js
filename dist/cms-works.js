@@ -125,9 +125,15 @@ function v(e, t, n) {
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
 function y(e, t) {
-	let n = p(d(t), f(e), e);
+	let n = p(d(t), f(e), e), r = 0, i = 0, a = 0;
 	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), Promise.all(n.map(async (e) => [e.id, await h(e.thumbnail)])).then((t) => {
-		v(e, n, new Map(t));
+		let o = new Map(t), s = () => {
+			window.cancelAnimationFrame(r), r = window.requestAnimationFrame(() => {
+				let t = g(e), r = Math.round(e.getBoundingClientRect().width);
+				t === i && r === a || (i = t, a = r, v(e, n, o));
+			});
+		}, c = new ResizeObserver(s);
+		s(), c.observe(e), window.addEventListener("orientationchange", s);
 	});
 }
 function b(t) {

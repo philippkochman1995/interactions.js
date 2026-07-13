@@ -267,13 +267,38 @@ function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, 
 
 function renderWorks(root: HTMLElement, source: HTMLElement): void {
   const items = sortItems(readItems(source), readSortMode(root), root);
+  let animationFrame = 0;
+  let previousColumnCount = 0;
+  let previousWidth = 0;
 
   source.hidden = true;
   source.setAttribute('aria-hidden', 'true');
   root.classList.add('cms-works');
 
   Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
-    renderGrid(root, items, new Map(entries));
+    const measures = new Map(entries);
+
+    const rerender = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        const nextColumnCount = getColumnCount(root);
+        const nextWidth = Math.round(root.getBoundingClientRect().width);
+
+        if (nextColumnCount === previousColumnCount && nextWidth === previousWidth) {
+          return;
+        }
+
+        previousColumnCount = nextColumnCount;
+        previousWidth = nextWidth;
+        renderGrid(root, items, measures);
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(rerender);
+
+    rerender();
+    resizeObserver.observe(root);
+    window.addEventListener('orientationchange', rerender);
   });
 }
 
