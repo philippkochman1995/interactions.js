@@ -133,6 +133,12 @@ function readItems(source: HTMLElement): WorkItem[] {
     .filter((item): item is WorkItem => item !== null);
 }
 
+function formatYear(value: string): string {
+  const trimmedValue = value.trim();
+
+  return trimmedValue.startsWith('[') && trimmedValue.endsWith(']') ? trimmedValue : `[${trimmedValue}]`;
+}
+
 function readDetail(root: HTMLElement): WorkDetail {
   const imageElement = imageFrom(root, '[data-work-detail-image]');
   const title = textFrom(root, '[data-work-detail-title]') || root.getAttribute('data-work-detail-title')?.trim() || '';
@@ -218,7 +224,7 @@ function createWorkCard(item: WorkItem): HTMLElement {
     const year = document.createElement('span');
 
     year.className = 'cms-works__year';
-    year.textContent = item.year;
+    year.textContent = formatYear(item.year);
     label.append(year);
   }
 

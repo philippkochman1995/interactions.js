@@ -160,6 +160,12 @@ function parseFirstYear(value: string): number | null {
   return match ? Number.parseInt(match[0], 10) : null;
 }
 
+function formatYear(value: string): string {
+  const trimmedValue = value.trim();
+
+  return trimmedValue.startsWith('[') && trimmedValue.endsWith(']') ? trimmedValue : `[${trimmedValue}]`;
+}
+
 function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): WorkItem[] {
   const nextItems = [...items];
 
@@ -266,7 +272,7 @@ function createWorkCard(item: WorkItem): HTMLElement {
     const year = document.createElement('span');
 
     year.className = 'cms-works__year';
-    year.textContent = item.year;
+    year.textContent = formatYear(item.year);
     label.append(year);
   }
 
