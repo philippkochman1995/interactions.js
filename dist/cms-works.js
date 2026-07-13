@@ -81,12 +81,12 @@ function p(e, t, n) {
 	});
 }
 function m(e) {
-	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("img"), r = document.createElement("span"), i = document.createElement("span");
-	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && t.setAttribute("href", e.href), n.className = "cms-works__image", n.src = e.thumbnail, n.alt = e.thumbnailAlt, n.loading = "lazy", n.decoding = "async", r.className = "cms-works__meta", i.className = "cms-works__title", i.textContent = e.title, r.append(i), e.year) {
+	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span");
+	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && t.setAttribute("href", e.href), n.className = "cms-works__image-wrap", r.className = "cms-works__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.append(r), i.className = "cms-works__meta", a.className = "cms-works__title", a.textContent = e.title, i.append(a), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = e.year, r.append(t);
+		t.className = "cms-works__year", t.textContent = e.year, i.append(t);
 	}
-	return t.append(n, r), t;
+	return t.append(n, i), t;
 }
 function h(e) {
 	return new Promise((t) => {

@@ -183,6 +183,7 @@ function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): W
 
 function createWorkCard(item: WorkItem): HTMLElement {
   const card = document.createElement(item.href ? 'a' : 'article');
+  const imageWrap = document.createElement('span');
   const image = document.createElement('img');
   const meta = document.createElement('span');
   const title = document.createElement('span');
@@ -195,11 +196,14 @@ function createWorkCard(item: WorkItem): HTMLElement {
     card.setAttribute('href', item.href);
   }
 
+  imageWrap.className = 'cms-works__image-wrap';
+
   image.className = 'cms-works__image';
   image.src = item.thumbnail;
   image.alt = item.thumbnailAlt;
   image.loading = 'lazy';
   image.decoding = 'async';
+  imageWrap.append(image);
 
   meta.className = 'cms-works__meta';
 
@@ -215,7 +219,7 @@ function createWorkCard(item: WorkItem): HTMLElement {
     meta.append(year);
   }
 
-  card.append(image, meta);
+  card.append(imageWrap, meta);
 
   return card;
 }
