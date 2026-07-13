@@ -53,15 +53,15 @@ function d(e) {
 }
 function f(e) {
 	var t, n;
-	let s = a(e, "[data-work-detail-image]"), l = r(e, "[data-work-detail-title]") || ((t = e.getAttribute("data-work-detail-title")) == null ? void 0 : t.trim()) || "", u = (s == null ? void 0 : s.currentSrc) || (s == null ? void 0 : s.src) || "", d = (s == null ? void 0 : s.alt.trim()) || l;
+	let s = a(e, "[data-work-detail-image]"), l = r(e, "[data-work-detail-title]") || ((t = e.getAttribute("data-work-detail-title")) == null ? void 0 : t.trim()) || "", u = (s == null ? void 0 : s.currentSrc) || (s == null ? void 0 : s.src) || "", d = (s == null ? void 0 : s.alt.trim()) || "", f = d || l;
 	return {
 		id: ((n = e.getAttribute("data-work-detail-id")) == null ? void 0 : n.trim()) || r(e, "[data-work-detail-id]") || `current-work-${o(`${l}-${u}`)}`,
 		title: l,
 		properties: i(e, "[data-work-detail-properties]"),
 		html: i(e, "[data-work-detail-text]"),
 		image: u,
-		imageAlt: d,
-		caption: r(e, "[data-work-detail-caption]") || d,
+		imageAlt: f,
+		caption: d || r(e, "[data-work-detail-caption]"),
 		categories: c(e, !0)
 	};
 }

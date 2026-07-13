@@ -52,6 +52,10 @@
   line-height: 1.4;
 }
 
+.cms-work-detail__properties * {
+  color: inherit;
+}
+
 .cms-work-detail__text {
   margin-top: clamp(1.5rem, 3.5vw, 3.5rem);
   color: var(--cms-work-detail-dark);

@@ -137,7 +137,8 @@ function readDetail(root: HTMLElement): WorkDetail {
   const imageElement = imageFrom(root, '[data-work-detail-image]');
   const title = textFrom(root, '[data-work-detail-title]') || root.getAttribute('data-work-detail-title')?.trim() || '';
   const image = imageElement?.currentSrc || imageElement?.src || '';
-  const imageAlt = imageElement?.alt.trim() || title;
+  const rawImageAlt = imageElement?.alt.trim() || '';
+  const imageAlt = rawImageAlt || title;
 
   return {
     id:
@@ -149,7 +150,7 @@ function readDetail(root: HTMLElement): WorkDetail {
     html: htmlFrom(root, '[data-work-detail-text]'),
     image,
     imageAlt,
-    caption: textFrom(root, '[data-work-detail-caption]') || imageAlt,
+    caption: rawImageAlt || textFrom(root, '[data-work-detail-caption]'),
     categories: readCategories(root, true),
   };
 }
