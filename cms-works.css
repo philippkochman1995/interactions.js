@@ -64,6 +64,7 @@
   border: 0;
   background: var(--cms-works-dark-5);
   color: inherit;
+  outline: 0;
   cursor: pointer;
   font: inherit;
   letter-spacing: 0.08em;
@@ -85,6 +86,7 @@
 
 .cms-works-filter__bar-right {
   justify-content: flex-end;
+  overflow: hidden;
 }
 
 .cms-works-filter__filter-icon,
@@ -106,6 +108,21 @@
   font-size: var(--_sizes---footer-14, 0.875rem);
   font-weight: 600;
   line-height: 1;
+}
+
+.cms-works-filter__active-sort {
+  max-width: 12rem;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+    max-width 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 140ms ease;
+}
+
+.cms-works-filter.is-open .cms-works-filter__active-sort {
+  max-width: 0;
+  opacity: 0;
 }
 
 .cms-works-filter__label {
@@ -130,7 +147,7 @@
   left: 0;
   z-index: 4;
   width: 100%;
-  background: color-mix(in srgb, var(--cms-works-off-white) 94%, transparent);
+  background: var(--cms-works-dark-5);
   border-top: 1px solid var(--cms-works-dark-50);
   box-sizing: border-box;
   opacity: 0;
@@ -154,7 +171,6 @@
   justify-content: space-between;
   gap: 2rem;
   box-sizing: border-box;
-  padding-block: 1.125rem;
   border-bottom: 1px solid var(--cms-works-dark-50);
 }
 
@@ -203,10 +219,27 @@
 
 .cms-works-filter__sort-controls {
   display: flex;
-  flex: 0 0 auto;
+  max-width: 0;
+  flex: 0 1 auto;
   align-items: center;
   justify-content: flex-end;
   gap: clamp(1rem, 3vw, 3rem);
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translate3d(1.5rem, 0, 0);
+  transition:
+    max-width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease,
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  white-space: nowrap;
+}
+
+.cms-works-filter.is-open .cms-works-filter__sort-controls {
+  max-width: 40rem;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
 }
 
 .cms-works-filter__sort-option {
@@ -236,7 +269,6 @@
   justify-content: center;
   padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--cms-works-dark-50);
   background: transparent;
   color: var(--cms-works-dark-75);
   cursor: pointer;
@@ -245,15 +277,13 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1;
+  text-decoration: none;
   text-transform: uppercase;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
+  transition: color 160ms ease;
 }
 
 .cms-works-filter__apply:hover,
 .cms-works-filter__apply:focus-visible {
-  background: var(--cms-works-rosa);
   color: var(--cms-works-dark);
 }
 
@@ -411,7 +441,7 @@
   }
 
   .cms-works-filter__sort-controls {
-    width: 100%;
+    width: auto;
     justify-content: space-between;
     gap: 1rem;
   }

@@ -75,7 +75,7 @@ export function createWorksFilterInterface(
   const section = document.createElement('section');
   const overlay = document.createElement('button');
   const container = document.createElement('div');
-  const topbar = document.createElement('button');
+  const topbar = document.createElement('div');
   const left = document.createElement('span');
   const filterText = document.createElement('span');
   const count = document.createElement('span');
@@ -86,7 +86,7 @@ export function createWorksFilterInterface(
   const panelInner = document.createElement('div');
   const categories = document.createElement('div');
   const sortControls = document.createElement('div');
-  const applyButton = document.createElement('button');
+  const applyLink = document.createElement('a');
   const categoryCounts = getCategoryCounts(items);
   const categoryButtons = new Map<string, HTMLButtonElement>();
   const sortButtons = new Map<WorksSortMode, HTMLButtonElement>();
@@ -99,7 +99,8 @@ export function createWorksFilterInterface(
   container.className = 'cms-works-filter__container u-container';
 
   topbar.className = 'cms-works-filter__bar';
-  topbar.type = 'button';
+  topbar.setAttribute('role', 'button');
+  topbar.setAttribute('tabindex', '0');
   topbar.setAttribute('aria-expanded', 'false');
 
   left.className = 'cms-works-filter__bar-left';
@@ -113,11 +114,11 @@ export function createWorksFilterInterface(
   sortLabel.className = 'cms-works-filter__sort-label';
   sortLabel.textContent = 'SORTIERUNG';
   activeSort.className = 'cms-works-filter__active-sort';
-  right.append(sortLabel, activeSort, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
+  right.append(sortLabel, sortControls, activeSort, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
 
   topbar.append(left, right);
 
-  panel.className = 'cms-works-filter__panel';
+  panel.className = 'cms-works-filter__panel u-section';
   panelInner.className = 'cms-works-filter__panel-inner u-container';
   categories.className = 'cms-works-filter__categories';
   sortControls.className = 'cms-works-filter__sort-controls';
@@ -164,18 +165,19 @@ export function createWorksFilterInterface(
     sortControls.append(button);
   });
 
-  applyButton.className = 'cms-works-filter__apply';
-  applyButton.type = 'button';
-  applyButton.textContent = 'ANWENDEN';
-  applyButton.addEventListener('click', () => {
+  applyLink.className = 'cms-works-filter__apply';
+  applyLink.href = '#';
+  applyLink.textContent = 'ANWENDEN';
+  applyLink.addEventListener('click', (event) => {
+    event.preventDefault();
     state.appliedCategories = new Set(state.pendingCategories);
     state.appliedSortMode = state.pendingSortMode;
     closeFilter(false);
     onApply();
   });
 
-  panelInner.append(categories, sortControls);
-  panel.append(panelInner, applyButton);
+  panelInner.append(categories);
+  panel.append(panelInner, applyLink);
   container.append(topbar);
   section.append(overlay, container, panel);
 
@@ -230,7 +232,24 @@ export function createWorksFilterInterface(
     sync();
   }
 
-  topbar.addEventListener('click', () => {
+  topbar.addEventListener('click', (event) => {
+    if (sortControls.contains(event.target as Node)) {
+      return;
+    }
+
+    if (state.open) {
+      closeFilter(true);
+    } else {
+      openFilter();
+    }
+  });
+  topbar.addEventListener('keydown', (event) => {
+    if (event.target !== topbar || (event.key !== 'Enter' && event.key !== ' ')) {
+      return;
+    }
+
+    event.preventDefault();
+
     if (state.open) {
       closeFilter(true);
     } else {
