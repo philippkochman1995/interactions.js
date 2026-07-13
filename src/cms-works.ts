@@ -356,7 +356,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   source.hidden = true;
   source.setAttribute('aria-hidden', 'true');
   root.classList.add('cms-works');
-  gridHost.className = 'cms-works__grid-host';
+  gridHost.className = 'cms-works__grid-host u-section';
 
   Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
     measures = new Map(entries);

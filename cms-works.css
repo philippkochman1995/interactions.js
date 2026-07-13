@@ -17,7 +17,7 @@
 
 .cms-works-filter {
   position: relative;
-  z-index: 20;
+  z-index: 40;
   box-sizing: border-box;
   width: 100%;
   background: var(--cms-works-dark-5);
@@ -27,7 +27,7 @@
 
 .cms-works-filter__container {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   box-sizing: border-box;
 }
 
@@ -53,7 +53,7 @@
 
 .cms-works-filter__bar {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   display: flex;
   width: 100%;
   min-height: 4.625rem;
@@ -62,7 +62,7 @@
   gap: 1.5rem;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--cms-works-dark-5);
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -128,7 +128,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 3;
+  z-index: 4;
   width: 100%;
   background: color-mix(in srgb, var(--cms-works-off-white) 94%, transparent);
   border-top: 1px solid var(--cms-works-dark-50);
@@ -153,7 +153,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
-  padding: 1.125rem 0;
+  box-sizing: border-box;
+  padding-block: 1.125rem;
   border-bottom: 1px solid var(--cms-works-dark-50);
 }
 

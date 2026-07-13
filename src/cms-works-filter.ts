@@ -118,7 +118,7 @@ export function createWorksFilterInterface(
   topbar.append(left, right);
 
   panel.className = 'cms-works-filter__panel';
-  panelInner.className = 'cms-works-filter__panel-inner';
+  panelInner.className = 'cms-works-filter__panel-inner u-container';
   categories.className = 'cms-works-filter__categories';
   sortControls.className = 'cms-works-filter__sort-controls';
 
@@ -176,8 +176,8 @@ export function createWorksFilterInterface(
 
   panelInner.append(categories, sortControls);
   panel.append(panelInner, applyButton);
-  container.append(topbar, panel);
-  section.append(overlay, container);
+  container.append(topbar);
+  section.append(overlay, container, panel);
 
   function sync(): void {
     count.textContent = `[${state.appliedCategories.size}]`;
