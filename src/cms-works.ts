@@ -4,6 +4,7 @@ interface WorkItem {
   thumbnail: string;
   thumbnailAlt: string;
   href: string;
+  year: string;
   curatedPosition: number | null;
   categories: string[];
   index: number;
@@ -26,6 +27,7 @@ const SOURCE_SELECTOR = '[data-cms-works-source]';
 const ITEM_SELECTOR = '[data-cms-works-item], [data-cms-canvas-item]';
 const THUMBNAIL_SELECTOR = '[data-works-thumbnail], [data-canvas-thumbnail]';
 const TITLE_SELECTOR = '[data-works-title], [data-canvas-title]';
+const YEAR_SELECTOR = '[data-works-year], [data-canvas-year]';
 const CURATED_POSITION_SELECTOR = '[data-works-curated-position], [data-works-position]';
 const CATEGORY_SELECTOR = '[data-works-category], [data-works-categories]';
 
@@ -129,6 +131,7 @@ function readItem(element: HTMLElement, index: number): WorkItem | null {
     thumbnail,
     thumbnailAlt: thumbnailElement?.alt || title,
     href: readHref(element),
+    year: textFrom(element, YEAR_SELECTOR) || element.getAttribute('data-works-year')?.trim() || '',
     curatedPosition: readCuratedPosition(element),
     categories: readCategories(element),
     index,
@@ -181,6 +184,7 @@ function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): W
 function createWorkCard(item: WorkItem): HTMLElement {
   const card = document.createElement(item.href ? 'a' : 'article');
   const image = document.createElement('img');
+  const meta = document.createElement('span');
   const title = document.createElement('span');
 
   card.className = 'cms-works__item';
@@ -197,10 +201,21 @@ function createWorkCard(item: WorkItem): HTMLElement {
   image.loading = 'lazy';
   image.decoding = 'async';
 
+  meta.className = 'cms-works__meta';
+
   title.className = 'cms-works__title';
   title.textContent = item.title;
+  meta.append(title);
 
-  card.append(image, title);
+  if (item.year) {
+    const year = document.createElement('span');
+
+    year.className = 'cms-works__year';
+    year.textContent = item.year;
+    meta.append(year);
+  }
+
+  card.append(image, meta);
 
   return card;
 }

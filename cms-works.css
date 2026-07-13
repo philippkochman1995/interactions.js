@@ -35,13 +35,23 @@
   height: auto;
 }
 
-.cms-works__title {
-  display: block;
+.cms-works__meta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.35em;
+  align-items: baseline;
   margin-top: var(--cms-works-title-gap, 0.45rem);
-  color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
   font-family: "StyreneA", "Styrene A", StyreneA, sans-serif;
   font-size: var(--p-font-size, 1rem);
   line-height: 1.15;
+}
+
+.cms-works__title {
+  color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
+}
+
+.cms-works__year {
+  color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, color-mix(in srgb, var(--FW_Dark_Purple, #444153) 50%, transparent)));
 }
 
 @media (max-width: 991px) {

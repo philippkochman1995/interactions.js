@@ -41,16 +41,17 @@ function l(e) {
 	return (t = (n = (r = (i = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : i) == null ? (a = e.querySelector("[data-works-link]")) == null ? void 0 : a.href : r) == null ? (o = e.querySelector("a[href]")) == null ? void 0 : o.href : n) == null ? "" : t;
 }
 function u(e, t) {
-	var a, o, u, d, f;
-	let p = r(e), m = (p == null ? void 0 : p.currentSrc) || (p == null ? void 0 : p.src) || "";
-	if (!m) return null;
-	let h = n(e, "[data-works-title], [data-canvas-title]") || ((a = e.getAttribute("data-works-title")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-canvas-title")) == null ? void 0 : o.trim()) || (p == null ? void 0 : p.alt.trim()) || "";
+	var a, o, u, d, f, p;
+	let m = r(e), h = (m == null ? void 0 : m.currentSrc) || (m == null ? void 0 : m.src) || "";
+	if (!h) return null;
+	let g = n(e, "[data-works-title], [data-canvas-title]") || ((a = e.getAttribute("data-works-title")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-canvas-title")) == null ? void 0 : o.trim()) || (m == null ? void 0 : m.alt.trim()) || "";
 	return {
-		id: ((u = e.getAttribute("data-works-id")) == null ? void 0 : u.trim()) || ((d = e.getAttribute("data-canvas-id")) == null ? void 0 : d.trim()) || ((f = e.getAttribute("data-cms-item-id")) == null ? void 0 : f.trim()) || `work-${t + 1}-${i(`${h}-${m}`)}`,
-		title: h,
-		thumbnail: m,
-		thumbnailAlt: (p == null ? void 0 : p.alt) || h,
+		id: ((u = e.getAttribute("data-works-id")) == null ? void 0 : u.trim()) || ((d = e.getAttribute("data-canvas-id")) == null ? void 0 : d.trim()) || ((f = e.getAttribute("data-cms-item-id")) == null ? void 0 : f.trim()) || `work-${t + 1}-${i(`${g}-${h}`)}`,
+		title: g,
+		thumbnail: h,
+		thumbnailAlt: (m == null ? void 0 : m.alt) || g,
 		href: l(e),
+		year: n(e, "[data-works-year], [data-canvas-year]") || ((p = e.getAttribute("data-works-year")) == null ? void 0 : p.trim()) || "",
 		curatedPosition: s(e),
 		categories: c(e),
 		index: t
@@ -80,8 +81,12 @@ function p(e, t, n) {
 	});
 }
 function m(e) {
-	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("img"), r = document.createElement("span");
-	return t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && t.setAttribute("href", e.href), n.className = "cms-works__image", n.src = e.thumbnail, n.alt = e.thumbnailAlt, n.loading = "lazy", n.decoding = "async", r.className = "cms-works__title", r.textContent = e.title, t.append(n, r), t;
+	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("img"), r = document.createElement("span"), i = document.createElement("span");
+	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && t.setAttribute("href", e.href), n.className = "cms-works__image", n.src = e.thumbnail, n.alt = e.thumbnailAlt, n.loading = "lazy", n.decoding = "async", r.className = "cms-works__meta", i.className = "cms-works__title", i.textContent = e.title, r.append(i), e.year) {
+		let t = document.createElement("span");
+		t.className = "cms-works__year", t.textContent = e.year, r.append(t);
+	}
+	return t.append(n, r), t;
 }
 function h(e) {
 	return new Promise((t) => {
