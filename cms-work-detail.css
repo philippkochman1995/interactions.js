@@ -15,8 +15,8 @@
 .cms-work-detail__hero {
   box-sizing: border-box;
   width: 100%;
-  padding: var(--cms-work-detail-padding-top, clamp(1.5rem, 2.2vw, 2.375rem)) var(--cms-work-detail-page-padding, clamp(1rem, 1.75vw, 1.875rem))
-    var(--cms-work-detail-padding-bottom, clamp(3rem, 5vw, 5rem));
+  padding-top: var(--cms-work-detail-padding-top, clamp(1.5rem, 2.2vw, 2.375rem));
+  padding-bottom: var(--cms-work-detail-padding-bottom, clamp(3rem, 5vw, 5rem));
 }
 
 .cms-work-detail__intro {
@@ -28,7 +28,7 @@
 
 .cms-work-detail__content {
   display: flex;
-  grid-column: 1 / span 4;
+  grid-column: 1 / span 3;
   min-width: 0;
   flex-direction: column;
 }
@@ -259,7 +259,7 @@
 
 @media (max-width: 991px) {
   .cms-work-detail__content {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 4;
   }
 
   .cms-work-detail__figure {
