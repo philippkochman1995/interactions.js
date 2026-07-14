@@ -263,6 +263,23 @@ export function delegate<K extends keyof DocumentEventMap>(
   };
 }
 
+export function initBackButtons(root: Document | HTMLElement = document): Cleanup {
+  return delegate(root, 'click', '[data-back-button]', (event, backButton) => {
+    event.preventDefault();
+
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'auto';
+    }
+
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    window.location.href = backButton.getAttribute('href') || '/';
+  });
+}
+
 export function dispatchSiteEvent<TDetail>(
   target: EventTarget,
   eventName: string,

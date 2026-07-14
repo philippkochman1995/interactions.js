@@ -107,6 +107,15 @@ function g(e, t, n, r, i) {
 		e.removeEventListener(t, a, i);
 	};
 }
+function te(e = document) {
+	return g(e, "click", "[data-back-button]", (e, t) => {
+		if (e.preventDefault(), "scrollRestoration" in history && (history.scrollRestoration = "auto"), window.history.length > 1) {
+			window.history.back();
+			return;
+		}
+		window.location.href = t.getAttribute("href") || "/";
+	});
+}
 function _(e, t, n) {
 	e.dispatchEvent(new CustomEvent(t, {
 		bubbles: !0,
@@ -116,74 +125,74 @@ function _(e, t, n) {
 //#endregion
 //#region src/modules/i18n.ts
 var v = {};
-function te(e) {
+function ne(e) {
 	return !e || typeof e != "object" || Array.isArray(e) ? {} : Object.entries(e).reduce((e, [t, n]) => (a(t) && a(n) && (e[t.trim()] = n.trim()), e), {});
 }
-function ne(e = document) {
+function re(e = document) {
 	var n, i;
 	v = {};
 	let a = t("[data-site-i18n]", e), o = (n = a == null || (i = a.textContent) == null ? void 0 : i.trim()) == null ? "" : n;
-	return o && (v = te(r(o))), {
+	return o && (v = ne(r(o))), {
 		get values() {
 			return { ...v };
 		},
-		t: re
+		t: ie
 	};
 }
-function re(e, t) {
+function ie(e, t) {
 	let n = e.trim(), r = v[n];
 	return a(r) ? r.trim() : t.trim();
 }
 //#endregion
 //#region src/modules/lightbox.ts
-var y = "[data-lightbox-src]", ie = "[data-site-lightbox]", b = "[data-lightbox-close]", x = "[data-lightbox-prev]", S = "[data-lightbox-next]", C = !1, w = null, T = null, E = [], D = 0, O = !1, k = null;
-function ae(e) {
+var y = "[data-lightbox-src]", ae = "[data-site-lightbox]", b = "[data-lightbox-close]", x = "[data-lightbox-prev]", S = "[data-lightbox-next]", C = !1, w = null, T = null, E = [], D = 0, O = !1, k = null;
+function oe(e) {
 	return o(e, "data-lightbox-src") || (e instanceof HTMLAnchorElement ? e.href : "");
 }
-function oe(e) {
+function se(e) {
 	var n, r;
 	let i = o(e, "data-lightbox-alt");
 	if (i) return i;
 	let a = t("img", e);
 	return (n = a == null || (r = a.alt) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function se(e) {
-	let t = ae(e).trim();
+function A(e) {
+	let t = oe(e).trim();
 	return t ? {
 		src: t,
 		caption: o(e, "data-lightbox-caption"),
-		alt: oe(e),
+		alt: se(e),
 		group: o(e, "data-lightbox-group"),
 		trigger: e
 	} : null;
 }
 function ce(e) {
-	let t = se(e);
+	let t = A(e);
 	if (!t) return null;
 	if (!t.group) return {
 		items: [t],
 		index: 0
 	};
-	let r = n(y).filter((e) => o(e, "data-lightbox-group") === t.group).map(se).filter((e) => !!e), i = Math.max(0, r.findIndex((t) => t.trigger === e));
+	let r = n(y).filter((e) => o(e, "data-lightbox-group") === t.group).map(A).filter((e) => !!e), i = Math.max(0, r.findIndex((t) => t.trigger === e));
 	return {
 		items: r.length > 0 ? r : [t],
 		index: i
 	};
 }
-function A(e, t, n, r) {
+function j(e, t, n, r) {
 	let i = document.createElement("button");
 	return i.type = "button", i.className = r, i.setAttribute(t, ""), i.setAttribute("aria-label", e), i.title = e, i.textContent = n, i;
 }
-function j() {
+function M() {
 	var e, n, r, i, a, o;
-	if (T) return M(T), T;
-	let s = t(ie), c = s == null ? document.createElement("div") : s;
+	if (T) return N(T), T;
+	let s = t(ae), c = s == null ? document.createElement("div") : s;
 	if (c.classList.add("site-lightbox"), c.setAttribute("data-site-lightbox", ""), c.setAttribute("role", "dialog"), c.setAttribute("aria-modal", "true"), c.setAttribute("aria-hidden", "true"), c.setAttribute("aria-label", (e = w == null ? void 0 : w.t("openImage", "Image preview")) == null ? "Image preview" : e), c.hidden = !0, c.tabIndex = -1, !s) {
 		var l, u, d;
 		c.innerHTML = "";
-		let e = A((l = w == null ? void 0 : w.t("close", "Close")) == null ? "Close" : l, "data-lightbox-close", "", "site-lightbox__close");
+		let e = j((l = w == null ? void 0 : w.t("close", "Close")) == null ? "Close" : l, "data-lightbox-close", "", "site-lightbox__close");
 		e.innerHTML = "\n      <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n        <circle cx=\"20\" cy=\"20\" r=\"20\"/>\n        <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\"/>\n      </svg>\n    ";
-		let t = A((u = w == null ? void 0 : w.t("previous", "Previous")) == null ? "Previous" : u, "data-lightbox-prev", "‹", "site-lightbox__previous"), n = A((d = w == null ? void 0 : w.t("next", "Next")) == null ? "Next" : d, "data-lightbox-next", "›", "site-lightbox__next"), r = document.createElement("figure");
+		let t = j((u = w == null ? void 0 : w.t("previous", "Previous")) == null ? "Previous" : u, "data-lightbox-prev", "‹", "site-lightbox__previous"), n = j((d = w == null ? void 0 : w.t("next", "Next")) == null ? "Next" : d, "data-lightbox-next", "›", "site-lightbox__next"), r = document.createElement("figure");
 		r.className = "site-lightbox__figure";
 		let i = document.createElement("img");
 		i.className = "site-lightbox__image", i.setAttribute("data-lightbox-image", ""), i.alt = "";
@@ -198,40 +207,40 @@ function j() {
 		previousButton: (a = t(x, c)) == null ? document.createElement("button") : a,
 		nextButton: (o = t(S, c)) == null ? document.createElement("button") : o
 	};
-	return T = f, M(f), !s && !document.body.contains(c) && document.body.append(c), f;
+	return T = f, N(f), !s && !document.body.contains(c) && document.body.append(c), f;
 }
-function M(e) {
+function N(e) {
 	var t, n, r, i;
 	let a = (t = w == null ? void 0 : w.t("close", "Close")) == null ? "Close" : t, o = (n = w == null ? void 0 : w.t("previous", "Previous")) == null ? "Previous" : n, s = (r = w == null ? void 0 : w.t("next", "Next")) == null ? "Next" : r, c = (i = w == null ? void 0 : w.t("openImage", "Image preview")) == null ? "Image preview" : i;
 	e.root.setAttribute("aria-label", c), e.closeButton.setAttribute("aria-label", a), e.closeButton.title = a, e.previousButton.setAttribute("aria-label", o), e.previousButton.title = o, e.nextButton.setAttribute("aria-label", s), e.nextButton.title = s;
 }
-function N() {
-	let e = j(), t = E[D];
+function P() {
+	let e = M(), t = E[D];
 	if (!t) return;
 	e.image.src = t.src, e.image.alt = t.alt, e.caption.textContent = t.caption, e.caption.hidden = t.caption.length === 0;
 	let n = E.length > 1;
 	e.previousButton.hidden = !n, e.nextButton.hidden = !n, e.root.dataset.lightboxIndex = String(D), e.root.dataset.lightboxCount = String(E.length);
 }
-function P(e) {
-	let t = j();
+function F(e) {
+	let t = M();
 	t.root.hidden = !e, t.root.setAttribute("aria-hidden", String(!e)), t.root.classList.toggle("is-active", e), t.root.classList.toggle("is-visible", e), document.documentElement.classList.toggle("is-lightbox-open", e), document.body.classList.toggle("is-lightbox-open", e);
 }
-function F(e) {
-	E.length < 2 || (D = (e + E.length) % E.length, N());
-}
-function I() {
-	F(D + 1);
+function I(e) {
+	E.length < 2 || (D = (e + E.length) % E.length, P());
 }
 function L() {
-	F(D - 1);
+	I(D + 1);
 }
-function R(e) {
+function R() {
+	I(D - 1);
+}
+function z(e) {
 	var t;
 	let n = ce(e);
 	if (!n) return;
 	let r = O;
-	E = n.items, D = n.index, k = e, O = !0, N(), P(!0), r || h();
-	let i = j();
+	E = n.items, D = n.index, k = e, O = !0, P(), F(!0), r || h();
+	let i = M();
 	u(i.closeButton || i.root);
 	let a = E[D];
 	_(i.root, "site:lightbox-open", {
@@ -242,49 +251,49 @@ function R(e) {
 		trigger: e
 	});
 }
-function z() {
+function B() {
 	var e;
 	if (!O || !T) return;
 	let t = T, n = k, r = (e = E[D]) == null ? null : e;
-	P(!1), ee(), O = !1, E = [], D = 0, k = null, t.image.removeAttribute("src"), t.caption.textContent = "", _(t.root, "site:lightbox-close", { item: r }), f(n);
+	F(!1), ee(), O = !1, E = [], D = 0, k = null, t.image.removeAttribute("src"), t.caption.textContent = "", _(t.root, "site:lightbox-close", { item: r }), f(n);
 }
 function le(e) {
 	if (!(!O || !T)) {
 		if (e.key === "Escape") {
-			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation(), z();
+			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation(), B();
 			return;
 		}
 		if (e.key === "ArrowRight") {
-			e.preventDefault(), I();
+			e.preventDefault(), L();
 			return;
 		}
 		if (e.key === "ArrowLeft") {
-			e.preventDefault(), L();
+			e.preventDefault(), R();
 			return;
 		}
 		p(T.root, e);
 	}
 }
 function ue(e) {
-	!O || !T || e.target === T.root && z();
+	!O || !T || e.target === T.root && B();
 }
 function de(e) {
 	return w = e.i18n, C || (g(document, "click", y, (e, t) => {
-		e.preventDefault(), R(t);
+		e.preventDefault(), z(t);
 	}), g(document, "click", b, (e) => {
-		e.preventDefault(), z();
+		e.preventDefault(), B();
 	}), g(document, "click", x, (e) => {
-		e.preventDefault(), L();
+		e.preventDefault(), R();
 	}), g(document, "click", S, (e) => {
-		e.preventDefault(), I();
+		e.preventDefault(), L();
 	}), document.addEventListener("click", ue), document.addEventListener("keydown", le, !0), C = !0), {
-		openLightbox: R,
-		closeLightbox: z
+		openLightbox: z,
+		closeLightbox: B
 	};
 }
 //#endregion
 //#region src/modules/modal.ts
-var fe = "[data-modal]", B = "[data-modal-content]", pe = "[data-modal-open]", V = "[data-modal-close]", me = "a[href^=\"#modal:\"]", he = "#modal:", ge = 220, _e = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", ve = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", H = !1, U = !0, W = null, G = null, K = "", q = null, J = null, Y = /* @__PURE__ */ new Map();
+var fe = "[data-modal]", V = "[data-modal-content]", pe = "[data-modal-open]", H = "[data-modal-close]", me = "a[href^=\"#modal:\"]", he = "#modal:", ge = 220, _e = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", ve = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", U = !1, W = !0, G = null, K = null, q = "", J = null, Y = null, X = /* @__PURE__ */ new Map();
 function ye(e) {
 	var t;
 	let n = (t = e.getAttribute("href")) == null ? "" : t;
@@ -297,7 +306,7 @@ function be() {
 		root: e,
 		panel: e.querySelector("[data-modal-panel]"),
 		address: e.querySelector("[data-site-modal-address]"),
-		closeButton: e.querySelector(V),
+		closeButton: e.querySelector(H),
 		imageLink: e.querySelector(".fwm-modal__image-link"),
 		image: e.querySelector(".fwm-modal__image"),
 		lightboxIcon: e.querySelector(".fwm-modal__lightbox-icon"),
@@ -307,11 +316,11 @@ function be() {
 	return t.closeButton.innerHTML = _e, t.lightboxIcon.innerHTML = ve, Se(t), t;
 }
 function xe() {
-	return (!G || !document.body.contains(G.root)) && (G = be()), Se(G), G;
+	return (!K || !document.body.contains(K.root)) && (K = be()), Se(K), K;
 }
 function Se(e) {
 	var t, n;
-	let r = (t = W == null ? void 0 : W.t("close", "Close")) == null ? "Close" : t, i = (n = W == null ? void 0 : W.t("openModal", "Open details")) == null ? "Open details" : n;
+	let r = (t = G == null ? void 0 : G.t("close", "Close")) == null ? "Close" : t, i = (n = G == null ? void 0 : G.t("openModal", "Open details")) == null ? "Open details" : n;
 	e.closeButton.setAttribute("aria-label", r), e.closeButton.title = r, e.panel.setAttribute("aria-label", i);
 }
 function Ce(e) {
@@ -343,20 +352,20 @@ function we(e) {
 	};
 }
 function Te() {
-	n(B).forEach((e) => {
+	n(V).forEach((e) => {
 		let t = Ce(e);
-		t && Y.set(t.id, t);
+		t && X.set(t.id, t);
 	}), n(fe).forEach((e) => {
 		let t = we(e);
-		t && Y.set(t.id, t), e.remove();
+		t && X.set(t.id, t), e.remove();
 	});
 }
 function Ee(e) {
 	var t;
 	let r = e.trim();
 	if (!r) return null;
-	let i = n(B).find((e) => o(e, "data-modal-content") === r), a = i ? Ce(i) : null;
-	return a && Y.set(r, a), (t = a == null ? Y.get(r) : a) == null ? null : t;
+	let i = n(V).find((e) => o(e, "data-modal-content") === r), a = i ? Ce(i) : null;
+	return a && X.set(r, a), (t = a == null ? X.get(r) : a) == null ? null : t;
 }
 function De(e) {
 	let t = xe(), n = e.image.trim().length > 0;
@@ -367,14 +376,14 @@ function Oe(e) {
 	u(t == null ? e.panel : t);
 }
 function ke(e) {
-	J !== null && (window.clearTimeout(J), J = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
+	Y !== null && (window.clearTimeout(Y), Y = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
 }
 function Ae(e) {
-	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), J = window.setTimeout(() => {
-		e.root.hidden = !0, e.root.classList.remove("is-active"), J = null;
+	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), Y = window.setTimeout(() => {
+		e.root.hidden = !0, e.root.classList.remove("is-active"), Y = null;
 	}, ge), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
 }
-function X(e, t) {
+function Z(e, t) {
 	var n, r, i, a, o;
 	let s = {
 		id: e.id.trim(),
@@ -385,71 +394,71 @@ function X(e, t) {
 		html: (o = e.html) == null ? "" : o
 	};
 	if (!s.id) return;
-	K && Q(), Y.set(s.id, s), q = t == null ? d() : t, K = s.id;
+	q && $(), X.set(s.id, s), J = t == null ? d() : t, q = s.id;
 	let c = De(s);
 	ke(c), h(), Oe(c), _(c.root, "site:modal-open", {
-		id: K,
+		id: q,
 		modal: c.root,
 		content: s,
 		trigger: t == null ? null : t
 	});
 }
-function Z(e, t) {
+function Q(e, t) {
 	let n = Ee(e);
-	n && X(n, t);
+	n && Z(n, t);
 }
-function Q() {
-	if (!K || !G) return;
-	let e = K, t = q;
-	Ae(G), ee(), K = "", q = null, _(G.root, "site:modal-close", {
+function $() {
+	if (!q || !K) return;
+	let e = q, t = J;
+	Ae(K), ee(), q = "", J = null, _(K.root, "site:modal-close", {
 		id: e,
-		modal: G.root
+		modal: K.root
 	}), f(t);
 }
 function je(e) {
-	if (!(!K || !G) && !document.body.classList.contains("is-lightbox-open")) {
+	if (!(!q || !K) && !document.body.classList.contains("is-lightbox-open")) {
 		if (e.key === "Escape") {
-			e.preventDefault(), Q();
+			e.preventDefault(), $();
 			return;
 		}
-		p(G.panel, e);
+		p(K.panel, e);
 	}
 }
 function Me(e) {
-	if (!U || !K || !G) return;
+	if (!W || !q || !K) return;
 	let t = e.target;
-	!i(t) || t !== G.root || Q();
+	!i(t) || t !== K.root || $();
 }
 function Ne(e) {
 	var t;
-	return U = (t = e.closeOnBackdrop) == null || t, W = e.i18n, Te(), xe(), H || (g(document, "click", pe, (e, t) => {
-		e.preventDefault(), Z(s(t, "data-modal-open"), t);
+	return W = (t = e.closeOnBackdrop) == null || t, G = e.i18n, Te(), xe(), U || (g(document, "click", pe, (e, t) => {
+		e.preventDefault(), Q(s(t, "data-modal-open"), t);
 	}), g(document, "click", me, (e, t) => {
-		e.preventDefault(), Z(ye(t), t);
-	}), g(document, "click", V, (e, t) => {
-		G != null && G.root.contains(t) && (e.preventDefault(), Q());
-	}), document.addEventListener("click", Me), document.addEventListener("keydown", je), H = !0), {
-		openModal: Z,
-		openContentModal: X,
-		closeModal: Q
+		e.preventDefault(), Q(ye(t), t);
+	}), g(document, "click", H, (e, t) => {
+		K != null && K.root.contains(t) && (e.preventDefault(), $());
+	}), document.addEventListener("click", Me), document.addEventListener("keydown", je), U = !0), {
+		openModal: Q,
+		openContentModal: Z,
+		closeModal: $
 	};
 }
 //#endregion
 //#region src/main.ts
 var Pe = !1;
-function $() {
+function Fe() {
 	if (Pe) return;
 	Pe = !0;
-	let e = ne();
-	Ne({ i18n: e }), de({ i18n: e }), window.SiteInteractions = {
-		openModal: Z,
-		openContentModal: X,
-		closeModal: Q,
-		openLightbox: R,
-		closeLightbox: z
+	let e = re();
+	Ne({ i18n: e }), de({ i18n: e }), te(), window.SiteInteractions = {
+		openModal: Q,
+		openContentModal: Z,
+		closeModal: $,
+		openLightbox: z,
+		closeLightbox: B
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", $, { once: !0 }) : $();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Fe, { once: !0 }) : Fe();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

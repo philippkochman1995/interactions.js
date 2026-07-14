@@ -1,6 +1,7 @@
 import { initI18n } from './modules/i18n';
 import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
+import { initBackButtons } from './modules/utils';
 
 let booted = false;
 
@@ -15,6 +16,7 @@ function boot(): void {
 
   initModals({ i18n });
   initLightbox({ i18n });
+  initBackButtons();
 
   window.SiteInteractions = {
     openModal,
