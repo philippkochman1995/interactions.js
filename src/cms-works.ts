@@ -182,7 +182,7 @@ function readItems(source: HTMLElement): WorkItem[] {
 function readSortMode(root: HTMLElement): WorksSortMode {
   const value = root.getAttribute('data-works-sort')?.trim().toLowerCase();
 
-  if (value === 'random' || value === 'alphabetical' || value === 'year') {
+  if (value === 'random' || value === 'year') {
     return value;
   }
 
@@ -202,13 +202,6 @@ function formatYear(value: string): string {
 
 function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): WorkItem[] {
   const nextItems = [...items];
-
-  if (mode === 'alphabetical') {
-    return nextItems.sort((first, second) => {
-      const titleCompare = first.title.localeCompare(second.title, 'de', { sensitivity: 'base' });
-      return titleCompare || first.index - second.index;
-    });
-  }
 
   if (mode === 'random') {
     const seed = hashString(root.getAttribute('data-works-random-seed') || items.map((item) => item.id).join('|'));

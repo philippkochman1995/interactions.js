@@ -1,7 +1,6 @@
 //#region src/cms-works-filter.ts
 var e = {
 	curated: "Kuratiert",
-	alphabetical: "Alphabetisch",
 	random: "Zufällig",
 	year: "Entstehungsjahr"
 }, t = [
@@ -158,7 +157,7 @@ function E(e) {
 function D(e) {
 	var t;
 	let n = (t = e.getAttribute("data-works-sort")) == null ? void 0 : t.trim().toLowerCase();
-	return n === "random" || n === "alphabetical" || n === "year" ? n : "curated";
+	return n === "random" || n === "year" ? n : "curated";
 }
 function O(e) {
 	let t = e.match(/\b(?:18|19|20)\d{2}\b/);
@@ -170,7 +169,6 @@ function k(e) {
 }
 function A(e, t, n) {
 	let r = [...e];
-	if (t === "alphabetical") return r.sort((e, t) => e.title.localeCompare(t.title, "de", { sensitivity: "base" }) || e.index - t.index);
 	if (t === "random") {
 		let t = b(y(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
 		return r.map((e) => ({
