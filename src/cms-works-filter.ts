@@ -31,12 +31,13 @@ const ARROW_ICON = `
   </svg>
 `;
 
-const SORT_LABELS: Record<Exclude<WorksSortMode, 'random'>, string> = {
+const SORT_LABELS: Record<WorksSortMode, string> = {
   curated: 'Kuratiert',
   alphabetical: 'Alphabetisch',
+  random: 'Zufällig',
   year: 'Entstehungsjahr',
 };
-const SORT_MODES = ['year', 'alphabetical', 'curated'] as const;
+const SORT_MODES = ['year', 'random', 'curated'] as const;
 
 interface WorksFilterOptions {
   onOpenChange?: (open: boolean) => void;
@@ -211,7 +212,7 @@ export function createWorksFilterInterface(
 
     sortButtons.forEach((button, mode) => {
       const activeMode = state.open ? state.pendingSortMode : state.appliedSortMode;
-      const active = activeMode === mode || (activeMode === 'random' && mode === 'curated');
+      const active = activeMode === mode;
       const visible = state.open || active;
 
       button.classList.toggle('is-active', active);

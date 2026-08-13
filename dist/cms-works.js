@@ -2,10 +2,11 @@
 var e = {
 	curated: "Kuratiert",
 	alphabetical: "Alphabetisch",
+	random: "Zufällig",
 	year: "Entstehungsjahr"
 }, t = [
 	"year",
-	"alphabetical",
+	"random",
 	"curated"
 ];
 function n(e) {
@@ -51,8 +52,8 @@ function i(i, a, o, s = {}) {
 				o.textContent = `[${(n = (r = x.find((e) => e.name === t)) == null ? void 0 : r.count) == null ? 0 : n}]`;
 			}
 		}), C.forEach((e, t) => {
-			let n = a.open ? a.pendingSortMode : a.appliedSortMode, r = n === t || n === "random" && t === "curated", i = a.open || r;
-			e.classList.toggle("is-active", r), e.classList.toggle("is-collapsed", !i), e.setAttribute("aria-pressed", r ? "true" : "false"), e.setAttribute("tabindex", i ? "0" : "-1");
+			let n = (a.open ? a.pendingSortMode : a.appliedSortMode) === t, r = a.open || n;
+			e.classList.toggle("is-active", n), e.classList.toggle("is-collapsed", !r), e.setAttribute("aria-pressed", n ? "true" : "false"), e.setAttribute("tabindex", r ? "0" : "-1");
 		});
 	}
 	function T() {
