@@ -57,6 +57,14 @@
 }
 
 .cms-work-detail__text {
+  margin-top: 1.458rem;
+  color: var(--cms-work-detail-dark);
+  font-size: var(--p-font-size, 1rem);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.cms-work-detail__view {
   margin-top: auto;
   padding-top: 1.458rem;
   color: var(--cms-work-detail-dark);
@@ -66,12 +74,14 @@
 }
 
 .cms-work-detail__properties > :first-child,
-.cms-work-detail__text > :first-child {
+.cms-work-detail__text > :first-child,
+.cms-work-detail__view > :first-child {
   margin-top: 0;
 }
 
 .cms-work-detail__properties > :last-child,
-.cms-work-detail__text > :last-child {
+.cms-work-detail__text > :last-child,
+.cms-work-detail__view > :last-child {
   margin-bottom: 0;
 }
 
@@ -282,11 +292,12 @@
   }
 
   .cms-work-detail__properties,
-  .cms-work-detail__text {
+  .cms-work-detail__text,
+  .cms-work-detail__view {
     margin-top: 1.5rem;
   }
 
-  .cms-work-detail__text {
+  .cms-work-detail__view {
     padding-top: 0;
   }
 

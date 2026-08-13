@@ -76,6 +76,7 @@ function h(e) {
 		title: o,
 		properties: a(e, "[data-work-detail-properties]"),
 		html: a(e, "[data-work-detail-text]"),
+		view: a(e, "[data-work-detail-view], [data-work-detail-ansicht]"),
 		image: l,
 		imageAlt: f,
 		caption: d || i(e, "[data-work-detail-caption]"),
@@ -99,8 +100,8 @@ function v(e, t) {
 	return n.size === 0 ? e.filter((e) => e.id !== t.id).slice(0, 4) : e.filter((e) => e.id !== t.id && e.categories.some((e) => n.has(e))).slice(0, 4);
 }
 function y(e) {
-	let t = document.createElement("section"), n = document.createElement("div"), r = document.createElement("div"), i = document.createElement("h1"), a = document.createElement("div"), o = document.createElement("div"), s = document.createElement("figure"), c = document.createElement("img"), l = document.createElement("figcaption");
-	return t.className = "cms-work-detail__hero", n.className = "cms-work-detail__intro", r.className = "cms-work-detail__content", i.className = "cms-work-detail__title", a.className = "cms-work-detail__properties", o.className = "cms-work-detail__text", s.className = "cms-work-detail__figure", c.className = "cms-work-detail__image", l.className = "cms-work-detail__caption", i.textContent = e.title, a.innerHTML = e.properties, o.innerHTML = e.html, c.src = e.image, c.alt = e.imageAlt, c.decoding = "async", l.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.image && (s.append(c), e.caption && s.append(l)), n.append(r, s), t.append(n), t;
+	let t = document.createElement("section"), n = document.createElement("div"), r = document.createElement("div"), i = document.createElement("h1"), a = document.createElement("div"), o = document.createElement("div"), s = document.createElement("div"), c = document.createElement("figure"), l = document.createElement("img"), u = document.createElement("figcaption");
+	return t.className = "cms-work-detail__hero", n.className = "cms-work-detail__intro", r.className = "cms-work-detail__content", i.className = "cms-work-detail__title", a.className = "cms-work-detail__properties", o.className = "cms-work-detail__text", s.className = "cms-work-detail__view", c.className = "cms-work-detail__figure", l.className = "cms-work-detail__image", u.className = "cms-work-detail__caption", i.textContent = e.title, a.innerHTML = e.properties, o.innerHTML = e.html, s.innerHTML = e.view, l.src = e.image, l.alt = e.imageAlt, l.decoding = "async", u.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.view && r.append(s), e.image && (c.append(l), e.caption && c.append(u)), n.append(r, c), t.append(n), t;
 }
 function b(e, t) {
 	var n, r;

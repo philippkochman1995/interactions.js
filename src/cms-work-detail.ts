@@ -14,6 +14,7 @@ interface WorkDetail {
   title: string;
   properties: string;
   html: string;
+  view: string;
   image: string;
   imageAlt: string;
   caption: string;
@@ -182,6 +183,7 @@ function readDetail(root: HTMLElement): WorkDetail {
     title,
     properties: htmlFrom(root, '[data-work-detail-properties]'),
     html: htmlFrom(root, '[data-work-detail-text]'),
+    view: htmlFrom(root, '[data-work-detail-view], [data-work-detail-ansicht]'),
     image,
     imageAlt,
     caption: rawImageAlt || textFrom(root, '[data-work-detail-caption]'),
@@ -281,6 +283,7 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   const title = document.createElement('h1');
   const properties = document.createElement('div');
   const text = document.createElement('div');
+  const view = document.createElement('div');
   const figure = document.createElement('figure');
   const image = document.createElement('img');
   const caption = document.createElement('figcaption');
@@ -291,6 +294,7 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   title.className = 'cms-work-detail__title';
   properties.className = 'cms-work-detail__properties';
   text.className = 'cms-work-detail__text';
+  view.className = 'cms-work-detail__view';
   figure.className = 'cms-work-detail__figure';
   image.className = 'cms-work-detail__image';
   caption.className = 'cms-work-detail__caption';
@@ -298,6 +302,7 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   title.textContent = detail.title;
   properties.innerHTML = detail.properties;
   text.innerHTML = detail.html;
+  view.innerHTML = detail.view;
   image.src = detail.image;
   image.alt = detail.imageAlt;
   image.decoding = 'async';
@@ -311,6 +316,10 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
 
   if (detail.html) {
     content.append(text);
+  }
+
+  if (detail.view) {
+    content.append(view);
   }
 
   if (detail.image) {
