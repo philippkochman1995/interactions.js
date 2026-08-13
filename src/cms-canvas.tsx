@@ -206,6 +206,7 @@ function readModalWork(element: HTMLElement): ContentModalWork | null {
 
 function readModalGallery(element: HTMLElement): ContentModalGalleryItem[] {
   const items = Array.from(element.querySelectorAll<HTMLElement>('[data-canvas-modal-gallery-item]'))
+    .filter((item) => !item.closest('[data-canvas-modal-work]'))
     .map((item) => {
       const imageElement =
         imageFromTarget(item, '[data-canvas-modal-gallery-image]') ?? item.querySelector<HTMLImageElement>('img');

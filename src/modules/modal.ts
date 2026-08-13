@@ -446,11 +446,12 @@ function renderDefaultContent(singleton: SingletonElements, content: ContentModa
 }
 
 function renderContextContent(singleton: SingletonElements, content: ContentModalData): void {
-  const gallery = content.gallery?.length
+  const rawGallery = content.gallery?.length
     ? content.gallery
     : content.image.trim()
       ? [{ src: content.image, alt: content.imageAlt, caption: content.caption }]
       : [];
+  const gallery = rawGallery.filter((item) => item.src && item.src !== content.work?.thumbnail);
 
   singleton.root.dataset.modalVariant = 'context';
   singleton.root.dataset.modalId = content.id;

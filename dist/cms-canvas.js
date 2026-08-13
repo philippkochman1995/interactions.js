@@ -9907,7 +9907,7 @@ function ra(e) {
 }
 function ia(e) {
 	var t;
-	let n = Array.from(e.querySelectorAll("[data-canvas-modal-gallery-item]")).map((e) => {
+	let n = Array.from(e.querySelectorAll("[data-canvas-modal-gallery-item]")).filter((e) => !e.closest("[data-canvas-modal-work]")).map((e) => {
 		var t, n;
 		let r = (t = na(e, "[data-canvas-modal-gallery-image]")) == null ? e.querySelector("img") : t;
 		return {

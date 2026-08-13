@@ -300,6 +300,7 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__headline[hidden],
+.fwm-modal__image-link[hidden],
 .fwm-modal__work[hidden],
 .fwm-modal__gallery[hidden] {
   display: none !important;

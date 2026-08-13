@@ -447,11 +447,14 @@ function Fe(e, t) {
 }
 function Ie(e, t) {
 	var n, r;
-	let i = (n = t.gallery) != null && n.length ? t.gallery : t.image.trim() ? [{
+	let i = ((n = t.gallery) != null && n.length ? t.gallery : t.image.trim() ? [{
 		src: t.image,
 		alt: t.imageAlt,
 		caption: t.caption
-	}] : [];
+	}] : []).filter((e) => {
+		var n;
+		return e.src && e.src !== ((n = t.work) == null ? void 0 : n.thumbnail);
+	});
 	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Me(t.work)), i.forEach((n, r) => {
 		e.gallery.append(Ne(n, t.id, r));
 	});
