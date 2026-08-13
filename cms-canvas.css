@@ -108,8 +108,8 @@ body {
   position: absolute;
   right: 0;
   bottom: 0.05em;
-  width: 0.9375rem;
-  height: 0.75rem;
+  width: 1.25em;
+  height: 1em;
   background: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
   -webkit-mask: url("data:image/svg+xml,%3Csvg width='15' height='12' viewBox='0 0 15 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.6667 4.7998H0V7.1998H11.6667V4.7998Z' fill='%2306021A'/%3E%3Cpath d='M14.1655 5.4034L8.52271 0L6.76172 1.69033L11.0967 5.83736V6.16264L6.76172 10.3097L8.52271 12L14.1655 6.5966C14.1658 6.36364 14.1658 5.63636 14.1655 5.4034Z' fill='%2306021A'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg width='15' height='12' viewBox='0 0 15 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.6667 4.7998H0V7.1998H11.6667V4.7998Z' fill='%2306021A'/%3E%3Cpath d='M14.1655 5.4034L8.52271 0L6.76172 1.69033L11.0967 5.83736V6.16264L6.76172 10.3097L8.52271 12L14.1655 6.5966C14.1658 6.36364 14.1658 5.63636 14.1655 5.4034Z' fill='%2306021A'/%3E%3C/svg%3E") center / contain no-repeat;
