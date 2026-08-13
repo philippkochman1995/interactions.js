@@ -58,6 +58,13 @@ const MODAL_LIGHTBOX_ICON_SVG = `
   </svg>
 `;
 
+const WORK_LINK_ICON_SVG = `
+  <svg class="fwm-modal__work-eye" viewBox="0 0 26 17" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <path class="fwm-modal__work-eye-pupil" d="M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z" fill="currentColor"/>
+    <path d="M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z" fill="currentColor"/>
+  </svg>
+`;
+
 let initialized = false;
 let closeOnBackdrop = true;
 let i18n: I18nApi | null = null;
@@ -331,8 +338,10 @@ function resolveContent(id: string): ContentModalData | null {
 function renderWork(work: ContentModalWork): HTMLElement {
   const card = document.createElement(work.href ? 'a' : 'article');
   const imageWrap = document.createElement('span');
+  const footer = document.createElement('span');
   const meta = document.createElement('span');
   const title = document.createElement('span');
+  const icon = document.createElement('span');
 
   card.className = 'fwm-modal__work-card';
 
@@ -356,7 +365,9 @@ function renderWork(work: ContentModalWork): HTMLElement {
   meta.className = 'fwm-modal__work-meta';
   title.className = 'fwm-modal__work-title';
   title.textContent = work.title;
-  meta.append(title);
+  if (work.title) {
+    meta.append(title);
+  }
 
   if (work.year) {
     const year = document.createElement('span');
@@ -366,7 +377,11 @@ function renderWork(work: ContentModalWork): HTMLElement {
     meta.append(year);
   }
 
-  card.append(meta);
+  footer.className = 'fwm-modal__work-footer';
+  icon.className = 'fwm-modal__work-icon';
+  icon.innerHTML = WORK_LINK_ICON_SVG;
+  footer.append(meta, icon);
+  card.append(footer);
 
   return card;
 }

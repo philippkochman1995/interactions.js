@@ -293,13 +293,13 @@ function me(e) {
 }
 //#endregion
 //#region src/modules/modal.ts
-var he = "[data-modal]", R = "[data-modal-content]", ge = "[data-modal-open]", z = "[data-modal-close]", _e = "a[href^=\"#modal:\"]", ve = "#modal:", ye = 220, be = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", B = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", V = !1, H = !0, U = null, W = null, G = "", K = null, q = null, J = /* @__PURE__ */ new Map();
-function xe(e) {
+var he = "[data-modal]", R = "[data-modal-content]", ge = "[data-modal-open]", z = "[data-modal-close]", _e = "a[href^=\"#modal:\"]", ve = "#modal:", ye = 220, be = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", B = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", xe = "\n  <svg class=\"fwm-modal__work-eye\" viewBox=\"0 0 26 17\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path class=\"fwm-modal__work-eye-pupil\" d=\"M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z\" fill=\"currentColor\"/>\n    <path d=\"M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z\" fill=\"currentColor\"/>\n  </svg>\n", V = !1, H = !0, U = null, W = null, G = "", K = null, q = null, J = /* @__PURE__ */ new Map();
+function Se(e) {
 	var t;
 	let n = (t = e.getAttribute("href")) == null ? "" : t;
 	return n.startsWith(ve) ? decodeURIComponent(n.slice(7)).trim() : "";
 }
-function Se() {
+function Ce() {
 	let e = document.createElement("div");
 	e.className = "fwm-modal", e.setAttribute("data-site-modal", ""), e.setAttribute("aria-hidden", "true"), e.hidden = !0, e.innerHTML = "\n    <div class=\"fwm-modal__panel\" data-modal-panel role=\"dialog\" aria-modal=\"true\" tabindex=\"-1\">\n      <div class=\"fwm-modal__top\">\n        <div class=\"fwm-modal__address\" data-site-modal-address></div>\n        <button class=\"fwm-modal__close\" type=\"button\" data-modal-close></button>\n      </div>\n      <a class=\"fwm-modal__image-link\" href=\"#\" data-lightbox-src=\"\" data-lightbox-caption=\"\">\n        <img class=\"fwm-modal__image\" src=\"\" alt=\"\">\n        <span class=\"fwm-modal__lightbox-icon\" aria-hidden=\"true\"></span>\n        <span class=\"fwm-modal__caption\" data-site-modal-caption></span>\n      </a>\n      <h2 class=\"fwm-modal__headline\" data-site-modal-headline></h2>\n      <div class=\"fwm-modal__text\" data-site-modal-text></div>\n      <div class=\"fwm-modal__work\" data-site-modal-work></div>\n      <div class=\"fwm-modal__gallery\" data-site-modal-gallery></div>\n    </div>\n  ", document.body.append(e);
 	let t = {
@@ -316,12 +316,12 @@ function Se() {
 		work: e.querySelector("[data-site-modal-work]"),
 		gallery: e.querySelector("[data-site-modal-gallery]")
 	};
-	return t.closeButton.innerHTML = be, t.lightboxIcon.innerHTML = B, we(t), t;
+	return t.closeButton.innerHTML = be, t.lightboxIcon.innerHTML = B, Te(t), t;
 }
-function Ce() {
-	return (!W || !document.body.contains(W.root)) && (W = Se()), we(W), W;
+function we() {
+	return (!W || !document.body.contains(W.root)) && (W = Ce()), Te(W), W;
 }
-function we(e) {
+function Te(e) {
 	var t, n;
 	let r = (t = U == null ? void 0 : U.t("close", "Close")) == null ? "Close" : t, i = (n = U == null ? void 0 : U.t("openModal", "Open details")) == null ? "Open details" : n;
 	e.closeButton.setAttribute("aria-label", r), e.closeButton.title = r, e.panel.setAttribute("aria-label", i);
@@ -334,7 +334,7 @@ function X(e, t) {
 	let r = e.querySelector(t);
 	return r instanceof HTMLImageElement ? r : (n = r == null ? void 0 : r.querySelector("img")) == null ? null : n;
 }
-function Te(e) {
+function Ee(e) {
 	var t, n, r, i, a, o, s, c, l, u, d, f;
 	let p = e.querySelector("[data-modal-work]");
 	if (!p) return null;
@@ -347,7 +347,7 @@ function Te(e) {
 		href: _
 	};
 }
-function Ee(e) {
+function De(e) {
 	var t, r, i;
 	let a = n("[data-modal-gallery-item]", e).map((e) => {
 		var t, n, r, i;
@@ -366,11 +366,11 @@ function Ee(e) {
 		caption: (r = (i = e.querySelector("[data-modal-caption]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r
 	}] : [];
 }
-function De(e) {
+function Oe(e) {
 	var t, n, r, i, a, s, c, l;
 	let u = o(e, "data-modal-content");
 	if (!u) return null;
-	let d = ((t = e.querySelector("[data-modal-hover-text]")) == null || (t = t.textContent) == null ? void 0 : t.trim()) || ((n = e.querySelector("[data-modal-address]")) == null || (n = n.textContent) == null ? void 0 : n.trim()) || "", f = (r = (i = e.querySelector("[data-modal-headline]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r, p = Ee(e), m = p[0], h = e.querySelector("[data-modal-body]");
+	let d = ((t = e.querySelector("[data-modal-hover-text]")) == null || (t = t.textContent) == null ? void 0 : t.trim()) || ((n = e.querySelector("[data-modal-address]")) == null || (n = n.textContent) == null ? void 0 : n.trim()) || "", f = (r = (i = e.querySelector("[data-modal-headline]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r, p = De(e), m = p[0], h = e.querySelector("[data-modal-body]");
 	return {
 		id: u,
 		address: d,
@@ -380,11 +380,11 @@ function De(e) {
 		imageAlt: (s = m == null ? void 0 : m.alt) == null ? "" : s,
 		caption: (c = m == null ? void 0 : m.caption) == null ? "" : c,
 		html: (l = h == null ? void 0 : h.innerHTML) == null ? "" : l,
-		work: Te(e),
+		work: Ee(e),
 		gallery: p
 	};
 }
-function Oe(e) {
+function ke(e) {
 	var t, n, r, i, a, s, c, l;
 	let u = o(e, "data-modal");
 	if (!u) return null;
@@ -406,68 +406,68 @@ function Oe(e) {
 		}] : []
 	};
 }
-function ke() {
+function Ae() {
 	n(R).forEach((e) => {
-		let t = De(e);
+		let t = Oe(e);
 		t && J.set(t.id, t);
 	}), n(he).forEach((e) => {
-		let t = Oe(e);
+		let t = ke(e);
 		t && J.set(t.id, t), e.remove();
 	});
 }
-function Ae(e) {
+function je(e) {
 	var t;
 	let r = e.trim();
 	if (!r) return null;
-	let i = n(R).find((e) => o(e, "data-modal-content") === r), a = i ? De(i) : null;
+	let i = n(R).find((e) => o(e, "data-modal-content") === r), a = i ? Oe(i) : null;
 	return a && J.set(r, a), (t = a == null ? J.get(r) : a) == null ? null : t;
 }
-function je(e) {
-	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("span"), i = document.createElement("span");
+function Me(e) {
+	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("span"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
 	if (t.className = "fwm-modal__work-card", e.href && t.setAttribute("href", e.href), e.thumbnail) {
 		let r = document.createElement("img");
 		r.className = "fwm-modal__work-image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.className = "fwm-modal__work-image-wrap", n.append(r), t.append(n);
 	}
-	if (r.className = "fwm-modal__work-meta", i.className = "fwm-modal__work-title", i.textContent = e.title, r.append(i), e.year) {
+	if (i.className = "fwm-modal__work-meta", a.className = "fwm-modal__work-title", a.textContent = e.title, e.title && i.append(a), e.year) {
 		let t = document.createElement("span");
-		t.className = "fwm-modal__work-year", t.textContent = e.year, r.append(t);
+		t.className = "fwm-modal__work-year", t.textContent = e.year, i.append(t);
 	}
-	return t.append(r), t;
+	return r.className = "fwm-modal__work-footer", o.className = "fwm-modal__work-icon", o.innerHTML = xe, r.append(i, o), t.append(r), t;
 }
-function Me(e, t, n) {
+function Ne(e, t, n) {
 	let r = document.createElement("a"), i = document.createElement("img"), a = document.createElement("span"), o = document.createElement("span");
 	return r.className = "fwm-modal__image-link", r.href = e.src, r.setAttribute("data-lightbox-src", e.src), r.setAttribute("data-lightbox-caption", e.caption), r.setAttribute("data-lightbox-alt", e.alt), r.setAttribute("data-lightbox-group", `modal-${t}`), i.className = "fwm-modal__image", i.src = e.src, i.alt = e.alt, i.loading = n === 0 ? "eager" : "lazy", i.decoding = "async", a.className = "fwm-modal__lightbox-icon", a.setAttribute("aria-hidden", "true"), a.innerHTML = B, o.className = "fwm-modal__caption", o.textContent = e.caption, o.hidden = e.caption.length === 0, r.append(i, a, o), r;
 }
-function Ne(e) {
+function Pe(e) {
 	e.headline.textContent = "", e.headline.hidden = !0, e.work.replaceChildren(), e.work.hidden = !0, e.gallery.replaceChildren(), e.gallery.hidden = !0;
 }
-function Pe(e, t) {
-	let n = t.image.trim().length > 0;
-	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !n, e.imageLink.href = n ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", n ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = n ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, e.text.innerHTML = t.html, Ne(e);
-}
 function Fe(e, t) {
+	let n = t.image.trim().length > 0;
+	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !n, e.imageLink.href = n ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", n ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = n ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, e.text.innerHTML = t.html, Pe(e);
+}
+function Ie(e, t) {
 	var n, r;
 	let i = (n = t.gallery) != null && n.length ? t.gallery : t.image.trim() ? [{
 		src: t.image,
 		alt: t.imageAlt,
 		caption: t.caption
 	}] : [];
-	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(je(t.work)), i.forEach((n, r) => {
-		e.gallery.append(Me(n, t.id, r));
+	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Me(t.work)), i.forEach((n, r) => {
+		e.gallery.append(Ne(n, t.id, r));
 	});
 }
-function Ie(e) {
-	let t = Ce();
-	return e.layout === "context" ? Fe(t, e) : Pe(t, e), t;
-}
 function Le(e) {
+	let t = we();
+	return e.layout === "context" ? Ie(t, e) : Fe(t, e), t;
+}
+function Re(e) {
 	let t = l(e.panel)[0];
 	u(t == null ? e.panel : t);
 }
-function Re(e) {
+function ze(e) {
 	q !== null && (window.clearTimeout(q), q = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
 }
-function ze(e) {
+function Be(e) {
 	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), q = window.setTimeout(() => {
 		e.root.hidden = !0, e.root.classList.remove("is-active"), q = null;
 	}, ye), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
@@ -492,8 +492,8 @@ function Z(e, t) {
 	};
 	if (!m.id) return;
 	G && $(), J.set(m.id, m), K = t == null ? d() : t, G = m.id;
-	let g = Ie(m);
-	Re(g), h(), Le(g), y(g.root, "site:modal-open", {
+	let g = Le(m);
+	ze(g), h(), Re(g), y(g.root, "site:modal-open", {
 		id: G,
 		modal: g.root,
 		content: m,
@@ -501,18 +501,18 @@ function Z(e, t) {
 	});
 }
 function Q(e, t) {
-	let n = Ae(e);
+	let n = je(e);
 	n && Z(n, t);
 }
 function $() {
 	if (!G || !W) return;
 	let e = G, t = K;
-	ze(W), g(), G = "", K = null, y(W.root, "site:modal-close", {
+	Be(W), g(), G = "", K = null, y(W.root, "site:modal-close", {
 		id: e,
 		modal: W.root
 	}), f(t);
 }
-function Be(e) {
+function Ve(e) {
 	if (!(!G || !W) && !document.body.classList.contains("is-lightbox-open")) {
 		if (e.key === "Escape") {
 			e.preventDefault(), $();
@@ -521,20 +521,20 @@ function Be(e) {
 		p(W.panel, e);
 	}
 }
-function Ve(e) {
+function He(e) {
 	if (!H || !G || !W) return;
 	let t = e.target;
 	!i(t) || t !== W.root || $();
 }
-function He(e) {
+function Ue(e) {
 	var t;
-	return H = (t = e.closeOnBackdrop) == null || t, U = e.i18n, ke(), Ce(), V || (_(document, "click", ge, (e, t) => {
+	return H = (t = e.closeOnBackdrop) == null || t, U = e.i18n, Ae(), we(), V || (_(document, "click", ge, (e, t) => {
 		e.preventDefault(), Q(s(t, "data-modal-open"), t);
 	}), _(document, "click", _e, (e, t) => {
-		e.preventDefault(), Q(xe(t), t);
+		e.preventDefault(), Q(Se(t), t);
 	}), _(document, "click", z, (e, t) => {
 		W != null && W.root.contains(t) && (e.preventDefault(), $());
-	}), document.addEventListener("click", Ve), document.addEventListener("keydown", Be), V = !0), {
+	}), document.addEventListener("click", He), document.addEventListener("keydown", Ve), V = !0), {
 		openModal: Q,
 		openContentModal: Z,
 		closeModal: $
@@ -542,12 +542,12 @@ function He(e) {
 }
 //#endregion
 //#region src/main.ts
-var Ue = !1;
-function We() {
-	if (Ue) return;
-	Ue = !0;
+var We = !1;
+function Ge() {
+	if (We) return;
+	We = !0;
 	let e = te();
-	He({ i18n: e }), me({ i18n: e }), v(), window.SiteInteractions = {
+	Ue({ i18n: e }), me({ i18n: e }), v(), window.SiteInteractions = {
 		openModal: Q,
 		openContentModal: Z,
 		closeModal: $,
@@ -555,7 +555,7 @@ function We() {
 		closeLightbox: L
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", We, { once: !0 }) : We();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Ge, { once: !0 }) : Ge();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

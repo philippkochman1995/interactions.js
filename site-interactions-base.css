@@ -487,10 +487,9 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__work-card {
-  display: grid;
-  grid-template-columns: minmax(4.5rem, 28%) 1fr;
-  gap: 1rem;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
   color: var(--fw_dark_purple);
   text-decoration: none;
 }
@@ -505,6 +504,14 @@ body.is-lightbox-open {
   display: block;
   width: 100%;
   height: auto;
+  transition: transform 180ms ease;
+}
+
+.fwm-modal__work-footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
 }
 
 .fwm-modal__work-meta {
@@ -530,9 +537,39 @@ body.is-lightbox-open {
   line-height: 1.2;
 }
 
-.fwm-modal__work-card[href]:hover .fwm-modal__work-title {
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
+.fwm-modal__work-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--fw_dark_purple_75);
+}
+
+.fwm-modal__work-eye {
+  display: block;
+  width: 1.625rem;
+  height: auto;
+}
+
+.fwm-modal__work-eye-pupil {
+  transition: transform 180ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fwm-modal__work-card[href]:hover .fwm-modal__work-image,
+.fwm-modal__work-card[href]:focus-visible .fwm-modal__work-image {
+  transform: scale(1.03);
+}
+
+.fwm-modal__work-card[href]:hover .fwm-modal__work-icon,
+.fwm-modal__work-card[href]:focus-visible .fwm-modal__work-icon {
+  color: var(--fw_dark_purple);
+}
+
+.fwm-modal__work-card[href]:hover .fwm-modal__work-eye-pupil,
+.fwm-modal__work-card[href]:focus-visible .fwm-modal__work-eye-pupil {
+  transform: translateX(0.2rem);
 }
 
 @media screen and (max-width: 767px) {
@@ -582,8 +619,8 @@ body.is-lightbox-open {
     margin-left: 1.5rem;
   }
 
-  .fwm-modal__work-card {
-    grid-template-columns: minmax(4rem, 32%) 1fr;
+  .fwm-modal__work-footer {
+    gap: 0.75rem;
   }
 }
 
@@ -595,7 +632,9 @@ body.is-lightbox-open {
   .fwm-modal__headline,
   .fwm-modal__text,
   .fwm-modal__work,
-  .fwm-modal__gallery {
+  .fwm-modal__gallery,
+  .fwm-modal__work-image,
+  .fwm-modal__work-eye-pupil {
     transition-duration: 0.01ms;
     transition-delay: 0ms;
   }

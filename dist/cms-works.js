@@ -79,24 +79,38 @@ function i(i, a, o, s = {}) {
 }
 //#endregion
 //#region src/cms-works.ts
-var a = "[data-cms-works]", o = "[data-cms-works-source]", s = "[data-cms-works-item], [data-cms-canvas-item]", c = "[data-works-thumbnail], [data-canvas-thumbnail]", l = "[data-works-title], [data-canvas-title]", u = "[data-works-year], [data-canvas-year]", d = "[data-works-curated-position], [data-works-position]", f = "[data-works-category], [data-works-categories]", p = "http://www.w3.org/2000/svg";
-function m(e) {
+var a = "[data-cms-works]", o = "[data-cms-works-source]", s = "[data-cms-works-item], [data-cms-canvas-item]", c = "[data-works-thumbnail], [data-canvas-thumbnail]", l = "[data-works-title], [data-canvas-title]", u = "[data-works-year], [data-canvas-year]", d = "[data-works-curated-position], [data-works-position]", f = "[data-works-category], [data-works-categories]", p = "http://www.w3.org/2000/svg", m = [
+	"[data-works-link]",
+	"[data-sheet-calendar-link]",
+	"[data-sheet-calender-link]",
+	"[data-sheet-claender-link]",
+	"[data-calendar-link]",
+	"[data-calender-link]",
+	"[data-claender-link]",
+	"[data-sheet-link]",
+	"a[href]"
+].join(", ");
+function h(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function h(e, t) {
+function g(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function g(e) {
-	var t;
-	return (t = e.querySelector(c)) == null ? e.querySelector("img") : t;
-}
 function _(e) {
+	var t;
+	return (t = Array.from(e.children).find((e) => e instanceof HTMLImageElement)) == null ? null : t;
+}
+function v(e) {
+	let t = e.querySelector(c);
+	return t ? t instanceof HTMLImageElement ? t : null : _(e);
+}
+function y(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function v(e) {
+function b(e) {
 	let t = e >>> 0;
 	return () => {
 		t += 1831565813;
@@ -104,60 +118,60 @@ function v(e) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function y(e) {
+function x(e) {
 	let t = Number.parseFloat(e.trim().replace(",", "."));
 	return Number.isFinite(t) ? t : null;
 }
-function b(e) {
-	var t, n;
-	return y((t = (n = e.getAttribute("data-works-curated-position")) == null ? e.getAttribute("data-works-position") : n) == null ? h(e, d) : t);
-}
-function x(e) {
-	var t, n;
-	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? h(e, f) : t).split(",").map((e) => e.trim()).filter(Boolean);
-}
 function S(e) {
-	var t, n, r, i, a, o;
-	return (t = (n = (r = (i = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : i) == null ? (a = e.querySelector("[data-works-link]")) == null ? void 0 : a.href : r) == null ? (o = e.querySelector("a[href]")) == null ? void 0 : o.href : n) == null ? "" : t;
+	var t, n;
+	return x((t = (n = e.getAttribute("data-works-curated-position")) == null ? e.getAttribute("data-works-position") : n) == null ? g(e, d) : t);
 }
-function C(e, t) {
+function C(e) {
+	var t, n;
+	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? g(e, f) : t).split(",").map((e) => e.trim()).filter(Boolean);
+}
+function w(e) {
+	var t, n, r, i, a, o, s, c, l, u, d, f, p, h, g, _, v, y;
+	return (t = (n = (r = (i = (a = (o = (s = (c = (l = (u = (d = (f = (p = (h = (g = (_ = (v = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : v) == null ? e.getAttribute("data-sheet-calendar-href") : _) == null ? e.getAttribute("data-sheet-calendar-url") : g) == null ? e.getAttribute("data-sheet-calender-href") : h) == null ? e.getAttribute("data-sheet-calender-url") : p) == null ? e.getAttribute("data-sheet-claender-href") : f) == null ? e.getAttribute("data-sheet-claender-url") : d) == null ? e.getAttribute("data-calendar-href") : u) == null ? e.getAttribute("data-calendar-url") : l) == null ? e.getAttribute("data-calender-href") : c) == null ? e.getAttribute("data-calender-url") : s) == null ? e.getAttribute("data-claender-href") : o) == null ? e.getAttribute("data-claender-url") : a) == null ? e.getAttribute("data-sheet-href") : i) == null ? e.getAttribute("data-sheet-url") : r) == null ? (y = e.querySelector(m)) == null ? void 0 : y.href : n) == null ? "" : t;
+}
+function T(e, t) {
 	var n, r, i, a, o, s;
-	let c = g(e), d = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = v(e), d = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!d) return null;
-	let f = h(e, l) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "";
+	let f = g(e, l) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "";
 	return {
-		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `work-${t + 1}-${_(`${f}-${d}`)}`,
+		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `work-${t + 1}-${y(`${f}-${d}`)}`,
 		title: f,
 		thumbnail: d,
 		thumbnailAlt: (c == null ? void 0 : c.alt) || f,
-		href: S(e),
-		year: h(e, u) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
-		curatedPosition: b(e),
-		categories: x(e),
+		href: w(e),
+		year: g(e, u) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
+		curatedPosition: S(e),
+		categories: C(e),
 		index: t
 	};
 }
-function w(e) {
-	return Array.from(e.querySelectorAll(s)).map(C).filter((e) => e !== null);
+function E(e) {
+	return Array.from(e.querySelectorAll(s)).map(T).filter((e) => e !== null);
 }
-function T(e) {
+function D(e) {
 	var t;
 	let n = (t = e.getAttribute("data-works-sort")) == null ? void 0 : t.trim().toLowerCase();
 	return n === "random" || n === "alphabetical" || n === "year" ? n : "curated";
 }
-function E(e) {
+function O(e) {
 	let t = e.match(/\b(?:18|19|20)\d{2}\b/);
 	return t ? Number.parseInt(t[0], 10) : null;
 }
-function D(e) {
+function k(e) {
 	let t = e.trim();
 	return t.startsWith("[") && t.endsWith("]") ? t : `[${t}]`;
 }
-function O(e, t, n) {
+function A(e, t, n) {
 	let r = [...e];
 	if (t === "alphabetical") return r.sort((e, t) => e.title.localeCompare(t.title, "de", { sensitivity: "base" }) || e.index - t.index);
 	if (t === "random") {
-		let t = v(_(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
+		let t = b(y(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
 		return r.map((e) => ({
 			item: e,
 			sortValue: t()
@@ -165,28 +179,28 @@ function O(e, t, n) {
 	}
 	return t === "year" ? r.sort((e, t) => {
 		var n, r;
-		return ((n = E(e.year)) == null ? Infinity : n) - ((r = E(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
+		return ((n = O(e.year)) == null ? Infinity : n) - ((r = O(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	}) : r.sort((e, t) => {
 		var n, r;
 		return ((n = e.curatedPosition) == null ? Infinity : n) - ((r = t.curatedPosition) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	});
 }
-function k(e, t) {
+function j(e, t) {
 	return t.size === 0 ? e : e.filter((e) => e.categories.some((e) => t.has(e)));
 }
-function A() {
+function M() {
 	let e = document.createElementNS(p, "svg"), t = document.createElementNS(p, "path"), n = document.createElementNS(p, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function j(e) {
+function N(e) {
 	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
 	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && (t.classList.add("cms-works__item--clickable"), t.setAttribute("href", e.href)), n.className = "cms-works__image-wrap", r.className = "cms-works__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.append(r), i.className = "cms-works__meta", a.className = "cms-works__label", o.className = "cms-works__title", o.textContent = e.title, a.append(o), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = D(e.year), a.append(t);
+		t.className = "cms-works__year", t.textContent = k(e.year), a.append(t);
 	}
-	return i.append(a, A()), t.append(n, i), t;
+	return i.append(a, M()), t.append(n, i), t;
 }
-function M(e) {
+function P(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -200,11 +214,11 @@ function M(e) {
 		}), n.src = e;
 	});
 }
-function N(e) {
+function F(e) {
 	let t = window.getComputedStyle(e).getPropertyValue("--cms-works-active-columns").trim(), n = Number.parseInt(t, 10);
 	return Number.isFinite(n) && n > 0 ? n : 4;
 }
-function P(e, t, n) {
+function I(e, t, n) {
 	let r = Array.from({ length: n }, () => ({
 		items: [],
 		height: 0
@@ -218,29 +232,29 @@ function P(e, t, n) {
 		s.items.push(e), s.height += o.height / Math.max(o.width, 1);
 	}), r;
 }
-function F(e, t, n) {
-	let r = document.createElement("div"), i = P(t, n, N(e));
+function L(e, t, n) {
+	let r = document.createElement("div"), i = I(t, n, F(e));
 	r.className = "cms-works__grid", i.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
-			t.append(j(e));
+			t.append(N(e));
 		}), r.append(t);
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
-function I(e, t) {
-	let n = w(t), r = {
+function R(e, t) {
+	let n = E(t), r = {
 		appliedCategories: /* @__PURE__ */ new Set(),
 		pendingCategories: /* @__PURE__ */ new Set(),
-		appliedSortMode: T(e),
-		pendingSortMode: T(e),
+		appliedSortMode: D(e),
+		pendingSortMode: D(e),
 		open: !1
 	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = 0, l = 0, u = 0, d = [], f = /* @__PURE__ */ new Map();
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s), Promise.all(n.map(async (e) => [e.id, await M(e.thumbnail)])).then((t) => {
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s), Promise.all(n.map(async (e) => [e.id, await P(e.thumbnail)])).then((t) => {
 		f = new Map(t);
-		let p = () => O(k(n, r.appliedCategories), r.appliedSortMode, e), m = (t = !1) => {
+		let p = () => A(j(n, r.appliedCategories), r.appliedSortMode, e), m = (t = !1) => {
 			window.cancelAnimationFrame(c), c = window.requestAnimationFrame(() => {
-				let n = N(e), r = Math.round(e.getBoundingClientRect().width);
-				!t && n === l && r === u || (l = n, u = r, F(s, d, f));
+				let n = F(e), r = Math.round(e.getBoundingClientRect().width);
+				!t && n === l && r === u || (l = n, u = r, L(s, d, f));
 			});
 		}, h = () => {
 			var e;
@@ -256,17 +270,17 @@ function I(e, t) {
 		m(!0), _.observe(e), window.addEventListener("orientationchange", () => m(!0)), window.addEventListener("resize", h), window.addEventListener("scroll", h, { passive: !0 });
 	});
 }
-function L(e) {
+function z(e) {
 	var t;
 	let n = (t = e.querySelector(o)) == null ? document.querySelector(o) : t;
 	if (!n) {
 		console.error("CMS Works: Element mit data-cms-works-source wurde nicht gefunden.");
 		return;
 	}
-	I(e, n);
+	R(e, n);
 }
-m(() => {
-	Array.from(document.querySelectorAll(a)).forEach(L);
+h(() => {
+	Array.from(document.querySelectorAll(a)).forEach(z);
 });
 //#endregion
 

@@ -31,6 +31,17 @@ const YEAR_SELECTOR = '[data-works-year], [data-canvas-year]';
 const CURATED_POSITION_SELECTOR = '[data-works-curated-position], [data-works-position]';
 const CATEGORY_SELECTOR = '[data-works-category], [data-works-categories]';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+const LINK_SELECTOR = [
+  '[data-works-link]',
+  '[data-sheet-calendar-link]',
+  '[data-sheet-calender-link]',
+  '[data-sheet-claender-link]',
+  '[data-calendar-link]',
+  '[data-calender-link]',
+  '[data-claender-link]',
+  '[data-sheet-link]',
+  'a[href]',
+].join(', ');
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -44,8 +55,18 @@ function textFrom(element: HTMLElement, selector: string): string {
   return element.querySelector<HTMLElement>(selector)?.textContent?.trim() ?? '';
 }
 
+function directImageChildFrom(element: HTMLElement): HTMLImageElement | null {
+  return Array.from(element.children).find((child): child is HTMLImageElement => child instanceof HTMLImageElement) ?? null;
+}
+
 function imageFrom(element: HTMLElement): HTMLImageElement | null {
-  return element.querySelector<HTMLImageElement>(THUMBNAIL_SELECTOR) ?? element.querySelector<HTMLImageElement>('img');
+  const target = element.querySelector<HTMLElement>(THUMBNAIL_SELECTOR);
+
+  if (target) {
+    return target instanceof HTMLImageElement ? target : null;
+  }
+
+  return directImageChildFrom(element);
 }
 
 function hashString(value: string): number {
@@ -100,8 +121,21 @@ function readHref(element: HTMLElement): string {
   return (
     element.getAttribute('data-works-href') ??
     element.getAttribute('data-works-url') ??
-    element.querySelector<HTMLAnchorElement>('[data-works-link]')?.href ??
-    element.querySelector<HTMLAnchorElement>('a[href]')?.href ??
+    element.getAttribute('data-sheet-calendar-href') ??
+    element.getAttribute('data-sheet-calendar-url') ??
+    element.getAttribute('data-sheet-calender-href') ??
+    element.getAttribute('data-sheet-calender-url') ??
+    element.getAttribute('data-sheet-claender-href') ??
+    element.getAttribute('data-sheet-claender-url') ??
+    element.getAttribute('data-calendar-href') ??
+    element.getAttribute('data-calendar-url') ??
+    element.getAttribute('data-calender-href') ??
+    element.getAttribute('data-calender-url') ??
+    element.getAttribute('data-claender-href') ??
+    element.getAttribute('data-claender-url') ??
+    element.getAttribute('data-sheet-href') ??
+    element.getAttribute('data-sheet-url') ??
+    element.querySelector<HTMLAnchorElement>(LINK_SELECTOR)?.href ??
     ''
   );
 }

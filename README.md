@@ -307,9 +307,7 @@ Before `</body>`:
   <div data-work-detail-text class="rich-text">
     <p>CMS rich text content.</p>
   </div>
-  <div data-work-detail-image>
-    <img src="large-image.jpg" alt="© Archiv Franz West, © Estate Franz West">
-  </div>
+  <img data-work-detail-image src="large-image.jpg" alt="© Archiv Franz West, © Estate Franz West">
 
   <div data-cms-work-related-source>
     <article data-cms-works-item data-works-id="cms-slug" data-works-categories="Möbel, Skulptur">
@@ -327,10 +325,18 @@ The related list may also use the existing overview attributes
 `data-works-title`, `data-works-year`, `data-works-link`, and
 `data-works-categories`. Bind `data-work-detail-id` and each related
 `data-works-id` to the CMS slug so the current work can be excluded.
+If the source is fed by a Sheet calendar, the whole rendered entry can link to
+that URL via `data-sheet-calendar-href` on the item or a hidden
+`data-sheet-calendar-link` anchor inside the item. The `calender` spelling is
+accepted too, as is the typo `claender`.
 `data-work-detail-properties` and `data-work-detail-text` may be Webflow Rich Text
-elements. `data-work-detail-image` may be placed on an image or on a gallery
-wrapper; the first image is used. If `data-work-detail-caption` is omitted or
-empty, the image alt text is used as the caption.
+elements. Bind the new Single Image field directly to an image element with
+`data-work-detail-image`; gallery wrappers and old Multi-image elements are not
+read. Overview and related thumbnails follow the same rule: bind the Single Image
+field directly to an `<img data-works-thumbnail>`. Remove old separated
+Multi-image items from the active layouts so they do not remain inside rendered
+work items. If `data-work-detail-caption` is omitted or empty, the image alt text
+is used as the caption.
 
 ## Lightbox API
 
