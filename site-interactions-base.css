@@ -463,6 +463,7 @@ body.is-lightbox-open {
   padding-left: 1rem;
   border-left: 2px solid var(--fw_dark_purple_12);
   color: var(--fw_dark_purple_75);
+  font-size: var(--_sizes---p-font-size);
   font-style: italic;
 }
 
@@ -476,6 +477,7 @@ body.is-lightbox-open {
 
 .fwm-modal[data-modal-variant="context"] .fwm-modal__text blockquote p {
   margin-bottom: 0.75rem;
+  font-size: var(--_sizes---p-font-size);
 }
 
 .fwm-modal__text ul,
@@ -528,13 +530,13 @@ body.is-lightbox-open {
 }
 
 .fwm-modal__work-title {
-  font-size: var(--_sizes---p-small-font-size);
+  font-size: var(--_sizes---p-font-size);
   line-height: 1.2;
 }
 
 .fwm-modal__work-year {
   color: var(--fw_dark_purple_50);
-  font-size: var(--_sizes---footer-12);
+  font-size: var(--_sizes---p-font-size);
   line-height: 1.2;
 }
 
