@@ -386,7 +386,7 @@ function renderWork(work: ContentModalWork): HTMLElement {
   return card;
 }
 
-function renderGalleryItem(item: ContentModalGalleryItem, modalId: string, index: number): HTMLElement {
+function renderGalleryItem(item: ContentModalGalleryItem, index: number): HTMLElement {
   const link = document.createElement('a');
   const image = document.createElement('img');
   const lightboxIcon = document.createElement('span');
@@ -397,7 +397,7 @@ function renderGalleryItem(item: ContentModalGalleryItem, modalId: string, index
   link.setAttribute('data-lightbox-src', item.src);
   link.setAttribute('data-lightbox-caption', item.caption);
   link.setAttribute('data-lightbox-alt', item.alt);
-  link.setAttribute('data-lightbox-group', `modal-${modalId}`);
+  link.classList.toggle('has-caption', item.caption.length > 0);
 
   image.className = 'fwm-modal__image';
   image.src = item.src;
@@ -478,7 +478,7 @@ function renderContextContent(singleton: SingletonElements, content: ContentModa
   }
 
   gallery.forEach((item, index) => {
-    singleton.gallery.append(renderGalleryItem(item, content.id, index));
+    singleton.gallery.append(renderGalleryItem(item, index));
   });
 }
 

@@ -434,9 +434,9 @@ function Me(e) {
 	}
 	return r.className = "fwm-modal__work-footer", o.className = "fwm-modal__work-icon", o.innerHTML = xe, r.append(i, o), t.append(r), t;
 }
-function Ne(e, t, n) {
-	let r = document.createElement("a"), i = document.createElement("img"), a = document.createElement("span"), o = document.createElement("span");
-	return r.className = "fwm-modal__image-link", r.href = e.src, r.setAttribute("data-lightbox-src", e.src), r.setAttribute("data-lightbox-caption", e.caption), r.setAttribute("data-lightbox-alt", e.alt), r.setAttribute("data-lightbox-group", `modal-${t}`), i.className = "fwm-modal__image", i.src = e.src, i.alt = e.alt, i.loading = n === 0 ? "eager" : "lazy", i.decoding = "async", a.className = "fwm-modal__lightbox-icon", a.setAttribute("aria-hidden", "true"), a.innerHTML = B, o.className = "fwm-modal__caption", o.textContent = e.caption, o.hidden = e.caption.length === 0, r.append(i, a, o), r;
+function Ne(e, t) {
+	let n = document.createElement("a"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span");
+	return n.className = "fwm-modal__image-link", n.href = e.src, n.setAttribute("data-lightbox-src", e.src), n.setAttribute("data-lightbox-caption", e.caption), n.setAttribute("data-lightbox-alt", e.alt), n.classList.toggle("has-caption", e.caption.length > 0), r.className = "fwm-modal__image", r.src = e.src, r.alt = e.alt, r.loading = t === 0 ? "eager" : "lazy", r.decoding = "async", i.className = "fwm-modal__lightbox-icon", i.setAttribute("aria-hidden", "true"), i.innerHTML = B, a.className = "fwm-modal__caption", a.textContent = e.caption, a.hidden = e.caption.length === 0, n.append(r, i, a), n;
 }
 function Pe(e) {
 	e.headline.textContent = "", e.headline.hidden = !0, e.work.replaceChildren(), e.work.hidden = !0, e.gallery.replaceChildren(), e.gallery.hidden = !0;
@@ -455,8 +455,8 @@ function Ie(e, t) {
 		var n;
 		return e.src && e.src !== ((n = t.work) == null ? void 0 : n.thumbnail);
 	});
-	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Me(t.work)), i.forEach((n, r) => {
-		e.gallery.append(Ne(n, t.id, r));
+	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Me(t.work)), i.forEach((t, n) => {
+		e.gallery.append(Ne(t, n));
 	});
 }
 function Le(e) {
