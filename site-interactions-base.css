@@ -243,17 +243,6 @@ body.is-lightbox-open {
   line-height: 1.2;
 }
 
-.fwm-modal__address:not(:empty)::after {
-  content: '';
-  display: inline-block;
-  width: 0.9375rem;
-  height: 0.75rem;
-  margin-left: 0.5rem;
-  vertical-align: -0.05em;
-  background: var(--fw_dark_purple);
-  mask: url("data:image/svg+xml,%3Csvg width='15' height='12' viewBox='0 0 15 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.6667 4.7998H0V7.1998H11.6667V4.7998Z' fill='%2306021A'/%3E%3Cpath d='M14.1655 5.4034L8.52271 0L6.76172 1.69033L11.0967 5.83736V6.16264L6.76172 10.3097L8.52271 12L14.1655 6.5966C14.1658 6.36364 14.1658 5.63636 14.1655 5.4034Z' fill='%2306021A'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
 .fwm-modal__close {
   width: 1.75rem;
   height: 1.75rem;
