@@ -14,10 +14,28 @@ export interface ModalApi {
 export interface ContentModalData {
   id: string;
   address: string;
+  layout?: 'default' | 'context';
+  headline?: string;
   image: string;
   imageAlt: string;
   caption: string;
   html: string;
+  work?: ContentModalWork | null;
+  gallery?: ContentModalGalleryItem[];
+}
+
+export interface ContentModalWork {
+  title: string;
+  year: string;
+  thumbnail: string;
+  thumbnailAlt: string;
+  href: string;
+}
+
+export interface ContentModalGalleryItem {
+  src: string;
+  alt: string;
+  caption: string;
 }
 
 export interface LightboxApi {

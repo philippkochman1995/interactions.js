@@ -1,4 +1,4 @@
-import type { ContentModalData, I18nApi, ModalApi } from '../types';
+import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
 import {
   delegate,
   dispatchSiteEvent,
@@ -29,7 +29,10 @@ interface SingletonElements {
   image: HTMLImageElement;
   lightboxIcon: HTMLElement;
   caption: HTMLElement;
+  headline: HTMLElement;
   text: HTMLElement;
+  work: HTMLElement;
+  gallery: HTMLElement;
 }
 
 const LEGACY_MODAL_SELECTOR = '[data-modal]';
@@ -92,7 +95,10 @@ function createSingleton(): SingletonElements {
         <span class="fwm-modal__lightbox-icon" aria-hidden="true"></span>
         <span class="fwm-modal__caption" data-site-modal-caption></span>
       </a>
+      <h2 class="fwm-modal__headline" data-site-modal-headline></h2>
       <div class="fwm-modal__text" data-site-modal-text></div>
+      <div class="fwm-modal__work" data-site-modal-work></div>
+      <div class="fwm-modal__gallery" data-site-modal-gallery></div>
     </div>
   `;
 
@@ -107,7 +113,10 @@ function createSingleton(): SingletonElements {
     image: root.querySelector<HTMLImageElement>('.fwm-modal__image')!,
     lightboxIcon: root.querySelector<HTMLElement>('.fwm-modal__lightbox-icon')!,
     caption: root.querySelector<HTMLElement>('[data-site-modal-caption]')!,
+    headline: root.querySelector<HTMLElement>('[data-site-modal-headline]')!,
     text: root.querySelector<HTMLElement>('[data-site-modal-text]')!,
+    work: root.querySelector<HTMLElement>('[data-site-modal-work]')!,
+    gallery: root.querySelector<HTMLElement>('[data-site-modal-gallery]')!,
   };
 
   result.closeButton.innerHTML = MODAL_CLOSE_ICON_SVG;
@@ -135,6 +144,88 @@ function updateLabels(singleton: SingletonElements): void {
   singleton.panel.setAttribute('aria-label', dialogLabel);
 }
 
+function getImageSource(image: HTMLImageElement | null): string {
+  return image?.currentSrc || image?.src || '';
+}
+
+function getImageFrom(element: HTMLElement, selector: string): HTMLImageElement | null {
+  const target = element.querySelector<HTMLElement>(selector);
+
+  if (target instanceof HTMLImageElement) {
+    return target;
+  }
+
+  return target?.querySelector<HTMLImageElement>('img') ?? null;
+}
+
+function readWorkElement(element: HTMLElement): ContentModalWork | null {
+  const workElement = element.querySelector<HTMLElement>('[data-modal-work]');
+
+  if (!workElement) {
+    return null;
+  }
+
+  const imageElement = getImageFrom(workElement, '[data-works-thumbnail]');
+  const title =
+    workElement.querySelector<HTMLElement>('[data-works-title]')?.textContent?.trim() ??
+    workElement.getAttribute('data-works-title')?.trim() ??
+    '';
+  const year =
+    workElement.querySelector<HTMLElement>('[data-works-year]')?.textContent?.trim() ??
+    workElement.getAttribute('data-works-year')?.trim() ??
+    '';
+  const href =
+    workElement.getAttribute('data-works-href') ??
+    workElement.getAttribute('data-works-url') ??
+    workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.href ??
+    '';
+  const thumbnail = getImageSource(imageElement);
+
+  if (!title && !thumbnail && !href) {
+    return null;
+  }
+
+  return {
+    title,
+    year,
+    thumbnail,
+    thumbnailAlt: imageElement?.alt || title,
+    href,
+  };
+}
+
+function readGalleryItems(element: HTMLElement): ContentModalGalleryItem[] {
+  const items = qsa<HTMLElement>('[data-modal-gallery-item]', element)
+    .map((item) => {
+      const imageElement = getImageFrom(item, '[data-modal-gallery-image]') ?? item.querySelector<HTMLImageElement>('img');
+      const src = getImageSource(imageElement);
+
+      return {
+        src,
+        alt: imageElement?.alt ?? '',
+        caption: item.querySelector<HTMLElement>('[data-modal-gallery-caption]')?.textContent?.trim() ?? '',
+      };
+    })
+    .filter((item) => item.src);
+
+  if (items.length > 0) {
+    return items;
+  }
+
+  const legacyImageElement = getImageFrom(element, '[data-modal-image]');
+  const legacyImage = getImageSource(legacyImageElement);
+
+  return legacyImage
+    ? [
+        {
+          src: legacyImage,
+          alt: legacyImageElement?.alt ?? '',
+          caption: element.querySelector<HTMLElement>('[data-modal-caption]')?.textContent?.trim() ?? '',
+        },
+      ]
+    : [];
+}
+
 function readContentElement(element: HTMLElement): ContentModalData | null {
   const id = getStringAttr(element, 'data-modal-content');
 
@@ -142,18 +233,26 @@ function readContentElement(element: HTMLElement): ContentModalData | null {
     return null;
   }
 
-  const address = element.querySelector<HTMLElement>('[data-modal-address]')?.textContent?.trim() ?? '';
-  const imageElement = element.querySelector<HTMLImageElement>('[data-modal-image]');
-  const captionElement = element.querySelector<HTMLElement>('[data-modal-caption]');
+  const address =
+    element.querySelector<HTMLElement>('[data-modal-hover-text]')?.textContent?.trim() ||
+    element.querySelector<HTMLElement>('[data-modal-address]')?.textContent?.trim() ||
+    '';
+  const headline = element.querySelector<HTMLElement>('[data-modal-headline]')?.textContent?.trim() ?? '';
+  const gallery = readGalleryItems(element);
+  const firstGalleryItem = gallery[0];
   const bodyElement = element.querySelector<HTMLElement>('[data-modal-body]');
 
   return {
     id,
     address,
-    image: imageElement?.currentSrc || imageElement?.src || '',
-    imageAlt: imageElement?.alt ?? '',
-    caption: captionElement?.textContent?.trim() ?? '',
+    layout: element.getAttribute('data-modal-layout') === 'context' ? 'context' : 'default',
+    headline,
+    image: firstGalleryItem?.src ?? '',
+    imageAlt: firstGalleryItem?.alt ?? '',
+    caption: firstGalleryItem?.caption ?? '',
     html: bodyElement?.innerHTML ?? '',
+    work: readWorkElement(element),
+    gallery,
   };
 }
 
@@ -165,14 +264,28 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
   }
 
   const imageElement = element.querySelector<HTMLImageElement>('.fwm-modal__image');
+  const image = getImageSource(imageElement);
+  const caption = element.querySelector<HTMLElement>('.fwm-modal__caption')?.textContent?.trim() ?? '';
 
   return {
     id,
     address: element.querySelector<HTMLElement>('.fwm-modal__address')?.textContent?.trim() ?? '',
-    image: imageElement?.currentSrc || imageElement?.src || '',
+    layout: 'default',
+    headline: '',
+    image,
     imageAlt: imageElement?.alt ?? '',
-    caption: element.querySelector<HTMLElement>('.fwm-modal__caption')?.textContent?.trim() ?? '',
+    caption,
     html: element.querySelector<HTMLElement>('.fwm-modal__text')?.innerHTML ?? '',
+    work: null,
+    gallery: image
+      ? [
+          {
+            src: image,
+            alt: imageElement?.alt ?? '',
+            caption,
+          },
+        ]
+      : [],
   };
 }
 
@@ -215,10 +328,94 @@ function resolveContent(id: string): ContentModalData | null {
   return liveContent ?? contentRegistry.get(normalizedId) ?? null;
 }
 
-function renderContent(content: ContentModalData): SingletonElements {
-  const singleton = ensureSingleton();
+function renderWork(work: ContentModalWork): HTMLElement {
+  const card = document.createElement(work.href ? 'a' : 'article');
+  const imageWrap = document.createElement('span');
+  const meta = document.createElement('span');
+  const title = document.createElement('span');
+
+  card.className = 'fwm-modal__work-card';
+
+  if (work.href) {
+    card.setAttribute('href', work.href);
+  }
+
+  if (work.thumbnail) {
+    const image = document.createElement('img');
+
+    image.className = 'fwm-modal__work-image';
+    image.src = work.thumbnail;
+    image.alt = work.thumbnailAlt;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    imageWrap.className = 'fwm-modal__work-image-wrap';
+    imageWrap.append(image);
+    card.append(imageWrap);
+  }
+
+  meta.className = 'fwm-modal__work-meta';
+  title.className = 'fwm-modal__work-title';
+  title.textContent = work.title;
+  meta.append(title);
+
+  if (work.year) {
+    const year = document.createElement('span');
+
+    year.className = 'fwm-modal__work-year';
+    year.textContent = work.year;
+    meta.append(year);
+  }
+
+  card.append(meta);
+
+  return card;
+}
+
+function renderGalleryItem(item: ContentModalGalleryItem, modalId: string, index: number): HTMLElement {
+  const link = document.createElement('a');
+  const image = document.createElement('img');
+  const lightboxIcon = document.createElement('span');
+  const caption = document.createElement('span');
+
+  link.className = 'fwm-modal__image-link';
+  link.href = item.src;
+  link.setAttribute('data-lightbox-src', item.src);
+  link.setAttribute('data-lightbox-caption', item.caption);
+  link.setAttribute('data-lightbox-alt', item.alt);
+  link.setAttribute('data-lightbox-group', `modal-${modalId}`);
+
+  image.className = 'fwm-modal__image';
+  image.src = item.src;
+  image.alt = item.alt;
+  image.loading = index === 0 ? 'eager' : 'lazy';
+  image.decoding = 'async';
+
+  lightboxIcon.className = 'fwm-modal__lightbox-icon';
+  lightboxIcon.setAttribute('aria-hidden', 'true');
+  lightboxIcon.innerHTML = MODAL_LIGHTBOX_ICON_SVG;
+
+  caption.className = 'fwm-modal__caption';
+  caption.textContent = item.caption;
+  caption.hidden = item.caption.length === 0;
+
+  link.append(image, lightboxIcon, caption);
+
+  return link;
+}
+
+function clearContextContent(singleton: SingletonElements): void {
+  singleton.headline.textContent = '';
+  singleton.headline.hidden = true;
+  singleton.work.replaceChildren();
+  singleton.work.hidden = true;
+  singleton.gallery.replaceChildren();
+  singleton.gallery.hidden = true;
+}
+
+function renderDefaultContent(singleton: SingletonElements, content: ContentModalData): void {
   const hasImage = content.image.trim().length > 0;
 
+  singleton.root.dataset.modalVariant = 'default';
   singleton.root.dataset.modalId = content.id;
   singleton.address.textContent = content.address;
   singleton.imageLink.hidden = !hasImage;
@@ -230,6 +427,53 @@ function renderContent(content: ContentModalData): SingletonElements {
   singleton.image.alt = content.imageAlt;
   singleton.caption.textContent = content.caption;
   singleton.text.innerHTML = content.html;
+  clearContextContent(singleton);
+}
+
+function renderContextContent(singleton: SingletonElements, content: ContentModalData): void {
+  const gallery = content.gallery?.length
+    ? content.gallery
+    : content.image.trim()
+      ? [{ src: content.image, alt: content.imageAlt, caption: content.caption }]
+      : [];
+
+  singleton.root.dataset.modalVariant = 'context';
+  singleton.root.dataset.modalId = content.id;
+  singleton.address.textContent = content.address;
+  singleton.imageLink.hidden = true;
+  singleton.imageLink.href = '#';
+  singleton.imageLink.setAttribute('data-lightbox-src', '');
+  singleton.imageLink.setAttribute('data-lightbox-caption', '');
+  singleton.imageLink.setAttribute('data-lightbox-alt', '');
+  singleton.imageLink.setAttribute('data-lightbox-group', '');
+  singleton.image.removeAttribute('src');
+  singleton.image.alt = '';
+  singleton.caption.textContent = '';
+  singleton.headline.textContent = content.headline ?? '';
+  singleton.headline.hidden = !content.headline;
+  singleton.text.innerHTML = content.html;
+  singleton.work.replaceChildren();
+  singleton.work.hidden = !content.work;
+  singleton.gallery.replaceChildren();
+  singleton.gallery.hidden = gallery.length === 0;
+
+  if (content.work) {
+    singleton.work.append(renderWork(content.work));
+  }
+
+  gallery.forEach((item, index) => {
+    singleton.gallery.append(renderGalleryItem(item, content.id, index));
+  });
+}
+
+function renderContent(content: ContentModalData): SingletonElements {
+  const singleton = ensureSingleton();
+
+  if (content.layout === 'context') {
+    renderContextContent(singleton, content);
+  } else {
+    renderDefaultContent(singleton, content);
+  }
 
   return singleton;
 }
@@ -272,10 +516,18 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
   const normalizedContent: ContentModalData = {
     id: content.id.trim(),
     address: content.address ?? '',
+    layout: content.layout ?? 'default',
+    headline: content.headline ?? '',
     image: content.image ?? '',
     imageAlt: content.imageAlt ?? '',
     caption: content.caption ?? '',
     html: content.html ?? '',
+    work: content.work ?? null,
+    gallery: content.gallery?.length
+      ? content.gallery
+      : content.image
+        ? [{ src: content.image, alt: content.imageAlt ?? '', caption: content.caption ?? '' }]
+        : [],
   };
 
   if (!normalizedContent.id) {

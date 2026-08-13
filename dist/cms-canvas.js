@@ -9884,30 +9884,74 @@ function $i(e, t) {
 function ea(e, t) {
 	return e.querySelector(t);
 }
-function ta(e, t) {
-	var n, r, i, a, o, s;
-	let c = (n = ea(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
-	if (!l) return null;
-	let u = $i(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Xi(`${u}-${l}`)}`, f = ea(e, "[data-canvas-modal-image]"), p = e.querySelector("[data-canvas-modal-body]");
+function ta(e) {
+	return (e == null ? void 0 : e.currentSrc) || (e == null ? void 0 : e.src) || "";
+}
+function na(e, t) {
+	var n;
+	let r = e.querySelector(t);
+	return r instanceof HTMLImageElement ? r : (n = r == null ? void 0 : r.querySelector("img")) == null ? null : n;
+}
+function ra(e) {
+	var t, n, r, i, a, o;
+	let s = e.querySelector("[data-canvas-modal-work]");
+	if (!s) return null;
+	let c = na(s, "[data-works-thumbnail]"), l = $i(s, "[data-works-title]") || ((t = s.getAttribute("data-works-title")) == null ? void 0 : t.trim()) || "", u = $i(s, "[data-works-year]") || ((n = s.getAttribute("data-works-year")) == null ? void 0 : n.trim()) || "", d = (r = (i = (a = s.getAttribute("data-works-href")) == null ? s.getAttribute("data-works-url") : a) == null ? (o = s.querySelector("[data-works-link], a[href]")) == null ? void 0 : o.href : i) == null ? "" : r, f = ta(c);
+	return !l && !f && !d ? null : {
+		title: l,
+		year: u,
+		thumbnail: f,
+		thumbnailAlt: (c == null ? void 0 : c.alt) || l,
+		href: d
+	};
+}
+function ia(e) {
+	var t;
+	let n = Array.from(e.querySelectorAll("[data-canvas-modal-gallery-item]")).map((e) => {
+		var t, n;
+		let r = (t = na(e, "[data-canvas-modal-gallery-image]")) == null ? e.querySelector("img") : t;
+		return {
+			src: ta(r),
+			alt: (n = r == null ? void 0 : r.alt) == null ? "" : n,
+			caption: $i(e, "[data-canvas-modal-gallery-caption]")
+		};
+	}).filter((e) => e.src);
+	if (n.length > 0) return n;
+	let r = na(e, "[data-canvas-modal-image]"), i = ta(r);
+	return i ? [{
+		src: i,
+		alt: (t = r == null ? void 0 : r.alt) == null ? "" : t,
+		caption: $i(e, "[data-canvas-modal-caption]")
+	}] : [];
+}
+function aa(e, t) {
+	var n, r, i, a, o, s, c, l, u;
+	let d = (n = ea(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : n, f = (d == null ? void 0 : d.currentSrc) || (d == null ? void 0 : d.src) || "";
+	if (!f) return null;
+	let p = $i(e, "[data-canvas-title]") || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (d == null ? void 0 : d.alt.trim()) || "", m = ((i = e.getAttribute("data-canvas-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-cms-item-id")) == null ? void 0 : a.trim()) || `canvas-item-${t + 1}-${Xi(`${p}-${f}`)}`, h = e.querySelector("[data-canvas-modal-body]"), g = ia(e), _ = g[0], v = $i(e, "[data-canvas-modal-hover-text]") || $i(e, "[data-canvas-modal-address]") || p, y = $i(e, "[data-canvas-modal-headline]") || p;
 	return {
-		id: d,
-		title: u,
-		thumbnail: l,
-		thumbnailAlt: (o = c == null ? void 0 : c.alt) == null ? u : o,
+		id: m,
+		title: p,
+		thumbnail: f,
+		thumbnailAlt: (o = d == null ? void 0 : d.alt) == null ? p : o,
 		modal: {
-			id: `canvas-${d}`,
-			address: $i(e, "[data-canvas-modal-address]") || u,
-			image: (f == null ? void 0 : f.currentSrc) || (f == null ? void 0 : f.src) || l,
-			imageAlt: (f == null ? void 0 : f.alt) || (c == null ? void 0 : c.alt) || u,
-			caption: $i(e, "[data-canvas-modal-caption]"),
-			html: (s = p == null ? void 0 : p.innerHTML) == null ? "" : s
+			id: `canvas-${m}`,
+			address: v,
+			layout: "context",
+			headline: y,
+			image: (s = _ == null ? void 0 : _.src) == null ? "" : s,
+			imageAlt: (c = _ == null ? void 0 : _.alt) == null ? "" : c,
+			caption: (l = _ == null ? void 0 : _.caption) == null ? "" : l,
+			html: (u = h == null ? void 0 : h.innerHTML) == null ? "" : u,
+			work: ra(e),
+			gallery: g
 		}
 	};
 }
-function na(e) {
-	return Array.from(e.querySelectorAll(Vi)).map(ta).filter((e) => e !== null);
+function oa(e) {
+	return Array.from(e.querySelectorAll(Vi)).map(aa).filter((e) => e !== null);
 }
-function ra(e) {
+function sa(e) {
 	let t = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	return {
 		columnWidth: Ji(e, "data-canvas-column-width", 25, 8, 80),
@@ -9924,7 +9968,7 @@ function ra(e) {
 		reducedMotion: t
 	};
 }
-function ia(e) {
+function ca(e) {
 	return e.map((e) => ({
 		...e,
 		instanceId: e.id,
@@ -9932,7 +9976,7 @@ function ia(e) {
 		copyIndex: 0
 	}));
 }
-function aa(e) {
+function la(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -9946,7 +9990,7 @@ function aa(e) {
 		}), n.src = e;
 	});
 }
-function oa(e) {
+function ua(e) {
 	return Xi(`${e.sourceId}:${e.copyIndex}`) % 3 == 0 ? {
 		width: 10,
 		height: 14
@@ -9955,38 +9999,38 @@ function oa(e) {
 		height: 10
 	};
 }
-function sa(e, t, n) {
+function da(e, t, n) {
 	return t <= 0 ? e : ((e - n + t / 2) % t + t) % t - t / 2 + n;
 }
-function ca(e, t) {
+function fa(e, t) {
 	let n = Math.max(1, Math.ceil(t / Math.max(e, 1)));
 	return Array.from({ length: n * 2 + 1 }, (e, t) => t - n);
 }
-function la(e) {
+function pa(e) {
 	return e.tile.thumbnailAlt.trim().toLowerCase() === "signatur";
 }
-function ua(e) {
+function ma(e) {
 	return {
 		x: e.x + e.offsetX + e.width / 2,
 		y: e.y + e.offsetY + e.height / 2
 	};
 }
-function da(e, t) {
+function ha(e, t) {
 	let n = {
 		x: t.clientWidth / 2,
 		y: t.clientHeight / 2
-	}, r = e.filter(la).sort((e, t) => {
-		let n = ua(e), r = ua(t);
+	}, r = e.filter(pa).sort((e, t) => {
+		let n = ma(e), r = ma(t);
 		return Math.hypot(n.x, n.y) - Math.hypot(r.x, r.y);
 	})[0];
 	if (!r) return n;
-	let i = ua(r);
+	let i = ma(r);
 	return {
 		x: n.x - i.x,
 		y: n.y - i.y
 	};
 }
-function fa(e, t, n, r, i, a) {
+function ga(e, t, n, r, i, a) {
 	if (e.length === 0) return {
 		placed: [],
 		patternWidth: r,
@@ -9994,7 +10038,7 @@ function fa(e, t, n, r, i, a) {
 	};
 	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = Qi(e, a).map((e) => {
 		var n, r;
-		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? oa(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ua(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
 		return {
 			tile: e,
 			width: p,
@@ -10042,8 +10086,8 @@ function fa(e, t, n, r, i, a) {
 	let x = y.map((e) => ({
 		...e,
 		y: e.y - b / 2
-	})), S = [], C = ca(u, r);
-	return ca(b, i).forEach((e) => {
+	})), S = [], C = fa(u, r);
+	return fa(b, i).forEach((e) => {
 		C.forEach((t) => {
 			x.forEach((n, r) => {
 				S.push({
@@ -10063,14 +10107,14 @@ function fa(e, t, n, r, i, a) {
 		patternHeight: b
 	};
 }
-function pa(e, t) {
+function _a(e, t) {
 	if (!window.SiteInteractions) {
 		console.error("CMS Canvas: site-interactions.js muss vor cms-canvas.js geladen werden.");
 		return;
 	}
 	window.SiteInteractions.openContentModal(e.modal, t);
 }
-function ma({ placed: e }) {
+function va({ placed: e }) {
 	return /* @__PURE__ */ (0, Ri.jsxs)("button", {
 		type: "button",
 		className: "cms-canvas__item",
@@ -10096,14 +10140,14 @@ function ma({ placed: e }) {
 		}) : null]
 	});
 }
-function ha({ root: e, items: t, source: n }) {
+function ya({ root: e, items: t, source: n }) {
 	let r = (0, _.useRef)(null), [i, a] = (0, _.useState)([]), [o, s] = (0, _.useState)({
 		width: 1,
 		height: 1
 	}), [c, l] = (0, _.useState)(() => ({
 		width: Math.max(e.clientWidth, window.innerWidth),
 		height: Math.max(e.clientHeight, window.innerHeight)
-	})), u = (0, _.useMemo)(() => ra(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
+	})), u = (0, _.useMemo)(() => sa(e), [e]), d = (0, _.useRef)(Math.floor(Math.random() * 4294967295));
 	return (0, _.useEffect)(() => {
 		n.hidden = !0, n.setAttribute("aria-hidden", "true");
 	}, [n]), (0, _.useEffect)(() => {
@@ -10119,10 +10163,10 @@ function ha({ root: e, items: t, source: n }) {
 			window.cancelAnimationFrame(t), window.removeEventListener("resize", n);
 		};
 	}, [e]), (0, _.useEffect)(() => {
-		let e = !1, n = Zi(d.current), r = ia(t);
-		return Promise.all(r.map(async (e) => [e.instanceId, await aa(e.thumbnail)])).then((t) => {
+		let e = !1, n = Zi(d.current), r = ca(t);
+		return Promise.all(r.map(async (e) => [e.instanceId, await la(e.thumbnail)])).then((t) => {
 			if (e) return;
-			let i = new Map(t), o = fa(r, i, u, c.width, c.height, n);
+			let i = new Map(t), o = ga(r, i, u, c.width, c.height, n);
 			a(o.placed), s({
 				width: o.patternWidth,
 				height: o.patternHeight
@@ -10139,7 +10183,7 @@ function ha({ root: e, items: t, source: n }) {
 	]), (0, _.useEffect)(() => {
 		let t = r.current;
 		if (!t || i.length === 0) return;
-		let n = da(i, e), a = { ...n }, s = {
+		let n = ha(i, e), a = { ...n }, s = {
 			x: 0,
 			y: 0
 		}, c = null, l = {
@@ -10173,8 +10217,8 @@ function ha({ root: e, items: t, source: n }) {
 		let _ = () => {
 			let t = e.clientWidth / 2, r = e.clientHeight / 2;
 			return {
-				x: sa(n.x, o.width, t),
-				y: sa(n.y, o.height, r)
+				x: da(n.x, o.width, t),
+				y: da(n.y, o.height, r)
 			};
 		}, v = () => {
 			c === null && u.inertia && (a.x += s.x, a.y += s.y, s.x *= u.friction, s.y *= u.friction), n.x += (a.x - n.x) * u.ease, n.y += (a.y - n.y) * u.ease;
@@ -10218,11 +10262,11 @@ function ha({ root: e, items: t, source: n }) {
 			let r = Math.hypot(n.clientX - l.x, n.clientY - l.y), i = n.pointerType === "touch" ? 14 : Hi;
 			if (!m && r <= i && h) {
 				let e = h.dataset.canvasItemId, t = e ? g.get(e) : void 0;
-				t && pa(t, h);
+				t && _a(t, h);
 			}
 			h = null;
 		}, S = () => {
-			a = da(i, e);
+			a = ha(i, e);
 		}, C = (e) => {
 			e.preventDefault();
 			let t = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaX * 16 : e.deltaX, n = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 16 : e.deltaY;
@@ -10233,7 +10277,7 @@ function ha({ root: e, items: t, source: n }) {
 		}, w = (e) => {
 			if (e.key !== "Enter" && e.key !== " ") return;
 			let t = e.target.closest(".cms-canvas__item"), n = t == null ? void 0 : t.dataset.canvasItemId, r = n ? g.get(n) : void 0;
-			!t || !r || (e.preventDefault(), pa(r, t));
+			!t || !r || (e.preventDefault(), _a(r, t));
 		};
 		return Ii.ticker.add(v), e.addEventListener("pointerdown", y), e.addEventListener("pointermove", b), e.addEventListener("pointerup", x), e.addEventListener("pointercancel", x), e.addEventListener("wheel", C, { passive: !1 }), e.addEventListener("keydown", w), window.addEventListener("resize", S), () => {
 			Ii.ticker.remove(v), e.removeEventListener("pointerdown", y), e.removeEventListener("pointermove", b), e.removeEventListener("pointerup", x), e.removeEventListener("pointercancel", x), e.removeEventListener("wheel", C), e.removeEventListener("keydown", w), window.removeEventListener("resize", S), e.classList.remove("is-ready", "is-dragging");
@@ -10247,10 +10291,10 @@ function ha({ root: e, items: t, source: n }) {
 	]), /* @__PURE__ */ (0, Ri.jsx)("div", {
 		className: "cms-canvas__stage",
 		ref: r,
-		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(ma, { placed: e }, e.tile.instanceId))
+		children: i.map((e) => /* @__PURE__ */ (0, Ri.jsx)(va, { placed: e }, e.tile.instanceId))
 	});
 }
-function ga(e) {
+function ba(e) {
 	var t;
 	if (Wi.has(e)) {
 		var n;
@@ -10261,10 +10305,10 @@ function ga(e) {
 		console.error("CMS Canvas: Element mit data-cms-canvas-source wurde nicht gefunden.");
 		return;
 	}
-	let i = na(r);
+	let i = oa(r);
 	e.classList.add("cms-canvas"), e.replaceChildren();
 	let a = (0, v.createRoot)(e);
-	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ha, {
+	Wi.set(e, a), a.render(/* @__PURE__ */ (0, Ri.jsx)(ya, {
 		root: e,
 		items: i,
 		source: r
@@ -10273,11 +10317,11 @@ function ga(e) {
 Gi(() => {
 	let e = Array.from(document.querySelectorAll(zi));
 	if (e.length > 0) {
-		e.forEach(ga);
+		e.forEach(ba);
 		return;
 	}
 	let t = document.querySelector(Bi), n = t == null ? void 0 : t.parentElement;
-	n && (n.setAttribute("data-cms-canvas", "true"), ga(n));
+	n && (n.setAttribute("data-cms-canvas", "true"), ba(n));
 });
 //#endregion
 

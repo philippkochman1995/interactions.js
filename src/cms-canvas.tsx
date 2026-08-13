@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { gsap } from 'gsap';
-import type { ContentModalData } from './types';
+import type { ContentModalData, ContentModalGalleryItem, ContentModalWork } from './types';
 
 interface CanvasItem {
   id: string;
@@ -154,6 +154,88 @@ function imageFrom(element: HTMLElement, selector: string): HTMLImageElement | n
   return element.querySelector<HTMLImageElement>(selector);
 }
 
+function imageSource(image: HTMLImageElement | null): string {
+  return image?.currentSrc || image?.src || '';
+}
+
+function imageFromTarget(element: HTMLElement, selector: string): HTMLImageElement | null {
+  const target = element.querySelector<HTMLElement>(selector);
+
+  if (target instanceof HTMLImageElement) {
+    return target;
+  }
+
+  return target?.querySelector<HTMLImageElement>('img') ?? null;
+}
+
+function readModalWork(element: HTMLElement): ContentModalWork | null {
+  const workElement = element.querySelector<HTMLElement>('[data-canvas-modal-work]');
+
+  if (!workElement) {
+    return null;
+  }
+
+  const thumbnailElement = imageFromTarget(workElement, '[data-works-thumbnail]');
+  const title =
+    textFrom(workElement, '[data-works-title]') ||
+    workElement.getAttribute('data-works-title')?.trim() ||
+    '';
+  const year =
+    textFrom(workElement, '[data-works-year]') ||
+    workElement.getAttribute('data-works-year')?.trim() ||
+    '';
+  const href =
+    workElement.getAttribute('data-works-href') ??
+    workElement.getAttribute('data-works-url') ??
+    workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.href ??
+    '';
+  const thumbnail = imageSource(thumbnailElement);
+
+  if (!title && !thumbnail && !href) {
+    return null;
+  }
+
+  return {
+    title,
+    year,
+    thumbnail,
+    thumbnailAlt: thumbnailElement?.alt || title,
+    href,
+  };
+}
+
+function readModalGallery(element: HTMLElement): ContentModalGalleryItem[] {
+  const items = Array.from(element.querySelectorAll<HTMLElement>('[data-canvas-modal-gallery-item]'))
+    .map((item) => {
+      const imageElement =
+        imageFromTarget(item, '[data-canvas-modal-gallery-image]') ?? item.querySelector<HTMLImageElement>('img');
+
+      return {
+        src: imageSource(imageElement),
+        alt: imageElement?.alt ?? '',
+        caption: textFrom(item, '[data-canvas-modal-gallery-caption]'),
+      };
+    })
+    .filter((item) => item.src);
+
+  if (items.length > 0) {
+    return items;
+  }
+
+  const legacyImageElement = imageFromTarget(element, '[data-canvas-modal-image]');
+  const legacyImage = imageSource(legacyImageElement);
+
+  return legacyImage
+    ? [
+        {
+          src: legacyImage,
+          alt: legacyImageElement?.alt ?? '',
+          caption: textFrom(element, '[data-canvas-modal-caption]'),
+        },
+      ]
+    : [];
+}
+
 function readItem(element: HTMLElement, index: number): CanvasItem | null {
   const thumbnailElement =
     imageFrom(element, '[data-canvas-thumbnail]') ?? element.querySelector<HTMLImageElement>('img');
@@ -172,8 +254,11 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
     element.getAttribute('data-canvas-id')?.trim() ||
     element.getAttribute('data-cms-item-id')?.trim() ||
     `canvas-item-${index + 1}-${hashString(`${title}-${thumbnail}`)}`;
-  const modalImageElement = imageFrom(element, '[data-canvas-modal-image]');
   const modalBody = element.querySelector<HTMLElement>('[data-canvas-modal-body]');
+  const gallery = readModalGallery(element);
+  const firstGalleryItem = gallery[0];
+  const topText = textFrom(element, '[data-canvas-modal-hover-text]') || textFrom(element, '[data-canvas-modal-address]') || title;
+  const headline = textFrom(element, '[data-canvas-modal-headline]') || title;
 
   return {
     id,
@@ -182,11 +267,15 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
     thumbnailAlt: thumbnailElement?.alt ?? title,
     modal: {
       id: `canvas-${id}`,
-      address: textFrom(element, '[data-canvas-modal-address]') || title,
-      image: modalImageElement?.currentSrc || modalImageElement?.src || thumbnail,
-      imageAlt: modalImageElement?.alt || thumbnailElement?.alt || title,
-      caption: textFrom(element, '[data-canvas-modal-caption]'),
+      address: topText,
+      layout: 'context',
+      headline,
+      image: firstGalleryItem?.src ?? '',
+      imageAlt: firstGalleryItem?.alt ?? '',
+      caption: firstGalleryItem?.caption ?? '',
       html: modalBody?.innerHTML ?? '',
+      work: readModalWork(element),
+      gallery,
     },
   };
 }

@@ -187,14 +187,31 @@ wrapper or placed elsewhere on the same page.
           data-cms-canvas-item
           data-canvas-id="cms-slug"
         >
-          <img data-canvas-thumbnail src="thumbnail.jpg" alt="Project title">
-          <div data-canvas-title>Project title</div>
+          <img data-canvas-thumbnail src="thumbnail.jpg" alt="Context title">
+          <div data-canvas-title>Hover text shown on the canvas</div>
 
-          <div data-canvas-modal-address>Project title | Vienna</div>
-          <img data-canvas-modal-image src="large-image.jpg" alt="Project title">
-          <div data-canvas-modal-caption>Image credit</div>
+          <div data-canvas-modal-headline>Modal headline from CMS</div>
           <div data-canvas-modal-body class="rich-text">
             <p>CMS rich text content</p>
+            <blockquote>
+              <p>Indented quote text from CMS</p>
+            </blockquote>
+          </div>
+
+          <div data-canvas-modal-work>
+            <a data-works-link href="/werke/example"></a>
+            <img data-works-thumbnail src="work-thumbnail.jpg" alt="Work title">
+            <div data-works-title>Work title</div>
+            <div data-works-year>[1992]</div>
+          </div>
+
+          <div data-canvas-modal-gallery-item>
+            <img data-canvas-modal-gallery-image src="large-image-1.jpg" alt="Image description">
+            <div data-canvas-modal-gallery-caption>Image caption 1</div>
+          </div>
+          <div data-canvas-modal-gallery-item>
+            <img data-canvas-modal-gallery-image src="large-image-2.jpg" alt="Image description">
+            <div data-canvas-modal-gallery-caption>Image caption 2</div>
           </div>
         </article>
       </div>
@@ -203,10 +220,15 @@ wrapper or placed elsewhere on the same page.
 </main>
 ```
 
-In Webflow, apply the attributes to the corresponding Collection Item and its CMS
-field elements. Bind `data-canvas-id` to the CMS slug. The modal address, large
-image, caption, and body are optional. If the large image is missing, the thumbnail
-is used.
+For contexts, apply the attributes to the corresponding Collection Item and its CMS
+field elements. Bind `data-canvas-id` to the CMS slug. `data-canvas-thumbnail` is
+the preview image. `data-canvas-title` is the hover text and is also used as the
+small grey top text in the modal. `data-canvas-modal-headline`,
+`data-canvas-modal-body`, `data-canvas-modal-work`, and up to two
+`data-canvas-modal-gallery-item` elements are optional. If the headline is
+missing, the hover text is used. Older `data-canvas-modal-address`,
+`data-canvas-modal-image`, and `data-canvas-modal-caption` fields remain
+supported as a context-only fallback. Other modals keep the default image-before-text layout.
 
 All root configuration attributes are optional:
 
