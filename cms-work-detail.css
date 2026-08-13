@@ -23,7 +23,7 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--cms-work-detail-gap, clamp(1rem, 1.8vw, 1.875rem));
-  align-items: start;
+  align-items: stretch;
 }
 
 .cms-work-detail__content {
@@ -57,7 +57,8 @@
 }
 
 .cms-work-detail__text {
-  margin-top: 1.458rem;
+  margin-top: auto;
+  padding-top: 1.458rem;
   color: var(--cms-work-detail-dark);
   font-size: var(--p-font-size, 1rem);
   font-weight: 500;
@@ -283,6 +284,10 @@
   .cms-work-detail__properties,
   .cms-work-detail__text {
     margin-top: 1.5rem;
+  }
+
+  .cms-work-detail__text {
+    padding-top: 0;
   }
 
   .cms-work-detail__caption {
