@@ -462,6 +462,11 @@ body.is-lightbox-open {
   text-decoration-thickness: 0.08em;
 }
 
+.fwm-modal__text em,
+.fwm-modal__text i {
+  color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50));
+}
+
 .fwm-modal__text h2 {
   margin: 0 0 0.875rem;
   color: var(--fw_dark_purple);
