@@ -465,6 +465,7 @@ body.is-lightbox-open {
 .fwm-modal__text em,
 .fwm-modal__text i {
   color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50));
+  font-style: normal;
 }
 
 .fwm-modal__text h2 {
