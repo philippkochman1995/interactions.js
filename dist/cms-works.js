@@ -247,8 +247,8 @@ function V(e, t) {
 }
 function H(e, t) {
 	var n;
-	let r = (n = e.querySelector(_)) == null ? t.querySelector(_) : n, i = r ? r.cloneNode(!0) : document.createElement("button");
-	return r && (r.hidden = !0, r.setAttribute("aria-hidden", "true"), r.style.display = "none"), i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.classList.add("cms-works__load-more"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), V(i, "MEHR ANZEIGEN"), i;
+	let r = (n = e.querySelector(_)) == null ? t.querySelector(_) : n;
+	return r ? (r instanceof HTMLButtonElement && (r.type = "button"), r instanceof HTMLAnchorElement && (r.href = "#"), r.setAttribute("role", "button"), r.setAttribute("tabindex", "0"), r.removeAttribute("hidden"), r.removeAttribute("aria-hidden"), r.removeAttribute("data-cms-works-load-more-template"), r.setAttribute("data-cms-works-load-more", ""), V(r, "MEHR ANZEIGEN"), r) : null;
 }
 function U(e, t) {
 	let n = k(t), r = {
@@ -258,12 +258,12 @@ function U(e, t) {
 		pendingSortMode: A(e),
 		open: !1
 	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = H(e, t), l = 0, u = 0, d = 0, f = h, p = [], m = /* @__PURE__ */ new Map();
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s, c), Promise.all(n.map(async (e) => [e.id, await L(e.thumbnail)])).then((t) => {
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s), c && a.append(c), Promise.all(n.map(async (e) => [e.id, await L(e.thumbnail)])).then((t) => {
 		m = new Map(t);
 		let _ = () => N(P(n, r.appliedCategories), r.appliedSortMode, e), v = (t = !1) => {
 			window.cancelAnimationFrame(l), l = window.requestAnimationFrame(() => {
 				let n = R(e), r = Math.round(e.getBoundingClientRect().width), i = p.slice(0, f);
-				!t && n === u && r === d || (u = n, d = r, B(s, i, m), c.hidden = p.length <= f);
+				!t && n === u && r === d || (u = n, d = r, B(s, i, m), c && (c.hidden = p.length <= f));
 			});
 		}, y = () => {
 			var e;
@@ -274,17 +274,19 @@ function U(e, t) {
 		}, { onOpenChange: (t) => {
 			e.classList.toggle("is-filter-open", t), t && y();
 		} });
-		o.addEventListener("click", () => b.close(!0));
-		let x = () => {
-			f += g, v(!0);
-		};
-		c.addEventListener("click", (e) => {
-			e.preventDefault(), x();
-		}), c.addEventListener("keydown", (e) => {
-			e.key !== "Enter" && e.key !== " " || (e.preventDefault(), x());
-		}), p = _(), e.replaceChildren(b.element, o, a);
-		let S = new ResizeObserver(() => v());
-		v(!0), S.observe(e), window.addEventListener("orientationchange", () => v(!0)), window.addEventListener("resize", y), window.addEventListener("scroll", y, { passive: !0 });
+		if (o.addEventListener("click", () => b.close(!0)), c) {
+			let e = () => {
+				f += g, v(!0);
+			};
+			c.addEventListener("click", (t) => {
+				t.preventDefault(), e();
+			}), c.addEventListener("keydown", (t) => {
+				t.key !== "Enter" && t.key !== " " || (t.preventDefault(), e());
+			});
+		}
+		p = _(), e.replaceChildren(b.element, o, a);
+		let x = new ResizeObserver(() => v());
+		v(!0), x.observe(e), window.addEventListener("orientationchange", () => v(!0)), window.addEventListener("resize", y), window.addEventListener("scroll", y, { passive: !0 });
 	});
 }
 function W(e) {

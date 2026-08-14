@@ -288,36 +288,7 @@
   gap: var(--cms-works-gap, clamp(0.75rem, 1.55vw, 1.5rem));
 }
 
-.cms-works__load-more {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: clamp(2rem, 4vw, 4rem) auto 0;
-  padding: 0.85rem 1.25rem;
-  border: 1px solid var(--cms-works-dark);
-  border-radius: 0;
-  background: transparent;
-  color: var(--cms-works-dark);
-  cursor: pointer;
-  font-family: "StyreneA", "Styrene A", StyreneA, sans-serif;
-  font-size: var(--_sizes---footer-14, 0.875rem);
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
-}
-
-.cms-works__load-more:hover,
-.cms-works__load-more:focus-visible {
-  background: var(--cms-works-dark);
-  color: var(--cms-works-off-white);
-}
-
-.cms-works__load-more[hidden] {
+[data-cms-works-load-more][hidden] {
   display: none !important;
 }
 

@@ -383,14 +383,11 @@ function setButtonText(button: HTMLElement, text: string): void {
   textTarget.textContent = text;
 }
 
-function createLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement {
-  const template = root.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ?? source.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR);
-  const button = template ? (template.cloneNode(true) as HTMLElement) : document.createElement('button');
+function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement | null {
+  const button = root.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ?? source.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR);
 
-  if (template) {
-    template.hidden = true;
-    template.setAttribute('aria-hidden', 'true');
-    template.style.display = 'none';
+  if (!button) {
+    return null;
   }
 
   if (button instanceof HTMLButtonElement) {
@@ -403,7 +400,6 @@ function createLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLEleme
 
   button.setAttribute('role', 'button');
   button.setAttribute('tabindex', '0');
-  button.classList.add('cms-works__load-more');
   button.removeAttribute('hidden');
   button.removeAttribute('aria-hidden');
   button.removeAttribute('data-cms-works-load-more-template');
@@ -425,7 +421,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   const gridHost = document.createElement('div');
   const collectionOverlay = document.createElement('button');
   const gridMount = document.createElement('div');
-  const loadMoreButton = createLoadMoreButton(root, source);
+  const loadMoreButton = getLoadMoreButton(root, source);
   let animationFrame = 0;
   let previousColumnCount = 0;
   let previousWidth = 0;
@@ -441,7 +437,11 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   collectionOverlay.type = 'button';
   collectionOverlay.setAttribute('aria-label', 'Filter schliessen');
   gridMount.className = 'cms-works__grid-mount';
-  gridHost.append(gridMount, loadMoreButton);
+  gridHost.append(gridMount);
+
+  if (loadMoreButton) {
+    gridHost.append(loadMoreButton);
+  }
 
   Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
     measures = new Map(entries);
@@ -462,7 +462,9 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
         previousColumnCount = nextColumnCount;
         previousWidth = nextWidth;
         renderGrid(gridMount, visibleItems, measures);
-        loadMoreButton.hidden = currentItems.length <= visibleCount;
+        if (loadMoreButton) {
+          loadMoreButton.hidden = currentItems.length <= visibleCount;
+        }
       });
     };
     const updateOverlayTop = () => {
@@ -486,22 +488,24 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
       },
     });
     collectionOverlay.addEventListener('click', () => controls.close(true));
-    const showMoreItems = () => {
-      visibleCount += LOAD_MORE_INCREMENT;
-      renderCurrentItems(true);
-    };
-    loadMoreButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      showMoreItems();
-    });
-    loadMoreButton.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') {
-        return;
-      }
+    if (loadMoreButton) {
+      const showMoreItems = () => {
+        visibleCount += LOAD_MORE_INCREMENT;
+        renderCurrentItems(true);
+      };
+      loadMoreButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        showMoreItems();
+      });
+      loadMoreButton.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+          return;
+        }
 
-      event.preventDefault();
-      showMoreItems();
-    });
+        event.preventDefault();
+        showMoreItems();
+      });
+    }
 
     currentItems = getRenderedItems();
     root.replaceChildren(controls.element, collectionOverlay, gridHost);
