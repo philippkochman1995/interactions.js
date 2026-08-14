@@ -4,19 +4,23 @@ import { prefersReducedMotion, qsa } from './modules/utils';
 
 interface AccordionItem {
   section: HTMLElement;
+  itemElement: HTMLElement;
   header: HTMLElement;
   heading: HTMLElement | null;
   icon: SVGElement | HTMLElement | null;
   iconShapes: SVGElement[];
   content: HTMLElement;
+  body: HTMLElement;
   isOpen: boolean;
 }
 
 const SECTION_SELECTOR = '.accordion_section';
-const CONTAINER_SELECTOR = '.accordion_container';
+const ITEM_SELECTOR = '.accordion_item';
+const LEGACY_CONTAINER_SELECTOR = '.accordion_container';
 const HEADER_SELECTOR = '.accordion_header';
 const HEADING_SELECTOR = '.accordion_heading';
 const ICON_SELECTOR = '.accordion_icon';
+const BODY_SELECTOR = '.accordion_body';
 const CONTENT_SELECTOR = '.accordion_content';
 
 const DARK_PURPLE = 'var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))';
@@ -31,10 +35,38 @@ const ICON_HOVER_ROTATION = 0;
 const ICON_OPEN_ROTATION = 45;
 const MOTION_DURATION = 0.42;
 const MOTION_EASE = 'power3.out';
+const STYLE_ID = 'site-accordion-styles';
 
 let initialized = false;
 let itemCounter = 0;
 const items: AccordionItem[] = [];
+
+function injectAccordionStyles(): void {
+  if (document.getElementById(STYLE_ID)) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = `
+    .accordion_item {
+      border-bottom: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+      padding-top: var(--accordion-item-padding-y, 1rem);
+      padding-bottom: var(--accordion-item-padding-y, 1rem);
+    }
+
+    .accordion_section:first-child .accordion_item,
+    .accordion_item:first-child {
+      border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+    }
+
+    .accordion_section + .accordion_section .accordion_item:first-child {
+      border-top: 0;
+    }
+  `;
+
+  document.head.append(style);
+}
 
 function getInitialOpenState(section: HTMLElement, header: HTMLElement): boolean {
   return (
@@ -135,38 +167,46 @@ function animateIcon(item: AccordionItem, state: 'normal' | 'hover' | 'open'): v
   animateIconColor(item, config.color);
 }
 
-function animateHeading(item: AccordionItem, hovering: boolean): void {
+function animateHeading(item: AccordionItem, active: boolean): void {
   if (!item.heading) {
     return;
   }
 
   gsap.to(item.heading, {
-    x: hovering ? HEADING_HOVER_X : 0,
-    color: hovering ? DARK_PURPLE : '',
+    x: active ? HEADING_HOVER_X : 0,
+    color: active ? DARK_PURPLE : '',
     duration: MOTION_DURATION,
     ease: MOTION_EASE,
     overwrite: 'auto',
-    clearProps: hovering ? undefined : 'color',
+    clearProps: active ? undefined : 'color',
+  });
+}
+
+function animateBodyIndent(item: AccordionItem, active: boolean, immediate = false): void {
+  gsap.to(item.body, {
+    x: active ? HEADING_HOVER_X : 0,
+    duration: immediate || prefersReducedMotion() ? 0 : MOTION_DURATION,
+    ease: MOTION_EASE,
+    overwrite: 'auto',
   });
 }
 
 function syncExpandedState(item: AccordionItem): void {
-  const container = item.section.querySelector<HTMLElement>(CONTAINER_SELECTOR);
-
   item.section.classList.toggle('is-open', item.isOpen);
   item.section.classList.toggle('is-active', item.isOpen);
-  container?.classList.toggle('is-open', item.isOpen);
+  item.itemElement.classList.toggle('is-open', item.isOpen);
   item.header.classList.toggle('is-open', item.isOpen);
   item.header.setAttribute('aria-expanded', String(item.isOpen));
 }
 
 function setContentState(item: AccordionItem, immediate = false): void {
-  const { content } = item;
+  const { body } = item;
 
-  gsap.killTweensOf(content);
+  gsap.killTweensOf(body);
+  animateBodyIndent(item, item.isOpen, immediate);
 
   if (prefersReducedMotion() || immediate) {
-    gsap.set(content, {
+    gsap.set(body, {
       height: item.isOpen ? 'auto' : 0,
       autoAlpha: item.isOpen ? 1 : 0,
       overflow: item.isOpen ? 'visible' : 'hidden',
@@ -175,16 +215,16 @@ function setContentState(item: AccordionItem, immediate = false): void {
   }
 
   if (item.isOpen) {
-    gsap.set(content, {
+    gsap.set(body, {
       height: 'auto',
       autoAlpha: 1,
       overflow: 'hidden',
     });
 
-    const targetHeight = content.offsetHeight;
+    const targetHeight = body.offsetHeight;
 
     gsap.fromTo(
-      content,
+      body,
       {
         height: 0,
         autoAlpha: 0,
@@ -195,14 +235,14 @@ function setContentState(item: AccordionItem, immediate = false): void {
         duration: MOTION_DURATION,
         ease: MOTION_EASE,
         onComplete: () => {
-          gsap.set(content, { height: 'auto', overflow: 'visible' });
+          gsap.set(body, { height: 'auto', overflow: 'visible' });
         },
       },
     );
     return;
   }
 
-  gsap.to(content, {
+  gsap.to(body, {
     height: 0,
     autoAlpha: 0,
     overflow: 'hidden',
@@ -219,14 +259,15 @@ function setOpen(item: AccordionItem, isOpen: boolean): void {
   item.isOpen = isOpen;
   syncExpandedState(item);
   setContentState(item);
+  animateHeading(item, item.isOpen || (!item.isOpen && item.header.matches(':hover')));
   animateIcon(item, item.isOpen ? 'open' : item.header.matches(':hover') ? 'hover' : 'normal');
 }
 
 function setupAccessibility(item: AccordionItem): void {
   itemCounter += 1;
 
-  const contentId = item.content.id || `accordion-content-${itemCounter}`;
-  item.content.id = contentId;
+  const contentId = item.body.id || item.content.id || `accordion-content-${itemCounter}`;
+  item.body.id = contentId;
 
   item.header.setAttribute('role', 'button');
   item.header.setAttribute('tabindex', item.header.getAttribute('tabindex') ?? '0');
@@ -235,21 +276,28 @@ function setupAccessibility(item: AccordionItem): void {
 }
 
 function createItem(section: HTMLElement): AccordionItem | null {
-  const header = section.querySelector<HTMLElement>(HEADER_SELECTOR);
-  const content = section.querySelector<HTMLElement>(CONTENT_SELECTOR);
+  const itemElement =
+    section.querySelector<HTMLElement>(ITEM_SELECTOR) ??
+    section.querySelector<HTMLElement>(LEGACY_CONTAINER_SELECTOR) ??
+    section;
+  const header = itemElement.querySelector<HTMLElement>(HEADER_SELECTOR);
+  const content = itemElement.querySelector<HTMLElement>(CONTENT_SELECTOR);
 
   if (!header || !content) {
     return null;
   }
 
+  const body = itemElement.querySelector<HTMLElement>(BODY_SELECTOR) ?? content;
   const icon = header.querySelector<SVGElement | HTMLElement>(ICON_SELECTOR);
   const item: AccordionItem = {
     section,
+    itemElement,
     header,
     heading: header.querySelector<HTMLElement>(HEADING_SELECTOR),
     icon,
     iconShapes: getIconShapes(icon),
     content,
+    body,
     isOpen: getInitialOpenState(section, header),
   };
 
@@ -257,9 +305,15 @@ function createItem(section: HTMLElement): AccordionItem | null {
   syncExpandedState(item);
 
   gsap.set(item.heading, {
-    x: 0,
+    x: item.isOpen ? HEADING_HOVER_X : 0,
+    color: item.isOpen ? DARK_PURPLE : '',
     transformOrigin: 'left center',
     willChange: 'transform, color',
+  });
+
+  gsap.set(item.body, {
+    x: item.isOpen ? HEADING_HOVER_X : 0,
+    willChange: 'transform, height, opacity',
   });
 
   if (item.icon) {
@@ -290,15 +344,19 @@ function createItem(section: HTMLElement): AccordionItem | null {
   });
 
   item.header.addEventListener('mouseenter', () => {
-    animateHeading(item, true);
-
-    if (!item.isOpen) {
-      animateIcon(item, 'hover');
+    if (item.isOpen) {
+      return;
     }
+
+    animateHeading(item, true);
+    animateIcon(item, 'hover');
   });
 
   item.header.addEventListener('mouseleave', () => {
-    animateHeading(item, false);
+    if (!item.isOpen) {
+      animateHeading(item, false);
+    }
+
     animateIcon(item, item.isOpen ? 'open' : 'normal');
   });
 
@@ -311,6 +369,7 @@ export function initAccordions(root: ParentNode = document): AccordionItem[] {
   }
 
   initialized = true;
+  injectAccordionStyles();
 
   qsa<HTMLElement>(SECTION_SELECTOR, root)
     .map(createItem)
