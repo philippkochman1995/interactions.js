@@ -134,7 +134,7 @@ function F(t, r = !1) {
 	});
 }
 function I(e, t) {
-	e.isOpen !== t && (e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && e.header.matches(":hover")), j(e, e.isOpen ? "open" : e.header.matches(":hover") ? "hover" : "normal"));
+	e.isOpen !== t && (e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && e.itemElement.matches(":hover")), j(e, e.isOpen ? "open" : e.itemElement.matches(":hover") ? "hover" : "normal"));
 }
 function L(e) {
 	var t, n;
@@ -176,9 +176,9 @@ function R(e, t) {
 		I(b, !b.isOpen);
 	}), b.header.addEventListener("keydown", (e) => {
 		e.key !== "Enter" && e.key !== " " || (e.preventDefault(), I(b, !b.isOpen));
-	}), b.header.addEventListener("mouseenter", () => {
+	}), b.itemElement.addEventListener("mouseenter", () => {
 		b.isOpen || (M(b, !0), j(b, "hover"));
-	}), b.header.addEventListener("mouseleave", () => {
+	}), b.itemElement.addEventListener("mouseleave", () => {
 		b.isOpen || M(b, !1), j(b, b.isOpen ? "open" : "normal");
 	}), b;
 }

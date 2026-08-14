@@ -259,8 +259,8 @@ function setOpen(item: AccordionItem, isOpen: boolean): void {
   item.isOpen = isOpen;
   syncExpandedState(item);
   setContentState(item);
-  animateHeading(item, item.isOpen || (!item.isOpen && item.header.matches(':hover')));
-  animateIcon(item, item.isOpen ? 'open' : item.header.matches(':hover') ? 'hover' : 'normal');
+  animateHeading(item, item.isOpen || (!item.isOpen && item.itemElement.matches(':hover')));
+  animateIcon(item, item.isOpen ? 'open' : item.itemElement.matches(':hover') ? 'hover' : 'normal');
 }
 
 function setupAccessibility(item: AccordionItem): void {
@@ -339,7 +339,7 @@ function createItem(section: HTMLElement, itemElement: HTMLElement): AccordionIt
     setOpen(item, !item.isOpen);
   });
 
-  item.header.addEventListener('mouseenter', () => {
+  item.itemElement.addEventListener('mouseenter', () => {
     if (item.isOpen) {
       return;
     }
@@ -348,7 +348,7 @@ function createItem(section: HTMLElement, itemElement: HTMLElement): AccordionIt
     animateIcon(item, 'hover');
   });
 
-  item.header.addEventListener('mouseleave', () => {
+  item.itemElement.addEventListener('mouseleave', () => {
     if (!item.isOpen) {
       animateHeading(item, false);
     }
