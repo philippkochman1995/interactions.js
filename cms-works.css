@@ -292,6 +292,10 @@
   display: none !important;
 }
 
+[data-cms-works-load-more] {
+  max-width: 15rem;
+}
+
 .cms-works__column {
   display: flex;
   min-width: 0;
