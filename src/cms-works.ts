@@ -384,7 +384,10 @@ function setButtonText(button: HTMLElement, text: string): void {
 }
 
 function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement | null {
-  const button = root.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ?? source.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR);
+  const button =
+    root.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ??
+    source.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ??
+    document.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR);
 
   if (!button) {
     return null;

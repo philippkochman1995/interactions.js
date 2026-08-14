@@ -246,9 +246,9 @@ function V(e, t) {
 	a.textContent = t;
 }
 function H(e, t) {
-	var n;
-	let r = (n = e.querySelector(_)) == null ? t.querySelector(_) : n;
-	return r ? (r instanceof HTMLButtonElement && (r.type = "button"), r instanceof HTMLAnchorElement && (r.href = "#"), r.setAttribute("role", "button"), r.setAttribute("tabindex", "0"), r.removeAttribute("hidden"), r.removeAttribute("aria-hidden"), r.removeAttribute("data-cms-works-load-more-template"), r.setAttribute("data-cms-works-load-more", ""), V(r, "MEHR ANZEIGEN"), r) : null;
+	var n, r;
+	let i = (n = (r = e.querySelector(_)) == null ? t.querySelector(_) : r) == null ? document.querySelector(_) : n;
+	return i ? (i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), V(i, "MEHR ANZEIGEN"), i) : null;
 }
 function U(e, t) {
 	let n = k(t), r = {
