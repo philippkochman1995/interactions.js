@@ -294,6 +294,8 @@
 
 [data-cms-works-load-more] {
   max-width: 15rem;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .cms-works__column {
