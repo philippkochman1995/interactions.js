@@ -27,8 +27,8 @@ const DARK_PURPLE = 'var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))';
 const DARK_PURPLE_50 = 'var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c))';
 
 const HEADING_HOVER_X = '2rem';
-const ICON_NORMAL_X = '-2.75rem';
-const ICON_HOVER_X = '-1.35rem';
+const ICON_NORMAL_X = '-2.3rem';
+const ICON_HOVER_X = '-0.9rem';
 const ICON_OPEN_X = '0rem';
 const ICON_NORMAL_ROTATION = -90;
 const ICON_HOVER_ROTATION = 0;
@@ -256,11 +256,12 @@ function setOpen(item: AccordionItem, isOpen: boolean): void {
     return;
   }
 
+  const isHovered = item.itemElement.matches(':hover');
   item.isOpen = isOpen;
   syncExpandedState(item);
   setContentState(item);
-  animateHeading(item, item.isOpen || (!item.isOpen && item.itemElement.matches(':hover')));
-  animateIcon(item, item.isOpen ? 'open' : item.itemElement.matches(':hover') ? 'hover' : 'normal');
+  animateHeading(item, item.isOpen || (!item.isOpen && isHovered));
+  animateIcon(item, item.isOpen ? 'open' : isHovered ? 'hover' : 'normal');
 }
 
 function setupAccessibility(item: AccordionItem): void {

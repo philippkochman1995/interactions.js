@@ -1,7 +1,7 @@
 import { f as e, m as t } from "./site-interactions-sLVQDvui.js";
 import { t as n } from "./site-interactions-BxJ-FVg3.js";
 //#region src/accordion.ts
-var r = ".accordion_section", i = ".accordion_item", a = ".accordion_container", o = ".accordion_header", s = ".accordion_heading", c = ".accordion_icon", l = ".accordion_body", u = ".accordion_content", d = "var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))", f = "var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c))", p = "2rem", m = "-2.75rem", h = "-1.35rem", g = "0rem", _ = -90, v = 0, y = 45, b = .42, x = "power3.out", S = "site-accordion-styles", C = !1, w = 0, T = [];
+var r = ".accordion_section", i = ".accordion_item", a = ".accordion_container", o = ".accordion_header", s = ".accordion_heading", c = ".accordion_icon", l = ".accordion_body", u = ".accordion_content", d = "var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))", f = "var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c))", p = "2rem", m = "-2.3rem", h = "-0.9rem", g = "0rem", _ = -90, v = 0, y = 45, b = .42, x = "power3.out", S = "site-accordion-styles", C = !1, w = 0, T = [];
 function E() {
 	if (document.getElementById(S)) return;
 	let e = document.createElement("style");
@@ -134,7 +134,9 @@ function F(t, r = !1) {
 	});
 }
 function I(e, t) {
-	e.isOpen !== t && (e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && e.itemElement.matches(":hover")), j(e, e.isOpen ? "open" : e.itemElement.matches(":hover") ? "hover" : "normal"));
+	if (e.isOpen === t) return;
+	let n = e.itemElement.matches(":hover");
+	e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && n), j(e, e.isOpen ? "open" : n ? "hover" : "normal");
 }
 function L(e) {
 	var t, n;
