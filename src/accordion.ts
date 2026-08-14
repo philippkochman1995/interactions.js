@@ -9,7 +9,7 @@ interface AccordionItem {
   heading: HTMLElement | null;
   icon: SVGElement | HTMLElement | null;
   iconShapes: SVGElement[];
-  content: HTMLElement;
+  content: HTMLElement | null;
   body: HTMLElement;
   isOpen: boolean;
 }
@@ -55,12 +55,12 @@ function injectAccordionStyles(): void {
       padding-bottom: var(--accordion-item-padding-y, 1rem);
     }
 
-    .accordion_section:first-child .accordion_item,
+    .accordion_section > .accordion_item:first-child,
     .accordion_item:first-child {
       border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
     }
 
-    .accordion_section + .accordion_section .accordion_item:first-child {
+    .accordion_section + .accordion_section > .accordion_item:first-child {
       border-top: 0;
     }
   `;
@@ -266,7 +266,7 @@ function setOpen(item: AccordionItem, isOpen: boolean): void {
 function setupAccessibility(item: AccordionItem): void {
   itemCounter += 1;
 
-  const contentId = item.body.id || item.content.id || `accordion-content-${itemCounter}`;
+  const contentId = item.body.id || item.content?.id || `accordion-content-${itemCounter}`;
   item.body.id = contentId;
 
   item.header.setAttribute('role', 'button');
@@ -275,19 +275,15 @@ function setupAccessibility(item: AccordionItem): void {
   item.header.setAttribute('aria-expanded', String(item.isOpen));
 }
 
-function createItem(section: HTMLElement): AccordionItem | null {
-  const itemElement =
-    section.querySelector<HTMLElement>(ITEM_SELECTOR) ??
-    section.querySelector<HTMLElement>(LEGACY_CONTAINER_SELECTOR) ??
-    section;
+function createItem(section: HTMLElement, itemElement: HTMLElement): AccordionItem | null {
   const header = itemElement.querySelector<HTMLElement>(HEADER_SELECTOR);
-  const content = itemElement.querySelector<HTMLElement>(CONTENT_SELECTOR);
+  const body = itemElement.querySelector<HTMLElement>(BODY_SELECTOR);
+  const content = body?.querySelector<HTMLElement>(CONTENT_SELECTOR) ?? itemElement.querySelector<HTMLElement>(CONTENT_SELECTOR);
 
-  if (!header || !content) {
+  if (!header || !body) {
     return null;
   }
 
-  const body = itemElement.querySelector<HTMLElement>(BODY_SELECTOR) ?? content;
   const icon = header.querySelector<SVGElement | HTMLElement>(ICON_SELECTOR);
   const item: AccordionItem = {
     section,
@@ -371,13 +367,24 @@ export function initAccordions(root: ParentNode = document): AccordionItem[] {
   initialized = true;
   injectAccordionStyles();
 
-  qsa<HTMLElement>(SECTION_SELECTOR, root)
-    .map(createItem)
-    .forEach((item) => {
+  qsa<HTMLElement>(SECTION_SELECTOR, root).forEach((section) => {
+    const itemElements = qsa<HTMLElement>(ITEM_SELECTOR, section);
+    const legacyItemElements = qsa<HTMLElement>(LEGACY_CONTAINER_SELECTOR, section);
+    const targets =
+      itemElements.length > 0
+        ? itemElements
+        : legacyItemElements.length > 0
+          ? legacyItemElements
+          : [section];
+
+    targets.forEach((itemElement) => {
+      const item = createItem(section, itemElement);
+
       if (item) {
         items.push(item);
       }
     });
+  });
 
   return items;
 }

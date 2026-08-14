@@ -5,7 +5,7 @@ var r = ".accordion_section", i = ".accordion_item", a = ".accordion_container",
 function E() {
 	if (document.getElementById(S)) return;
 	let e = document.createElement("style");
-	e.id = S, e.textContent = "\n    .accordion_item {\n      border-bottom: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n      padding-top: var(--accordion-item-padding-y, 1rem);\n      padding-bottom: var(--accordion-item-padding-y, 1rem);\n    }\n\n    .accordion_section:first-child .accordion_item,\n    .accordion_item:first-child {\n      border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n    }\n\n    .accordion_section + .accordion_section .accordion_item:first-child {\n      border-top: 0;\n    }\n  ", document.head.append(e);
+	e.id = S, e.textContent = "\n    .accordion_item {\n      border-bottom: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n      padding-top: var(--accordion-item-padding-y, 1rem);\n      padding-bottom: var(--accordion-item-padding-y, 1rem);\n    }\n\n    .accordion_section > .accordion_item:first-child,\n    .accordion_item:first-child {\n      border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n    }\n\n    .accordion_section + .accordion_section > .accordion_item:first-child {\n      border-top: 0;\n    }\n  ", document.head.append(e);
 }
 function D(e, t) {
 	return e.classList.contains("is-open") || e.classList.contains("is-active") || e.hasAttribute("data-accordion-open") || t.getAttribute("aria-expanded") === "true";
@@ -137,54 +137,58 @@ function I(e, t) {
 	e.isOpen !== t && (e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && e.header.matches(":hover")), j(e, e.isOpen ? "open" : e.header.matches(":hover") ? "hover" : "normal"));
 }
 function L(e) {
-	var t;
+	var t, n;
 	w += 1;
-	let n = e.body.id || e.content.id || `accordion-content-${w}`;
-	e.body.id = n, e.header.setAttribute("role", "button"), e.header.setAttribute("tabindex", (t = e.header.getAttribute("tabindex")) == null ? "0" : t), e.header.setAttribute("aria-controls", n), e.header.setAttribute("aria-expanded", String(e.isOpen));
+	let r = e.body.id || ((t = e.content) == null ? void 0 : t.id) || `accordion-content-${w}`;
+	e.body.id = r, e.header.setAttribute("role", "button"), e.header.setAttribute("tabindex", (n = e.header.getAttribute("tabindex")) == null ? "0" : n), e.header.setAttribute("aria-controls", r), e.header.setAttribute("aria-expanded", String(e.isOpen));
 }
-function R(e) {
-	var t, r, h;
-	let v = (t = (r = e.querySelector(i)) == null ? e.querySelector(a) : r) == null ? e : t, b = v.querySelector(o), x = v.querySelector(u);
-	if (!b || !x) return null;
-	let S = (h = v.querySelector(l)) == null ? x : h, C = b.querySelector(c), w = {
+function R(e, t) {
+	var r;
+	let i = t.querySelector(o), a = t.querySelector(l), h = (r = a == null ? void 0 : a.querySelector(u)) == null ? t.querySelector(u) : r;
+	if (!i || !a) return null;
+	let v = i.querySelector(c), b = {
 		section: e,
-		itemElement: v,
-		header: b,
-		heading: b.querySelector(s),
-		icon: C,
-		iconShapes: O(C),
-		content: x,
-		body: S,
-		isOpen: D(e, b)
+		itemElement: t,
+		header: i,
+		heading: i.querySelector(s),
+		icon: v,
+		iconShapes: O(v),
+		content: h,
+		body: a,
+		isOpen: D(e, i)
 	};
-	return L(w), P(w), n.set(w.heading, {
-		x: w.isOpen ? p : 0,
-		color: w.isOpen ? d : "",
+	return L(b), P(b), n.set(b.heading, {
+		x: b.isOpen ? p : 0,
+		color: b.isOpen ? d : "",
 		transformOrigin: "left center",
 		willChange: "transform, color"
-	}), n.set(w.body, {
-		x: w.isOpen ? p : 0,
+	}), n.set(b.body, {
+		x: b.isOpen ? p : 0,
 		willChange: "transform, height, opacity"
-	}), w.icon && (n.set(w.icon, {
-		x: w.isOpen ? g : m,
-		rotation: w.isOpen ? y : _,
+	}), b.icon && (n.set(b.icon, {
+		x: b.isOpen ? g : m,
+		rotation: b.isOpen ? y : _,
 		transformOrigin: "50% 50%",
 		transformBox: "fill-box",
 		willChange: "transform",
 		flexShrink: 0
-	}), k(w, w.isOpen ? d : f)), F(w, !0), w.header.addEventListener("click", () => {
-		I(w, !w.isOpen);
-	}), w.header.addEventListener("keydown", (e) => {
-		e.key !== "Enter" && e.key !== " " || (e.preventDefault(), I(w, !w.isOpen));
-	}), w.header.addEventListener("mouseenter", () => {
-		w.isOpen || (M(w, !0), j(w, "hover"));
-	}), w.header.addEventListener("mouseleave", () => {
-		w.isOpen || M(w, !1), j(w, w.isOpen ? "open" : "normal");
-	}), w;
+	}), k(b, b.isOpen ? d : f)), F(b, !0), b.header.addEventListener("click", () => {
+		I(b, !b.isOpen);
+	}), b.header.addEventListener("keydown", (e) => {
+		e.key !== "Enter" && e.key !== " " || (e.preventDefault(), I(b, !b.isOpen));
+	}), b.header.addEventListener("mouseenter", () => {
+		b.isOpen || (M(b, !0), j(b, "hover"));
+	}), b.header.addEventListener("mouseleave", () => {
+		b.isOpen || M(b, !1), j(b, b.isOpen ? "open" : "normal");
+	}), b;
 }
 function z(e = document) {
-	return C ? T : (C = !0, E(), t(r, e).map(R).forEach((e) => {
-		e && T.push(e);
+	return C ? T : (C = !0, E(), t(r, e).forEach((e) => {
+		let n = t(i, e), r = t(a, e);
+		(n.length > 0 ? n : r.length > 0 ? r : [e]).forEach((t) => {
+			let n = R(e, t);
+			n && T.push(n);
+		});
 	}), T);
 }
 function B() {
