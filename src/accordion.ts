@@ -27,8 +27,8 @@ const DARK_PURPLE = 'var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))';
 const DARK_PURPLE_50 = 'var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c))';
 
 const HEADING_HOVER_X = '2rem';
-const ICON_NORMAL_X = '-4rem';
-const ICON_HOVER_X = '-2rem';
+const ICON_NORMAL_X = '-2.75rem';
+const ICON_HOVER_X = '-1.35rem';
 const ICON_OPEN_X = '0rem';
 const ICON_NORMAL_ROTATION = -90;
 const ICON_HOVER_ROTATION = 0;
