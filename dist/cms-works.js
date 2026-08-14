@@ -241,14 +241,14 @@ function B(e, t, n) {
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
 function V(e, t) {
-	var n, r;
-	let i = (n = (r = e.querySelector("[data-cms-works-load-more-text]")) == null ? e.querySelector("[data-button-text]") : r) == null ? e : n;
-	i.textContent = t;
+	var n, r, i;
+	let a = (n = (r = (i = e.querySelector("[data-cms-works-load-more-text]")) == null ? e.querySelector("[data-button-text]") : i) == null ? e.querySelector(".button-text") : r) == null ? e : n;
+	a.textContent = t;
 }
 function H(e, t) {
 	var n;
 	let r = (n = e.querySelector(_)) == null ? t.querySelector(_) : n, i = r ? r.cloneNode(!0) : document.createElement("button");
-	return i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.classList.add("cms-works__load-more"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), V(i, "MEHR ANZEIGEN"), i;
+	return r && (r.hidden = !0, r.setAttribute("aria-hidden", "true"), r.style.display = "none"), i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.classList.add("cms-works__load-more"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), V(i, "MEHR ANZEIGEN"), i;
 }
 function U(e, t) {
 	let n = k(t), r = {

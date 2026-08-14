@@ -377,6 +377,7 @@ function setButtonText(button: HTMLElement, text: string): void {
   const textTarget =
     button.querySelector<HTMLElement>('[data-cms-works-load-more-text]') ??
     button.querySelector<HTMLElement>('[data-button-text]') ??
+    button.querySelector<HTMLElement>('.button-text') ??
     button;
 
   textTarget.textContent = text;
@@ -385,6 +386,12 @@ function setButtonText(button: HTMLElement, text: string): void {
 function createLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement {
   const template = root.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR) ?? source.querySelector<HTMLElement>(LOAD_MORE_TEMPLATE_SELECTOR);
   const button = template ? (template.cloneNode(true) as HTMLElement) : document.createElement('button');
+
+  if (template) {
+    template.hidden = true;
+    template.setAttribute('aria-hidden', 'true');
+    template.style.display = 'none';
+  }
 
   if (button instanceof HTMLButtonElement) {
     button.type = 'button';
