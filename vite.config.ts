@@ -20,6 +20,7 @@ export default defineConfig({
         'cms-canvas': resolve(currentDir, 'src/cms-canvas.tsx'),
         'cms-works': resolve(currentDir, 'src/cms-works.ts'),
         'cms-work-detail': resolve(currentDir, 'src/cms-work-detail.ts'),
+        accordion: resolve(currentDir, 'src/accordion.ts'),
       },
       formats: ['es'],
       fileName: (_format, entryName) => `${entryName}.js`,
