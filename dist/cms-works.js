@@ -89,28 +89,28 @@ var a = "[data-cms-works]", o = "[data-cms-works-source]", s = "[data-cms-works-
 	"[data-claender-link]",
 	"[data-sheet-link]",
 	"a[href]"
-].join(", ");
-function h(e) {
+].join(", "), h = 16, g = 16, _ = "[data-cms-works-load-more-template]";
+function v(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function g(e, t) {
+function y(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function _(e) {
+function b(e) {
 	var t;
 	return (t = Array.from(e.children).find((e) => e instanceof HTMLImageElement)) == null ? null : t;
 }
-function v(e) {
+function x(e) {
 	let t = e.querySelector(c);
-	return t ? t instanceof HTMLImageElement ? t : null : _(e);
+	return t ? t instanceof HTMLImageElement ? t : null : b(e);
 }
-function y(e) {
+function S(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function b(e) {
+function C(e) {
 	let t = e >>> 0;
 	return () => {
 		t += 1831565813;
@@ -118,59 +118,59 @@ function b(e) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function x(e) {
+function w(e) {
 	let t = Number.parseFloat(e.trim().replace(",", "."));
 	return Number.isFinite(t) ? t : null;
 }
-function S(e) {
+function T(e) {
 	var t, n;
-	return x((t = (n = e.getAttribute("data-works-curated-position")) == null ? e.getAttribute("data-works-position") : n) == null ? g(e, d) : t);
+	return w((t = (n = e.getAttribute("data-works-curated-position")) == null ? e.getAttribute("data-works-position") : n) == null ? y(e, d) : t);
 }
-function C(e) {
+function E(e) {
 	var t, n;
-	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? g(e, f) : t).split(",").map((e) => e.trim()).filter(Boolean);
+	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? y(e, f) : t).split(",").map((e) => e.trim()).filter(Boolean);
 }
-function w(e) {
+function D(e) {
 	var t, n, r, i, a, o, s, c, l, u, d, f, p, h, g, _, v, y;
 	return (t = (n = (r = (i = (a = (o = (s = (c = (l = (u = (d = (f = (p = (h = (g = (_ = (v = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : v) == null ? e.getAttribute("data-sheet-calendar-href") : _) == null ? e.getAttribute("data-sheet-calendar-url") : g) == null ? e.getAttribute("data-sheet-calender-href") : h) == null ? e.getAttribute("data-sheet-calender-url") : p) == null ? e.getAttribute("data-sheet-claender-href") : f) == null ? e.getAttribute("data-sheet-claender-url") : d) == null ? e.getAttribute("data-calendar-href") : u) == null ? e.getAttribute("data-calendar-url") : l) == null ? e.getAttribute("data-calender-href") : c) == null ? e.getAttribute("data-calender-url") : s) == null ? e.getAttribute("data-claender-href") : o) == null ? e.getAttribute("data-claender-url") : a) == null ? e.getAttribute("data-sheet-href") : i) == null ? e.getAttribute("data-sheet-url") : r) == null ? (y = e.querySelector(m)) == null ? void 0 : y.href : n) == null ? "" : t;
 }
-function T(e, t) {
+function O(e, t) {
 	var n, r, i, a, o, s;
-	let c = v(e), d = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = x(e), d = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!d) return null;
-	let f = g(e, l) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "";
+	let f = y(e, l) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "";
 	return {
-		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `work-${t + 1}-${y(`${f}-${d}`)}`,
+		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `work-${t + 1}-${S(`${f}-${d}`)}`,
 		title: f,
 		thumbnail: d,
 		thumbnailAlt: (c == null ? void 0 : c.alt) || f,
-		href: w(e),
-		year: g(e, u) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
-		curatedPosition: S(e),
-		categories: C(e),
+		href: D(e),
+		year: y(e, u) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
+		curatedPosition: T(e),
+		categories: E(e),
 		index: t
 	};
 }
-function E(e) {
-	return Array.from(e.querySelectorAll(s)).map(T).filter((e) => e !== null);
+function k(e) {
+	return Array.from(e.querySelectorAll(s)).map(O).filter((e) => e !== null);
 }
-function D(e) {
+function A(e) {
 	var t;
 	let n = (t = e.getAttribute("data-works-sort")) == null ? void 0 : t.trim().toLowerCase();
 	return n === "random" || n === "year" ? n : "curated";
 }
-function O(e) {
+function j(e) {
 	let t = e.match(/\b(?:18|19|20)\d{2}\b/);
 	return t ? Number.parseInt(t[0], 10) : null;
 }
-function k(e) {
+function M(e) {
 	let t = e.trim();
 	return t.startsWith("[") && t.endsWith("]") ? t : `[${t}]`;
 }
-function A(e, t, n) {
+function N(e, t, n) {
 	let r = [...e];
 	if (t === "random") {
-		let t = b(y(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
+		let t = C(S(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
 		return r.map((e) => ({
 			item: e,
 			sortValue: t()
@@ -178,28 +178,28 @@ function A(e, t, n) {
 	}
 	return t === "year" ? r.sort((e, t) => {
 		var n, r;
-		return ((n = O(e.year)) == null ? Infinity : n) - ((r = O(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
+		return ((n = j(e.year)) == null ? Infinity : n) - ((r = j(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	}) : r.sort((e, t) => {
 		var n, r;
 		return ((n = e.curatedPosition) == null ? Infinity : n) - ((r = t.curatedPosition) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	});
 }
-function j(e, t) {
+function P(e, t) {
 	return t.size === 0 ? e : e.filter((e) => e.categories.some((e) => t.has(e)));
 }
-function M() {
+function F() {
 	let e = document.createElementNS(p, "svg"), t = document.createElementNS(p, "path"), n = document.createElementNS(p, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function N(e) {
+function I(e) {
 	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
 	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && (t.classList.add("cms-works__item--clickable"), t.setAttribute("href", e.href)), n.className = "cms-works__image-wrap", r.className = "cms-works__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.append(r), i.className = "cms-works__meta", a.className = "cms-works__label", o.className = "cms-works__title", o.textContent = e.title, a.append(o), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = k(e.year), a.append(t);
+		t.className = "cms-works__year", t.textContent = M(e.year), a.append(t);
 	}
-	return i.append(a, M()), t.append(n, i), t;
+	return i.append(a, F()), t.append(n, i), t;
 }
-function P(e) {
+function L(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -213,11 +213,11 @@ function P(e) {
 		}), n.src = e;
 	});
 }
-function F(e) {
+function R(e) {
 	let t = window.getComputedStyle(e).getPropertyValue("--cms-works-active-columns").trim(), n = Number.parseInt(t, 10);
 	return Number.isFinite(n) && n > 0 ? n : 4;
 }
-function I(e, t, n) {
+function z(e, t, n) {
 	let r = Array.from({ length: n }, () => ({
 		items: [],
 		height: 0
@@ -231,55 +231,73 @@ function I(e, t, n) {
 		s.items.push(e), s.height += o.height / Math.max(o.width, 1);
 	}), r;
 }
-function L(e, t, n) {
-	let r = document.createElement("div"), i = I(t, n, F(e));
+function B(e, t, n) {
+	let r = document.createElement("div"), i = z(t, n, R(e));
 	r.className = "cms-works__grid", i.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
-			t.append(N(e));
+			t.append(I(e));
 		}), r.append(t);
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
-function R(e, t) {
-	let n = E(t), r = {
+function V(e, t) {
+	var n, r;
+	let i = (n = (r = e.querySelector("[data-cms-works-load-more-text]")) == null ? e.querySelector("[data-button-text]") : r) == null ? e : n;
+	i.textContent = t;
+}
+function H(e, t) {
+	var n;
+	let r = (n = e.querySelector(_)) == null ? t.querySelector(_) : n, i = r ? r.cloneNode(!0) : document.createElement("button");
+	return i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.classList.add("cms-works__load-more"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), V(i, "MEHR ANZEIGEN"), i;
+}
+function U(e, t) {
+	let n = k(t), r = {
 		appliedCategories: /* @__PURE__ */ new Set(),
 		pendingCategories: /* @__PURE__ */ new Set(),
-		appliedSortMode: D(e),
-		pendingSortMode: D(e),
+		appliedSortMode: A(e),
+		pendingSortMode: A(e),
 		open: !1
-	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = 0, l = 0, u = 0, d = [], f = /* @__PURE__ */ new Map();
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s), Promise.all(n.map(async (e) => [e.id, await P(e.thumbnail)])).then((t) => {
-		f = new Map(t);
-		let p = () => A(j(n, r.appliedCategories), r.appliedSortMode, e), m = (t = !1) => {
-			window.cancelAnimationFrame(c), c = window.requestAnimationFrame(() => {
-				let n = F(e), r = Math.round(e.getBoundingClientRect().width);
-				!t && n === l && r === u || (l = n, u = r, L(s, d, f));
+	}, a = document.createElement("div"), o = document.createElement("button"), s = document.createElement("div"), c = H(e, t), l = 0, u = 0, d = 0, f = h, p = [], m = /* @__PURE__ */ new Map();
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), e.classList.add("cms-works"), a.className = "cms-works__grid-host u-section", o.className = "cms-works__collection-overlay", o.type = "button", o.setAttribute("aria-label", "Filter schliessen"), s.className = "cms-works__grid-mount", a.append(s, c), Promise.all(n.map(async (e) => [e.id, await L(e.thumbnail)])).then((t) => {
+		m = new Map(t);
+		let _ = () => N(P(n, r.appliedCategories), r.appliedSortMode, e), v = (t = !1) => {
+			window.cancelAnimationFrame(l), l = window.requestAnimationFrame(() => {
+				let n = R(e), r = Math.round(e.getBoundingClientRect().width), i = p.slice(0, f);
+				!t && n === u && r === d || (u = n, d = r, B(s, i, m), c.hidden = p.length <= f);
 			});
-		}, h = () => {
+		}, y = () => {
 			var e;
-			let t = g.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? g.element.getBoundingClientRect().bottom : e;
+			let t = b.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? b.element.getBoundingClientRect().bottom : e;
 			o.style.setProperty("--cms-works-overlay-top", `${Math.max(0, n)}px`);
-		}, g = i(n, r, () => {
-			d = p(), m(!0), g.sync();
+		}, b = i(n, r, () => {
+			p = _(), f = h, v(!0), b.sync();
 		}, { onOpenChange: (t) => {
-			e.classList.toggle("is-filter-open", t), t && h();
+			e.classList.toggle("is-filter-open", t), t && y();
 		} });
-		o.addEventListener("click", () => g.close(!0)), d = p(), e.replaceChildren(g.element, o, a);
-		let _ = new ResizeObserver(() => m());
-		m(!0), _.observe(e), window.addEventListener("orientationchange", () => m(!0)), window.addEventListener("resize", h), window.addEventListener("scroll", h, { passive: !0 });
+		o.addEventListener("click", () => b.close(!0));
+		let x = () => {
+			f += g, v(!0);
+		};
+		c.addEventListener("click", (e) => {
+			e.preventDefault(), x();
+		}), c.addEventListener("keydown", (e) => {
+			e.key !== "Enter" && e.key !== " " || (e.preventDefault(), x());
+		}), p = _(), e.replaceChildren(b.element, o, a);
+		let S = new ResizeObserver(() => v());
+		v(!0), S.observe(e), window.addEventListener("orientationchange", () => v(!0)), window.addEventListener("resize", y), window.addEventListener("scroll", y, { passive: !0 });
 	});
 }
-function z(e) {
+function W(e) {
 	var t;
 	let n = (t = e.querySelector(o)) == null ? document.querySelector(o) : t;
 	if (!n) {
 		console.error("CMS Works: Element mit data-cms-works-source wurde nicht gefunden.");
 		return;
 	}
-	R(e, n);
+	U(e, n);
 }
-h(() => {
-	Array.from(document.querySelectorAll(a)).forEach(z);
+v(() => {
+	Array.from(document.querySelectorAll(a)).forEach(W);
 });
 //#endregion
 
