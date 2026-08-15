@@ -92,12 +92,9 @@ body.is-lightbox-open {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  [data-site-menu-link] {
-    transition: opacity 160ms ease, transform 180ms ease;
-  }
-
+  [data-site-menu-link],
   [data-site-menu-item] {
-    transition: color 160ms ease;
+    transition: color 160ms ease, opacity 160ms ease, transform 180ms ease;
   }
 
   [data-site-menu-link]:hover,
