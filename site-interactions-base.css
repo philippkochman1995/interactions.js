@@ -54,14 +54,18 @@ body.is-lightbox-open {
   position: relative;
 }
 
-[data-site-menu-link]::after {
+[data-site-menu-item] {
+  position: relative;
+}
+
+[data-site-menu-item][data-site-menu-link]::after {
   content: "";
   position: absolute;
   top: 50%;
   right: 0;
   width: 1.25rem;
   height: 0.75rem;
-  background-color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+  background-color: currentColor;
   -webkit-mask: var(--site-menu-arrow-icon) center / contain no-repeat;
   mask: var(--site-menu-arrow-icon) center / contain no-repeat;
   opacity: 0;
@@ -89,7 +93,11 @@ body.is-lightbox-open {
 
 @media (hover: hover) and (pointer: fine) {
   [data-site-menu-link] {
-    transition: color 160ms ease, opacity 160ms ease, transform 180ms ease;
+    transition: opacity 160ms ease, transform 180ms ease;
+  }
+
+  [data-site-menu-item] {
+    transition: color 160ms ease;
   }
 
   [data-site-menu-link]:hover,
@@ -97,25 +105,14 @@ body.is-lightbox-open {
     transform: translate3d(0.25rem, 0, 0);
   }
 
-  [data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):hover::after,
-  [data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):focus-visible::after {
+  [data-site-menu-item][data-site-menu-link]:hover::after,
+  [data-site-menu-item][data-site-menu-link]:focus-visible::after {
     opacity: 1;
   }
 
-  [data-site-menu].is-open:has([data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):hover)
-    [data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):not(:hover):not(:focus-visible),
-  [data-site-menu].is-open:has([data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):focus-visible)
-    [data-site-menu-link]:not([data-site-menu-hover-exempt]):not(.site-menu__brand):not(.site-menu__language):not(:hover):not(:focus-visible) {
-    color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c));
-  }
-
-  [data-site-menu].is-open .site-menu__header [data-site-menu-link],
-  [data-site-menu].is-open [data-site-menu-hover-exempt],
-  [data-site-menu].is-open .site-menu__brand,
-  [data-site-menu].is-open .site-menu__language,
-  [data-site-menu].is-open [data-site-menu-link]:hover,
-  [data-site-menu].is-open [data-site-menu-link]:focus-visible {
-    color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+  [data-site-menu].is-open:has([data-site-menu-item]:is(:hover, :focus-visible))
+    [data-site-menu-item]:not(:hover):not(:focus-visible) {
+    color: var(--fw_dark_purple_50, #82808c);
   }
 
   [data-site-menu-link]:hover [data-site-menu-indicator],
