@@ -63,20 +63,32 @@ function getTriggerSrc(trigger: HTMLElement): string {
   }
 
   if (trigger instanceof HTMLAnchorElement) {
-    return trigger.href;
+    const href = getStringAttr(trigger, 'href');
+    return href && href !== '#' ? trigger.href : '';
   }
 
   if (trigger instanceof HTMLImageElement) {
-    return trigger.currentSrc || trigger.src;
+    return getImageSrc(trigger);
   }
 
   const image = qs<HTMLImageElement>('img', trigger);
 
   if (image) {
-    return image.currentSrc || image.src;
+    return getImageSrc(image);
   }
 
   return '';
+}
+
+function getImageSrc(image: HTMLImageElement): string {
+  const src = getStringAttr(image, 'src');
+  const srcset = getStringAttr(image, 'srcset');
+
+  if (!src && !srcset) {
+    return '';
+  }
+
+  return image.currentSrc || image.src || src;
 }
 
 function getTriggerAlt(trigger: HTMLElement): string {
@@ -180,6 +192,10 @@ function decorateImageTrigger(image: HTMLImageElement): void {
     return;
   }
 
+  if (!getTriggerSrc(image).trim()) {
+    return;
+  }
+
   const wrapper = document.createElement('span');
 
   wrapper.className = `${LIGHTBOX_TRIGGER_WRAPPER_CLASS} ${LIGHTBOX_CLASS}`;
@@ -204,6 +220,10 @@ function decorateImageTrigger(image: HTMLImageElement): void {
 function decorateElementTrigger(trigger: HTMLElement): void {
   if (trigger instanceof HTMLImageElement) {
     decorateImageTrigger(trigger);
+    return;
+  }
+
+  if (!getTriggerSrc(trigger).trim()) {
     return;
   }
 
