@@ -41,6 +41,14 @@ body.is-lightbox-open {
   cursor: pointer;
 }
 
+[data-site-menu-toggle-label] {
+  transition: color 160ms ease;
+}
+
+[data-site-menu].is-open [data-site-menu-toggle-label] {
+  color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c));
+}
+
 [data-site-menu-link] {
   position: relative;
 }

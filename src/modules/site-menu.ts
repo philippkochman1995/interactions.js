@@ -18,8 +18,8 @@ const CURRENT_KEY_ATTR = 'data-site-menu-current-key';
 const LABEL_ATTR = 'data-site-menu-label';
 const LINK_KEY_ATTR = 'data-site-menu-key';
 const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
-const DEFAULT_OPEN_LABEL = 'Close';
-const DEFAULT_CLOSED_LABEL = 'Menu';
+const DEFAULT_OPEN_LABEL = 'CLOSE';
+const DEFAULT_CLOSED_LABEL = 'MENU';
 
 interface SiteMenuInstance {
   root: HTMLElement;
@@ -28,6 +28,7 @@ interface SiteMenuInstance {
   toggleLabel: HTMLElement | null;
   links: HTMLElement[];
   isOpen: boolean;
+  isHovered: boolean;
   cleanup: Cleanup[];
 }
 
@@ -113,11 +114,10 @@ function getCurrentPageLabel(instance: SiteMenuInstance): string {
 }
 
 function setLabel(instance: SiteMenuInstance): void {
-  const label =
-    getCurrentPageLabel(instance) ||
-    (instance.isOpen
-      ? getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL
-      : getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL);
+  const openLabel = getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL;
+  const closedHoverLabel = getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL;
+  const currentPageLabel = getCurrentPageLabel(instance);
+  const label = instance.isOpen ? openLabel : instance.isHovered ? closedHoverLabel : currentPageLabel || closedHoverLabel;
 
   if (instance.toggleLabel) {
     instance.toggleLabel.textContent = label;
@@ -243,6 +243,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
     toggleLabel: qs<HTMLElement>(TOGGLE_LABEL_SELECTOR, toggle) ?? qs<HTMLElement>(TOGGLE_LABEL_SELECTOR, root),
     links: qsa<HTMLElement>(LINK_SELECTOR, root),
     isOpen: root.classList.contains(OPEN_CLASS),
+    isHovered: false,
     cleanup: [],
   };
 
@@ -292,13 +293,27 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
     closeMenu(instance);
   };
 
+  const onPointerEnter = (): void => {
+    instance.isHovered = true;
+    setLabel(instance);
+  };
+
+  const onPointerLeave = (): void => {
+    instance.isHovered = false;
+    setLabel(instance);
+  };
+
   toggle.addEventListener('click', onToggleClick);
+  root.addEventListener('pointerenter', onPointerEnter);
+  root.addEventListener('pointerleave', onPointerLeave);
   document.addEventListener('click', onDocumentClick);
   document.addEventListener('keydown', onDocumentKeydown);
   root.addEventListener('click', onLinkClick);
 
   instance.cleanup.push(
     () => toggle.removeEventListener('click', onToggleClick),
+    () => root.removeEventListener('pointerenter', onPointerEnter),
+    () => root.removeEventListener('pointerleave', onPointerLeave),
     () => document.removeEventListener('click', onDocumentClick),
     () => document.removeEventListener('keydown', onDocumentKeydown),
     () => root.removeEventListener('click', onLinkClick),

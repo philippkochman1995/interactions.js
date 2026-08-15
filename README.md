@@ -58,7 +58,7 @@ The script fails silently if this JSON is missing or invalid. Missing keys fall 
 The global bundle initializes a Webflow-built menu when `[data-site-menu]` exists on the page. Webflow owns the layout, colors, typography, and link content; the script owns open/closed state, focus behavior, active-link detection, the current-page toggle label, and animation.
 
 ```html
-<nav data-site-menu data-site-menu-closed-label="Menu" data-site-menu-open-label="Close">
+<nav data-site-menu data-site-menu-closed-label="MENU" data-site-menu-open-label="CLOSE">
   <div data-site-menu-panel>
     <a href="/person" data-site-menu-link>
       <span data-site-menu-indicator></span>
@@ -75,7 +75,7 @@ The global bundle initializes a Webflow-built menu when `[data-site-menu]` exist
 </nav>
 ```
 
-The toggle label shows the current active link text, such as `Kontakt` or `West Map`, instead of switching to a close label. Set `data-site-menu-label` on a link when the collapsed label should differ from the visible link text:
+The closed toggle label shows the current active link text, such as `Kontakt` or `West Map`. On hover while closed it switches to `MENU`; while open it switches to `CLOSE`. Set `data-site-menu-label` on a link when the collapsed current-page label should differ from the visible link text:
 
 ```html
 <a href="/west-map" data-site-menu-link data-site-menu-label="WEST MAP">West Map</a>
