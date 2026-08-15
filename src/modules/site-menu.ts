@@ -15,6 +15,7 @@ const READY_CLASS = 'is-ready';
 const OPEN_TEXT_ATTR = 'data-site-menu-open-label';
 const CLOSED_TEXT_ATTR = 'data-site-menu-closed-label';
 const CURRENT_KEY_ATTR = 'data-site-menu-current-key';
+const LABEL_ATTR = 'data-site-menu-label';
 const LINK_KEY_ATTR = 'data-site-menu-key';
 const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'Close';
@@ -93,10 +94,30 @@ function isCurrentLink(link: HTMLElement, root: HTMLElement): boolean {
   return linkPath === normalizePathname(window.location.pathname);
 }
 
+function getLinkLabel(link: HTMLElement): string {
+  const explicitLabel = getStringAttr(link, LABEL_ATTR);
+
+  if (explicitLabel) {
+    return explicitLabel;
+  }
+
+  return link.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+}
+
+function getCurrentPageLabel(instance: SiteMenuInstance): string {
+  const activeLink =
+    instance.links.find((link) => link.classList.contains(ACTIVE_CLASS) || link.classList.contains('w--current')) ??
+    instance.links.find((link) => isCurrentLink(link, instance.root));
+
+  return activeLink ? getLinkLabel(activeLink) : '';
+}
+
 function setLabel(instance: SiteMenuInstance): void {
-  const label = instance.isOpen
-    ? getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL
-    : getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL;
+  const label =
+    getCurrentPageLabel(instance) ||
+    (instance.isOpen
+      ? getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL
+      : getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL);
 
   if (instance.toggleLabel) {
     instance.toggleLabel.textContent = label;

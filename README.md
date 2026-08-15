@@ -55,7 +55,7 @@ The script fails silently if this JSON is missing or invalid. Missing keys fall 
 
 ## Bottom-up site menu
 
-The global bundle initializes a Webflow-built menu when `[data-site-menu]` exists on the page. Webflow owns the layout, colors, typography, and link content; the script owns open/closed state, focus behavior, active-link detection, and animation.
+The global bundle initializes a Webflow-built menu when `[data-site-menu]` exists on the page. Webflow owns the layout, colors, typography, and link content; the script owns open/closed state, focus behavior, active-link detection, the current-page toggle label, and animation.
 
 ```html
 <nav data-site-menu data-site-menu-closed-label="Menu" data-site-menu-open-label="Close">
@@ -75,7 +75,13 @@ The global bundle initializes a Webflow-built menu when `[data-site-menu]` exist
 </nav>
 ```
 
-The current page is detected from each link `href` pathname and Webflow's `w--current` class. For manual overrides, set the same value on the root and link:
+The toggle label shows the current active link text, such as `Kontakt` or `West Map`, instead of switching to a close label. Set `data-site-menu-label` on a link when the collapsed label should differ from the visible link text:
+
+```html
+<a href="/west-map" data-site-menu-link data-site-menu-label="WEST MAP">West Map</a>
+```
+
+The current page is detected from each link `href` pathname and Webflow's `w--current` class. For manual active-page overrides, set the same value on the root and link:
 
 ```html
 <nav data-site-menu data-site-menu-current-key="atelier">

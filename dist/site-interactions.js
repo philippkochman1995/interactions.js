@@ -475,34 +475,43 @@ function ut(e) {
 }
 //#endregion
 //#region src/modules/site-menu.ts
-var dt = "[data-site-menu]", ft = "[data-site-menu-panel]", pt = "[data-site-menu-toggle]", mt = "[data-site-menu-toggle-label]", ht = "[data-site-menu-link]", gt = "[data-site-menu-indicator]", _t = "is-active", Y = "is-open", vt = "is-ready", yt = "data-site-menu-open-label", bt = "data-site-menu-closed-label", X = "data-site-menu-current-key", xt = "data-site-menu-key", Z = "data-site-menu-original-tabindex", St = "Close", Ct = "Menu", wt = [], Tt = !1;
-function Et(e) {
+var dt = "[data-site-menu]", ft = "[data-site-menu-panel]", pt = "[data-site-menu-toggle]", mt = "[data-site-menu-toggle-label]", ht = "[data-site-menu-link]", gt = "[data-site-menu-indicator]", _t = "is-active", Y = "is-open", vt = "is-ready", yt = "data-site-menu-open-label", bt = "data-site-menu-closed-label", X = "data-site-menu-current-key", xt = "data-site-menu-label", St = "data-site-menu-key", Z = "data-site-menu-original-tabindex", Ct = "Close", wt = "Menu", Tt = [], Et = !1;
+function Dt(e) {
 	return e.split("#")[0].split("?")[0].replace(/\/index\.html?$/i, "/").replace(/\/+$/g, "") || "/";
 }
-function Dt(e) {
+function Ot(e) {
 	if (!(e instanceof HTMLAnchorElement)) return "";
 	let t = m(e, "href");
 	if (!t || t.startsWith("#") || t.startsWith("mailto:") || t.startsWith("tel:")) return "";
 	try {
-		return Et(new URL(e.href, window.location.href).pathname);
+		return Dt(new URL(e.href, window.location.href).pathname);
 	} catch (e) {
 		return "";
 	}
 }
-function Ot(e, t) {
-	return t ? m(e, xt) === t : !1;
-}
 function kt(e, t) {
-	var n, r;
-	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || Ot(e, m(t, X) || ((n = document.documentElement.getAttribute(X)) == null ? void 0 : n.trim()) || ((r = document.body.getAttribute(X)) == null ? void 0 : r.trim()) || "")) return !0;
-	let i = Dt(e);
-	return i ? i === Et(window.location.pathname) : !1;
+	return t ? m(e, St) === t : !1;
 }
-function At(e) {
-	let t = e.isOpen ? m(e.root, yt) || St : m(e.root, bt) || Ct;
+function At(e, t) {
+	var n, r;
+	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || kt(e, m(t, X) || ((n = document.documentElement.getAttribute(X)) == null ? void 0 : n.trim()) || ((r = document.body.getAttribute(X)) == null ? void 0 : r.trim()) || "")) return !0;
+	let i = Ot(e);
+	return i ? i === Dt(window.location.pathname) : !1;
+}
+function jt(e) {
+	var t, n;
+	return m(e, xt) || ((t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t);
+}
+function Mt(e) {
+	var t;
+	let n = (t = e.links.find((e) => e.classList.contains(_t) || e.classList.contains("w--current"))) == null ? e.links.find((t) => At(t, e.root)) : t;
+	return n ? jt(n) : "";
+}
+function Nt(e) {
+	let t = Mt(e) || (e.isOpen ? m(e.root, yt) || Ct : m(e.root, bt) || wt);
 	e.toggleLabel ? e.toggleLabel.textContent = t : e.toggle.textContent = t;
 }
-function jt(e, t) {
+function Pt(e, t) {
 	e.links.forEach((e) => {
 		if (t) {
 			let t = m(e, Z);
@@ -513,9 +522,9 @@ function jt(e, t) {
 	});
 }
 function Q(e, t) {
-	e.isOpen = t, e.root.classList.toggle(Y, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), jt(e, t), At(e);
+	e.isOpen = t, e.root.classList.toggle(Y, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), Pt(e, t), Nt(e);
 }
-function Mt(e, t, n) {
+function Ft(e, t, n) {
 	v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" });
 	let r = e.panel.getBoundingClientRect().height;
 	i() || v.fromTo(e.panel, { height: n }, {
@@ -527,26 +536,26 @@ function Mt(e, t, n) {
 		}
 	});
 }
-function Nt(e) {
+function It(e) {
 	if (e.isOpen) return;
 	let t = e.panel.getBoundingClientRect().height;
-	Q(e, !0), Mt(e, !0, t);
+	Q(e, !0), Ft(e, !0, t);
 }
 function $(e) {
 	if (!e.isOpen) return;
 	let t = e.panel.getBoundingClientRect().height;
-	Q(e, !1), Mt(e, !1, t);
+	Q(e, !1), Ft(e, !1, t);
 }
-function Pt(e) {
-	e.isOpen ? $(e) : Nt(e);
+function Lt(e) {
+	e.isOpen ? $(e) : It(e);
 }
-function Ft(e) {
+function Rt(e) {
 	e.links.forEach((t) => {
-		let n = kt(t, e.root), r = f(gt, t);
+		let n = At(t, e.root), r = f(gt, t);
 		t.classList.toggle(_t, n), n ? t.setAttribute("aria-current", "page") : t.getAttribute("aria-current") === "page" && t.removeAttribute("aria-current"), r && r.setAttribute("aria-hidden", "true");
 	});
 }
-function It(e) {
+function zt(e) {
 	var t;
 	let n = f(ft, e), r = f(pt, e);
 	if (!n || !r) return null;
@@ -559,9 +568,9 @@ function It(e) {
 		isOpen: e.classList.contains(Y),
 		cleanup: []
 	};
-	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${wt.length + 1}`), r.setAttribute("aria-controls", n.id), Ft(i), Q(i, i.isOpen), e.classList.add(vt);
+	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Tt.length + 1}`), r.setAttribute("aria-controls", n.id), Rt(i), Q(i, i.isOpen), e.classList.add(vt);
 	let a = (e) => {
-		e.preventDefault(), Pt(i);
+		e.preventDefault(), Lt(i);
 	}, o = (t) => {
 		!i.isOpen || !(t.target instanceof Node) || e.contains(t.target) || $(i);
 	}, s = (e) => {
@@ -572,24 +581,24 @@ function It(e) {
 	};
 	return r.addEventListener("click", a), document.addEventListener("click", o), document.addEventListener("keydown", s), e.addEventListener("click", c), i.cleanup.push(() => r.removeEventListener("click", a), () => document.removeEventListener("click", o), () => document.removeEventListener("keydown", s), () => e.removeEventListener("click", c)), i;
 }
-function Lt(e = document) {
-	if (Tt && e === document) return () => void 0;
-	e === document && (Tt = !0);
-	let t = l(dt, e).map(It).filter((e) => !!e);
-	return wt.push(...t), () => {
+function Bt(e = document) {
+	if (Et && e === document) return () => void 0;
+	e === document && (Et = !0);
+	let t = l(dt, e).map(zt).filter((e) => !!e);
+	return Tt.push(...t), () => {
 		t.forEach((e) => {
-			e.cleanup.forEach((e) => e()), e.root.classList.remove(vt, Y), v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), jt(e, !0);
+			e.cleanup.forEach((e) => e()), e.root.classList.remove(vt, Y), v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), Pt(e, !0);
 		});
 	};
 }
 //#endregion
 //#region src/main.ts
-var Rt = !1;
-function zt() {
-	if (Rt) return;
-	Rt = !0;
+var Vt = !1;
+function Ht() {
+	if (Vt) return;
+	Vt = !0;
 	let e = te();
-	ut({ i18n: e }), je({ i18n: e }), Lt(), n(), window.SiteInteractions = {
+	ut({ i18n: e }), je({ i18n: e }), Bt(), n(), window.SiteInteractions = {
 		openModal: q,
 		openContentModal: K,
 		closeModal: J,
@@ -597,7 +606,7 @@ function zt() {
 		closeLightbox: I
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", zt, { once: !0 }) : zt();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Ht, { once: !0 }) : Ht();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map
