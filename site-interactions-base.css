@@ -153,6 +153,79 @@ body.is-lightbox-open {
   right: 2rem;
 }
 
+.js-lightbox,
+.site-lightbox-trigger {
+  cursor: zoom-in;
+}
+
+.site-lightbox-trigger {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.site-lightbox-trigger__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.site-lightbox-trigger__icon {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.site-lightbox-trigger__icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: block;
+  overflow: visible;
+}
+
+.site-lightbox-trigger__icon-circle {
+  fill: var(--fw_off_white);
+  opacity: 0.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+}
+
+.site-lightbox-trigger__icon-arrow {
+  fill: var(--fw_dark_purple_50);
+  transition: fill 0.18s ease, transform 0.18s ease;
+}
+
+.site-lightbox-trigger:hover .site-lightbox-trigger__icon-circle,
+.site-lightbox-trigger:focus-visible .site-lightbox-trigger__icon-circle {
+  fill: var(--fw_rosa);
+  opacity: 1;
+  transform: scale(1.133333);
+}
+
+.site-lightbox-trigger:hover .site-lightbox-trigger__icon-arrow,
+.site-lightbox-trigger:focus-visible .site-lightbox-trigger__icon-arrow {
+  fill: var(--fw_dark_purple);
+}
+
+.site-lightbox-trigger:hover .site-lightbox-trigger__icon-arrow--bottom,
+.site-lightbox-trigger:focus-visible .site-lightbox-trigger__icon-arrow--bottom {
+  transform: translate3d(-2px, 2px, 0);
+}
+
+.site-lightbox-trigger:hover .site-lightbox-trigger__icon-arrow--top,
+.site-lightbox-trigger:focus-visible .site-lightbox-trigger__icon-arrow--top {
+  transform: translate3d(2px, -2px, 0);
+}
+
 .fwm-modal {
   justify-content: flex-end;
   background: rgba(6, 2, 26, 0.5);

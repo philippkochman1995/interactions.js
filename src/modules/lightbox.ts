@@ -28,10 +28,24 @@ interface LightboxElements {
 }
 
 const LIGHTBOX_TRIGGER_SELECTOR = '[data-lightbox-src]';
+const LIGHTBOX_CLASS = 'js-lightbox';
+const LIGHTBOX_AUTO_TRIGGER_SELECTOR = `.${LIGHTBOX_CLASS}`;
+const LIGHTBOX_DELEGATE_SELECTOR = `${LIGHTBOX_TRIGGER_SELECTOR}, ${LIGHTBOX_AUTO_TRIGGER_SELECTOR}`;
 const LIGHTBOX_ROOT_SELECTOR = '[data-site-lightbox]';
 const LIGHTBOX_CLOSE_SELECTOR = '[data-lightbox-close]';
 const LIGHTBOX_PREVIOUS_SELECTOR = '[data-lightbox-prev]';
 const LIGHTBOX_NEXT_SELECTOR = '[data-lightbox-next]';
+const LIGHTBOX_AUTO_ICON_SELECTOR = '[data-lightbox-auto-icon]';
+const LIGHTBOX_TRIGGER_WRAPPER_CLASS = 'site-lightbox-trigger';
+const LIGHTBOX_TRIGGER_IMAGE_CLASS = 'site-lightbox-trigger__image';
+const LIGHTBOX_TRIGGER_ICON_CLASS = 'site-lightbox-trigger__icon';
+const LIGHTBOX_AUTO_ICON_SVG = `
+  <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <circle class="site-lightbox-trigger__icon-circle" cx="15" cy="15" r="15"/>
+    <path class="site-lightbox-trigger__icon-arrow site-lightbox-trigger__icon-arrow--bottom" d="M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z"/>
+    <path class="site-lightbox-trigger__icon-arrow site-lightbox-trigger__icon-arrow--top" d="M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z"/>
+  </svg>
+`;
 
 let initialized = false;
 let i18n: I18nApi | null = null;
@@ -52,6 +66,16 @@ function getTriggerSrc(trigger: HTMLElement): string {
     return trigger.href;
   }
 
+  if (trigger instanceof HTMLImageElement) {
+    return trigger.currentSrc || trigger.src;
+  }
+
+  const image = qs<HTMLImageElement>('img', trigger);
+
+  if (image) {
+    return image.currentSrc || image.src;
+  }
+
   return '';
 }
 
@@ -60,6 +84,10 @@ function getTriggerAlt(trigger: HTMLElement): string {
 
   if (explicitAlt) {
     return explicitAlt;
+  }
+
+  if (trigger instanceof HTMLImageElement) {
+    return trigger.alt.trim();
   }
 
   const image = qs<HTMLImageElement>('img', trigger);
@@ -96,7 +124,7 @@ function collectItems(trigger: HTMLElement): { items: LightboxItem[]; index: num
     };
   }
 
-  const groupedItems = qsa<HTMLElement>(LIGHTBOX_TRIGGER_SELECTOR)
+  const groupedItems = qsa<HTMLElement>(LIGHTBOX_DELEGATE_SELECTOR)
     .filter((candidate) => getStringAttr(candidate, 'data-lightbox-group') === selectedItem.group)
     .map(getTriggerItem)
     .filter((item): item is LightboxItem => Boolean(item));
@@ -110,6 +138,85 @@ function collectItems(trigger: HTMLElement): { items: LightboxItem[]; index: num
     items: groupedItems.length > 0 ? groupedItems : [selectedItem],
     index,
   };
+}
+
+function createAutoIcon(): HTMLElement {
+  const icon = document.createElement('span');
+  icon.className = LIGHTBOX_TRIGGER_ICON_CLASS;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.setAttribute('data-lightbox-auto-icon', '');
+  icon.innerHTML = LIGHTBOX_AUTO_ICON_SVG;
+  return icon;
+}
+
+function isNativeInteractive(element: HTMLElement): boolean {
+  return (
+    element instanceof HTMLAnchorElement ||
+    element instanceof HTMLButtonElement ||
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLSelectElement ||
+    element instanceof HTMLTextAreaElement
+  );
+}
+
+function makeTriggerKeyboardAccessible(trigger: HTMLElement): void {
+  if (isNativeInteractive(trigger)) {
+    return;
+  }
+
+  trigger.setAttribute('role', 'button');
+
+  if (!trigger.hasAttribute('tabindex')) {
+    trigger.tabIndex = 0;
+  }
+
+  if (!trigger.hasAttribute('aria-label')) {
+    trigger.setAttribute('aria-label', i18n?.t('openImage', 'Open image') ?? 'Open image');
+  }
+}
+
+function decorateImageTrigger(image: HTMLImageElement): void {
+  if (image.closest(`.${LIGHTBOX_TRIGGER_WRAPPER_CLASS}`)) {
+    return;
+  }
+
+  const wrapper = document.createElement('span');
+
+  wrapper.className = `${LIGHTBOX_TRIGGER_WRAPPER_CLASS} ${LIGHTBOX_CLASS}`;
+  wrapper.dataset.lightboxAutoWrapper = '';
+
+  for (const attrName of ['data-lightbox-src', 'data-lightbox-caption', 'data-lightbox-alt', 'data-lightbox-group']) {
+    const value = getStringAttr(image, attrName);
+
+    if (value) {
+      wrapper.setAttribute(attrName, value);
+      image.removeAttribute(attrName);
+    }
+  }
+
+  image.classList.remove(LIGHTBOX_CLASS);
+  image.classList.add(LIGHTBOX_TRIGGER_IMAGE_CLASS);
+  image.before(wrapper);
+  wrapper.append(image, createAutoIcon());
+  makeTriggerKeyboardAccessible(wrapper);
+}
+
+function decorateElementTrigger(trigger: HTMLElement): void {
+  if (trigger instanceof HTMLImageElement) {
+    decorateImageTrigger(trigger);
+    return;
+  }
+
+  trigger.classList.add(LIGHTBOX_TRIGGER_WRAPPER_CLASS);
+  makeTriggerKeyboardAccessible(trigger);
+
+  if (!qs(LIGHTBOX_AUTO_ICON_SELECTOR, trigger)) {
+    trigger.append(createAutoIcon());
+  }
+}
+
+function decorateAutoTriggers(): void {
+  qsa<HTMLElement>(LIGHTBOX_AUTO_TRIGGER_SELECTOR).forEach(decorateElementTrigger);
 }
 
 function button(label: string, attrName: string, text: string, className: string): HTMLButtonElement {
@@ -370,9 +477,23 @@ function onBackdropClick(event: MouseEvent): void {
 
 export function initLightbox(options: LightboxInitOptions): LightboxApi {
   i18n = options.i18n;
+  decorateAutoTriggers();
 
   if (!initialized) {
-    delegate(document, 'click', LIGHTBOX_TRIGGER_SELECTOR, (event, trigger) => {
+    delegate(document, 'click', LIGHTBOX_DELEGATE_SELECTOR, (event, trigger) => {
+      event.preventDefault();
+      openLightbox(trigger);
+    });
+
+    delegate(document, 'keydown', LIGHTBOX_AUTO_TRIGGER_SELECTOR, (event, trigger) => {
+      if (isNativeInteractive(trigger)) {
+        return;
+      }
+
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
       event.preventDefault();
       openLightbox(trigger);
     });

@@ -340,6 +340,32 @@ is used as the caption.
 
 ## Lightbox API
 
+### Global class trigger
+
+Add `js-lightbox` to any image or wrapper that should open in the shared lightbox.
+For copyright or credit text, bind the CMS value to `data-lightbox-caption`;
+keep the image `alt` text as the accessible image description.
+
+```html
+<img
+  class="js-lightbox"
+  src="large-image.jpg"
+  alt="Artwork description"
+  data-lightbox-caption="Copyright / image credit"
+>
+```
+
+Wrappers are supported too:
+
+```html
+<div class="js-lightbox" data-lightbox-caption="Copyright / image credit">
+  <img src="large-image.jpg" alt="Artwork description">
+</div>
+```
+
+The icon is inserted automatically. If the trigger is an `<img>`, the script wraps
+it in a generated `.site-lightbox-trigger` element so the icon can be positioned.
+
 ### Standalone image trigger
 
 ```html
