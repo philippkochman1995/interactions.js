@@ -53,6 +53,36 @@ Add one JSON script tag per page, or globally in the site footer/head if values 
 
 The script fails silently if this JSON is missing or invalid. Missing keys fall back to labels passed by the JavaScript module.
 
+## Bottom-up site menu
+
+The global bundle initializes a Webflow-built menu when `[data-site-menu]` exists on the page. Webflow owns the layout, colors, typography, and link content; the script owns open/closed state, focus behavior, active-link detection, and animation.
+
+```html
+<nav data-site-menu data-site-menu-closed-label="Menu" data-site-menu-open-label="Close">
+  <div data-site-menu-panel>
+    <a href="/person" data-site-menu-link>
+      <span data-site-menu-indicator></span>
+      Person
+    </a>
+    <a href="/werk" data-site-menu-link>
+      <span data-site-menu-indicator></span>
+      Werk
+    </a>
+    <button type="button" data-site-menu-toggle>
+      <span data-site-menu-toggle-label>Menu</span>
+    </button>
+  </div>
+</nav>
+```
+
+The current page is detected from each link `href` pathname and Webflow's `w--current` class. For manual overrides, set the same value on the root and link:
+
+```html
+<nav data-site-menu data-site-menu-current-key="atelier">
+  <a href="/news/atelier" data-site-menu-link data-site-menu-key="atelier">Atelier</a>
+</nav>
+```
+
 ## Modal API
 
 ### Trigger
