@@ -81,6 +81,8 @@ The closed toggle label shows the current active link text, such as `Kontakt` or
 <a href="/west-map" data-site-menu-link data-site-menu-label="WEST MAP">West Map</a>
 ```
 
+Open-menu hover shows an arrow at the hovered link's right edge and dims the other menu links to `FW_Dark_Purple_50`. Header links are exempt when they are inside `.site-menu__header`, use `.site-menu__brand` or `.site-menu__language`, or have `data-site-menu-hover-exempt`.
+
 The current page is detected from each link `href` pathname and Webflow's `w--current` class. For manual active-page overrides, set the same value on the root and link:
 
 ```html
