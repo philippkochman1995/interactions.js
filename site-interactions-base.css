@@ -225,6 +225,32 @@ body.is-lightbox-open {
   transform: translate3d(2px, -2px, 0);
 }
 
+footer a.w--current,
+footer a.w--current:hover,
+footer a.w--current:focus-visible,
+.footer a.w--current,
+.footer a.w--current:hover,
+.footer a.w--current:focus-visible {
+  animation: none !important;
+  transition: none !important;
+}
+
+footer a.w--current::before,
+footer a.w--current::after,
+footer a.w--current:hover::before,
+footer a.w--current:hover::after,
+footer a.w--current:focus-visible::before,
+footer a.w--current:focus-visible::after,
+.footer a.w--current::before,
+.footer a.w--current::after,
+.footer a.w--current:hover::before,
+.footer a.w--current:hover::after,
+.footer a.w--current:focus-visible::before,
+.footer a.w--current:focus-visible::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 .fwm-modal {
   justify-content: flex-end;
   background: rgba(6, 2, 26, 0.5);
