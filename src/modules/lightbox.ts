@@ -39,6 +39,8 @@ const LIGHTBOX_AUTO_ICON_SELECTOR = '[data-lightbox-auto-icon]';
 const LIGHTBOX_TRIGGER_WRAPPER_CLASS = 'site-lightbox-trigger';
 const LIGHTBOX_TRIGGER_IMAGE_CLASS = 'site-lightbox-trigger__image';
 const LIGHTBOX_TRIGGER_ICON_CLASS = 'site-lightbox-trigger__icon';
+const WEBFLOW_EMPTY_BIND_CLASS = 'w-dyn-bind-empty';
+const WEBFLOW_PLACEHOLDER_IMAGE_PATTERN = '/plugins/Basic/assets/placeholder.';
 const LIGHTBOX_AUTO_ICON_SVG = `
   <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
     <circle class="site-lightbox-trigger__icon-circle" cx="15" cy="15" r="15"/>
@@ -83,6 +85,10 @@ function getTriggerSrc(trigger: HTMLElement): string {
 function getImageSrc(image: HTMLImageElement): string {
   const src = getStringAttr(image, 'src');
   const srcset = getStringAttr(image, 'srcset');
+
+  if (image.classList.contains(WEBFLOW_EMPTY_BIND_CLASS) || src.includes(WEBFLOW_PLACEHOLDER_IMAGE_PATTERN)) {
+    return '';
+  }
 
   if (!src && !srcset) {
     return '';
