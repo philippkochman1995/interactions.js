@@ -19,7 +19,6 @@ const LINK_KEY_ATTR = 'data-site-menu-key';
 const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'Close';
 const DEFAULT_CLOSED_LABEL = 'Menu';
-const CLOSED_TRANSFORM = 'translateY(calc(100% - var(--site-menu-toggle-height, 50px)))';
 
 interface SiteMenuInstance {
   root: HTMLElement;
@@ -137,21 +136,28 @@ function setPanelState(instance: SiteMenuInstance, open: boolean): void {
   setLabel(instance);
 }
 
-function animatePanel(instance: SiteMenuInstance, open: boolean): void {
+function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): void {
   gsap.killTweensOf(instance.panel);
 
+  gsap.set(instance.panel, { clearProps: 'height' });
+  const toHeight = instance.panel.getBoundingClientRect().height;
+
   if (prefersReducedMotion()) {
-    gsap.set(instance.panel, {
-      transform: open ? 'translateY(0)' : CLOSED_TRANSFORM,
-    });
     return;
   }
 
-  gsap.to(instance.panel, {
-    duration: open ? 0.38 : 0.28,
-    ease: open ? 'power3.out' : 'power2.inOut',
-    transform: open ? 'translateY(0)' : CLOSED_TRANSFORM,
-  });
+  gsap.fromTo(
+    instance.panel,
+    { height: fromHeight },
+    {
+      height: toHeight,
+      duration: open ? 0.38 : 0.28,
+      ease: open ? 'power3.out' : 'power2.inOut',
+      onComplete: () => {
+        gsap.set(instance.panel, { clearProps: 'height' });
+      },
+    },
+  );
 }
 
 function openMenu(instance: SiteMenuInstance): void {
@@ -159,8 +165,9 @@ function openMenu(instance: SiteMenuInstance): void {
     return;
   }
 
+  const fromHeight = instance.panel.getBoundingClientRect().height;
   setPanelState(instance, true);
-  animatePanel(instance, true);
+  animatePanel(instance, true, fromHeight);
 }
 
 function closeMenu(instance: SiteMenuInstance): void {
@@ -168,8 +175,9 @@ function closeMenu(instance: SiteMenuInstance): void {
     return;
   }
 
+  const fromHeight = instance.panel.getBoundingClientRect().height;
   setPanelState(instance, false);
-  animatePanel(instance, false);
+  animatePanel(instance, false, fromHeight);
 }
 
 function toggleMenu(instance: SiteMenuInstance): void {
@@ -228,10 +236,6 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   toggle.setAttribute('aria-controls', panel.id);
   updateActiveLinks(instance);
   setPanelState(instance, instance.isOpen);
-
-  if (!instance.isOpen) {
-    gsap.set(panel, { transform: CLOSED_TRANSFORM });
-  }
 
   root.classList.add(READY_CLASS);
 
@@ -302,6 +306,7 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
       instance.cleanup.forEach((cleanup) => cleanup());
       instance.root.classList.remove(READY_CLASS, OPEN_CLASS);
       gsap.killTweensOf(instance.panel);
+      gsap.set(instance.panel, { clearProps: 'height' });
       instance.panel.removeAttribute('aria-hidden');
       instance.toggle.removeAttribute('aria-expanded');
       setLinksFocusable(instance, true);
