@@ -507,9 +507,30 @@ function Pt(e) {
 	let n = (t = e.links.find((e) => e.classList.contains(yt) || e.classList.contains("w--current"))) == null ? e.links.find((t) => Mt(t, e.root)) : t;
 	return n ? Nt(n) : "";
 }
-function X(e) {
-	let t = m(e.root, xt) || Tt, n = m(e.root, St) || Et, r = Pt(e), i = e.isOpen ? t : e.isHovered ? n : r || n;
-	e.toggleLabel ? e.toggleLabel.textContent = i : e.toggle.textContent = i;
+function X(e, t = !0) {
+	var n;
+	let r = m(e.root, xt) || Tt, a = m(e.root, St) || Et, o = Pt(e), s = e.isOpen ? r : e.isHovered ? a : o || a, c = (n = e.toggleLabel) == null ? e.toggle : n;
+	if (c.textContent !== s) {
+		if (v.killTweensOf(c), i() || !t) {
+			c.textContent = s, v.set(c, { clearProps: "opacity" });
+			return;
+		}
+		v.to(c, {
+			opacity: 0,
+			duration: .08,
+			ease: "power1.out",
+			onComplete: () => {
+				c.textContent = s, v.to(c, {
+					opacity: 1,
+					duration: .12,
+					ease: "power1.in",
+					onComplete: () => {
+						v.set(c, { clearProps: "opacity" });
+					}
+				});
+			}
+		});
+	}
 }
 function Ft(e, t) {
 	e.links.forEach((e) => {
@@ -521,8 +542,8 @@ function Ft(e, t) {
 		!e.hasAttribute(Y) && e.hasAttribute("tabindex") && e.setAttribute(Y, String(e.tabIndex)), e.setAttribute("tabindex", "-1");
 	});
 }
-function Z(e, t) {
-	e.isOpen = t, e.root.classList.toggle(q, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), Ft(e, t), X(e);
+function Z(e, t, n = !0) {
+	e.isOpen = t, e.root.classList.toggle(q, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), Ft(e, t), X(e, n);
 }
 function It(e, t, n) {
 	v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" });
@@ -569,7 +590,7 @@ function Bt(e) {
 		isHovered: !1,
 		cleanup: []
 	};
-	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Dt.length + 1}`), r.setAttribute("aria-controls", n.id), zt(i), Z(i, i.isOpen), e.classList.add(bt);
+	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Dt.length + 1}`), r.setAttribute("aria-controls", n.id), zt(i), Z(i, i.isOpen, !1), e.classList.add(bt);
 	let a = (e) => {
 		e.preventDefault(), Rt(i);
 	}, o = (t) => {
@@ -592,7 +613,8 @@ function Vt(e = document) {
 	let t = l(pt, e).map(Bt).filter((e) => !!e);
 	return Dt.push(...t), () => {
 		t.forEach((e) => {
-			e.cleanup.forEach((e) => e()), e.root.classList.remove(bt, q), v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), Ft(e, !0);
+			var t, n;
+			e.cleanup.forEach((e) => e()), e.root.classList.remove(bt, q), v.killTweensOf(e.panel), v.killTweensOf((t = e.toggleLabel) == null ? e.toggle : t), v.set(e.panel, { clearProps: "height" }), v.set((n = e.toggleLabel) == null ? e.toggle : n, { clearProps: "opacity" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), Ft(e, !0);
 		});
 	};
 }

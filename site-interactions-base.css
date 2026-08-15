@@ -107,7 +107,7 @@ body.is-lightbox-open {
     opacity: 1;
   }
 
-  [data-site-menu].is-open:has([data-site-menu-item]:is(:hover, :focus-visible))
+  [data-site-menu].is-open:has([data-site-menu-item][data-site-menu-link]:is(:hover, :focus-visible))
     [data-site-menu-item]:not(:hover):not(:focus-visible) {
     color: var(--fw_dark_purple_50, #82808c);
   }

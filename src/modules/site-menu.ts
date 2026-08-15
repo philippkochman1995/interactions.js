@@ -113,17 +113,41 @@ function getCurrentPageLabel(instance: SiteMenuInstance): string {
   return activeLink ? getLinkLabel(activeLink) : '';
 }
 
-function setLabel(instance: SiteMenuInstance): void {
+function setLabel(instance: SiteMenuInstance, animate = true): void {
   const openLabel = getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL;
   const closedHoverLabel = getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL;
   const currentPageLabel = getCurrentPageLabel(instance);
   const label = instance.isOpen ? openLabel : instance.isHovered ? closedHoverLabel : currentPageLabel || closedHoverLabel;
+  const target = instance.toggleLabel ?? instance.toggle;
 
-  if (instance.toggleLabel) {
-    instance.toggleLabel.textContent = label;
-  } else {
-    instance.toggle.textContent = label;
+  if (target.textContent === label) {
+    return;
   }
+
+  gsap.killTweensOf(target);
+
+  if (prefersReducedMotion() || !animate) {
+    target.textContent = label;
+    gsap.set(target, { clearProps: 'opacity' });
+    return;
+  }
+
+  gsap.to(target, {
+    opacity: 0,
+    duration: 0.08,
+    ease: 'power1.out',
+    onComplete: () => {
+      target.textContent = label;
+      gsap.to(target, {
+        opacity: 1,
+        duration: 0.12,
+        ease: 'power1.in',
+        onComplete: () => {
+          gsap.set(target, { clearProps: 'opacity' });
+        },
+      });
+    },
+  });
 }
 
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
@@ -148,13 +172,13 @@ function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
   });
 }
 
-function setPanelState(instance: SiteMenuInstance, open: boolean): void {
+function setPanelState(instance: SiteMenuInstance, open: boolean, animateLabel = true): void {
   instance.isOpen = open;
   instance.root.classList.toggle(OPEN_CLASS, open);
   instance.toggle.setAttribute('aria-expanded', String(open));
   instance.panel.setAttribute('aria-hidden', String(!open));
   setLinksFocusable(instance, open);
-  setLabel(instance);
+  setLabel(instance, animateLabel);
 }
 
 function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): void {
@@ -257,7 +281,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
 
   toggle.setAttribute('aria-controls', panel.id);
   updateActiveLinks(instance);
-  setPanelState(instance, instance.isOpen);
+  setPanelState(instance, instance.isOpen, false);
 
   root.classList.add(READY_CLASS);
 
@@ -342,7 +366,9 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
       instance.cleanup.forEach((cleanup) => cleanup());
       instance.root.classList.remove(READY_CLASS, OPEN_CLASS);
       gsap.killTweensOf(instance.panel);
+      gsap.killTweensOf(instance.toggleLabel ?? instance.toggle);
       gsap.set(instance.panel, { clearProps: 'height' });
+      gsap.set(instance.toggleLabel ?? instance.toggle, { clearProps: 'opacity' });
       instance.panel.removeAttribute('aria-hidden');
       instance.toggle.removeAttribute('aria-expanded');
       setLinksFocusable(instance, true);
