@@ -155,7 +155,7 @@ body.is-lightbox-open {
 
 .js-lightbox,
 .site-lightbox-trigger {
-  cursor: zoom-in;
+  cursor: pointer;
 }
 
 .site-lightbox-trigger {
