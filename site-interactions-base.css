@@ -232,8 +232,9 @@ footer a.w--current:focus-visible,
 .footer a.w--current:hover,
 .footer a.w--current:focus-visible {
   animation: none !important;
-  border-bottom-color: transparent !important;
-  text-decoration-line: none !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
   transition: none !important;
 }
 
@@ -250,10 +251,7 @@ footer a.w--current:focus-visible::after,
 .footer a.w--current:focus-visible::before,
 .footer a.w--current:focus-visible::after {
   animation: none !important;
-  border-bottom-color: transparent !important;
   content: none !important;
-  opacity: 0 !important;
-  transform: none !important;
   transition: none !important;
 }
 
