@@ -135,16 +135,31 @@ function F(t, r = !1) {
 }
 function I(e, t) {
 	if (e.isOpen === t) return;
+	t && T.forEach((t) => {
+		t !== e && t.isOpen && I(t, !1);
+	});
 	let n = e.itemElement.matches(":hover");
 	e.isOpen = t, P(e), F(e), M(e, e.isOpen || !e.isOpen && n), j(e, e.isOpen ? "open" : n ? "hover" : "normal");
 }
-function L(e) {
+function L() {
+	let e = !1;
+	T.forEach((t) => {
+		if (t.isOpen) {
+			if (!e) {
+				e = !0;
+				return;
+			}
+			t.isOpen = !1, P(t), F(t, !0), M(t, !1), j(t, t.itemElement.matches(":hover") ? "hover" : "normal");
+		}
+	});
+}
+function R(e) {
 	var t, n;
 	w += 1;
 	let r = e.body.id || ((t = e.content) == null ? void 0 : t.id) || `accordion-content-${w}`;
 	e.body.id = r, e.header.setAttribute("role", "button"), e.header.setAttribute("tabindex", (n = e.header.getAttribute("tabindex")) == null ? "0" : n), e.header.setAttribute("aria-controls", r), e.header.setAttribute("aria-expanded", String(e.isOpen));
 }
-function R(e, t) {
+function z(e, t) {
 	var r;
 	let i = t.querySelector(o), a = t.querySelector(l), h = (r = a == null ? void 0 : a.querySelector(u)) == null ? t.querySelector(u) : r;
 	if (!i || !a) return null;
@@ -159,7 +174,7 @@ function R(e, t) {
 		body: a,
 		isOpen: D(e, i)
 	};
-	return L(b), P(b), n.set(b.heading, {
+	return R(b), P(b), n.set(b.heading, {
 		x: b.isOpen ? p : 0,
 		color: b.isOpen ? d : "",
 		transformOrigin: "left center",
@@ -174,8 +189,9 @@ function R(e, t) {
 		transformBox: "fill-box",
 		willChange: "transform",
 		flexShrink: 0
-	}), k(b, b.isOpen ? d : f)), F(b, !0), b.header.addEventListener("click", () => {
-		I(b, !b.isOpen);
+	}), k(b, b.isOpen ? d : f)), F(b, !0), b.itemElement.addEventListener("click", (e) => {
+		let t = e.target;
+		t instanceof Element && t.closest(l) || I(b, !b.isOpen);
 	}), b.header.addEventListener("keydown", (e) => {
 		e.key !== "Enter" && e.key !== " " || (e.preventDefault(), I(b, !b.isOpen));
 	}), b.itemElement.addEventListener("mouseenter", () => {
@@ -184,20 +200,20 @@ function R(e, t) {
 		b.isOpen || M(b, !1), j(b, b.isOpen ? "open" : "normal");
 	}), b;
 }
-function z(e = document) {
+function B(e = document) {
 	return C ? T : (C = !0, E(), t(r, e).forEach((e) => {
 		let n = t(i, e), r = t(a, e);
 		(n.length > 0 ? n : r.length > 0 ? r : [e]).forEach((t) => {
-			let n = R(e, t);
+			let n = z(e, t);
 			n && T.push(n);
 		});
-	}), T);
+	}), L(), T);
 }
-function B() {
-	z();
+function V() {
+	B();
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", B, { once: !0 }) : B();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", V, { once: !0 }) : V();
 //#endregion
-export { z as initAccordions };
+export { B as initAccordions };
 
 //# sourceMappingURL=accordion.js.map

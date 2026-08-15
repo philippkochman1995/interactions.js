@@ -256,12 +256,41 @@ function setOpen(item: AccordionItem, isOpen: boolean): void {
     return;
   }
 
+  if (isOpen) {
+    items.forEach((otherItem) => {
+      if (otherItem !== item && otherItem.isOpen) {
+        setOpen(otherItem, false);
+      }
+    });
+  }
+
   const isHovered = item.itemElement.matches(':hover');
   item.isOpen = isOpen;
   syncExpandedState(item);
   setContentState(item);
   animateHeading(item, item.isOpen || (!item.isOpen && isHovered));
   animateIcon(item, item.isOpen ? 'open' : isHovered ? 'hover' : 'normal');
+}
+
+function normalizeInitialOpenItems(): void {
+  let foundOpenItem = false;
+
+  items.forEach((item) => {
+    if (!item.isOpen) {
+      return;
+    }
+
+    if (!foundOpenItem) {
+      foundOpenItem = true;
+      return;
+    }
+
+    item.isOpen = false;
+    syncExpandedState(item);
+    setContentState(item, true);
+    animateHeading(item, false);
+    animateIcon(item, item.itemElement.matches(':hover') ? 'hover' : 'normal');
+  });
 }
 
 function setupAccessibility(item: AccordionItem): void {
@@ -327,7 +356,13 @@ function createItem(section: HTMLElement, itemElement: HTMLElement): AccordionIt
 
   setContentState(item, true);
 
-  item.header.addEventListener('click', () => {
+  item.itemElement.addEventListener('click', (event) => {
+    const target = event.target;
+
+    if (target instanceof Element && target.closest(BODY_SELECTOR)) {
+      return;
+    }
+
     setOpen(item, !item.isOpen);
   });
 
@@ -386,6 +421,8 @@ export function initAccordions(root: ParentNode = document): AccordionItem[] {
       }
     });
   });
+
+  normalizeInitialOpenItems();
 
   return items;
 }
