@@ -1,5 +1,3 @@
-import { gsap } from 'gsap';
-import { Flip } from 'gsap/Flip';
 import type { I18nApi, LightboxApi, LightboxItem } from '../types';
 import {
   delegate,
@@ -9,7 +7,6 @@ import {
   getStringAttr,
   isHTMLElement,
   lockScroll,
-  prefersReducedMotion,
   qsa,
   qs,
   restoreFocus,
@@ -30,23 +27,6 @@ interface LightboxElements {
   nextButton: HTMLButtonElement;
 }
 
-interface InlineImageStyles {
-  position: string;
-  visibility: string;
-  zIndex: string;
-}
-
-interface FlipPairRestore {
-  triggerImage: string | null;
-  lightboxImage: string | null;
-}
-
-interface SharedOpenTransition {
-  triggerImage: HTMLImageElement;
-  previousFlipIds: FlipPairRestore;
-  state: ReturnType<typeof Flip.getState>;
-}
-
 const LIGHTBOX_TRIGGER_SELECTOR = '[data-lightbox-src]';
 const LIGHTBOX_CLASS = 'js-lightbox';
 const LIGHTBOX_AUTO_TRIGGER_SELECTOR = `.${LIGHTBOX_CLASS}`;
@@ -61,10 +41,6 @@ const LIGHTBOX_TRIGGER_IMAGE_CLASS = 'site-lightbox-trigger__image';
 const LIGHTBOX_TRIGGER_ICON_CLASS = 'site-lightbox-trigger__icon';
 const WEBFLOW_EMPTY_BIND_CLASS = 'w-dyn-bind-empty';
 const WEBFLOW_PLACEHOLDER_IMAGE_PATTERN = '/plugins/Basic/assets/placeholder.';
-const LIGHTBOX_FLIP_ID = 'site-lightbox-active-image';
-const LIGHTBOX_OPEN_DURATION = 0.48;
-const LIGHTBOX_CLOSE_DURATION = 0.34;
-const LIGHTBOX_CHROME_SELECTOR = '.site-lightbox__close, .site-lightbox__previous, .site-lightbox__next, .site-lightbox__caption';
 const LIGHTBOX_AUTO_ICON_SVG = `
   <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
     <circle class="site-lightbox-trigger__icon-circle" cx="15" cy="15" r="15"/>
@@ -73,20 +49,13 @@ const LIGHTBOX_AUTO_ICON_SVG = `
   </svg>
 `;
 
-gsap.registerPlugin(Flip);
-
 let initialized = false;
 let i18n: I18nApi | null = null;
 let elements: LightboxElements | null = null;
 let items: LightboxItem[] = [];
 let activeIndex = 0;
 let isOpen = false;
-let isAnimating = false;
 let previouslyFocusedElement: HTMLElement | null = null;
-let activeAnimation: gsap.core.Animation | null = null;
-let activeTriggerImage: HTMLImageElement | null = null;
-let activeTriggerImageStyles: InlineImageStyles | null = null;
-let activeSharedTrigger: HTMLElement | null = null;
 
 function getTriggerSrc(trigger: HTMLElement): string {
   const dataSrc = getStringAttr(trigger, 'data-lightbox-src');
@@ -141,126 +110,6 @@ function getTriggerAlt(trigger: HTMLElement): string {
 
   const image = qs<HTMLImageElement>('img', trigger);
   return image?.alt?.trim() ?? '';
-}
-
-function getTriggerImage(trigger: HTMLElement): HTMLImageElement | null {
-  if (trigger instanceof HTMLImageElement) {
-    return trigger;
-  }
-
-  return qs<HTMLImageElement>('img', trigger);
-}
-
-function getVisibleTriggerImage(trigger: HTMLElement): HTMLImageElement | null {
-  const image = getTriggerImage(trigger);
-  return isVisibleImage(image) ? image : null;
-}
-
-function isVisibleImage(image: HTMLImageElement | null): image is HTMLImageElement {
-  if (!image || !document.documentElement.contains(image)) {
-    return false;
-  }
-
-  const rect = image.getBoundingClientRect();
-  const style = window.getComputedStyle(image);
-
-  return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
-}
-
-function saveInlineImageStyles(image: HTMLImageElement): InlineImageStyles {
-  return {
-    position: image.style.position,
-    visibility: image.style.visibility,
-    zIndex: image.style.zIndex,
-  };
-}
-
-function restoreInlineImageStyles(image: HTMLImageElement | null, styles: InlineImageStyles | null): void {
-  if (!image || !styles) {
-    return;
-  }
-
-  image.style.position = styles.position;
-  image.style.visibility = styles.visibility;
-  image.style.zIndex = styles.zIndex;
-}
-
-function setFlipId(image: HTMLImageElement, value: string): string | null {
-  const previous = image.getAttribute('data-flip-id');
-  image.setAttribute('data-flip-id', value);
-  return previous;
-}
-
-function restoreFlipId(image: HTMLImageElement | null, previousValue: string | null): void {
-  if (!image) {
-    return;
-  }
-
-  if (previousValue === null) {
-    image.removeAttribute('data-flip-id');
-    return;
-  }
-
-  image.setAttribute('data-flip-id', previousValue);
-}
-
-function prepareFlipPair(triggerImage: HTMLImageElement, lightboxImage: HTMLImageElement): FlipPairRestore {
-  return {
-    triggerImage: setFlipId(triggerImage, LIGHTBOX_FLIP_ID),
-    lightboxImage: setFlipId(lightboxImage, LIGHTBOX_FLIP_ID),
-  };
-}
-
-function restoreFlipPair(
-  triggerImage: HTMLImageElement | null,
-  lightboxImage: HTMLImageElement,
-  previousValues: FlipPairRestore | null,
-): void {
-  if (!previousValues) {
-    return;
-  }
-
-  restoreFlipId(triggerImage, previousValues.triggerImage);
-  restoreFlipId(lightboxImage, previousValues.lightboxImage);
-}
-
-function getLightboxChrome(lightboxElements: LightboxElements): HTMLElement[] {
-  return qsa<HTMLElement>(LIGHTBOX_CHROME_SELECTOR, lightboxElements.root).filter((element) => !element.hidden);
-}
-
-function killActiveAnimation(): void {
-  if (!activeAnimation) {
-    return;
-  }
-
-  activeAnimation.kill();
-  activeAnimation = null;
-  isAnimating = false;
-}
-
-function rememberSharedImage(trigger: HTMLElement, image: HTMLImageElement | null): void {
-  activeTriggerImage = image;
-  activeTriggerImageStyles = image ? saveInlineImageStyles(image) : null;
-  activeSharedTrigger = image ? trigger : null;
-}
-
-function clearSharedImage(): void {
-  activeTriggerImage = null;
-  activeTriggerImageStyles = null;
-  activeSharedTrigger = null;
-}
-
-function clearAnimationProps(lightboxElements: LightboxElements): void {
-  gsap.set([lightboxElements.root, lightboxElements.image, ...getLightboxChrome(lightboxElements)], {
-    clearProps: 'opacity,transform',
-  });
-}
-
-function completeAnimation(lightboxElements: LightboxElements): void {
-  lightboxElements.root.classList.remove('is-animating', 'is-closing');
-  clearAnimationProps(lightboxElements);
-  activeAnimation = null;
-  isAnimating = false;
 }
 
 function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
@@ -525,37 +374,6 @@ function renderItem(): void {
   lightboxElements.root.dataset.lightboxCount = String(items.length);
 }
 
-function renderItemWithTransition(): void {
-  if (prefersReducedMotion()) {
-    renderItem();
-    return;
-  }
-
-  const lightboxElements = ensureLightboxDom();
-
-  gsap.killTweensOf(lightboxElements.image);
-  gsap.to(lightboxElements.image, {
-    opacity: 0,
-    scale: 0.985,
-    duration: 0.11,
-    ease: 'power1.out',
-    onComplete: () => {
-      renderItem();
-      gsap.fromTo(
-        lightboxElements.image,
-        { opacity: 0, scale: 0.985 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.18,
-          ease: 'power2.out',
-          clearProps: 'opacity,scale',
-        },
-      );
-    },
-  });
-}
-
 function setOpenState(open: boolean): void {
   const lightboxElements = ensureLightboxDom();
 
@@ -563,172 +381,17 @@ function setOpenState(open: boolean): void {
   lightboxElements.root.setAttribute('aria-hidden', String(!open));
   lightboxElements.root.classList.toggle('is-active', open);
   lightboxElements.root.classList.toggle('is-visible', open);
-  lightboxElements.root.classList.toggle('is-animating', false);
-  lightboxElements.root.classList.toggle('is-closing', false);
   document.documentElement.classList.toggle('is-lightbox-open', open);
   document.body.classList.toggle('is-lightbox-open', open);
 }
 
-function finishClose(
-  lightboxElements: LightboxElements,
-  focusTarget: HTMLElement | null,
-  currentItem: LightboxItem | null,
-): void {
-  setOpenState(false);
-  unlockScroll();
-
-  isOpen = false;
-  isAnimating = false;
-  items = [];
-  activeIndex = 0;
-  previouslyFocusedElement = null;
-  clearSharedImage();
-  activeAnimation = null;
-  lightboxElements.image.removeAttribute('src');
-  lightboxElements.caption.textContent = '';
-
-  dispatchSiteEvent(lightboxElements.root, 'site:lightbox-close', {
-    item: currentItem,
-  });
-
-  restoreFocus(focusTarget);
-}
-
-function animateFallbackOpen(lightboxElements: LightboxElements): void {
-  activeAnimation = gsap.fromTo(
-    lightboxElements.root,
-    { opacity: prefersReducedMotion() ? 1 : 0 },
-    {
-      opacity: 1,
-      duration: prefersReducedMotion() ? 0.01 : 0.18,
-      ease: 'power1.out',
-      clearProps: 'opacity',
-      onComplete: () => {
-        activeAnimation = null;
-      },
-    },
-  );
-}
-
-function prepareSharedOpenTransition(
-  lightboxElements: LightboxElements,
-  triggerImage: HTMLImageElement,
-): SharedOpenTransition {
-  const previousFlipIds = prepareFlipPair(triggerImage, lightboxElements.image);
-  const state = Flip.getState(triggerImage);
-
-  triggerImage.style.visibility = 'hidden';
-
-  return {
-    triggerImage,
-    previousFlipIds,
-    state,
-  };
-}
-
-function animateSharedOpen(lightboxElements: LightboxElements, transition: SharedOpenTransition): void {
-  isAnimating = true;
-  lightboxElements.root.classList.add('is-animating');
-
-  gsap.set(lightboxElements.root, { opacity: 0 });
-  gsap.set(getLightboxChrome(lightboxElements), { opacity: 0, y: 8 });
-  gsap.set(lightboxElements.image, { opacity: 1 });
-
-  activeAnimation = gsap
-    .timeline({
-      defaults: { ease: 'power2.out' },
-      onComplete: () => {
-        restoreFlipPair(transition.triggerImage, lightboxElements.image, transition.previousFlipIds);
-        restoreInlineImageStyles(transition.triggerImage, activeTriggerImageStyles);
-        completeAnimation(lightboxElements);
-      },
-    })
-    .to(lightboxElements.root, { opacity: 1, duration: 0.2 }, 0)
-    .add(
-      Flip.from(transition.state, {
-        targets: lightboxElements.image,
-        absolute: true,
-        duration: LIGHTBOX_OPEN_DURATION,
-        ease: 'power3.inOut',
-        scale: true,
-      }),
-      0,
-    )
-    .to(getLightboxChrome(lightboxElements), { opacity: 1, y: 0, duration: 0.2, stagger: 0.025 }, 0.18);
-}
-
-function getReturnTriggerImage(currentItem: LightboxItem | null): HTMLImageElement | null {
-  if (currentItem?.trigger !== activeSharedTrigger) {
-    return null;
-  }
-
-  return isVisibleImage(activeTriggerImage) ? activeTriggerImage : null;
-}
-
-function animateFallbackClose(
-  lightboxElements: LightboxElements,
-  focusTarget: HTMLElement | null,
-  currentItem: LightboxItem | null,
-): void {
-  activeAnimation = gsap.to(lightboxElements.root, {
-    opacity: 0,
-    duration: prefersReducedMotion() ? 0.01 : 0.16,
-    ease: 'power1.out',
-    onComplete: () => {
-      gsap.set(lightboxElements.root, { clearProps: 'opacity' });
-      finishClose(lightboxElements, focusTarget, currentItem);
-    },
-  });
-}
-
-function animateSharedClose(
-  lightboxElements: LightboxElements,
-  triggerImage: HTMLImageElement,
-  focusTarget: HTMLElement | null,
-  currentItem: LightboxItem | null,
-): void {
-  const previousFlipIds = prepareFlipPair(triggerImage, lightboxElements.image);
-  const state = Flip.getState(lightboxElements.image);
-
-  restoreInlineImageStyles(triggerImage, activeTriggerImageStyles);
-  triggerImage.style.position = triggerImage.style.position || 'relative';
-  triggerImage.style.zIndex = '1102';
-  lightboxElements.image.style.visibility = 'hidden';
-  lightboxElements.root.classList.add('is-closing');
-  isAnimating = true;
-
-  activeAnimation = gsap
-    .timeline({
-      defaults: { ease: 'power2.out' },
-      onComplete: () => {
-        restoreFlipPair(triggerImage, lightboxElements.image, previousFlipIds);
-        restoreInlineImageStyles(triggerImage, activeTriggerImageStyles);
-        lightboxElements.image.style.visibility = '';
-        clearAnimationProps(lightboxElements);
-        finishClose(lightboxElements, focusTarget, currentItem);
-      },
-    })
-    .to(lightboxElements.root, { opacity: 0, duration: LIGHTBOX_CLOSE_DURATION }, 0)
-    .to(getLightboxChrome(lightboxElements), { opacity: 0, y: 6, duration: 0.14 }, 0)
-    .add(
-      Flip.from(state, {
-        targets: triggerImage,
-        absolute: true,
-        duration: LIGHTBOX_CLOSE_DURATION,
-        ease: 'power3.inOut',
-        scale: true,
-      }),
-      0,
-    );
-}
-
 function goToItem(index: number): void {
-  if (items.length < 2 || isAnimating) {
+  if (items.length < 2) {
     return;
   }
 
   activeIndex = (index + items.length) % items.length;
-  renderItemWithTransition();
+  renderItem();
 }
 
 function goNext(): void {
@@ -740,10 +403,6 @@ function goPrevious(): void {
 }
 
 export function openLightbox(trigger: HTMLElement): void {
-  if (isAnimating) {
-    return;
-  }
-
   const collection = collectItems(trigger);
 
   if (!collection) {
@@ -751,34 +410,20 @@ export function openLightbox(trigger: HTMLElement): void {
   }
 
   const wasOpen = isOpen;
-  const triggerImage = getVisibleTriggerImage(trigger);
 
   items = collection.items;
   activeIndex = collection.index;
   previouslyFocusedElement = trigger;
   isOpen = true;
-  rememberSharedImage(trigger, triggerImage);
 
   renderItem();
-
-  const lightboxElements = ensureLightboxDom();
-  const canAnimateSharedImage = !wasOpen && triggerImage && !prefersReducedMotion();
-  const sharedOpenTransition = canAnimateSharedImage
-    ? prepareSharedOpenTransition(lightboxElements, triggerImage)
-    : null;
-
   setOpenState(true);
 
   if (!wasOpen) {
     lockScroll();
   }
 
-  if (sharedOpenTransition) {
-    animateSharedOpen(lightboxElements, sharedOpenTransition);
-  } else {
-    animateFallbackOpen(lightboxElements);
-  }
-
+  const lightboxElements = ensureLightboxDom();
   focusElement(lightboxElements.closeButton || lightboxElements.root);
 
   const currentItem = items[activeIndex];
@@ -793,24 +438,29 @@ export function openLightbox(trigger: HTMLElement): void {
 }
 
 export function closeLightbox(): void {
-  if (!isOpen || !elements || isAnimating) {
+  if (!isOpen || !elements) {
     return;
   }
 
   const lightboxElements = elements;
   const focusTarget = previouslyFocusedElement;
   const currentItem = items[activeIndex] ?? null;
-  const triggerImage = getReturnTriggerImage(currentItem);
-  const canAnimateSharedImage = Boolean(triggerImage) && !prefersReducedMotion();
 
-  killActiveAnimation();
+  setOpenState(false);
+  unlockScroll();
 
-  if (canAnimateSharedImage && triggerImage) {
-    animateSharedClose(lightboxElements, triggerImage, focusTarget, currentItem);
-    return;
-  }
+  isOpen = false;
+  items = [];
+  activeIndex = 0;
+  previouslyFocusedElement = null;
+  lightboxElements.image.removeAttribute('src');
+  lightboxElements.caption.textContent = '';
 
-  animateFallbackClose(lightboxElements, focusTarget, currentItem);
+  dispatchSiteEvent(lightboxElements.root, 'site:lightbox-close', {
+    item: currentItem,
+  });
+
+  restoreFocus(focusTarget);
 }
 
 function onKeydown(event: KeyboardEvent): void {
