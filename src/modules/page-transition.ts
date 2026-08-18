@@ -5,8 +5,8 @@ import { prefersReducedMotion } from './utils';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay]';
 const TRANSITION_STORAGE_KEY = 'site-page-transition';
 const TRANSITION_STORAGE_VALUE = 'pending';
-const EXIT_DURATION = 0.42;
-const ENTRY_DURATION = 0.46;
+const EXIT_DURATION = 1.5;
+const ENTRY_DURATION = 1.5;
 const IGNORED_LINK_SELECTOR = [
   '[data-lightbox-src]',
   '.js-lightbox',
@@ -183,7 +183,7 @@ export function initPageTransitions(): void {
 
     event.preventDefault();
     navigateWithTransition(url, overlay);
-  });
+  }, true);
 
   window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay));
 }

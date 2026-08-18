@@ -475,7 +475,7 @@ function pt(e) {
 }
 //#endregion
 //#region src/modules/page-transition.ts
-var mt = "[data-page-transition-overlay]", K = "site-page-transition", ht = "pending", gt = .42, _t = .46, vt = [
+var mt = "[data-page-transition-overlay]", K = "site-page-transition", ht = "pending", gt = 1.5, _t = 1.5, vt = [
 	"[data-lightbox-src]",
 	".js-lightbox",
 	"[data-modal-open]",
@@ -567,7 +567,7 @@ function At() {
 		if (!wt(t, r)) return;
 		let a = Ct(r);
 		!a || i() || (t.preventDefault(), Ot(a, e));
-	}), window.addEventListener("pageshow", (t) => kt(t, e));
+	}, !0), window.addEventListener("pageshow", (t) => kt(t, e));
 }
 //#endregion
 //#region src/modules/site-menu.ts
