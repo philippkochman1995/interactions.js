@@ -129,8 +129,16 @@ body.is-lightbox-open {
 @media (prefers-reduced-motion: reduce) {
   [data-site-menu-panel],
   [data-site-menu-link],
-  [data-site-menu-indicator] {
+  [data-site-menu-indicator],
+  .site-lightbox,
+  .site-lightbox__image,
+  .site-lightbox__caption,
+  .site-lightbox__close,
+  .site-lightbox__previous,
+  .site-lightbox__next {
     transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    will-change: auto;
   }
 }
 
@@ -171,6 +179,18 @@ body.is-lightbox-open {
   background: rgba(6, 2, 26, 0.8);
   background: color-mix(in srgb, var(--fw_dark_purple) 80%, transparent);
   color: var(--fw_off_white);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-lightbox.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.site-lightbox.is-animating,
+.site-lightbox.is-closing {
+  pointer-events: none;
 }
 
 .site-lightbox__figure {
@@ -190,6 +210,8 @@ body.is-lightbox-open {
   width: auto;
   height: auto;
   object-fit: contain;
+  transform-origin: center;
+  will-change: transform, opacity;
 }
 
 .site-lightbox__caption {
@@ -208,6 +230,7 @@ body.is-lightbox-open {
 .site-lightbox__previous,
 .site-lightbox__next {
   cursor: pointer;
+  will-change: transform, opacity;
 }
 
 .site-lightbox__close {
