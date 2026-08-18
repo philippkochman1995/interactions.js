@@ -122,22 +122,32 @@ function consumeTransitionPending(): boolean {
   }
 }
 
+/*
+ * Der y-Anteil wird ueberall explizit auf 0 gepinnt.
+ *
+ * gsap.set(overlay, { yPercent: -100 }) schreibt inline
+ * `transform: translate3d(0px, -100%, 0px)`. Beim naechsten Zugriff liest GSAP
+ * dieses -100% als Pixel-y (eine Viewporthoehe) zurueck und rechnet das neue
+ * yPercent obendrauf — die Cover-Animation lief dann von -200% auf -100% und
+ * damit komplett ausserhalb des Viewports. Mit y: 0 kommt die Position immer
+ * allein aus yPercent.
+ */
 function revealPage(overlay: HTMLElement): void {
   if (prefersReducedMotion() || !consumeTransitionPending()) {
-    gsap.set(overlay, { yPercent: -100 });
+    gsap.set(overlay, { yPercent: -100, y: 0 });
     return;
   }
 
   gsap.fromTo(
     overlay,
-    { yPercent: 0 },
+    { yPercent: 0, y: 0 },
     {
       yPercent: 100,
       delay: PAGE_TRANSITION.holdDuration,
       duration: PAGE_TRANSITION.revealDuration,
       ease: PAGE_TRANSITION.ease,
       onComplete: () => {
-        gsap.set(overlay, { yPercent: -100 });
+        gsap.set(overlay, { yPercent: -100, y: 0 });
       },
     },
   );
@@ -150,7 +160,7 @@ function navigateWithTransition(url: URL, overlay: HTMLElement): void {
   gsap.killTweensOf(overlay);
   gsap.fromTo(
     overlay,
-    { yPercent: -100 },
+    { yPercent: -100, y: 0 },
     {
       yPercent: 0,
       duration: PAGE_TRANSITION.coverDuration,
@@ -169,7 +179,7 @@ function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement
 
   isTransitioning = false;
   consumeTransitionPending();
-  gsap.set(overlay, { yPercent: -100 });
+  gsap.set(overlay, { yPercent: -100, y: 0 });
 }
 
 export function initPageTransitions(): void {

@@ -542,21 +542,33 @@ function Dt() {
 }
 function Ot(e) {
 	if (i() || !Dt()) {
-		v.set(e, { yPercent: -100 });
+		v.set(e, {
+			yPercent: -100,
+			y: 0
+		});
 		return;
 	}
-	v.fromTo(e, { yPercent: 0 }, {
+	v.fromTo(e, {
+		yPercent: 0,
+		y: 0
+	}, {
 		yPercent: 100,
 		delay: G.holdDuration,
 		duration: G.revealDuration,
 		ease: G.ease,
 		onComplete: () => {
-			v.set(e, { yPercent: -100 });
+			v.set(e, {
+				yPercent: -100,
+				y: 0
+			});
 		}
 	});
 }
 function kt(e, t) {
-	J = !0, Et(), v.killTweensOf(t), v.fromTo(t, { yPercent: -100 }, {
+	J = !0, Et(), v.killTweensOf(t), v.fromTo(t, {
+		yPercent: -100,
+		y: 0
+	}, {
 		yPercent: 0,
 		duration: G.coverDuration,
 		ease: G.ease,
@@ -566,7 +578,10 @@ function kt(e, t) {
 	});
 }
 function At(e, t) {
-	e.persisted && (J = !1, Dt(), v.set(t, { yPercent: -100 }));
+	e.persisted && (J = !1, Dt(), v.set(t, {
+		yPercent: -100,
+		y: 0
+	}));
 }
 function jt() {
 	if (yt) return;
