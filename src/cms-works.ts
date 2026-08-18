@@ -1,4 +1,10 @@
 import { createWorksFilterInterface, type WorksFilterState, type WorksSortMode } from './cms-works-filter';
+import {
+  isBackForwardNavigation,
+  readWorkFlipPayload,
+  readWorksViewState,
+  writeWorksViewState,
+} from './modules/work-flip-state';
 
 interface WorkItem {
   id: string;
@@ -45,6 +51,7 @@ const LINK_SELECTOR = [
 const INITIAL_VISIBLE_COUNT = 16;
 const LOAD_MORE_INCREMENT = 16;
 const LOAD_MORE_TEMPLATE_SELECTOR = '[data-cms-works-load-more-template]';
+const WORKS_READY_EVENT = 'site:works-ready';
 
 function ready(callback: () => void): void {
   if (document.readyState === 'loading') {
@@ -280,6 +287,8 @@ function createWorkCard(item: WorkItem): HTMLElement {
   if (item.href) {
     card.classList.add('cms-works__item--clickable');
     card.setAttribute('href', item.href);
+    card.setAttribute('data-work-flip', '');
+    card.setAttribute('data-work-flip-id', item.id);
   }
 
   imageWrap.className = 'cms-works__image-wrap';
@@ -412,13 +421,23 @@ function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement 
   return button;
 }
 
+/**
+ * Der Ansichtszustand wird nur wiederhergestellt, wenn der Nutzer wirklich von einer
+ * Werkseite zurueckkommt. Ueber das Menue aufgerufen startet die Uebersicht frisch.
+ */
+function shouldRestoreView(): boolean {
+  return isBackForwardNavigation() || readWorkFlipPayload()?.direction === 'back';
+}
+
 function renderWorks(root: HTMLElement, source: HTMLElement): void {
   const items = readItems(source);
+  const storedView = shouldRestoreView() ? readWorksViewState() : null;
+  const restoredCategories = storedView?.categories ?? [];
   const state: WorksFilterState = {
-    appliedCategories: new Set(),
-    pendingCategories: new Set(),
-    appliedSortMode: readSortMode(root),
-    pendingSortMode: readSortMode(root),
+    appliedCategories: new Set(restoredCategories),
+    pendingCategories: new Set(restoredCategories),
+    appliedSortMode: storedView?.sort ?? readSortMode(root),
+    pendingSortMode: storedView?.sort ?? readSortMode(root),
     open: false,
   };
   const gridHost = document.createElement('div');
@@ -428,7 +447,8 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   let animationFrame = 0;
   let previousColumnCount = 0;
   let previousWidth = 0;
-  let visibleCount = INITIAL_VISIBLE_COUNT;
+  let visibleCount = storedView?.visibleCount ?? INITIAL_VISIBLE_COUNT;
+  let pendingScrollRestore = storedView?.scrollY ?? null;
   let currentItems: WorkItem[] = [];
   let measures = new Map<string, ImageMeasure>();
 
@@ -468,6 +488,29 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
         if (loadMoreButton) {
           loadMoreButton.hidden = currentItems.length <= visibleCount;
         }
+
+        // Erst die alte Scrollposition, dann das Signal: der Flip misst die Kachel
+        // sonst an der falschen Stelle.
+        if (pendingScrollRestore !== null) {
+          window.scrollTo(0, pendingScrollRestore);
+          pendingScrollRestore = null;
+        }
+
+        document.dispatchEvent(
+          new CustomEvent(WORKS_READY_EVENT, {
+            bubbles: true,
+            detail: { count: visibleItems.length, total: currentItems.length },
+          }),
+        );
+      });
+    };
+    const persistView = () => {
+      writeWorksViewState({
+        categories: Array.from(state.appliedCategories),
+        sort: state.appliedSortMode,
+        visibleCount,
+        scrollY: window.scrollY,
+        ts: Date.now(),
       });
     };
     const updateOverlayTop = () => {
@@ -481,6 +524,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
       visibleCount = INITIAL_VISIBLE_COUNT;
       renderCurrentItems(true);
       controls.sync();
+      persistView();
     }, {
       onOpenChange: (open) => {
         root.classList.toggle('is-filter-open', open);
@@ -495,6 +539,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
       const showMoreItems = () => {
         visibleCount += LOAD_MORE_INCREMENT;
         renderCurrentItems(true);
+        persistView();
       };
       loadMoreButton.addEventListener('click', (event) => {
         event.preventDefault();
@@ -516,10 +561,12 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
     const resizeObserver = new ResizeObserver(() => renderCurrentItems());
 
     renderCurrentItems(true);
+    controls.sync();
     resizeObserver.observe(root);
     window.addEventListener('orientationchange', () => renderCurrentItems(true));
     window.addEventListener('resize', updateOverlayTop);
     window.addEventListener('scroll', updateOverlayTop, { passive: true });
+    window.addEventListener('pagehide', persistView);
   });
 }
 

@@ -3,10 +3,14 @@ import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
 import { initPageTransitions } from './modules/page-transition';
 import { initSiteMenu } from './modules/site-menu';
+import { initWorkFlip } from './modules/work-flip';
 import { initBackButtons } from './modules/utils';
 
 let booted = false;
 
+// Muss vor den Seitenuebergaengen laufen: Werk-Links werden vom Flip uebernommen,
+// das rosa Overlay bleibt fuer alle anderen Links zustaendig.
+initWorkFlip();
 initPageTransitions();
 
 function boot(): void {

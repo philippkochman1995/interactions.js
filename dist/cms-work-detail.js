@@ -101,25 +101,28 @@ function v(e, t) {
 }
 function y(e) {
 	let t = document.createElement("section"), n = document.createElement("div"), r = document.createElement("div"), i = document.createElement("h1"), a = document.createElement("div"), o = document.createElement("div"), s = document.createElement("div"), c = document.createElement("figure"), l = document.createElement("img"), u = document.createElement("figcaption");
-	return t.className = "cms-work-detail__hero", n.className = "cms-work-detail__intro", r.className = "cms-work-detail__content", i.className = "cms-work-detail__title", a.className = "cms-work-detail__properties", o.className = "cms-work-detail__text", s.className = "cms-work-detail__view", c.className = "cms-work-detail__figure", l.className = "cms-work-detail__image", u.className = "cms-work-detail__caption", i.textContent = e.title, a.innerHTML = e.properties, o.innerHTML = e.html, s.innerHTML = e.view, l.src = e.image, l.alt = e.imageAlt, l.decoding = "async", u.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.view && r.append(s), e.image && (c.append(l), e.caption && c.append(u)), n.append(r, c), t.append(n), t;
+	return t.className = "cms-work-detail__hero", n.className = "cms-work-detail__intro", r.className = "cms-work-detail__content", i.className = "cms-work-detail__title", a.className = "cms-work-detail__properties", o.className = "cms-work-detail__text", s.className = "cms-work-detail__view", c.className = "cms-work-detail__figure", l.className = "cms-work-detail__image", u.className = "cms-work-detail__caption", i.textContent = e.title, a.innerHTML = e.properties, o.innerHTML = e.html, s.innerHTML = e.view, l.src = e.image, l.alt = e.imageAlt, l.decoding = "async", l.setAttribute("data-work-flip-target", ""), l.setAttribute("data-work-flip-id", e.id), u.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.view && r.append(s), e.image && (c.append(l), e.caption && c.append(u)), n.append(r, c), t.append(n), t;
 }
-function b(e, t) {
-	var n, r;
-	let i = ((n = e.getAttribute("data-work-detail-overview-href")) == null ? void 0 : n.trim()) || "";
-	if (t.length === 0 && !i) return null;
-	let a = document.createElement("section"), o = document.createElement("div"), s = document.createElement("h2"), c = document.createElement("div");
-	if (a.className = "cms-work-detail cms-work-detail__related", o.className = "cms-work-detail__related-inner", s.className = "cms-work-detail__related-heading", s.textContent = ((r = e.getAttribute("data-work-detail-related-label")) == null ? void 0 : r.trim()) || "Ähnliche Werke", c.className = "cms-work-detail__related-grid", t.forEach((e) => {
-		c.append(_(e));
-	}), o.append(s, c), i) {
-		var l;
-		let t = document.createElement("a");
-		t.className = "cms-work-detail__overview-link", t.href = i, t.textContent = ((l = e.getAttribute("data-work-detail-overview-label")) == null ? void 0 : l.trim()) || "Zur Übersicht", o.append(t);
+function b(e, t, n) {
+	var r, i;
+	let a = ((r = e.getAttribute("data-work-detail-overview-href")) == null ? void 0 : r.trim()) || "";
+	if (n.length === 0 && !a) return null;
+	let o = document.createElement("section"), s = document.createElement("div"), c = document.createElement("h2"), l = document.createElement("div");
+	if (o.className = "cms-work-detail cms-work-detail__related", s.className = "cms-work-detail__related-inner", c.className = "cms-work-detail__related-heading", c.textContent = ((i = e.getAttribute("data-work-detail-related-label")) == null ? void 0 : i.trim()) || "Ähnliche Werke", l.className = "cms-work-detail__related-grid", n.forEach((e) => {
+		l.append(_(e));
+	}), s.append(c, l), a) {
+		var u;
+		let n = document.createElement("a");
+		n.className = "cms-work-detail__overview-link", n.href = a, n.setAttribute("data-work-flip-back", ""), n.setAttribute("data-work-flip-id", t.id), n.textContent = ((u = e.getAttribute("data-work-detail-overview-label")) == null ? void 0 : u.trim()) || "Zur Übersicht", s.append(n);
 	}
-	return a.append(o), a;
+	return o.append(s), o;
 }
 function x(e, t) {
-	let n = h(e), r = t ? v(p(t), n) : [], i = y(n), a = b(e, r);
-	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.after(a);
+	let n = h(e), r = t ? v(p(t), n) : [], i = y(n), a = b(e, n, r);
+	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.after(a), document.dispatchEvent(new CustomEvent("site:work-detail-ready", {
+		bubbles: !0,
+		detail: { id: n.id }
+	}));
 }
 function S(t) {
 	var n;

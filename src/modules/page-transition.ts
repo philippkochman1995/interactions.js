@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 
-import { prefersReducedMotion } from './utils';
+import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
   coverDuration: 0.82,
@@ -21,6 +21,8 @@ const IGNORED_LINK_SELECTOR = [
   '[data-modal-open]',
   '[data-modal-close]',
   '[data-back-button]',
+  '[data-work-flip]',
+  '[data-work-flip-back]',
   '[download]',
 ].join(',');
 
@@ -57,10 +59,6 @@ function ensureOverlay(): HTMLElement {
   return overlay;
 }
 
-function hasModifierKey(event: MouseEvent): boolean {
-  return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-}
-
 function isIgnoredLink(link: HTMLAnchorElement): boolean {
   return Boolean(
     link.closest(IGNORED_LINK_SELECTOR) ||
@@ -69,32 +67,6 @@ function isIgnoredLink(link: HTMLAnchorElement): boolean {
       link.hasAttribute('download') ||
       link.getAttribute('href')?.trim().startsWith('#'),
   );
-}
-
-function getNavigableUrl(link: HTMLAnchorElement): URL | null {
-  const href = link.getAttribute('href')?.trim() ?? '';
-
-  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-    return null;
-  }
-
-  let url: URL;
-
-  try {
-    url = new URL(link.href, window.location.href);
-  } catch {
-    return null;
-  }
-
-  if (url.origin !== window.location.origin) {
-    return null;
-  }
-
-  if (url.href === window.location.href || (url.pathname === window.location.pathname && url.search === window.location.search)) {
-    return null;
-  }
-
-  return url;
 }
 
 function shouldTransition(event: MouseEvent, link: HTMLAnchorElement): boolean {

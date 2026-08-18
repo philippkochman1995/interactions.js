@@ -99,7 +99,22 @@ function g() {
 function _() {
 	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
-function v(e, t, n, r, i) {
+function v(e) {
+	return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+}
+function y(e) {
+	var t, n;
+	let r = (t = (n = e.getAttribute("href")) == null ? void 0 : n.trim()) == null ? "" : t;
+	if (!r || r.startsWith("#") || r.startsWith("mailto:") || r.startsWith("tel:")) return null;
+	let i;
+	try {
+		i = new URL(e.href, window.location.href);
+	} catch (e) {
+		return null;
+	}
+	return i.origin !== window.location.origin || i.href === window.location.href || i.pathname === window.location.pathname && i.search === window.location.search ? null : i;
+}
+function b(e, t, n, r, i) {
 	let a = (t) => {
 		let i = t.target;
 		if (!(i instanceof Element)) return;
@@ -110,8 +125,8 @@ function v(e, t, n, r, i) {
 		e.removeEventListener(t, a, i);
 	};
 }
-function y(e = document) {
-	return v(e, "click", "[data-back-button]", (e, t) => {
+function x(e = document) {
+	return b(e, "click", "[data-back-button]", (e, t) => {
 		if (e.preventDefault(), "scrollRestoration" in history && (history.scrollRestoration = "auto"), window.history.length > 1) {
 			window.history.back();
 			return;
@@ -119,13 +134,13 @@ function y(e = document) {
 		window.location.href = t.getAttribute("href") || "/";
 	});
 }
-function b(e, t, n) {
+function S(e, t, n) {
 	e.dispatchEvent(new CustomEvent(t, {
 		bubbles: !0,
 		detail: n
 	}));
 }
 //#endregion
-export { p as _, s as a, y as c, h as d, _ as f, r as g, f as h, d as i, i as l, n as m, b as n, l as o, t as p, u as r, o as s, v as t, a as u, g as v };
+export { f as _, s as a, g as b, o as c, i as d, a as f, n as g, t as h, d as i, v as l, _ as m, S as n, l as o, h as p, u as r, y as s, b as t, x as u, r as v, p as y };
 
-//# sourceMappingURL=site-interactions-sLVQDvui.js.map
+//# sourceMappingURL=site-interactions-CeaJphsN.js.map

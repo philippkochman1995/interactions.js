@@ -1,0 +1,84 @@
+<!--
+  Werk-Flip: zwei synchrone Inline-Snippets fuer den Webflow Site Custom Code.
+
+  Die Bundles laufen als type="module" und damit deferred - zu spaet, um den ersten
+  Paint der Zielseite zu beeinflussen. Diese beiden Bloecke laufen synchron und sorgen
+  dafuer, dass die Zielseite mit dem Bild an genau der Position startet, an der es auf
+  der Ausgangsseite stand. Ohne sie funktioniert der Uebergang weiterhin, blitzt aber.
+
+  Beide Bloecke gehoeren in "Site settings -> Custom code", nicht pro Seite.
+-->
+
+<!-- 1. Inside <head> tag: haelt die Zielseite zurueck, bevor sie zum ersten Mal malt. -->
+<script>
+  (function () {
+    try {
+      var raw = window.sessionStorage.getItem('site-work-flip');
+
+      if (!raw) {
+        return;
+      }
+
+      var payload = JSON.parse(raw);
+
+      if (!payload || !payload.rect || !payload.src || !payload.ts) {
+        return;
+      }
+
+      if (!(payload.rect.width > 0) || !(payload.rect.height > 0)) {
+        window.sessionStorage.removeItem('site-work-flip');
+        return;
+      }
+
+      if (Date.now() - payload.ts > 8000) {
+        window.sessionStorage.removeItem('site-work-flip');
+        return;
+      }
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.sessionStorage.removeItem('site-work-flip');
+        return;
+      }
+
+      document.documentElement.classList.add('is-work-flip-pending');
+    } catch (error) {
+      // sessionStorage kann fehlen; dann laeuft die Seite ohne Uebergang.
+    }
+  })();
+</script>
+
+<!-- 2. Before </body> tag, VOR den Modul-Includes: baut das Bild an der alten Position auf. -->
+<script>
+  (function () {
+    try {
+      if (!document.documentElement.classList.contains('is-work-flip-pending')) {
+        return;
+      }
+
+      if (document.querySelector('[data-work-flip-ghost]')) {
+        return;
+      }
+
+      var payload = JSON.parse(window.sessionStorage.getItem('site-work-flip'));
+      var ghost = document.createElement('div');
+      var image = document.createElement('img');
+
+      ghost.className = 'work-flip-ghost';
+      ghost.setAttribute('data-work-flip-ghost', '');
+      ghost.setAttribute('aria-hidden', 'true');
+      ghost.style.top = payload.rect.top + 'px';
+      ghost.style.left = payload.rect.left + 'px';
+      ghost.style.width = payload.rect.width + 'px';
+      ghost.style.height = payload.rect.height + 'px';
+
+      image.src = payload.src;
+      image.alt = '';
+      image.decoding = 'sync';
+
+      ghost.appendChild(image);
+      document.body.appendChild(ghost);
+    } catch (error) {
+      document.documentElement.classList.remove('is-work-flip-pending');
+    }
+  })();
+</script>

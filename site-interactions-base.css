@@ -28,6 +28,48 @@ html.is-page-transition-pending .page-transition-overlay {
   transform: translate3d(0, 0, 0);
 }
 
+/*
+  Geteiltes Bild zwischen Werk-Uebersicht und Werk-Detail. Der Ghost ueberlebt den
+  Seitenwechsel optisch: er wird beim Verlassen erzeugt, auf der Zielseite vor dem
+  ersten Paint erneut aufgebaut und dort per GSAP Flip auf das echte Bild gesetzt.
+*/
+[data-work-flip-ghost],
+.work-flip-ghost {
+  position: fixed;
+  z-index: 1900;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+[data-work-flip-ghost] img,
+.work-flip-ghost img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+  Haelt die Zielseite bis zum Start der Animation zurueck. Wird vom Inline-Snippet im
+  Head gesetzt und vom Skript wieder entfernt; der Wachhund in work-flip.ts sorgt
+  dafuer, dass die Klasse auch im Fehlerfall verschwindet.
+*/
+html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
+    visibility: visible;
+  }
+
+  [data-work-flip-ghost],
+  .work-flip-ghost {
+    display: none;
+  }
+}
+
 [data-site-menu] {
   --site-menu-width: min(26.5625rem, calc(100vw - 2rem));
   --site-menu-toggle-height: 3.125rem;

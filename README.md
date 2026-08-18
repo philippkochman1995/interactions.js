@@ -461,6 +461,53 @@ and modifier-clicks. To opt out a specific internal link:
 <a href="/example" data-transition="false">No transition</a>
 ```
 
+## Work flip transition
+
+Werk-Uebersicht und Werk-Detailseite teilen sich ein Bild: beim Klick auf eine Karte
+blendet die Uebersicht ihre Inhalte aus, das Bild bleibt stehen und waechst auf der
+Detailseite per GSAP Flip an seine neue Position, danach faden Titel, Masse und Text ein.
+Der Rueckweg laeuft spiegelverkehrt und gilt auch fuer den Browser-Zurueck-Button.
+
+Weil dazwischen ein echter Seitenwechsel liegt, wandern Geometrie und Bildquelle ueber
+`sessionStorage` (`site-work-flip`), und ein `position: fixed` Klon des Bildes ueberlebt
+den Wechsel optisch. Fuer alle uebrigen Links bleibt das rosa Overlay zustaendig.
+
+### Inline snippets
+
+`dist/site-interactions.js` laeuft als `type="module"` und damit deferred - zu spaet fuer
+den ersten Paint der Zielseite. Beide Bloecke aus `snippets/work-flip-boot.html` gehoeren
+darum in "Site settings -> Custom code":
+
+- **Inside `<head>` tag:** setzt `html.is-work-flip-pending`, solange eine Uebergabe offen ist.
+- **Before `</body>` tag, vor den Modul-Includes:** baut den Klon an der alten Bildposition auf.
+
+Ohne die Snippets funktioniert der Uebergang weiterhin, die Zielseite blitzt aber kurz auf,
+bevor die Animation startet.
+
+### Attribute
+
+Uebersicht und Detailseite werden vom Skript gerendert, die Attribute entstehen also von
+selbst:
+
+```text
+a.cms-works__item[data-work-flip][data-work-flip-id="cms-slug"]   Karte in der Uebersicht
+img[data-work-flip-target][data-work-flip-id="cms-slug"]          Bild auf der Detailseite
+a.cms-work-detail__overview-link[data-work-flip-back]             Rueckweg zur Uebersicht
+```
+
+Damit Hin- und Rueckweg zusammenfinden, muessen `data-works-id` in der Collection List und
+`data-work-detail-id` auf der Detailseite an denselben CMS-Slug gebunden sein. Fehlt der
+Treffer, laedt die Seite ohne Animation.
+
+Die Uebersicht merkt sich Filter, Sortierung, Anzahl geladener Werke und Scrollposition
+unter `site-works-view`. Wiederhergestellt wird der Stand nur, wenn der Nutzer von einer
+Werkseite zurueckkommt; ueber das Menue aufgerufen startet die Uebersicht frisch.
+
+Bei `prefers-reduced-motion: reduce` entfaellt der Uebergang komplett. Findet das Skript
+das Zielbild nicht, blendet ein Wachhund die Seite nach 2,6 s regulaer ein; friert der
+Browser die Animation ein (Hintergrund-Tab), wird der Uebergang per Timer ohne Animation
+abgeschlossen. Die Navigation selbst wird nie blockiert.
+
 ## CSS hooks
 
 The JavaScript adds and removes these state hooks:
@@ -539,3 +586,7 @@ window.SiteInteractions.closeLightbox();
 - If a collection list duplicates the same group name across multiple hidden modals, grouped lightbox navigation may include all matching triggers on the page.
 - Webflow builders should keep buttons as actual `<button>` elements where possible, especially for close controls.
 - The primary integration surface is `data-*` attributes. Avoid binding behavior to class names.
+- Der Werk-Flip braucht die beiden Inline-Snippets aus `snippets/work-flip-boot.html` im Site
+  Custom Code. Ohne sie laeuft die Seite normal, der Uebergang blitzt aber beim Seitenwechsel.
+- CSS hooks des Werk-Flips: `html.is-work-flip-pending`, `.work-flip-ghost`,
+  `[data-work-flip-ghost]`.

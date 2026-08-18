@@ -29,6 +29,7 @@ const TITLE_SELECTOR = '[data-works-title], [data-canvas-title]';
 const YEAR_SELECTOR = '[data-works-year], [data-canvas-year]';
 const CATEGORY_SELECTOR = '[data-works-category], [data-works-categories]';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+const DETAIL_READY_EVENT = 'site:work-detail-ready';
 const LINK_SELECTOR = [
   '[data-works-link]',
   '[data-sheet-calendar-link]',
@@ -306,6 +307,9 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   image.src = detail.image;
   image.alt = detail.imageAlt;
   image.decoding = 'async';
+  // Ziel der Flip-Animation von der Uebersicht.
+  image.setAttribute('data-work-flip-target', '');
+  image.setAttribute('data-work-flip-id', detail.id);
   caption.textContent = detail.caption;
 
   content.append(title);
@@ -336,7 +340,7 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   return section;
 }
 
-function createRelatedSection(root: HTMLElement, relatedItems: WorkItem[]): HTMLElement | null {
+function createRelatedSection(root: HTMLElement, detail: WorkDetail, relatedItems: WorkItem[]): HTMLElement | null {
   const overviewHref = root.getAttribute('data-work-detail-overview-href')?.trim() || '';
 
   if (relatedItems.length === 0 && !overviewHref) {
@@ -365,6 +369,8 @@ function createRelatedSection(root: HTMLElement, relatedItems: WorkItem[]): HTML
 
     overviewLink.className = 'cms-work-detail__overview-link';
     overviewLink.href = overviewHref;
+    overviewLink.setAttribute('data-work-flip-back', '');
+    overviewLink.setAttribute('data-work-flip-id', detail.id);
     overviewLink.textContent = root.getAttribute('data-work-detail-overview-label')?.trim() || 'Zur Übersicht';
     inner.append(overviewLink);
   }
@@ -378,7 +384,7 @@ function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
   const detail = readDetail(root);
   const relatedItems = source ? pickRelatedItems(readItems(source), detail) : [];
   const detailSection = createDetailSection(detail);
-  const relatedSection = createRelatedSection(root, relatedItems);
+  const relatedSection = createRelatedSection(root, detail, relatedItems);
 
   if (source) {
     source.hidden = true;
@@ -391,6 +397,13 @@ function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
   if (relatedSection) {
     root.after(relatedSection);
   }
+
+  document.dispatchEvent(
+    new CustomEvent(DETAIL_READY_EVENT, {
+      bubbles: true,
+      detail: { id: detail.id },
+    }),
+  );
 }
 
 function mount(root: HTMLElement): void {

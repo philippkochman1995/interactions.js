@@ -1,4 +1,4 @@
-import { f as e, m as t } from "./site-interactions-sLVQDvui.js";
+import { g as e, m as t } from "./site-interactions-CeaJphsN.js";
 import { t as n } from "./site-interactions-BxJ-FVg3.js";
 //#region src/accordion.ts
 var r = ".accordion_section", i = ".accordion_item", a = ".accordion_container", o = ".accordion_header", s = ".accordion_heading", c = ".accordion_icon", l = ".accordion_body", u = ".accordion_content", d = "var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a))", f = "var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c))", p = "2rem", m = "-2.45rem", h = "-1.05rem", g = "0rem", _ = -90, v = 0, y = 45, b = .42, x = "power3.out", S = "site-accordion-styles", C = !1, w = 0, T = [];
@@ -10,8 +10,8 @@ function E() {
 function D(e, t) {
 	return e.classList.contains("is-open") || e.classList.contains("is-active") || e.hasAttribute("data-accordion-open") || t.getAttribute("aria-expanded") === "true";
 }
-function O(e) {
-	return e ? t("path, circle, rect, polygon, line, polyline", e) : [];
+function O(t) {
+	return t ? e("path, circle, rect, polygon, line, polyline", t) : [];
 }
 function k(e, t) {
 	e.icon && (n.set([e.icon, ...e.iconShapes], {
@@ -80,10 +80,10 @@ function M(e, t) {
 		clearProps: t ? void 0 : "color"
 	});
 }
-function N(t, r, i = !1) {
-	n.to(t.body, {
+function N(e, r, i = !1) {
+	n.to(e.body, {
 		x: r ? p : 0,
-		duration: i || e() ? 0 : b,
+		duration: i || t() ? 0 : b,
 		ease: x,
 		overwrite: "auto"
 	});
@@ -91,17 +91,17 @@ function N(t, r, i = !1) {
 function P(e) {
 	e.section.classList.toggle("is-open", e.isOpen), e.section.classList.toggle("is-active", e.isOpen), e.itemElement.classList.toggle("is-open", e.isOpen), e.header.classList.toggle("is-open", e.isOpen), e.header.setAttribute("aria-expanded", String(e.isOpen));
 }
-function F(t, r = !1) {
-	let { body: i } = t;
-	if (n.killTweensOf(i), N(t, t.isOpen, r), e() || r) {
+function F(e, r = !1) {
+	let { body: i } = e;
+	if (n.killTweensOf(i), N(e, e.isOpen, r), t() || r) {
 		n.set(i, {
-			height: t.isOpen ? "auto" : 0,
-			autoAlpha: +!!t.isOpen,
-			overflow: t.isOpen ? "visible" : "hidden"
+			height: e.isOpen ? "auto" : 0,
+			autoAlpha: +!!e.isOpen,
+			overflow: e.isOpen ? "visible" : "hidden"
 		});
 		return;
 	}
-	if (t.isOpen) {
+	if (e.isOpen) {
 		n.set(i, {
 			height: "auto",
 			autoAlpha: 1,
@@ -200,11 +200,11 @@ function z(e, t) {
 		b.isOpen || M(b, !1), j(b, b.isOpen ? "open" : "normal");
 	}), b;
 }
-function B(e = document) {
-	return C ? T : (C = !0, E(), t(r, e).forEach((e) => {
-		let n = t(i, e), r = t(a, e);
-		(n.length > 0 ? n : r.length > 0 ? r : [e]).forEach((t) => {
-			let n = z(e, t);
+function B(t = document) {
+	return C ? T : (C = !0, E(), e(r, t).forEach((t) => {
+		let n = e(i, t), r = e(a, t);
+		(n.length > 0 ? n : r.length > 0 ? r : [t]).forEach((e) => {
+			let n = z(t, e);
 			n && T.push(n);
 		});
 	}), L(), T);

@@ -229,6 +229,40 @@ export function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+export function hasModifierKey(event: MouseEvent): boolean {
+  return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+}
+
+/**
+ * Liefert das Ziel eines Links, wenn er innerhalb der Seite navigiert. Externe Ziele,
+ * Anker, mailto/tel und die aktuelle Seite ergeben null.
+ */
+export function getNavigableUrl(link: HTMLAnchorElement): URL | null {
+  const href = link.getAttribute('href')?.trim() ?? '';
+
+  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return null;
+  }
+
+  let url: URL;
+
+  try {
+    url = new URL(link.href, window.location.href);
+  } catch {
+    return null;
+  }
+
+  if (url.origin !== window.location.origin) {
+    return null;
+  }
+
+  if (url.href === window.location.href || (url.pathname === window.location.pathname && url.search === window.location.search)) {
+    return null;
+  }
+
+  return url;
+}
+
 export function delegate<K extends keyof DocumentEventMap>(
   root: Document | HTMLElement,
   eventName: K,
