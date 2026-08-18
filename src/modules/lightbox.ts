@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import { Flip } from 'gsap/Flip';
 import type { I18nApi, LightboxApi, LightboxItem } from '../types';
 import {
   delegate,
@@ -30,12 +31,20 @@ interface LightboxElements {
 }
 
 interface InlineImageStyles {
+  position: string;
   visibility: string;
+  zIndex: string;
+}
+
+interface FlipPairRestore {
+  triggerImage: string | null;
+  lightboxImage: string | null;
 }
 
 interface SharedOpenTransition {
   triggerImage: HTMLImageElement;
-  clone: HTMLImageElement;
+  previousFlipIds: FlipPairRestore;
+  state: ReturnType<typeof Flip.getState>;
 }
 
 const LIGHTBOX_TRIGGER_SELECTOR = '[data-lightbox-src]';
@@ -52,10 +61,10 @@ const LIGHTBOX_TRIGGER_IMAGE_CLASS = 'site-lightbox-trigger__image';
 const LIGHTBOX_TRIGGER_ICON_CLASS = 'site-lightbox-trigger__icon';
 const WEBFLOW_EMPTY_BIND_CLASS = 'w-dyn-bind-empty';
 const WEBFLOW_PLACEHOLDER_IMAGE_PATTERN = '/plugins/Basic/assets/placeholder.';
+const LIGHTBOX_FLIP_ID = 'site-lightbox-active-image';
 const LIGHTBOX_OPEN_DURATION = 0.48;
 const LIGHTBOX_CLOSE_DURATION = 0.34;
 const LIGHTBOX_CHROME_SELECTOR = '.site-lightbox__close, .site-lightbox__previous, .site-lightbox__next, .site-lightbox__caption';
-const LIGHTBOX_CLONE_CLASS = 'site-lightbox__transition-clone';
 const LIGHTBOX_AUTO_ICON_SVG = `
   <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
     <circle class="site-lightbox-trigger__icon-circle" cx="15" cy="15" r="15"/>
@@ -63,6 +72,8 @@ const LIGHTBOX_AUTO_ICON_SVG = `
     <path class="site-lightbox-trigger__icon-arrow site-lightbox-trigger__icon-arrow--top" d="M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z"/>
   </svg>
 `;
+
+gsap.registerPlugin(Flip);
 
 let initialized = false;
 let i18n: I18nApi | null = null;
@@ -158,7 +169,9 @@ function isVisibleImage(image: HTMLImageElement | null): image is HTMLImageEleme
 
 function saveInlineImageStyles(image: HTMLImageElement): InlineImageStyles {
   return {
+    position: image.style.position,
     visibility: image.style.visibility,
+    zIndex: image.style.zIndex,
   };
 }
 
@@ -167,60 +180,52 @@ function restoreInlineImageStyles(image: HTMLImageElement | null, styles: Inline
     return;
   }
 
+  image.style.position = styles.position;
   image.style.visibility = styles.visibility;
+  image.style.zIndex = styles.zIndex;
+}
+
+function setFlipId(image: HTMLImageElement, value: string): string | null {
+  const previous = image.getAttribute('data-flip-id');
+  image.setAttribute('data-flip-id', value);
+  return previous;
+}
+
+function restoreFlipId(image: HTMLImageElement | null, previousValue: string | null): void {
+  if (!image) {
+    return;
+  }
+
+  if (previousValue === null) {
+    image.removeAttribute('data-flip-id');
+    return;
+  }
+
+  image.setAttribute('data-flip-id', previousValue);
+}
+
+function prepareFlipPair(triggerImage: HTMLImageElement, lightboxImage: HTMLImageElement): FlipPairRestore {
+  return {
+    triggerImage: setFlipId(triggerImage, LIGHTBOX_FLIP_ID),
+    lightboxImage: setFlipId(lightboxImage, LIGHTBOX_FLIP_ID),
+  };
+}
+
+function restoreFlipPair(
+  triggerImage: HTMLImageElement | null,
+  lightboxImage: HTMLImageElement,
+  previousValues: FlipPairRestore | null,
+): void {
+  if (!previousValues) {
+    return;
+  }
+
+  restoreFlipId(triggerImage, previousValues.triggerImage);
+  restoreFlipId(lightboxImage, previousValues.lightboxImage);
 }
 
 function getLightboxChrome(lightboxElements: LightboxElements): HTMLElement[] {
   return qsa<HTMLElement>(LIGHTBOX_CHROME_SELECTOR, lightboxElements.root).filter((element) => !element.hidden);
-}
-
-function getImageRect(image: HTMLImageElement): DOMRect {
-  return image.getBoundingClientRect();
-}
-
-function createTransitionClone(image: HTMLImageElement, rect: DOMRect): HTMLImageElement {
-  const clone = image.cloneNode(false) as HTMLImageElement;
-
-  clone.className = LIGHTBOX_CLONE_CLASS;
-  clone.removeAttribute('id');
-  clone.setAttribute('aria-hidden', 'true');
-  clone.decoding = 'sync';
-
-  gsap.set(clone, {
-    position: 'fixed',
-    left: rect.left,
-    top: rect.top,
-    width: rect.width,
-    height: rect.height,
-    margin: 0,
-    objectFit: window.getComputedStyle(image).objectFit || 'cover',
-    pointerEvents: 'none',
-    zIndex: 1101,
-  });
-
-  document.body.append(clone);
-  return clone;
-}
-
-function removeTransitionClone(clone: HTMLImageElement): void {
-  clone.remove();
-}
-
-function animateCloneToRect(
-  clone: HTMLImageElement,
-  rect: DOMRect,
-  duration: number,
-  onComplete: () => void,
-): gsap.core.Tween {
-  return gsap.to(clone, {
-    left: rect.left,
-    top: rect.top,
-    width: rect.width,
-    height: rect.height,
-    duration,
-    ease: 'power3.inOut',
-    onComplete,
-  });
 }
 
 function killActiveAnimation(): void {
@@ -247,7 +252,7 @@ function clearSharedImage(): void {
 
 function clearAnimationProps(lightboxElements: LightboxElements): void {
   gsap.set([lightboxElements.root, lightboxElements.image, ...getLightboxChrome(lightboxElements)], {
-    clearProps: 'opacity,transform,visibility',
+    clearProps: 'opacity,transform',
   });
 }
 
@@ -605,15 +610,19 @@ function animateFallbackOpen(lightboxElements: LightboxElements): void {
   );
 }
 
-function prepareSharedOpenTransition(triggerImage: HTMLImageElement): SharedOpenTransition {
-  const startRect = getImageRect(triggerImage);
-  const clone = createTransitionClone(triggerImage, startRect);
+function prepareSharedOpenTransition(
+  lightboxElements: LightboxElements,
+  triggerImage: HTMLImageElement,
+): SharedOpenTransition {
+  const previousFlipIds = prepareFlipPair(triggerImage, lightboxElements.image);
+  const state = Flip.getState(triggerImage);
 
   triggerImage.style.visibility = 'hidden';
 
   return {
     triggerImage,
-    clone,
+    previousFlipIds,
+    state,
   };
 }
 
@@ -623,19 +632,28 @@ function animateSharedOpen(lightboxElements: LightboxElements, transition: Share
 
   gsap.set(lightboxElements.root, { opacity: 0 });
   gsap.set(getLightboxChrome(lightboxElements), { opacity: 0, y: 8 });
-  gsap.set(lightboxElements.image, { visibility: 'hidden', opacity: 1 });
+  gsap.set(lightboxElements.image, { opacity: 1 });
 
   activeAnimation = gsap
     .timeline({
       defaults: { ease: 'power2.out' },
       onComplete: () => {
+        restoreFlipPair(transition.triggerImage, lightboxElements.image, transition.previousFlipIds);
         restoreInlineImageStyles(transition.triggerImage, activeTriggerImageStyles);
-        removeTransitionClone(transition.clone);
         completeAnimation(lightboxElements);
       },
     })
     .to(lightboxElements.root, { opacity: 1, duration: 0.2 }, 0)
-    .add(animateCloneToRect(transition.clone, getImageRect(lightboxElements.image), LIGHTBOX_OPEN_DURATION, () => undefined), 0)
+    .add(
+      Flip.from(transition.state, {
+        targets: lightboxElements.image,
+        absolute: true,
+        duration: LIGHTBOX_OPEN_DURATION,
+        ease: 'power3.inOut',
+        scale: true,
+      }),
+      0,
+    )
     .to(getLightboxChrome(lightboxElements), { opacity: 1, y: 0, duration: 0.2, stagger: 0.025 }, 0.18);
 }
 
@@ -669,10 +687,13 @@ function animateSharedClose(
   focusTarget: HTMLElement | null,
   currentItem: LightboxItem | null,
 ): void {
-  const clone = createTransitionClone(lightboxElements.image, getImageRect(lightboxElements.image));
+  const previousFlipIds = prepareFlipPair(triggerImage, lightboxElements.image);
+  const state = Flip.getState(lightboxElements.image);
 
+  restoreInlineImageStyles(triggerImage, activeTriggerImageStyles);
+  triggerImage.style.position = triggerImage.style.position || 'relative';
+  triggerImage.style.zIndex = '1102';
   lightboxElements.image.style.visibility = 'hidden';
-  triggerImage.style.visibility = 'hidden';
   lightboxElements.root.classList.add('is-closing');
   isAnimating = true;
 
@@ -680,15 +701,25 @@ function animateSharedClose(
     .timeline({
       defaults: { ease: 'power2.out' },
       onComplete: () => {
+        restoreFlipPair(triggerImage, lightboxElements.image, previousFlipIds);
         restoreInlineImageStyles(triggerImage, activeTriggerImageStyles);
-        removeTransitionClone(clone);
+        lightboxElements.image.style.visibility = '';
         clearAnimationProps(lightboxElements);
         finishClose(lightboxElements, focusTarget, currentItem);
       },
     })
     .to(lightboxElements.root, { opacity: 0, duration: LIGHTBOX_CLOSE_DURATION }, 0)
     .to(getLightboxChrome(lightboxElements), { opacity: 0, y: 6, duration: 0.14 }, 0)
-    .add(animateCloneToRect(clone, getImageRect(triggerImage), LIGHTBOX_CLOSE_DURATION, () => undefined), 0);
+    .add(
+      Flip.from(state, {
+        targets: triggerImage,
+        absolute: true,
+        duration: LIGHTBOX_CLOSE_DURATION,
+        ease: 'power3.inOut',
+        scale: true,
+      }),
+      0,
+    );
 }
 
 function goToItem(index: number): void {
@@ -733,7 +764,7 @@ export function openLightbox(trigger: HTMLElement): void {
   const lightboxElements = ensureLightboxDom();
   const canAnimateSharedImage = !wasOpen && triggerImage && !prefersReducedMotion();
   const sharedOpenTransition = canAnimateSharedImage
-    ? prepareSharedOpenTransition(triggerImage)
+    ? prepareSharedOpenTransition(lightboxElements, triggerImage)
     : null;
 
   setOpenState(true);
