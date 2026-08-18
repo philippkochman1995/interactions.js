@@ -1,6 +1,7 @@
 import { initI18n } from './modules/i18n';
 import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
+import { initPageTransitions } from './modules/page-transition';
 import { initSiteMenu } from './modules/site-menu';
 import { initBackButtons } from './modules/utils';
 
@@ -18,6 +19,7 @@ function boot(): void {
   initModals({ i18n });
   initLightbox({ i18n });
   initSiteMenu();
+  initPageTransitions();
   initBackButtons();
 
   window.SiteInteractions = {

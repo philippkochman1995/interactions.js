@@ -30,15 +30,15 @@ function k(e) {
 		let t = m(e, "href");
 		return t && t !== "#" ? e.href : "";
 	}
-	if (e instanceof HTMLImageElement) return ge(e);
+	if (e instanceof HTMLImageElement) return A(e);
 	let n = f("img", e);
-	return n ? ge(n) : "";
+	return n ? A(n) : "";
 }
-function ge(e) {
+function A(e) {
 	let t = m(e, "src"), n = m(e, "srcset");
 	return e.classList.contains(fe) || t.includes(pe) || !t && !n ? "" : e.currentSrc || e.src || t;
 }
-function _e(e) {
+function ge(e) {
 	var t, n;
 	let r = m(e, "data-lightbox-alt");
 	if (r) return r;
@@ -46,38 +46,38 @@ function _e(e) {
 	let i = f("img", e);
 	return (t = i == null || (n = i.alt) == null ? void 0 : n.trim()) == null ? "" : t;
 }
-function ve(e) {
+function _e(e) {
 	let t = k(e).trim();
 	return t ? {
 		src: t,
 		caption: m(e, "data-lightbox-caption"),
-		alt: _e(e),
+		alt: ge(e),
 		group: m(e, "data-lightbox-group"),
 		trigger: e
 	} : null;
 }
-function ye(e) {
-	let t = ve(e);
+function ve(e) {
+	let t = _e(e);
 	if (!t) return null;
 	if (!t.group) return {
 		items: [t],
 		index: 0
 	};
-	let n = l(ie).filter((e) => m(e, "data-lightbox-group") === t.group).map(ve).filter((e) => !!e), r = Math.max(0, n.findIndex((t) => t.trigger === e));
+	let n = l(ie).filter((e) => m(e, "data-lightbox-group") === t.group).map(_e).filter((e) => !!e), r = Math.max(0, n.findIndex((t) => t.trigger === e));
 	return {
 		items: n.length > 0 ? n : [t],
 		index: r
 	};
 }
-function be() {
+function ye() {
 	let e = document.createElement("span");
 	return e.className = de, e.setAttribute("aria-hidden", "true"), e.setAttribute("data-lightbox-auto-icon", ""), e.innerHTML = me, e;
 }
-function xe(e) {
+function be(e) {
 	return e instanceof HTMLAnchorElement || e instanceof HTMLButtonElement || e instanceof HTMLInputElement || e instanceof HTMLSelectElement || e instanceof HTMLTextAreaElement;
 }
-function A(e) {
-	if (!xe(e) && (e.setAttribute("role", "button"), e.hasAttribute("tabindex") || (e.tabIndex = 0), !e.hasAttribute("aria-label"))) {
+function xe(e) {
+	if (!be(e) && (e.setAttribute("role", "button"), e.hasAttribute("tabindex") || (e.tabIndex = 0), !e.hasAttribute("aria-label"))) {
 		var t;
 		e.setAttribute("aria-label", (t = C == null ? void 0 : C.t("openImage", "Open image")) == null ? "Open image" : t);
 	}
@@ -95,14 +95,14 @@ function Se(e) {
 		let r = m(e, n);
 		r && (t.setAttribute(n, r), e.removeAttribute(n));
 	}
-	e.classList.remove(b), e.classList.add(ue), e.before(t), t.append(e, be()), A(t);
+	e.classList.remove(b), e.classList.add(ue), e.before(t), t.append(e, ye()), xe(t);
 }
 function Ce(e) {
 	if (e instanceof HTMLImageElement) {
 		Se(e);
 		return;
 	}
-	k(e).trim() && (e.classList.add(S), A(e), f(le, e) || e.append(be()));
+	k(e).trim() && (e.classList.add(S), xe(e), f(le, e) || e.append(ye()));
 }
 function we() {
 	l(x).forEach(Ce);
@@ -164,7 +164,7 @@ function Ae() {
 }
 function N(e) {
 	var t;
-	let n = ye(e);
+	let n = ve(e);
 	if (!n) return;
 	let i = D;
 	T = n.items, E = n.index, O = e, D = !0, Ee(), De(!0), i || r();
@@ -209,7 +209,7 @@ function Ne(e) {
 	return C = e.i18n, we(), he || (h(document, "click", ie, (e, t) => {
 		e.preventDefault(), N(t);
 	}), h(document, "keydown", x, (e, t) => {
-		xe(t) || e.key !== "Enter" && e.key !== " " || (e.preventDefault(), N(t));
+		be(t) || e.key !== "Enter" && e.key !== " " || (e.preventDefault(), N(t));
 	}), h(document, "click", oe, (e) => {
 		e.preventDefault(), P();
 	}), h(document, "click", se, (e) => {
@@ -223,13 +223,13 @@ function Ne(e) {
 }
 //#endregion
 //#region src/modules/modal.ts
-var Pe = "[data-modal]", Fe = "[data-modal-content]", Ie = "[data-modal-open]", Le = "[data-modal-close]", Re = "a[href^=\"#modal:\"]", ze = "#modal:", Be = 220, Ve = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", He = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", Ue = "\n  <svg class=\"fwm-modal__work-eye\" viewBox=\"0 0 26 17\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path class=\"fwm-modal__work-eye-pupil\" d=\"M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z\" fill=\"currentColor\"/>\n    <path d=\"M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z\" fill=\"currentColor\"/>\n  </svg>\n", We = !1, F = !0, I = null, L = null, R = "", z = null, B = null, V = /* @__PURE__ */ new Map();
-function Ge(e) {
+var Pe = "[data-modal]", Fe = "[data-modal-content]", Ie = "[data-modal-open]", Le = "[data-modal-close]", Re = "a[href^=\"#modal:\"]", ze = "#modal:", Be = 220, Ve = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", He = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", Ue = "\n  <svg class=\"fwm-modal__work-eye\" viewBox=\"0 0 26 17\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path class=\"fwm-modal__work-eye-pupil\" d=\"M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z\" fill=\"currentColor\"/>\n    <path d=\"M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z\" fill=\"currentColor\"/>\n  </svg>\n", We = !1, Ge = !0, F = null, I = null, L = "", R = null, z = null, B = /* @__PURE__ */ new Map();
+function Ke(e) {
 	var t;
 	let n = (t = e.getAttribute("href")) == null ? "" : t;
 	return n.startsWith(ze) ? decodeURIComponent(n.slice(7)).trim() : "";
 }
-function Ke() {
+function qe() {
 	let e = document.createElement("div");
 	e.className = "fwm-modal", e.setAttribute("data-site-modal", ""), e.setAttribute("aria-hidden", "true"), e.hidden = !0, e.innerHTML = "\n    <div class=\"fwm-modal__panel\" data-modal-panel role=\"dialog\" aria-modal=\"true\" tabindex=\"-1\">\n      <div class=\"fwm-modal__top\">\n        <div class=\"fwm-modal__address\" data-site-modal-address></div>\n        <button class=\"fwm-modal__close\" type=\"button\" data-modal-close></button>\n      </div>\n      <a class=\"fwm-modal__image-link\" href=\"#\" data-lightbox-src=\"\" data-lightbox-caption=\"\">\n        <img class=\"fwm-modal__image\" src=\"\" alt=\"\">\n        <span class=\"fwm-modal__lightbox-icon\" aria-hidden=\"true\"></span>\n        <span class=\"fwm-modal__caption\" data-site-modal-caption></span>\n      </a>\n      <h2 class=\"fwm-modal__headline\" data-site-modal-headline></h2>\n      <div class=\"fwm-modal__text\" data-site-modal-text></div>\n      <div class=\"fwm-modal__work\" data-site-modal-work></div>\n      <div class=\"fwm-modal__gallery\" data-site-modal-gallery></div>\n    </div>\n  ", document.body.append(e);
 	let t = {
@@ -246,29 +246,29 @@ function Ke() {
 		work: e.querySelector("[data-site-modal-work]"),
 		gallery: e.querySelector("[data-site-modal-gallery]")
 	};
-	return t.closeButton.innerHTML = Ve, t.lightboxIcon.innerHTML = He, Je(t), t;
+	return t.closeButton.innerHTML = Ve, t.lightboxIcon.innerHTML = He, Ye(t), t;
 }
-function qe() {
-	return (!L || !document.body.contains(L.root)) && (L = Ke()), Je(L), L;
+function Je() {
+	return (!I || !document.body.contains(I.root)) && (I = qe()), Ye(I), I;
 }
-function Je(e) {
+function Ye(e) {
 	var t, n;
-	let r = (t = I == null ? void 0 : I.t("close", "Close")) == null ? "Close" : t, i = (n = I == null ? void 0 : I.t("openModal", "Open details")) == null ? "Open details" : n;
+	let r = (t = F == null ? void 0 : F.t("close", "Close")) == null ? "Close" : t, i = (n = F == null ? void 0 : F.t("openModal", "Open details")) == null ? "Open details" : n;
 	e.closeButton.setAttribute("aria-label", r), e.closeButton.title = r, e.panel.setAttribute("aria-label", i);
 }
-function H(e) {
+function V(e) {
 	return (e == null ? void 0 : e.currentSrc) || (e == null ? void 0 : e.src) || "";
 }
-function U(e, t) {
+function H(e, t) {
 	var n;
 	let r = e.querySelector(t);
 	return r instanceof HTMLImageElement ? r : (n = r == null ? void 0 : r.querySelector("img")) == null ? null : n;
 }
-function Ye(e) {
+function Xe(e) {
 	var t, n, r, i, a, o, s, c, l, u, d, f;
 	let p = e.querySelector("[data-modal-work]");
 	if (!p) return null;
-	let m = U(p, "[data-works-thumbnail]"), h = (t = (n = (r = p.querySelector("[data-works-title]")) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? (i = p.getAttribute("data-works-title")) == null ? void 0 : i.trim() : n) == null ? "" : t, g = (a = (o = (s = p.querySelector("[data-works-year]")) == null || (s = s.textContent) == null ? void 0 : s.trim()) == null ? (c = p.getAttribute("data-works-year")) == null ? void 0 : c.trim() : o) == null ? "" : a, _ = (l = (u = (d = p.getAttribute("data-works-href")) == null ? p.getAttribute("data-works-url") : d) == null ? (f = p.querySelector("[data-works-link], a[href]")) == null ? void 0 : f.href : u) == null ? "" : l, v = H(m);
+	let m = H(p, "[data-works-thumbnail]"), h = (t = (n = (r = p.querySelector("[data-works-title]")) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? (i = p.getAttribute("data-works-title")) == null ? void 0 : i.trim() : n) == null ? "" : t, g = (a = (o = (s = p.querySelector("[data-works-year]")) == null || (s = s.textContent) == null ? void 0 : s.trim()) == null ? (c = p.getAttribute("data-works-year")) == null ? void 0 : c.trim() : o) == null ? "" : a, _ = (l = (u = (d = p.getAttribute("data-works-href")) == null ? p.getAttribute("data-works-url") : d) == null ? (f = p.querySelector("[data-works-link], a[href]")) == null ? void 0 : f.href : u) == null ? "" : l, v = V(m);
 	return !h && !v && !_ ? null : {
 		title: h,
 		year: g,
@@ -277,30 +277,30 @@ function Ye(e) {
 		href: _
 	};
 }
-function Xe(e) {
+function Ze(e) {
 	var t, n, r;
 	let i = l("[data-modal-gallery-item]", e).map((e) => {
 		var t, n, r, i;
-		let a = (t = U(e, "[data-modal-gallery-image]")) == null ? e.querySelector("img") : t;
+		let a = (t = H(e, "[data-modal-gallery-image]")) == null ? e.querySelector("img") : t;
 		return {
-			src: H(a),
+			src: V(a),
 			alt: (n = a == null ? void 0 : a.alt) == null ? "" : n,
 			caption: (r = (i = e.querySelector("[data-modal-gallery-caption]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r
 		};
 	}).filter((e) => e.src);
 	if (i.length > 0) return i;
-	let a = U(e, "[data-modal-image]"), o = H(a);
+	let a = H(e, "[data-modal-image]"), o = V(a);
 	return o ? [{
 		src: o,
 		alt: (t = a == null ? void 0 : a.alt) == null ? "" : t,
 		caption: (n = (r = e.querySelector("[data-modal-caption]")) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n
 	}] : [];
 }
-function Ze(e) {
+function Qe(e) {
 	var t, n, r, i, a, o, s, c;
 	let l = m(e, "data-modal-content");
 	if (!l) return null;
-	let u = ((t = e.querySelector("[data-modal-hover-text]")) == null || (t = t.textContent) == null ? void 0 : t.trim()) || ((n = e.querySelector("[data-modal-address]")) == null || (n = n.textContent) == null ? void 0 : n.trim()) || "", d = (r = (i = e.querySelector("[data-modal-headline]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r, f = Xe(e), p = f[0], h = e.querySelector("[data-modal-body]");
+	let u = ((t = e.querySelector("[data-modal-hover-text]")) == null || (t = t.textContent) == null ? void 0 : t.trim()) || ((n = e.querySelector("[data-modal-address]")) == null || (n = n.textContent) == null ? void 0 : n.trim()) || "", d = (r = (i = e.querySelector("[data-modal-headline]")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r, f = Ze(e), p = f[0], h = e.querySelector("[data-modal-body]");
 	return {
 		id: l,
 		address: u,
@@ -310,15 +310,15 @@ function Ze(e) {
 		imageAlt: (o = p == null ? void 0 : p.alt) == null ? "" : o,
 		caption: (s = p == null ? void 0 : p.caption) == null ? "" : s,
 		html: (c = h == null ? void 0 : h.innerHTML) == null ? "" : c,
-		work: Ye(e),
+		work: Xe(e),
 		gallery: f
 	};
 }
-function Qe(e) {
+function $e(e) {
 	var t, n, r, i, a, o, s, c;
 	let l = m(e, "data-modal");
 	if (!l) return null;
-	let u = e.querySelector(".fwm-modal__image"), d = H(u), f = (t = (n = e.querySelector(".fwm-modal__caption")) == null || (n = n.textContent) == null ? void 0 : n.trim()) == null ? "" : t;
+	let u = e.querySelector(".fwm-modal__image"), d = V(u), f = (t = (n = e.querySelector(".fwm-modal__caption")) == null || (n = n.textContent) == null ? void 0 : n.trim()) == null ? "" : t;
 	return {
 		id: l,
 		address: (r = (i = e.querySelector(".fwm-modal__address")) == null || (i = i.textContent) == null ? void 0 : i.trim()) == null ? "" : r,
@@ -336,23 +336,23 @@ function Qe(e) {
 		}] : []
 	};
 }
-function $e() {
+function et() {
 	l(Fe).forEach((e) => {
-		let t = Ze(e);
-		t && V.set(t.id, t);
-	}), l(Pe).forEach((e) => {
 		let t = Qe(e);
-		t && V.set(t.id, t), e.remove();
+		t && B.set(t.id, t);
+	}), l(Pe).forEach((e) => {
+		let t = $e(e);
+		t && B.set(t.id, t), e.remove();
 	});
 }
-function et(e) {
+function tt(e) {
 	var t;
 	let n = e.trim();
 	if (!n) return null;
-	let r = l(Fe).find((e) => m(e, "data-modal-content") === n), i = r ? Ze(r) : null;
-	return i && V.set(n, i), (t = i == null ? V.get(n) : i) == null ? null : t;
+	let r = l(Fe).find((e) => m(e, "data-modal-content") === n), i = r ? Qe(r) : null;
+	return i && B.set(n, i), (t = i == null ? B.get(n) : i) == null ? null : t;
 }
-function tt(e) {
+function nt(e) {
 	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("span"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
 	if (t.className = "fwm-modal__work-card", e.href && t.setAttribute("href", e.href), e.thumbnail) {
 		let r = document.createElement("img");
@@ -364,18 +364,18 @@ function tt(e) {
 	}
 	return r.className = "fwm-modal__work-footer", o.className = "fwm-modal__work-icon", o.innerHTML = Ue, r.append(i, o), t.append(r), t;
 }
-function nt(e, t) {
+function rt(e, t) {
 	let n = document.createElement("a"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span");
 	return n.className = "fwm-modal__image-link", n.href = e.src, n.setAttribute("data-lightbox-src", e.src), n.setAttribute("data-lightbox-caption", e.caption), n.setAttribute("data-lightbox-alt", e.alt), n.classList.toggle("has-caption", e.caption.length > 0), r.className = "fwm-modal__image", r.src = e.src, r.alt = e.alt, r.loading = t === 0 ? "eager" : "lazy", r.decoding = "async", i.className = "fwm-modal__lightbox-icon", i.setAttribute("aria-hidden", "true"), i.innerHTML = He, a.className = "fwm-modal__caption", a.textContent = e.caption, a.hidden = e.caption.length === 0, n.append(r, i, a), n;
 }
-function rt(e) {
+function it(e) {
 	e.headline.textContent = "", e.headline.hidden = !0, e.work.replaceChildren(), e.work.hidden = !0, e.gallery.replaceChildren(), e.gallery.hidden = !0;
 }
-function it(e, t) {
-	let n = t.image.trim().length > 0;
-	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !n, e.imageLink.href = n ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", n ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = n ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, e.text.innerHTML = t.html, rt(e);
-}
 function at(e, t) {
+	let n = t.image.trim().length > 0;
+	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !n, e.imageLink.href = n ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", n ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = n ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, e.text.innerHTML = t.html, it(e);
+}
+function ot(e, t) {
 	var n, r;
 	let i = ((n = t.gallery) != null && n.length ? t.gallery : t.image.trim() ? [{
 		src: t.image,
@@ -385,27 +385,27 @@ function at(e, t) {
 		var n;
 		return e.src && e.src !== ((n = t.work) == null ? void 0 : n.thumbnail);
 	});
-	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(tt(t.work)), i.forEach((t, n) => {
-		e.gallery.append(nt(t, n));
+	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, e.text.innerHTML = t.html, e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(nt(t.work)), i.forEach((t, n) => {
+		e.gallery.append(rt(t, n));
 	});
 }
-function ot(e) {
-	let t = qe();
-	return e.layout === "context" ? at(t, e) : it(t, e), t;
-}
 function st(e) {
+	let t = Je();
+	return e.layout === "context" ? ot(t, e) : at(t, e), t;
+}
+function ct(e) {
 	let t = d(e.panel)[0];
 	p(t == null ? e.panel : t);
 }
-function ct(e) {
-	B !== null && (window.clearTimeout(B), B = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
-}
 function lt(e) {
-	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), B = window.setTimeout(() => {
-		e.root.hidden = !0, e.root.classList.remove("is-active"), B = null;
+	z !== null && (window.clearTimeout(z), z = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
+}
+function ut(e) {
+	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), z = window.setTimeout(() => {
+		e.root.hidden = !0, e.root.classList.remove("is-active"), z = null;
 	}, Be), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
 }
-function W(e, t) {
+function U(e, t) {
 	var n, i, a, o, c, l, d, f, p, m, h;
 	let g = {
 		id: e.id.trim(),
@@ -424,92 +424,188 @@ function W(e, t) {
 		}] : []
 	};
 	if (!g.id) return;
-	R && K(), V.set(g.id, g), z = t == null ? s() : t, R = g.id;
-	let _ = ot(g);
-	ct(_), r(), st(_), u(_.root, "site:modal-open", {
-		id: R,
+	L && G(), B.set(g.id, g), R = t == null ? s() : t, L = g.id;
+	let _ = st(g);
+	lt(_), r(), ct(_), u(_.root, "site:modal-open", {
+		id: L,
 		modal: _.root,
 		content: g,
 		trigger: t == null ? null : t
 	});
 }
-function G(e, t) {
-	let n = et(e);
-	n && W(n, t);
+function W(e, t) {
+	let n = tt(e);
+	n && U(n, t);
 }
-function K() {
-	if (!R || !L) return;
-	let e = R, t = z;
-	lt(L), _(), R = "", z = null, u(L.root, "site:modal-close", {
+function G() {
+	if (!L || !I) return;
+	let e = L, t = R;
+	ut(I), _(), L = "", R = null, u(I.root, "site:modal-close", {
 		id: e,
-		modal: L.root
+		modal: I.root
 	}), o(t);
 }
-function ut(t) {
-	if (!(!R || !L) && !document.body.classList.contains("is-lightbox-open")) {
+function dt(t) {
+	if (!(!L || !I) && !document.body.classList.contains("is-lightbox-open")) {
 		if (t.key === "Escape") {
-			t.preventDefault(), K();
+			t.preventDefault(), G();
 			return;
 		}
-		e(L.panel, t);
+		e(I.panel, t);
 	}
 }
-function dt(e) {
-	if (!F || !R || !L) return;
-	let t = e.target;
-	!c(t) || t !== L.root || K();
-}
 function ft(e) {
+	if (!Ge || !L || !I) return;
+	let t = e.target;
+	!c(t) || t !== I.root || G();
+}
+function pt(e) {
 	var n;
-	return F = (n = e.closeOnBackdrop) == null || n, I = e.i18n, $e(), qe(), We || (h(document, "click", Ie, (e, n) => {
-		e.preventDefault(), G(t(n, "data-modal-open"), n);
+	return Ge = (n = e.closeOnBackdrop) == null || n, F = e.i18n, et(), Je(), We || (h(document, "click", Ie, (e, n) => {
+		e.preventDefault(), W(t(n, "data-modal-open"), n);
 	}), h(document, "click", Re, (e, t) => {
-		e.preventDefault(), G(Ge(t), t);
+		e.preventDefault(), W(Ke(t), t);
 	}), h(document, "click", Le, (e, t) => {
-		L != null && L.root.contains(t) && (e.preventDefault(), K());
-	}), document.addEventListener("click", dt), document.addEventListener("keydown", ut), We = !0), {
-		openModal: G,
-		openContentModal: W,
-		closeModal: K
+		I != null && I.root.contains(t) && (e.preventDefault(), G());
+	}), document.addEventListener("click", ft), document.addEventListener("keydown", dt), We = !0), {
+		openModal: W,
+		openContentModal: U,
+		closeModal: G
 	};
 }
 //#endregion
+//#region src/modules/page-transition.ts
+var mt = "[data-page-transition-overlay]", K = "site-page-transition", ht = "pending", gt = .42, _t = .46, vt = [
+	"[data-lightbox-src]",
+	".js-lightbox",
+	"[data-modal-open]",
+	"[data-modal-close]",
+	"[data-back-button]",
+	"[download]"
+].join(","), yt = !1, q = !1;
+function bt() {
+	let e = document.querySelector(mt);
+	if (e) return e;
+	let t = document.createElement("div");
+	return t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), document.body.append(t), t;
+}
+function xt(e) {
+	return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
+}
+function St(e) {
+	var t;
+	return !!(e.closest(vt) || e.target && e.target !== "_self" || e.hasAttribute("download") || (t = e.getAttribute("href")) != null && t.trim().startsWith("#"));
+}
+function Ct(e) {
+	var t, n;
+	let r = (t = (n = e.getAttribute("href")) == null ? void 0 : n.trim()) == null ? "" : t;
+	if (!r || r.startsWith("#") || r.startsWith("mailto:") || r.startsWith("tel:")) return null;
+	let i;
+	try {
+		i = new URL(e.href, window.location.href);
+	} catch (e) {
+		return null;
+	}
+	return i.origin !== window.location.origin || i.href === window.location.href || i.pathname === window.location.pathname && i.search === window.location.search ? null : i;
+}
+function wt(e, t) {
+	return !q && !e.defaultPrevented && !xt(e) && !St(t);
+}
+function Tt() {
+	try {
+		window.sessionStorage.setItem(K, ht);
+	} catch (e) {}
+}
+function Et() {
+	try {
+		let e = window.sessionStorage.getItem(K) === ht;
+		return window.sessionStorage.removeItem(K), e;
+	} catch (e) {
+		return !1;
+	}
+}
+function Dt(e) {
+	if (i() || !Et()) {
+		v.set(e, { yPercent: -100 });
+		return;
+	}
+	v.fromTo(e, { yPercent: 0 }, {
+		yPercent: 100,
+		duration: _t,
+		ease: "power3.inOut",
+		onComplete: () => {
+			v.set(e, { yPercent: -100 });
+		}
+	});
+}
+function Ot(e, t) {
+	q = !0, Tt(), v.killTweensOf(t), v.fromTo(t, { yPercent: -100 }, {
+		yPercent: 0,
+		duration: gt,
+		ease: "power3.inOut",
+		onComplete: () => {
+			window.location.href = e.href;
+		}
+	});
+}
+function kt(e, t) {
+	e.persisted && (q = !1, Et(), v.set(t, { yPercent: -100 }));
+}
+function At() {
+	if (yt) return;
+	yt = !0;
+	let e = bt();
+	Dt(e), document.addEventListener("click", (t) => {
+		let n = t.target;
+		if (!(n instanceof Element)) return;
+		let r = n.closest("a[href]");
+		if (!r) return;
+		if (q) {
+			t.preventDefault();
+			return;
+		}
+		if (!wt(t, r)) return;
+		let a = Ct(r);
+		!a || i() || (t.preventDefault(), Ot(a, e));
+	}), window.addEventListener("pageshow", (t) => kt(t, e));
+}
+//#endregion
 //#region src/modules/site-menu.ts
-var pt = "[data-site-menu]", mt = "[data-site-menu-panel]", ht = "[data-site-menu-toggle]", gt = "[data-site-menu-toggle-label]", _t = "[data-site-menu-link]", vt = "[data-site-menu-indicator]", yt = "is-active", q = "is-open", bt = "is-ready", xt = "data-site-menu-open-label", St = "data-site-menu-closed-label", J = "data-site-menu-current-key", Ct = "data-site-menu-label", wt = "data-site-menu-key", Y = "data-site-menu-original-tabindex", Tt = "CLOSE", Et = "MENU", Dt = [], Ot = !1;
-function kt(e) {
+var jt = "[data-site-menu]", Mt = "[data-site-menu-panel]", Nt = "[data-site-menu-toggle]", Pt = "[data-site-menu-toggle-label]", Ft = "[data-site-menu-link]", It = "[data-site-menu-indicator]", Lt = "is-active", J = "is-open", Rt = "is-ready", zt = "data-site-menu-open-label", Bt = "data-site-menu-closed-label", Y = "data-site-menu-current-key", Vt = "data-site-menu-label", Ht = "data-site-menu-key", X = "data-site-menu-original-tabindex", Ut = "CLOSE", Wt = "MENU", Gt = [], Kt = !1;
+function qt(e) {
 	return e.split("#")[0].split("?")[0].replace(/\/index\.html?$/i, "/").replace(/\/+$/g, "") || "/";
 }
-function At(e) {
+function Jt(e) {
 	if (!(e instanceof HTMLAnchorElement)) return "";
 	let t = m(e, "href");
 	if (!t || t.startsWith("#") || t.startsWith("mailto:") || t.startsWith("tel:")) return "";
 	try {
-		return kt(new URL(e.href, window.location.href).pathname);
+		return qt(new URL(e.href, window.location.href).pathname);
 	} catch (e) {
 		return "";
 	}
 }
-function jt(e, t) {
-	return t ? m(e, wt) === t : !1;
+function Yt(e, t) {
+	return t ? m(e, Ht) === t : !1;
 }
-function Mt(e, t) {
+function Xt(e, t) {
 	var n, r;
-	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || jt(e, m(t, J) || ((n = document.documentElement.getAttribute(J)) == null ? void 0 : n.trim()) || ((r = document.body.getAttribute(J)) == null ? void 0 : r.trim()) || "")) return !0;
-	let i = At(e);
-	return i ? i === kt(window.location.pathname) : !1;
+	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || Yt(e, m(t, Y) || ((n = document.documentElement.getAttribute(Y)) == null ? void 0 : n.trim()) || ((r = document.body.getAttribute(Y)) == null ? void 0 : r.trim()) || "")) return !0;
+	let i = Jt(e);
+	return i ? i === qt(window.location.pathname) : !1;
 }
-function Nt(e) {
+function Zt(e) {
 	var t, n;
-	return m(e, Ct) || ((t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t);
+	return m(e, Vt) || ((t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t);
 }
-function Pt(e) {
+function Qt(e) {
 	var t;
-	let n = (t = e.links.find((e) => e.classList.contains(yt) || e.classList.contains("w--current"))) == null ? e.links.find((t) => Mt(t, e.root)) : t;
-	return n ? Nt(n) : "";
+	let n = (t = e.links.find((e) => e.classList.contains(Lt) || e.classList.contains("w--current"))) == null ? e.links.find((t) => Xt(t, e.root)) : t;
+	return n ? Zt(n) : "";
 }
-function X(e, t = !0) {
+function Z(e, t = !0) {
 	var n;
-	let r = m(e.root, xt) || Tt, a = m(e.root, St) || Et, o = Pt(e), s = e.isOpen ? r : e.isHovered ? a : o || a, c = (n = e.toggleLabel) == null ? e.toggle : n;
+	let r = m(e.root, zt) || Ut, a = m(e.root, Bt) || Wt, o = Qt(e), s = e.isOpen ? r : e.isHovered ? a : o || a, c = (n = e.toggleLabel) == null ? e.toggle : n;
 	if (c.textContent !== s) {
 		if (v.killTweensOf(c), i() || !t) {
 			c.textContent = s, v.set(c, { clearProps: "opacity" });
@@ -532,20 +628,20 @@ function X(e, t = !0) {
 		});
 	}
 }
-function Ft(e, t) {
+function $t(e, t) {
 	e.links.forEach((e) => {
 		if (t) {
-			let t = m(e, Y);
+			let t = m(e, X);
 			t ? e.setAttribute("tabindex", t) : e.removeAttribute("tabindex");
 			return;
 		}
-		!e.hasAttribute(Y) && e.hasAttribute("tabindex") && e.setAttribute(Y, String(e.tabIndex)), e.setAttribute("tabindex", "-1");
+		!e.hasAttribute(X) && e.hasAttribute("tabindex") && e.setAttribute(X, String(e.tabIndex)), e.setAttribute("tabindex", "-1");
 	});
 }
-function Z(e, t, n = !0) {
-	e.isOpen = t, e.root.classList.toggle(q, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), Ft(e, t), X(e, n);
+function Q(e, t, n = !0) {
+	e.isOpen = t, e.root.classList.toggle(J, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), $t(e, t), Z(e, n);
 }
-function It(e, t, n) {
+function en(e, t, n) {
 	v.killTweensOf(e.panel), v.set(e.panel, { clearProps: "height" });
 	let r = e.panel.getBoundingClientRect().height;
 	i() || v.fromTo(e.panel, { height: n }, {
@@ -557,83 +653,83 @@ function It(e, t, n) {
 		}
 	});
 }
-function Lt(e) {
+function tn(e) {
 	if (e.isOpen) return;
 	let t = e.panel.getBoundingClientRect().height;
-	Z(e, !0), It(e, !0, t);
+	Q(e, !0), en(e, !0, t);
 }
-function Q(e) {
+function $(e) {
 	if (!e.isOpen) return;
 	let t = e.panel.getBoundingClientRect().height;
-	Z(e, !1), It(e, !1, t);
+	Q(e, !1), en(e, !1, t);
 }
-function Rt(e) {
-	e.isOpen ? Q(e) : Lt(e);
+function nn(e) {
+	e.isOpen ? $(e) : tn(e);
 }
-function zt(e) {
+function rn(e) {
 	e.links.forEach((t) => {
-		let n = Mt(t, e.root), r = f(vt, t);
-		t.classList.toggle(yt, n), n ? t.setAttribute("aria-current", "page") : t.getAttribute("aria-current") === "page" && t.removeAttribute("aria-current"), r && r.setAttribute("aria-hidden", "true");
+		let n = Xt(t, e.root), r = f(It, t);
+		t.classList.toggle(Lt, n), n ? t.setAttribute("aria-current", "page") : t.getAttribute("aria-current") === "page" && t.removeAttribute("aria-current"), r && r.setAttribute("aria-hidden", "true");
 	});
 }
-function Bt(e) {
+function an(e) {
 	var t;
-	let n = f(mt, e), r = f(ht, e);
+	let n = f(Mt, e), r = f(Nt, e);
 	if (!n || !r) return null;
 	let i = {
 		root: e,
 		panel: n,
 		toggle: r,
-		toggleLabel: (t = f(gt, r)) == null ? f(gt, e) : t,
-		links: l(_t, e),
-		isOpen: e.classList.contains(q),
+		toggleLabel: (t = f(Pt, r)) == null ? f(Pt, e) : t,
+		links: l(Ft, e),
+		isOpen: e.classList.contains(J),
 		isHovered: !1,
 		cleanup: []
 	};
-	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Dt.length + 1}`), r.setAttribute("aria-controls", n.id), zt(i), Z(i, i.isOpen, !1), e.classList.add(bt);
+	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Gt.length + 1}`), r.setAttribute("aria-controls", n.id), rn(i), Q(i, i.isOpen, !1), e.classList.add(Rt);
 	let a = (e) => {
-		e.preventDefault(), Rt(i);
+		e.preventDefault(), nn(i);
 	}, o = (t) => {
-		!i.isOpen || !(t.target instanceof Node) || e.contains(t.target) || Q(i);
+		!i.isOpen || !(t.target instanceof Node) || e.contains(t.target) || $(i);
 	}, s = (e) => {
-		e.key !== "Escape" || !i.isOpen || (Q(i), i.toggle.focus({ preventScroll: !0 }));
+		e.key !== "Escape" || !i.isOpen || ($(i), i.toggle.focus({ preventScroll: !0 }));
 	}, c = (e) => {
 		let t = e.target;
-		!(t instanceof Element) || !t.closest(_t) || Q(i);
+		!(t instanceof Element) || !t.closest(Ft) || $(i);
 	}, u = () => {
-		i.isHovered = !0, X(i);
+		i.isHovered = !0, Z(i);
 	}, d = () => {
-		i.isHovered = !1, X(i);
+		i.isHovered = !1, Z(i);
 	};
 	return r.addEventListener("click", a), e.addEventListener("pointerenter", u), e.addEventListener("pointerleave", d), document.addEventListener("click", o), document.addEventListener("keydown", s), e.addEventListener("click", c), i.cleanup.push(() => r.removeEventListener("click", a), () => e.removeEventListener("pointerenter", u), () => e.removeEventListener("pointerleave", d), () => document.removeEventListener("click", o), () => document.removeEventListener("keydown", s), () => e.removeEventListener("click", c)), i;
 }
-function Vt(e = document) {
-	if (Ot && e === document) return () => void 0;
-	e === document && (Ot = !0);
-	let t = l(pt, e).map(Bt).filter((e) => !!e);
-	return Dt.push(...t), () => {
+function on(e = document) {
+	if (Kt && e === document) return () => void 0;
+	e === document && (Kt = !0);
+	let t = l(jt, e).map(an).filter((e) => !!e);
+	return Gt.push(...t), () => {
 		t.forEach((e) => {
 			var t, n;
-			e.cleanup.forEach((e) => e()), e.root.classList.remove(bt, q), v.killTweensOf(e.panel), v.killTweensOf((t = e.toggleLabel) == null ? e.toggle : t), v.set(e.panel, { clearProps: "height" }), v.set((n = e.toggleLabel) == null ? e.toggle : n, { clearProps: "opacity" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), Ft(e, !0);
+			e.cleanup.forEach((e) => e()), e.root.classList.remove(Rt, J), v.killTweensOf(e.panel), v.killTweensOf((t = e.toggleLabel) == null ? e.toggle : t), v.set(e.panel, { clearProps: "height" }), v.set((n = e.toggleLabel) == null ? e.toggle : n, { clearProps: "opacity" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), $t(e, !0);
 		});
 	};
 }
 //#endregion
 //#region src/main.ts
-var Ht = !1;
-function $() {
-	if (Ht) return;
-	Ht = !0;
+var sn = !1;
+function cn() {
+	if (sn) return;
+	sn = !0;
 	let e = te();
-	ft({ i18n: e }), Ne({ i18n: e }), Vt(), n(), window.SiteInteractions = {
-		openModal: G,
-		openContentModal: W,
-		closeModal: K,
+	pt({ i18n: e }), Ne({ i18n: e }), on(), At(), n(), window.SiteInteractions = {
+		openModal: W,
+		openContentModal: U,
+		closeModal: G,
 		openLightbox: N,
 		closeLightbox: P
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", $, { once: !0 }) : $();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", cn, { once: !0 }) : cn();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

@@ -10,6 +10,16 @@ body.is-lightbox-open {
   overscroll-behavior: contain;
 }
 
+[data-page-transition-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+  pointer-events: none;
+  transform: translate3d(0, -100%, 0);
+  will-change: transform;
+}
+
 [data-site-menu] {
   --site-menu-width: min(26.5625rem, calc(100vw - 2rem));
   --site-menu-toggle-height: 3.125rem;
@@ -129,8 +139,11 @@ body.is-lightbox-open {
 @media (prefers-reduced-motion: reduce) {
   [data-site-menu-panel],
   [data-site-menu-link],
-  [data-site-menu-indicator] {
+  [data-site-menu-indicator],
+  [data-page-transition-overlay] {
     transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    will-change: auto;
   }
 }
 
