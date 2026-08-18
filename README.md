@@ -432,6 +432,35 @@ it in a generated `.site-lightbox-trigger` element so the icon can be positioned
 
 Grouped triggers with the same `data-lightbox-group` can be navigated with previous/next controls and arrow keys.
 
+## Page transitions
+
+The global `site-interactions.js` bundle adds a GSAP-powered page transition for
+normal same-origin page links. The overlay moves in one direction: from above the
+viewport into place, then after the new page loads it continues downward to reveal
+the new page.
+
+The script creates the overlay automatically. To reduce the chance of a visible
+flash between Webflow page loads, you may also place this element once in the
+global Webflow footer before the script include:
+
+```html
+<div class="page-transition-overlay" data-page-transition-overlay aria-hidden="true"></div>
+```
+
+Style color through Webflow or CSS. The base stylesheet uses:
+
+```css
+background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+```
+
+The transition ignores external links, `mailto:`, `tel:`, hash-only links,
+downloads, non-`_self` targets, lightbox triggers, modal triggers, back buttons,
+and modifier-clicks. To opt out a specific internal link:
+
+```html
+<a href="/example" data-transition="false">No transition</a>
+```
+
 ## CSS hooks
 
 The JavaScript adds and removes these state hooks:

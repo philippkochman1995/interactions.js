@@ -2,12 +2,19 @@ import { gsap } from 'gsap';
 
 import { prefersReducedMotion } from './utils';
 
-const OVERLAY_SELECTOR = '[data-page-transition-overlay]';
+const PAGE_TRANSITION = {
+  coverDuration: 0.82,
+  holdDuration: 0.1,
+  revealDuration: 0.92,
+  ease: 'power4.inOut',
+};
+
+const OVERLAY_CLASS = 'page-transition-overlay';
+const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const TRANSITION_STORAGE_KEY = 'site-page-transition';
 const TRANSITION_STORAGE_VALUE = 'pending';
-const EXIT_DURATION = 1.5;
-const ENTRY_DURATION = 1.5;
 const IGNORED_LINK_SELECTOR = [
+  '[data-transition="false"]',
   '[data-lightbox-src]',
   '.js-lightbox',
   '[data-modal-open]',
@@ -23,10 +30,14 @@ function ensureOverlay(): HTMLElement {
   const existing = document.querySelector<HTMLElement>(OVERLAY_SELECTOR);
 
   if (existing) {
+    existing.classList.add(OVERLAY_CLASS);
+    existing.setAttribute('data-page-transition-overlay', '');
+    existing.setAttribute('aria-hidden', 'true');
     return existing;
   }
 
   const overlay = document.createElement('div');
+  overlay.className = OVERLAY_CLASS;
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
   document.body.append(overlay);
@@ -40,6 +51,7 @@ function hasModifierKey(event: MouseEvent): boolean {
 function isIgnoredLink(link: HTMLAnchorElement): boolean {
   return Boolean(
     link.closest(IGNORED_LINK_SELECTOR) ||
+      link.getAttribute('data-transition') === 'false' ||
       (link.target && link.target !== '_self') ||
       link.hasAttribute('download') ||
       link.getAttribute('href')?.trim().startsWith('#'),
@@ -105,8 +117,9 @@ function revealPage(overlay: HTMLElement): void {
     { yPercent: 0 },
     {
       yPercent: 100,
-      duration: ENTRY_DURATION,
-      ease: 'power3.inOut',
+      delay: PAGE_TRANSITION.holdDuration,
+      duration: PAGE_TRANSITION.revealDuration,
+      ease: PAGE_TRANSITION.ease,
       onComplete: () => {
         gsap.set(overlay, { yPercent: -100 });
       },
@@ -124,8 +137,8 @@ function navigateWithTransition(url: URL, overlay: HTMLElement): void {
     { yPercent: -100 },
     {
       yPercent: 0,
-      duration: EXIT_DURATION,
-      ease: 'power3.inOut',
+      duration: PAGE_TRANSITION.coverDuration,
+      ease: PAGE_TRANSITION.ease,
       onComplete: () => {
         window.location.href = url.href;
       },
