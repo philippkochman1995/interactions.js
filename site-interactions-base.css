@@ -23,6 +23,11 @@ body.is-lightbox-open {
   will-change: transform;
 }
 
+html.is-page-transition-pending [data-page-transition-overlay],
+html.is-page-transition-pending .page-transition-overlay {
+  transform: translate3d(0, 0, 0);
+}
+
 [data-site-menu] {
   --site-menu-width: min(26.5625rem, calc(100vw - 2rem));
   --site-menu-toggle-height: 3.125rem;

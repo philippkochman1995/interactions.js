@@ -3,10 +3,11 @@ import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
 import { initPageTransitions } from './modules/page-transition';
 import { initSiteMenu } from './modules/site-menu';
-import { initSplitLines } from './modules/splitline';
 import { initBackButtons } from './modules/utils';
 
 let booted = false;
+
+initPageTransitions();
 
 function boot(): void {
   if (booted) {
@@ -20,8 +21,6 @@ function boot(): void {
   initModals({ i18n });
   initLightbox({ i18n });
   initSiteMenu();
-  initPageTransitions();
-  initSplitLines();
   initBackButtons();
 
   window.SiteInteractions = {

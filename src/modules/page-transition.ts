@@ -13,6 +13,7 @@ const OVERLAY_CLASS = 'page-transition-overlay';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const TRANSITION_STORAGE_KEY = 'site-page-transition';
 const TRANSITION_STORAGE_VALUE = 'pending';
+const PENDING_CLASS = 'is-page-transition-pending';
 const IGNORED_LINK_SELECTOR = [
   '[data-transition="false"]',
   '[data-lightbox-src]',
@@ -25,6 +26,18 @@ const IGNORED_LINK_SELECTOR = [
 
 let initialized = false;
 let isTransitioning = false;
+
+function syncPendingClass(isPending: boolean): void {
+  document.documentElement.classList.toggle(PENDING_CLASS, isPending);
+}
+
+function primePendingClass(): void {
+  try {
+    syncPendingClass(window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE);
+  } catch {
+    syncPendingClass(false);
+  }
+}
 
 function ensureOverlay(): HTMLElement {
   const existing = document.querySelector<HTMLElement>(OVERLAY_SELECTOR);
@@ -91,6 +104,7 @@ function shouldTransition(event: MouseEvent, link: HTMLAnchorElement): boolean {
 function markTransitionPending(): void {
   try {
     window.sessionStorage.setItem(TRANSITION_STORAGE_KEY, TRANSITION_STORAGE_VALUE);
+    syncPendingClass(true);
   } catch {
     // Storage can be unavailable in private or embedded contexts; the exit animation still works.
   }
@@ -100,8 +114,10 @@ function consumeTransitionPending(): boolean {
   try {
     const hasPendingTransition = window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE;
     window.sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
+    syncPendingClass(false);
     return hasPendingTransition;
   } catch {
+    syncPendingClass(false);
     return false;
   }
 }
@@ -161,6 +177,11 @@ export function initPageTransitions(): void {
     return;
   }
 
+  if (!document.body) {
+    document.addEventListener('DOMContentLoaded', initPageTransitions, { once: true });
+    return;
+  }
+
   initialized = true;
 
   const overlay = ensureOverlay();
@@ -200,3 +221,5 @@ export function initPageTransitions(): void {
 
   window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay));
 }
+
+primePendingClass();
