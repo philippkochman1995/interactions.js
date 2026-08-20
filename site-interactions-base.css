@@ -359,6 +359,53 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 /*
+  Parallax-Fenster: der Rahmen steht fest, das Bild dahinter wandert. Die Ebene dazwischen
+  legt parallax.ts an; sie ist oben und unten ueber den Rahmen hinaus aufgespannt - um
+  1px weiter, als sie faehrt, sonst kann an den Endpunkten eine Subpixel-Haarlinie
+  aufblitzen.
+
+  Warum ueberhaupt eine Zwischenebene: auf Bildern kann bereits ein CSS-transform liegen,
+  etwa der Hover-Zoom der Lightbox-Bilder. GSAPs inline transform wuerde den schlucken -
+  inline schlaegt Stylesheet. So besitzt jede Seite ihr eigenes transform, und ein Icon
+  im Rahmen bleibt als Geschwister der Ebene stehen, statt mitzufahren.
+*/
+.fw-parallax-window {
+  position: relative;
+  overflow: hidden;
+}
+
+/*
+  Nur fuer Rahmen, die ihre Hoehe bisher vom Bild im Fluss bezogen haben - der
+  Lightbox-Wrapper etwa ist ein inline-block und faellt sonst auf 0x0 zusammen. Rahmen mit
+  eigener Hoehe bekommen das nicht, sonst zerstoert es ihr Layout.
+*/
+.fw-parallax-window--self-sized {
+  display: block;
+  width: 100%;
+}
+
+.fw-parallax-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: block;
+  will-change: transform;
+}
+
+.fw-parallax-inner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-parallax-inner {
+    will-change: auto;
+  }
+}
+
+/*
   Hover-Zoom auf Lightbox-Bildern. Der Trigger-Wrapper wird von lightbox.ts selbst um
   das Bild gelegt, deshalb darf er hier beschnitten werden - das Bild waechst sonst
   ueber seine Box hinaus. Das Icon liegt 1rem vom Rand entfernt und bleibt auch

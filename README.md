@@ -446,6 +446,67 @@ Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bli
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
 Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
 
+## Parallax
+
+Parallax als Fenster: der Rahmen steht fest im Layout, das Bild dahinter wandert beim
+Scrollen. Code in `src/modules/parallax.ts`, laeuft ueber `site-interactions.js` mit -
+kein eigener Script-Tag noetig. Im Einsatz auf der News-Seite (nicht im News Template).
+
+Markiert wird per Attribut, nicht per Klasse: das Attribut beschreibt Verhalten, nicht
+Optik, und ueberlebt in Webflow das Umbenennen und Kombinieren von Klassen.
+
+```html
+<div class="img-zoom" data-parallax>       Standardweg, 60px
+<div class="img-zoom" data-parallax="90">  eigener Weg in Pixeln
+<div class="img-zoom" data-parallax="0">   aus
+```
+
+Das Attribut darf auf einem Container sitzen - jedes Bild darin bekommt sein eigenes
+Fenster. Der Wert ist der gesamte Weg, den das Bild hinter dem Fenster zuruecklegt,
+gedeckelt bei 160px. Unter etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf
+die volle Scrollstrecke des Elements verteilt.
+
+### Aufbau
+
+```text
+div.img-zoom.fw-parallax-window   Fenster: beschnitten
+  span.fw-parallax-inner          wandert (GSAP: y), oben und unten ueberhoeht
+    img                           object-fit: cover
+```
+
+Als Fenster dient der Lightbox-Wrapper, wenn es ihn gibt, sonst das Elternelement des
+Bildes. Findet sich ueberhaupt kein Bild, wandert das markierte Element selbst.
+
+### Zwei Faelle, die das Modul unterscheiden muss
+
+Manche Rahmen haben eine **eigene Hoehe** - aus einem Grid, einer festen Groesse oder
+weil sie selbst absolut aufgespannt sind. Das trifft auf `.img-zoom` der News-Seite zu.
+Andere bezogen ihre Hoehe **vom Bild im Fluss** und fallen zusammen, sobald es in die
+absolute Ebene wandert; der Lightbox-Wrapper etwa ist ein `inline-block` und faellt dann
+auf 0x0, die Bilder verschwinden restlos.
+
+Statt das zu raten, misst das Modul die Rahmenhoehe vor und nach dem Umbau und haelt nur
+im zweiten Fall die Bildproportion per `aspect-ratio` fest (plus `display: block` und
+`width: 100%` ueber `.fw-parallax-window--self-sized`). Ein `aspect-ratio` auf den ersten
+Fall wuerde dessen Layout zerstoeren.
+
+Ist die Hoehe vorher gar nicht messbar - Element unsichtbar, versteckter Slide, Tab ohne
+Layout - passiert nichts. Lieber kein Effekt als ein dauerhaft zusammengefallener Rahmen.
+
+### Weitere Details
+
+Die Zwischenebene ist noetig, weil auf Bildern bereits ein CSS-`transform` liegen kann,
+etwa der Hover-Zoom der Lightbox-Bilder. GSAPs inline `transform` wuerde den schlucken -
+inline schlaegt Stylesheet. So besitzt jede Seite ihr eigenes `transform`, und ein Icon
+im Rahmen bleibt als Geschwister der Ebene stehen, statt mitzufahren.
+
+Die Ebene ist 1px weiter aufgespannt, als sie faehrt: an den Endpunkten schloesse sie
+sonst exakt mit der Fensterkante ab, und eine Subpixel-Rundung liesse dort eine Haarlinie
+aufblitzen.
+
+Bewegt wird nur `transform`, das loest kein Reflow aus. Bei `prefers-reduced-motion:
+reduce` passiert nichts.
+
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a GSAP-powered page transition for
@@ -595,6 +656,8 @@ Variablen, an denen sich drehen laesst:
 ```text
 --fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.035)
 ```
+
+Der Parallax setzt ausserdem `data-parallax-ready`, sobald ein Element verdrahtet ist.
 
 
 Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
