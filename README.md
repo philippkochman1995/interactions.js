@@ -446,6 +446,42 @@ Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bli
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
 Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
 
+## Parallax
+
+Minimaler Parallax beim Scrollen: ein Element wandert waehrend seines Durchlaufs durch
+den Viewport um wenige Pixel gegen die Scrollrichtung. Code in
+`src/modules/parallax.ts`, laeuft ueber `site-interactions.js` mit - kein eigener
+Script-Tag noetig.
+
+Markiert wird per Attribut, nicht per Klasse: das Attribut beschreibt Verhalten, nicht
+Optik, und ueberlebt in Webflow das Umbenennen und Kombinieren von Klassen.
+
+```html
+<div class="editionen_media" data-parallax>       Standardweg, 20px
+<div class="editionen_media" data-parallax="32">  eigener Weg in Pixeln
+<div class="editionen_media" data-parallax="0">   aus
+```
+
+Der Wert ist der **gesamte** Weg in Pixeln, nicht der Weg pro Scrollschritt: das Element
+startet um die Haelfte nach unten versetzt, steht in Bildschirmmitte exakt auf seiner
+Layout-Position und endet um dieselbe Haelfte nach oben. Gedeckelt bei 120px - darueber
+reisst das Element sichtbar aus seiner Position und ueberlappt die Nachbarn.
+
+Weil nur `transform` bewegt wird, aendert der Effekt kein Layout und loest kein Reflow
+aus. Bei `prefers-reduced-motion: reduce` passiert nichts.
+
+### Nicht auf ein Lightbox-Bild setzen - und was passiert, wenn doch
+
+Der Hover-Zoom der Lightbox-Bilder haengt an einem CSS-`transform`. GSAP schreibt sein
+`transform` inline, und inline schlaegt Stylesheet: der Zoom waere still weg. Steht
+`data-parallax` trotzdem auf so einem Bild, faehrt deshalb der Wrapper, den `lightbox.ts`
+exakt um das Bild legt. Optisch ist das dasselbe, nur ohne Kollision - beide Effekte
+laufen dann nebeneinander.
+
+Auf der Editionen-Seite gehoert das Attribut sinnvollerweise auf `.editionen_media`, also
+den Medienblock neben dem Text. Nicht auf `.editionen_track` oder `.editionen_slide`:
+die gehoeren dem Slider.
+
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a GSAP-powered page transition for
@@ -595,6 +631,8 @@ Variablen, an denen sich drehen laesst:
 ```text
 --fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.035)
 ```
+
+Der Parallax setzt ausserdem `data-parallax-ready`, sobald ein Element verdrahtet ist.
 
 Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
 
