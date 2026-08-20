@@ -434,7 +434,7 @@ Grouped triggers with the same `data-lightbox-group` can be navigated with previ
 
 ### Hover-Zoom
 
-Jedes Bild in einem Lightbox-Trigger faehrt beim Hover auf 5% Zoom, in 0,685 s mit
+Jedes Bild in einem Lightbox-Trigger faehrt beim Hover auf 3,5% Zoom, in 0,62 s mit
 easeOutCubic. Der Wrapper wird beschnitten, das Bild waechst also nach innen und das
 Layout bleibt unveraendert. Die Staerke haengt an `--fw-lightbox-zoom`:
 
@@ -593,7 +593,7 @@ body.is-lightbox-open
 Variablen, an denen sich drehen laesst:
 
 ```text
---fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.05)
+--fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.035)
 ```
 
 Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
