@@ -364,27 +364,29 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   ueber seine Box hinaus. Das Icon liegt 1rem vom Rand entfernt und bleibt auch
   vergroessert innerhalb, wird vom Clipping also nicht angeschnitten.
 
-  0.424s ist Stufe 4 derselben Skala wie beim Zeilen-Reveal (0.1 * phi^3), die Kurve
-  entspricht expo.out: schneller Antritt, ruhiges Auslaufen. Zoomstaerke haengt an
-  --fw-lightbox-zoom und laesst sich pro Element oder global ueberschreiben.
+  0.685s ist Stufe 5 derselben Skala wie beim Zeilen-Reveal (0.1 * phi^4). Die Kurve ist
+  bewusst nicht expo.out wie dort: die steckt fast die ganze Bewegung in das erste
+  Drittel, dann wuerde die laengere Dauer gar nicht auffallen. easeOutCubic verteilt sie
+  gleichmaessiger, das Bild gleitet sichtbar. Zoomstaerke haengt an --fw-lightbox-zoom
+  und laesst sich pro Element oder global ueberschreiben.
 */
 .site-lightbox-trigger {
   overflow: hidden;
 }
 
 .site-lightbox-trigger__image {
-  transition: transform 0.424s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.685s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Nur auf Geraeten mit echtem Zeiger: nach einem Tap bliebe der Zoom sonst kleben. */
 @media (hover: hover) and (pointer: fine) {
   .site-lightbox-trigger:hover .site-lightbox-trigger__image {
-    transform: scale(var(--fw-lightbox-zoom, 1.06));
+    transform: scale(var(--fw-lightbox-zoom, 1.05));
   }
 }
 
 .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image {
-  transform: scale(var(--fw-lightbox-zoom, 1.06));
+  transform: scale(var(--fw-lightbox-zoom, 1.05));
 }
 
 @media (prefers-reduced-motion: reduce) {
