@@ -359,53 +359,6 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 /*
-  Parallax-Fenster: der Rahmen steht fest, das Bild dahinter wandert. Die Ebene dazwischen
-  legt parallax.ts an; sie ist oben und unten um den halben Weg ueber den Rahmen hinaus
-  aufgespannt, damit an den Kanten nie eine Luecke aufreisst.
-
-  Warum ueberhaupt eine Zwischenebene: den Hover-Zoom traegt das Bild als CSS-transform.
-  Wuerde GSAP den Parallax auf dasselbe Bild schreiben, wuerde sein inline transform den
-  Zoom schlucken. So besitzt GSAP das transform der Ebene, das Bild behaelt seins - und
-  das Lupen-Icon bleibt als Geschwister der Ebene am Fensterrand stehen, statt mitzufahren.
-
-  Der Rahmen behaelt ueber aspect-ratio genau die Hoehe, die vorher das Bild vorgegeben
-  hat; das Layout aendert sich also nicht. Sichtbar wird dafuer ein etwas engerer
-  Bildausschnitt - das Bild ist um den Parallaxweg hochskaliert.
-*/
-.fw-parallax-window {
-  position: relative;
-  overflow: hidden;
-  /*
-    Beides noetig: der Lightbox-Wrapper ist ein inline-block, dessen Breite bisher das
-    Bild im Fluss vorgegeben hat. Sobald das Bild in die absolut positionierte Ebene
-    wandert, faellt er ohne diese Angaben auf 0x0 zusammen und die Seite bleibt leer.
-  */
-  display: block;
-  width: 100%;
-}
-
-.fw-parallax-inner {
-  position: absolute;
-  left: 0;
-  right: 0;
-  display: block;
-  will-change: transform;
-}
-
-.fw-parallax-inner img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fw-parallax-inner {
-    will-change: auto;
-  }
-}
-
-/*
   Hover-Zoom auf Lightbox-Bildern. Der Trigger-Wrapper wird von lightbox.ts selbst um
   das Bild gelegt, deshalb darf er hier beschnitten werden - das Bild waechst sonst
   ueber seine Box hinaus. Das Icon liegt 1rem vom Rand entfernt und bleibt auch

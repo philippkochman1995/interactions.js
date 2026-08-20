@@ -446,67 +446,6 @@ Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bli
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
 Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
 
-## Parallax
-
-Parallax als Fenster: der Rahmen steht fest im Layout, das Bild dahinter wandert beim
-Scrollen. Code in `src/modules/parallax.ts`, laeuft ueber `site-interactions.js` mit -
-kein eigener Script-Tag noetig.
-
-Markiert wird per Attribut, nicht per Klasse: das Attribut beschreibt Verhalten, nicht
-Optik, und ueberlebt in Webflow das Umbenennen und Kombinieren von Klassen.
-
-```html
-<div class="editionen_media" data-parallax>       Standardweg, 60px
-<div class="editionen_media" data-parallax="90">  eigener Weg in Pixeln
-<div class="editionen_media" data-parallax="0">   aus
-```
-
-Das Attribut darf auf einem Container sitzen - jedes Bild darin bekommt sein eigenes
-Fenster. Auf der Editionen-Seite ist das ein Medienblock mit mehreren Slides.
-
-Der Wert ist der gesamte Weg, den das Bild hinter dem Fenster zuruecklegt. Gedeckelt bei
-160px; darueber wird der Ausschnitt so knapp, dass sichtbar Motiv verloren geht. Unter
-etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf die volle Scrollstrecke des
-Elements verteilt.
-
-### Aufbau
-
-```text
-span.site-lightbox-trigger.fw-parallax-window   Fenster: beschnitten, feste Proportion
-  span.fw-parallax-inner                        wandert (GSAP: y), oben und unten ueberhoeht
-    img                                         Hover-Zoom (CSS: scale), object-fit cover
-  span.site-lightbox-trigger__icon              Geschwister - bleibt am Fensterrand stehen
-```
-
-Als Fenster dient der Lightbox-Wrapper, wenn es ihn gibt: er umschliesst das Bild bereits
-exakt und ist beschnitten. Sonst das Elternelement des Bildes. Findet sich ueberhaupt kein
-Bild, wandert das markierte Element selbst - kein Fenster, aber besser als nichts, wenn
-das Attribut auf einem Textblock landet.
-
-### Drei Dinge, die hier bereits geloest sind
-
-**Die Zwischenebene ist kein Zierrat.** Den Hover-Zoom traegt das Bild als
-CSS-`transform`. Wuerde GSAP den Parallax auf dasselbe Bild schreiben, wuerde sein inline
-`transform` den Zoom schlucken - inline schlaegt Stylesheet. So besitzt GSAP das
-`transform` der Ebene, das Bild behaelt seins, und beide Effekte laufen nebeneinander.
-
-**Das Fenster braucht `display: block` und `width: 100%`.** Der Lightbox-Wrapper ist ein
-`inline-block`, dessen Breite bisher das Bild im Fluss vorgegeben hat. Sobald das Bild in
-die absolut positionierte Ebene wandert, faellt der Wrapper ohne diese Angaben auf 0x0
-zusammen - die Bilder verschwinden dann restlos.
-
-**Die Ebene ist 1px weiter aufgespannt, als sie faehrt.** An den Endpunkten schloesse sie
-sonst exakt mit der Fensterkante ab, und eine Subpixel-Rundung liesse dort eine Haarlinie
-aufblitzen.
-
-Die Fensterhoehe kommt per `aspect-ratio` aus den natuerlichen Bildmassen und entspricht
-exakt der Hoehe, die das Bild vorher selbst vorgegeben hat - das Layout aendert sich also
-nicht. Sichtbar wird dafuer ein etwas engerer Ausschnitt: das Bild ist um den Parallaxweg
-hochskaliert und wird oben und unten entsprechend beschnitten.
-
-Bewegt wird nur `transform`, das loest kein Reflow aus. Bei `prefers-reduced-motion:
-reduce` passiert nichts.
-
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a GSAP-powered page transition for
@@ -657,7 +596,6 @@ Variablen, an denen sich drehen laesst:
 --fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.035)
 ```
 
-Der Parallax setzt ausserdem `data-parallax-ready`, sobald ein Element verdrahtet ist.
 
 Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
 
