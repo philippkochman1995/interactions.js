@@ -448,39 +448,64 @@ Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
 
 ## Parallax
 
-Minimaler Parallax beim Scrollen: ein Element wandert waehrend seines Durchlaufs durch
-den Viewport um wenige Pixel gegen die Scrollrichtung. Code in
-`src/modules/parallax.ts`, laeuft ueber `site-interactions.js` mit - kein eigener
-Script-Tag noetig.
+Parallax als Fenster: der Rahmen steht fest im Layout, das Bild dahinter wandert beim
+Scrollen. Code in `src/modules/parallax.ts`, laeuft ueber `site-interactions.js` mit -
+kein eigener Script-Tag noetig.
 
 Markiert wird per Attribut, nicht per Klasse: das Attribut beschreibt Verhalten, nicht
 Optik, und ueberlebt in Webflow das Umbenennen und Kombinieren von Klassen.
 
 ```html
-<div class="editionen_media" data-parallax>       Standardweg, 20px
-<div class="editionen_media" data-parallax="32">  eigener Weg in Pixeln
+<div class="editionen_media" data-parallax>       Standardweg, 60px
+<div class="editionen_media" data-parallax="90">  eigener Weg in Pixeln
 <div class="editionen_media" data-parallax="0">   aus
 ```
 
-Der Wert ist der **gesamte** Weg in Pixeln, nicht der Weg pro Scrollschritt: das Element
-startet um die Haelfte nach unten versetzt, steht in Bildschirmmitte exakt auf seiner
-Layout-Position und endet um dieselbe Haelfte nach oben. Gedeckelt bei 120px - darueber
-reisst das Element sichtbar aus seiner Position und ueberlappt die Nachbarn.
+Das Attribut darf auf einem Container sitzen - jedes Bild darin bekommt sein eigenes
+Fenster. Auf der Editionen-Seite ist das ein Medienblock mit mehreren Slides.
 
-Weil nur `transform` bewegt wird, aendert der Effekt kein Layout und loest kein Reflow
-aus. Bei `prefers-reduced-motion: reduce` passiert nichts.
+Der Wert ist der gesamte Weg, den das Bild hinter dem Fenster zuruecklegt. Gedeckelt bei
+160px; darueber wird der Ausschnitt so knapp, dass sichtbar Motiv verloren geht. Unter
+etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf die volle Scrollstrecke des
+Elements verteilt.
 
-### Nicht auf ein Lightbox-Bild setzen - und was passiert, wenn doch
+### Aufbau
 
-Der Hover-Zoom der Lightbox-Bilder haengt an einem CSS-`transform`. GSAP schreibt sein
-`transform` inline, und inline schlaegt Stylesheet: der Zoom waere still weg. Steht
-`data-parallax` trotzdem auf so einem Bild, faehrt deshalb der Wrapper, den `lightbox.ts`
-exakt um das Bild legt. Optisch ist das dasselbe, nur ohne Kollision - beide Effekte
-laufen dann nebeneinander.
+```text
+span.site-lightbox-trigger.fw-parallax-window   Fenster: beschnitten, feste Proportion
+  span.fw-parallax-inner                        wandert (GSAP: y), oben und unten ueberhoeht
+    img                                         Hover-Zoom (CSS: scale), object-fit cover
+  span.site-lightbox-trigger__icon              Geschwister - bleibt am Fensterrand stehen
+```
 
-Auf der Editionen-Seite gehoert das Attribut sinnvollerweise auf `.editionen_media`, also
-den Medienblock neben dem Text. Nicht auf `.editionen_track` oder `.editionen_slide`:
-die gehoeren dem Slider.
+Als Fenster dient der Lightbox-Wrapper, wenn es ihn gibt: er umschliesst das Bild bereits
+exakt und ist beschnitten. Sonst das Elternelement des Bildes. Findet sich ueberhaupt kein
+Bild, wandert das markierte Element selbst - kein Fenster, aber besser als nichts, wenn
+das Attribut auf einem Textblock landet.
+
+### Drei Dinge, die hier bereits geloest sind
+
+**Die Zwischenebene ist kein Zierrat.** Den Hover-Zoom traegt das Bild als
+CSS-`transform`. Wuerde GSAP den Parallax auf dasselbe Bild schreiben, wuerde sein inline
+`transform` den Zoom schlucken - inline schlaegt Stylesheet. So besitzt GSAP das
+`transform` der Ebene, das Bild behaelt seins, und beide Effekte laufen nebeneinander.
+
+**Das Fenster braucht `display: block` und `width: 100%`.** Der Lightbox-Wrapper ist ein
+`inline-block`, dessen Breite bisher das Bild im Fluss vorgegeben hat. Sobald das Bild in
+die absolut positionierte Ebene wandert, faellt der Wrapper ohne diese Angaben auf 0x0
+zusammen - die Bilder verschwinden dann restlos.
+
+**Die Ebene ist 1px weiter aufgespannt, als sie faehrt.** An den Endpunkten schloesse sie
+sonst exakt mit der Fensterkante ab, und eine Subpixel-Rundung liesse dort eine Haarlinie
+aufblitzen.
+
+Die Fensterhoehe kommt per `aspect-ratio` aus den natuerlichen Bildmassen und entspricht
+exakt der Hoehe, die das Bild vorher selbst vorgegeben hat - das Layout aendert sich also
+nicht. Sichtbar wird dafuer ein etwas engerer Ausschnitt: das Bild ist um den Parallaxweg
+hochskaliert und wird oben und unten entsprechend beschnitten.
+
+Bewegt wird nur `transform`, das loest kein Reflow aus. Bei `prefers-reduced-motion:
+reduce` passiert nichts.
 
 ## Page transitions
 
