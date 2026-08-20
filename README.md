@@ -432,6 +432,20 @@ it in a generated `.site-lightbox-trigger` element so the icon can be positioned
 
 Grouped triggers with the same `data-lightbox-group` can be navigated with previous/next controls and arrow keys.
 
+### Hover-Zoom
+
+Jedes Bild in einem Lightbox-Trigger faehrt beim Hover auf 6% Zoom, in 0,424 s mit
+expo.out-Kurve. Der Wrapper wird beschnitten, das Bild waechst also nach innen und das
+Layout bleibt unveraendert. Die Staerke haengt an `--fw-lightbox-zoom`:
+
+```css
+.editionen_img { --fw-lightbox-zoom: 1.1; }   /* oder global auf :root */
+```
+
+Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bliebe er
+nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
+Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
+
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a GSAP-powered page transition for
@@ -574,6 +588,12 @@ body.is-lightbox-open
 [data-reveal-pending]
 [data-reveal-ready]
 .fw-reveal-tight
+```
+
+Variablen, an denen sich drehen laesst:
+
+```text
+--fw-lightbox-zoom   Zoomstaerke der Lightbox-Bilder beim Hover (Default 1.06)
 ```
 
 Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
