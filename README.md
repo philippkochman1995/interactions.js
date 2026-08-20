@@ -508,6 +508,56 @@ das Zielbild nicht, blendet ein Wachhund die Seite nach 2,6 s regulaer ein; frie
 Browser die Animation ein (Hintergrund-Tab), wird der Uebergang per Timer ohne Animation
 abgeschlossen. Die Navigation selbst wird nie blockiert.
 
+## Line reveal
+
+Zeilenweiser Text-Reveal: GSAP SplitText zerlegt den Text, legt pro Zeile eine Maske
+darum, und die Zeilen fahren beim Scrollen aus dieser Maske hoch. Der Code liegt in
+`src/modules/line-reveal.ts` und laeuft ueber `site-interactions.js` mit - in Webflow ist
+also **kein eigener Script-Tag** noetig.
+
+### Testbetrieb
+
+Der Selektor ist aktuell `[data-reveal], h2`, greift also zusaetzlich auf **alle H2**.
+Fuer den Dauerbetrieb in `line-reveal.ts` auf `'[data-reveal]'` reduzieren und die
+gewuenschten Elemente in Webflow per Attribut markieren.
+
+### Attribute
+
+| Attribut | Werte | Wirkung |
+| --- | --- | --- |
+| `data-reveal` | *(leer)* / `lines` / `words` / `chars` | Was gestaffelt faehrt. Ohne Wert: `lines`. |
+| `data-reveal` | `off` | Nimmt das Element aus, auch wenn es ein H2 ist. |
+| `data-reveal-delay` | Sekunden | Verzoegerung vor dem Start. |
+| `data-reveal-stagger` | Sekunden | Ueberschreibt den Versatz zwischen den Teilen. |
+| `data-reveal-trigger` | `false` | Kein ScrollTrigger, laeuft sofort beim Laden. |
+
+Modal und Lightbox sind fest ausgenommen: die bauen ihre Ueberschriften selbst und
+tauschen deren Inhalt bei jedem Oeffnen aus, ein Split wuerde dabei zerreissen.
+
+### Timing
+
+Dauer und Versatz kommen aus einer Skala auf Basis des goldenen Schnitts
+(`step(n) = 0.1 * phi^(n-1)`): Dauer 1,109 s, Versatz 0,1 s zwischen Zeilen bzw.
+Woertern, 0,062 s zwischen Zeichen. Gesplittet wird erst nach `document.fonts.ready`,
+sonst bricht SplitText die Zeilen anhand der Fallback-Schrift um.
+
+### Zwei Fallstricke, die hier bereits geloest sind
+
+`set()` + `to()` statt `from()`: bei `from()` entscheidet GSAP selbst, wann der
+Startzustand gerendert wird, und in der Kombination aus `autoSplit` und ScrollTrigger
+faellt er weg - der Text steht dann sichtbar da und springt beim Erreichen des Triggers
+erst nach unten. Auch `immediateRender: true` reicht dagegen nicht.
+
+Enge Zeilenhoehen (bis `line-height: 1.1`) bekommen `overflow-clip-margin` inline in
+Pixeln, damit die Maske Ober- und Unterlaengen nicht abschneidet. Negative Margins
+waeren hier falsch: die kollabieren zwischen benachbarten Masken, und die Ueberschrift
+wandert dadurch in der Hoehe. Der Wert muss in px kommen, `em` nimmt die Property nicht.
+Preis der Loesung: im geweiteten Bereich kann waehrend der Bewegung ein Rest der
+Nachbarzeile durchscheinen - bei `line-height` unter 1 ueberlappen sich die Zeilenboxen
+physisch, beides gleichzeitig geht nicht.
+
+Bei `prefers-reduced-motion: reduce` wird gar nicht gesplittet.
+
 ## CSS hooks
 
 The JavaScript adds and removes these state hooks:
@@ -521,6 +571,18 @@ body.is-lightbox-open
 [data-modal].is-visible
 [data-site-lightbox].is-active
 [data-site-lightbox].is-visible
+[data-reveal-pending]
+[data-reveal-ready]
+.fw-reveal-tight
+```
+
+Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
+
+```text
+.fw-ln-mask   Maske pro Zeile, schneidet ab
+.fw-ln        die Zeile
+.fw-wd        Wort
+.fw-ch        Zeichen
 ```
 
 The generated lightbox uses these structural classes:

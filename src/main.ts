@@ -1,4 +1,5 @@
 import { initI18n } from './modules/i18n';
+import { initLineReveal } from './modules/line-reveal';
 import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
 import { initPageTransitions } from './modules/page-transition';
@@ -12,6 +13,9 @@ let booted = false;
 // das rosa Overlay bleibt fuer alle anderen Links zustaendig.
 initWorkFlip();
 initPageTransitions();
+
+// Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.
+initLineReveal();
 
 function boot(): void {
   if (booted) {

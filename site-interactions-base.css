@@ -958,3 +958,37 @@ footer a.w--current:focus-visible::after,
     transition-delay: 0ms;
   }
 }
+
+/*
+  Zeilen-Reveal (line-reveal.ts). Die Masken baut GSAP SplitText selbst; hier steht nur,
+  was ohne CSS nicht funktioniert. Das Timing und die Bewegung gehoeren ins Modul.
+*/
+[data-reveal-pending] {
+  visibility: hidden;
+}
+
+.fw-ln-mask {
+  display: block;
+  overflow: hidden;
+}
+
+.fw-ln-mask .fw-ln {
+  display: block;
+}
+
+.fw-ln-mask .fw-wd,
+.fw-ln-mask .fw-ch {
+  display: inline-block;
+}
+
+.fw-ln-mask .fw-ln,
+.fw-ln-mask .fw-wd,
+.fw-ln-mask .fw-ch {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal-pending] {
+    visibility: visible;
+  }
+}
