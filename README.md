@@ -605,6 +605,28 @@ gewuenschten Elemente in Webflow per Attribut markieren.
 | `data-reveal-delay` | Sekunden | Verzoegerung vor dem Start. |
 | `data-reveal-stagger` | Sekunden | Ueberschreibt den Versatz zwischen den Teilen. |
 | `data-reveal-trigger` | `false` | Kein ScrollTrigger, laeuft sofort beim Laden. |
+| `data-reveal-group` | *(leer)* / Sekunden | **Auf einen Container**: alle markierten Elemente darin starten nacheinander statt gleichzeitig. |
+| `data-splitline` | *(leer)* | Altname aus dem Vorgaengermodul, gilt gleichwertig wie `data-reveal`. |
+
+### Gruppen
+
+Ohne Gruppe hat jedes Element seinen eigenen Ausloeser und startet, sobald es weit genug
+im Bild ist. Ueberschrift und Absatz werden dadurch praktisch gleichzeitig sichtbar.
+Traegt ein Vorfahre `data-reveal-group`, teilen sich alle markierten Elemente darin einen
+gemeinsamen Ausloeser und laufen in DOM-Reihenfolge nacheinander an - erst die
+Ueberschrift, dann der Absatz, dann die Bildunterschrift.
+
+```html
+<div class="bio_row" data-reveal-group>        Standardversatz, 0,162 s
+<div class="bio_row" data-reveal-group="0.3">  eigener Versatz in Sekunden
+```
+
+Nach vier Schritten waechst die Verzoegerung nicht weiter. Die Zeilen der Biografie
+fassen bis zu sieben markierte Elemente; ungedeckelt warteten die letzten fast eine
+Sekunde, obwohl sie laengst im Bild stehen.
+
+Auf der Biografie-Seite tragen die zehn `.bio_row` und die fuenf `.bio_era_head` dieses
+Attribut.
 
 Modal und Lightbox sind fest ausgenommen: die bauen ihre Ueberschriften selbst und
 tauschen deren Inhalt bei jedem Oeffnen aus, ein Split wuerde dabei zerreissen.

@@ -11,8 +11,20 @@ import { prefersReducedMotion, qsa } from './utils';
   TESTBETRIEB: Der Selektor greift zusaetzlich auf alle H2. Fuer den Dauerbetrieb
   hier auf '[data-reveal]' reduzieren und die gewuenschten Elemente in Webflow per
   Attribut markieren.
+
+  data-splitline ist der Altname aus dem Vorgaengermodul und gilt gleichwertig weiter:
+  auf der Biografie-Seite sind damit bereits 58 Elemente markiert - Absaetze,
+  Bildunterschriften, Epochenkoepfe. Die umzubenennen brachte nichts, was den Aufwand
+  wert waere.
+
+  GRUPPEN: Traegt ein Vorfahre data-reveal-group, teilen sich alle markierten Elemente
+  darin einen gemeinsamen Ausloeser und starten nacheinander statt gleichzeitig - in
+  DOM-Reihenfolge, also erst die Ueberschrift, dann der Absatz, dann die Bildunterschrift.
+
+    <div class="bio_row" data-reveal-group>        Standardversatz
+    <div class="bio_row" data-reveal-group="0.3">  eigener Versatz in Sekunden
 */
-const REVEAL_SELECTOR = '[data-reveal], h2';
+const REVEAL_SELECTOR = '[data-reveal], [data-splitline], h2';
 
 /*
   Nicht anfassen: Modal und Lightbox bauen ihre Ueberschriften selbst und tauschen
@@ -27,6 +39,9 @@ const STAGGER_ATTR = 'data-reveal-stagger';
 const TRIGGER_ATTR = 'data-reveal-trigger';
 const PENDING_ATTR = 'data-reveal-pending';
 const READY_ATTR = 'data-reveal-ready';
+
+const GROUP_ATTR = 'data-reveal-group';
+const GROUP_SELECTOR = '[data-reveal-group]';
 
 const TIGHT_CLASS = 'fw-reveal-tight';
 const LINE_CLASS = 'fw-ln';
@@ -48,9 +63,13 @@ const CHAR_CLASS = 'fw-ch';
 const TIGHT_LINE_HEIGHT = 1.1;
 const TIGHT_CLIP_MARGIN_EM = 0.25;
 
-// Startpunkt der Animation im Viewport. Deckt sich mit dem Standard von ScrollTrigger,
-// nur etwas frueher, damit der Text nicht erst an der Unterkante losgeht.
-const SCROLL_START = 'top bottom-=15%';
+/*
+  Startpunkt im Viewport. Das Element muss ein gutes Stueck hereingescrollt sein, bevor
+  es laeuft - sonst ist die Bewegung vorbei, noch waehrend man es kaum sieht. Auf der
+  Biografie-Seite kommt dazu, dass die Bloecke selbst schon einfaden: der Text soll erst
+  loslegen, wenn sein Block da ist.
+*/
+const SCROLL_START = 'top bottom-=25%';
 
 const EASE = 'expo.out';
 
@@ -63,6 +82,17 @@ function step(index: number): number {
 }
 
 const DURATION = step(6); // 1.109 s
+
+// Versatz zwischen den Elementen einer Gruppe - deutlich groesser als der Versatz
+// zwischen den Zeilen eines Elements, sonst laufen die beiden Staffelungen ineinander.
+const GROUP_STAGGER = step(2); // 0.162 s
+
+/*
+  Nach so vielen Schritten waechst die Verzoegerung nicht weiter. Die Zeilen der
+  Biografie fassen bis zu sieben markierte Elemente; ungedeckelt warteten die letzten
+  fast eine Sekunde, obwohl sie laengst im Bild stehen. Ab hier starten sie gemeinsam.
+*/
+const MAX_GROUP_STEPS = 4;
 
 type RevealType = 'lines' | 'words' | 'chars';
 
@@ -154,9 +184,15 @@ function hasTightLineHeight(element: HTMLElement): boolean {
   return ratio <= TIGHT_LINE_HEIGHT;
 }
 
-function reveal(element: HTMLElement): void {
+interface GroupPlacement {
+  // Woran der gemeinsame Ausloeser haengt - der Gruppencontainer, nicht das Element.
+  trigger: HTMLElement;
+  offset: number;
+}
+
+function reveal(element: HTMLElement, group: GroupPlacement | null): void {
   const type = readType(element);
-  const delay = readNumber(element, DELAY_ATTR) ?? 0;
+  const delay = (readNumber(element, DELAY_ATTR) ?? 0) + (group?.offset ?? 0);
   const stagger = readNumber(element, STAGGER_ATTR) ?? STAGGER[type];
   const scrolls = usesScrollTrigger(element);
 
@@ -230,7 +266,7 @@ function reveal(element: HTMLElement): void {
         },
         ...(scrolls && {
           scrollTrigger: {
-            trigger: element,
+            trigger: group?.trigger ?? element,
             start: SCROLL_START,
             once: true,
           },
@@ -254,13 +290,40 @@ export function initLineReveal(root: ParentNode = document): void {
   // bleibt der Text ganz normal sichtbar.
   elements.forEach((element) => element.setAttribute(PENDING_ATTR, ''));
 
+  /*
+    Gruppen vorab bilden: Elemente unter demselben data-reveal-group teilen sich einen
+    Ausloeser und bekommen in DOM-Reihenfolge aufsteigende Verzoegerungen. qsa liefert
+    Dokumentreihenfolge, der Zaehler pro Gruppe ergibt damit genau die Lesereihenfolge -
+    erst die Ueberschrift, dann der Absatz, dann die Bildunterschrift.
+  */
+  const seenPerGroup = new Map<HTMLElement, number>();
+  const placements = new Map<HTMLElement, GroupPlacement | null>();
+
+  elements.forEach((element) => {
+    const container = element.closest<HTMLElement>(GROUP_SELECTOR);
+
+    if (!container) {
+      placements.set(element, null);
+      return;
+    }
+
+    const index = seenPerGroup.get(container) ?? 0;
+    const stagger = readNumber(container, GROUP_ATTR) ?? GROUP_STAGGER;
+
+    seenPerGroup.set(container, index + 1);
+    placements.set(element, {
+      trigger: container,
+      offset: Math.min(index, MAX_GROUP_STEPS) * stagger,
+    });
+  });
+
   void waitForFonts().then(() => {
     elements.forEach((element) => {
       if (!element.isConnected) {
         return;
       }
 
-      reveal(element);
+      reveal(element, placements.get(element) ?? null);
     });
 
     ScrollTrigger.refresh();
