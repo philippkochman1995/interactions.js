@@ -196,8 +196,8 @@
 }
 
 .cms-work-detail .cms-works__eye {
-  width: calc(var(--p-font-size, 1rem) * 1.529);
-  height: var(--p-font-size, 1rem);
+  width: calc(var(--p-font-size, 1rem) * 1.29965);
+  height: calc(var(--p-font-size, 1rem) * 0.85);
   flex: 0 0 auto;
   opacity: 0;
   transform: translate3d(0, 0.08em, 0);

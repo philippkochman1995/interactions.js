@@ -22,7 +22,7 @@ svg[viewBox="0 0 102 102"]{width:3rem;height:3rem;}
 
 .wm-zoom-controls{display:flex;align-items:center;gap:0.5rem;}
 .wm-zoom-btn{background:none;border:none;padding:0;margin:0;cursor:pointer;display:inline-flex;line-height:0;transition:opacity 0.2s ease;}
-.wm-zoom-btn svg{width:1.8125rem;height:1.8125rem;display:block;}
+.wm-zoom-btn svg{width:1.540625rem;height:1.540625rem;display:block;}
 .wm-zoom-btn svg rect{transition:fill 0.18s ease, rx 0.18s ease, opacity 0.18s ease;}
 .wm-zoom-btn svg path{transition:fill 0.18s ease;}
 .wm-zoom-btn:hover svg rect{fill:var(--fw_rosa);rx:0;}

@@ -360,8 +360,8 @@
 }
 
 .cms-works__eye {
-  width: calc(var(--p-font-size, 1rem) * 1.529);
-  height: var(--p-font-size, 1rem);
+  width: calc(var(--p-font-size, 1rem) * 1.29965);
+  height: calc(var(--p-font-size, 1rem) * 0.85);
   flex: 0 0 auto;
   color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, color-mix(in srgb, var(--FW_Dark_Purple, #444153) 50%, transparent)));
   opacity: 0;
