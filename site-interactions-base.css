@@ -118,6 +118,45 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   position: relative;
 }
 
+/* Hover-Flaeche der Menuepunkte bis in die Zwischenraeume ziehen.
+   Webflow setzt den Zeilenabstand als margin — auf margin gibt es kein
+   :hover, deshalb war zwischen zwei Punkten ein toter Streifen. Gleicher
+   Wert als padding: die Zeilenhoehen und der optische Abstand bleiben
+   exakt gleich (die Sektionen sind Flex-Spalten, Margins kollabieren dort
+   ohnehin nicht), aber die ganze Zeile inklusive Abstand reagiert.
+   Zwei Klassen im Selektor, damit die Regel unabhaengig von der
+   Ladereihenfolge gegen die Webflow-Klasse gewinnt. */
+[data-site-menu-item].site-menu__link--large {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+[data-site-menu-item].site-menu__link--small {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* Bei den Footer-Links steckt der Abstand im row-gap des Containers:
+   Gap auf 0, dafuer je 0.125rem Padding pro Seite — in Summe wieder die
+   0.25rem von vorher, aber diesmal als Hover-Flaeche. Der Gap sitzt nur
+   zwischen den Links, das Padding auch aussen: die 0.125rem oben und
+   unten kommen darum von den Container-Margins (1.5rem / 1rem im
+   Designer) wieder runter, damit der Text auf demselben Pixel bleibt. */
+.site-menu__footer-links {
+  row-gap: 0;
+  margin-top: 1.375rem;
+  margin-bottom: 0.875rem;
+}
+
+[data-site-menu-item].site-menu__footer-link {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+
 [data-site-menu-item][data-site-menu-link]::after {
   content: "";
   position: absolute;
