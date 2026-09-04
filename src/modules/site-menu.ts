@@ -7,6 +7,10 @@ const ROOT_SELECTOR = '[data-site-menu]';
 const PANEL_SELECTOR = '[data-site-menu-panel]';
 const TOGGLE_SELECTOR = '[data-site-menu-toggle]';
 const TOGGLE_LABEL_SELECTOR = '[data-site-menu-toggle-label]';
+const TOGGLE_LABEL_TEXT_SELECTOR = '[data-site-menu-toggle-label-text]';
+const TOGGLE_LABEL_GHOST_SELECTOR = '[data-site-menu-toggle-label-ghost]';
+const TOGGLE_LABEL_TEXT_ATTR = 'data-site-menu-toggle-label-text';
+const TOGGLE_LABEL_GHOST_ATTR = 'data-site-menu-toggle-label-ghost';
 const LINK_SELECTOR = '[data-site-menu-link]';
 const ACTIVE_INDICATOR_SELECTOR = '[data-site-menu-indicator]';
 const ACTIVE_CLASS = 'is-active';
@@ -20,6 +24,7 @@ const LINK_KEY_ATTR = 'data-site-menu-key';
 const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
+const LABEL_FADE_DURATION = 0.28;
 
 interface SiteMenuInstance {
   root: HTMLElement;
@@ -113,41 +118,110 @@ function getCurrentPageLabel(instance: SiteMenuInstance): string {
   return activeLink ? getLinkLabel(activeLink) : '';
 }
 
+/* Das Label wechselt zwischen zwei Woertern (Seitenname <-> MENU) und braucht
+   dafuer zwei uebereinanderliegende Ebenen. Vorher lief das nacheinander —
+   erst auf Deckkraft 0 ausblenden, Text tauschen, wieder einblenden — und
+   genau der Moment, in dem gar nichts dasteht, liest sich als Aufblitzen.
+
+   Die Textebene liegt im Fluss und bestimmt die Breite des Labels; die
+   Ghost-Ebene haengt absolut darueber und traegt das alte Wort, bis es
+   ausgeblendet ist. Beide muessen Geschwister sein: die Deckkraft eines
+   Kindes multipliziert sich mit der des Elternteils, in einer Verschachtelung
+   gaebe es also keine echte Kreuzblende. */
+function getLabelTextLayer(target: HTMLElement): HTMLElement {
+  const existing = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, target);
+
+  if (existing) {
+    return existing;
+  }
+
+  const layer = document.createElement('span');
+
+  layer.setAttribute(TOGGLE_LABEL_TEXT_ATTR, '');
+  layer.textContent = target.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+  target.textContent = '';
+  target.appendChild(layer);
+
+  return layer;
+}
+
+function removeLabelGhosts(target: HTMLElement): void {
+  qsa<HTMLElement>(TOGGLE_LABEL_GHOST_SELECTOR, target).forEach((ghost) => {
+    gsap.killTweensOf(ghost);
+    ghost.remove();
+  });
+}
+
 function setLabel(instance: SiteMenuInstance, animate = true): void {
   const openLabel = getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL;
   const closedHoverLabel = getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL;
   const currentPageLabel = getCurrentPageLabel(instance);
   const label = instance.isOpen ? openLabel : instance.isHovered ? closedHoverLabel : currentPageLabel || closedHoverLabel;
   const target = instance.toggleLabel ?? instance.toggle;
+  const textLayer = getLabelTextLayer(target);
+  const previous = textLayer.textContent ?? '';
 
-  if (target.textContent === label) {
+  if (previous === label) {
     return;
   }
 
-  gsap.killTweensOf(target);
+  gsap.killTweensOf(textLayer);
 
-  if (prefersReducedMotion() || !animate) {
-    target.textContent = label;
-    gsap.set(target, { clearProps: 'opacity' });
+  if (prefersReducedMotion() || !animate || !previous) {
+    removeLabelGhosts(target);
+    textLayer.textContent = label;
+    gsap.set(textLayer, { clearProps: 'opacity' });
     return;
   }
 
-  gsap.to(target, {
-    opacity: 0,
-    duration: 0.08,
-    ease: 'power1.out',
-    onComplete: () => {
-      target.textContent = label;
-      gsap.to(target, {
-        opacity: 1,
-        duration: 0.12,
-        ease: 'power1.in',
-        onComplete: () => {
-          gsap.set(target, { clearProps: 'opacity' });
-        },
-      });
+  /* Beide Ebenen setzen dort an, wo sie gerade stehen — wer schnell raus- und
+     wieder reinfaehrt, unterbricht die laufende Blende mitten drin. Der Ghost
+     uebernimmt den Stand der Textebene; laeuft die Blende zurueck (das neue
+     Wort ist genau das, was der alte Ghost noch traegt), erbt die Textebene
+     dessen Deckkraft, statt wieder bei 0 anzufangen. Sonst verschwindet das
+     halb sichtbare Wort schlagartig und blendet von vorn ein. */
+  const ghostOpacity = Number(gsap.getProperty(textLayer, 'opacity'));
+  const reversedGhost = qsa<HTMLElement>(TOGGLE_LABEL_GHOST_SELECTOR, target).find(
+    (candidate) => candidate.textContent === label,
+  );
+  const textOpacity = reversedGhost ? Number(gsap.getProperty(reversedGhost, 'opacity')) : 0;
+
+  removeLabelGhosts(target);
+
+  const ghost = document.createElement('span');
+
+  ghost.setAttribute(TOGGLE_LABEL_GHOST_ATTR, '');
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.textContent = previous;
+  target.appendChild(ghost);
+
+  textLayer.textContent = label;
+
+  gsap.fromTo(
+    ghost,
+    { opacity: Number.isFinite(ghostOpacity) ? ghostOpacity : 1 },
+    {
+      opacity: 0,
+      duration: LABEL_FADE_DURATION,
+      ease: 'sine.inOut',
+      onComplete: () => {
+        ghost.remove();
+      },
     },
-  });
+  );
+
+  gsap.fromTo(
+    textLayer,
+    { opacity: Number.isFinite(textOpacity) ? textOpacity : 0 },
+    {
+      opacity: 1,
+      duration: LABEL_FADE_DURATION,
+      ease: 'sine.inOut',
+      onComplete: () => {
+        gsap.set(textLayer, { clearProps: 'opacity' });
+      },
+    },
+  );
 }
 
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
@@ -365,10 +439,20 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
     createdInstances.forEach((instance) => {
       instance.cleanup.forEach((cleanup) => cleanup());
       instance.root.classList.remove(READY_CLASS, OPEN_CLASS);
+      const labelTarget = instance.toggleLabel ?? instance.toggle;
+      const labelTextLayer = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, labelTarget);
+
       gsap.killTweensOf(instance.panel);
-      gsap.killTweensOf(instance.toggleLabel ?? instance.toggle);
+      gsap.killTweensOf(labelTarget);
+      removeLabelGhosts(labelTarget);
+
+      if (labelTextLayer) {
+        gsap.killTweensOf(labelTextLayer);
+        labelTarget.textContent = labelTextLayer.textContent;
+      }
+
       gsap.set(instance.panel, { clearProps: 'height' });
-      gsap.set(instance.toggleLabel ?? instance.toggle, { clearProps: 'opacity' });
+      gsap.set(labelTarget, { clearProps: 'opacity' });
       instance.panel.removeAttribute('aria-hidden');
       instance.toggle.removeAttribute('aria-expanded');
       setLinksFocusable(instance, true);
