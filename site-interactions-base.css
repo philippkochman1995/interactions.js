@@ -35,6 +35,52 @@
   --fw-button-hover-ease: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
+/* Aus dem Site-Head-Custom-Code hierher gezogen (04.09.2026). Diese Datei
+   laedt nach der Webflow-CSS, gewinnt bei gleicher Spezifitaet und ersetzt den
+   Inline-Block damit eins zu eins.
+
+   Animierte Underline: der Strich ist ein eigenes ::after statt
+   text-decoration, weil sich nur so von links nach rechts aufziehen laesst.
+   clip-path statt scaleX, damit die 1px-Linie beim Aufziehen nicht unscharf
+   wird. text-decoration: none gilt hier bewusst mit einer Klasse Spezifitaet —
+   der Designer setzt auf .footer_link.u-txt-footer-caps.u-animate-underline
+   .w--current eine echte Unterstreichung fuer die aktive Seite, und die soll
+   gewinnen. */
+.u-animate-underline {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.u-animate-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.08em;
+  height: 1px;
+  background-color: currentColor;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 300ms cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+}
+
+.u-animate-underline:hover::after,
+.u-animate-underline:focus-visible::after {
+  clip-path: inset(0 0 0 0);
+}
+
+p:last-of-type {
+  margin-bottom: 0;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+}
+
 html.is-modal-open,
 html.is-lightbox-open,
 body.is-modal-open,
@@ -103,7 +149,11 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 [data-site-menu] {
-  --site-menu-width: min(26.5625rem, calc(100vw - 2rem));
+  /* Breite der Site: 21rem. Stand bis 04.09.2026 als eigener <style>-Block im
+     Site-Head, weil der Designer-Wert auf .site-menu bei gleicher Spezifitaet
+     gegen diese Datei verliert — der Wert gehoert also hierher, nicht in den
+     Designer. Der frueher hier stehende Default (26.5625rem) war ohnehin tot. */
+  --site-menu-width: min(21rem, calc(100vw - 2rem));
   --site-menu-toggle-height: 3.125rem;
   --site-menu-offset: 1.5rem;
   --site-menu-open-height: calc(100dvh - (2 * var(--site-menu-offset)));
@@ -366,9 +416,13 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 @media (max-width: 767px) {
+  /* Nur der Offset. Die Breite stand hier frueher auf calc(100vw - 1.5rem),
+     kam aber nie an: der Head-Block mit min(21rem, ...) lud spaeter und
+     ueberstimmte bei gleicher Spezifitaet auch diese Media Query. Die Regel
+     hier wieder scharf zu stellen wuerde das Menue auf Telefonen breiter
+     machen als bisher — darum bleibt sie draussen. */
   [data-site-menu] {
     --site-menu-offset: 0.75rem;
-    --site-menu-width: calc(100vw - 1.5rem);
   }
 }
 
