@@ -79,7 +79,15 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   position: fixed;
   right: var(--site-menu-offset);
   bottom: var(--site-menu-offset);
-  z-index: 900;
+  /* Das Menue liegt ueber allem, was die Seite selbst mitbringt. Die 900
+     von frueher waren zu niedrig: .top_bar_section steht auf 999 und hat
+     das offene Panel oben angeschnitten (auf kurzen Fenstern die ersten
+     100px), das Modal steht auf 1000, die Lightbox auf 1100. Der Designer
+     meint auf .site-menu ohnehin 1001 — gleiche Spezifitaet wie dieser
+     Selektor, aber diese Datei laedt spaeter und gewinnt, der Wert muss
+     also hier stehen. Darueber bleiben nur die beiden Vollbild-Decken des
+     Seitenwechsels: Work-Flip-Ghost (1900) und Transition-Overlay (2000). */
+  z-index: 1800;
   width: var(--site-menu-width);
 }
 
