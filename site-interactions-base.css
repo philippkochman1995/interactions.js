@@ -505,11 +505,16 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 
 /*
   `data-lightbox-fill` gehoert im Designer auf dasselbe Element wie `js-lightbox`,
-  also aufs Bild - lightbox.ts traegt es beim Verpacken auf den Wrapper um. Auf
-  dem Rahmen funktioniert es ebenso, fuer Trigger, die ohne erzeugten Wrapper
-  auskommen.
+  also aufs Bild - lightbox.ts traegt es beim Verpacken auf den Wrapper um.
+
+  Die Regeln greifen an allen drei Stellen: am Wrapper, am Bild darin und am
+  Rahmen darum. Das ist Absicht - CSS und JS haengen an getrennten jsDelivr-Pins
+  und laufen regelmaessig auseinander. Faengt die CSS nur den Wrapper ab, ist
+  das Attribut wirkungslos, solange das JS noch aelter ist; genau das ist am
+  04.09.2026 passiert.
 */
 .site-lightbox-trigger[data-lightbox-fill],
+.site-lightbox-trigger:has(> [data-lightbox-fill]),
 [data-lightbox-fill] > .site-lightbox-trigger {
   width: 100%;
   height: 100%;
@@ -524,6 +529,7 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   aufgeloeste Wrapper-Hoehe zu.
 */
 .site-lightbox-trigger[data-lightbox-fill] > .site-lightbox-trigger__image,
+.site-lightbox-trigger > .site-lightbox-trigger__image[data-lightbox-fill],
 [data-lightbox-fill] > .site-lightbox-trigger > .site-lightbox-trigger__image {
   height: 100%;
 }

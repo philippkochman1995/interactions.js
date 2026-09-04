@@ -1396,10 +1396,7 @@ function zi(e) {
 		"data-lightbox-alt",
 		"data-lightbox-group",
 		"data-lightbox-fill"
-	]) {
-		let i = r(e, n);
-		i && (t.setAttribute(n, i), e.removeAttribute(n));
-	}
+	]) e.hasAttribute(n) && (t.setAttribute(n, r(e, n)), e.removeAttribute(n));
 	e.classList.remove(ui), e.classList.add(yi), e.before(t), t.append(e, Ii()), Ri(t);
 }
 function Bi(e) {

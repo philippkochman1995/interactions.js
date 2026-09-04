@@ -217,10 +217,12 @@ function decorateImageTrigger(image: HTMLImageElement): void {
     // am Bild, neben js-lightbox.
     'data-lightbox-fill',
   ]) {
-    const value = getStringAttr(image, attrName);
-
-    if (value) {
-      wrapper.setAttribute(attrName, value);
+    // Auf Anwesenheit pruefen, nicht auf den Wert: Webflow schreibt ein
+    // Attribut ohne Inhalt als data-lightbox-fill="", und ein Test auf den
+    // leeren String haette es am Bild liegen lassen - die CSS-Regel haengt aber
+    // am Wrapper.
+    if (image.hasAttribute(attrName)) {
+      wrapper.setAttribute(attrName, getStringAttr(image, attrName));
       image.removeAttribute(attrName);
     }
   }
