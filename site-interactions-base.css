@@ -24,6 +24,15 @@
   --fw-image-zoom: 1.035;
   --fw-image-zoom-duration: 0.62s;
   --fw-image-zoom-ease: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /*
+    Button-Hover (siehe Abschnitt ganz unten). Die Kurve ist bewusst dieselbe wie beim
+    Bild-Zoom - ein Gefuehl fuer die ganze Site. Die Dauer nicht: 0.62s trifft ein Bild,
+    das langsam wegdriftet, ein Button soll unter dem Zeiger schneller antworten. Wer
+    beides exakt gleich haben will, setzt hier var(--fw-image-zoom-duration).
+  */
+  --fw-button-hover-duration: 0.45s;
+  --fw-button-hover-ease: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 html.is-modal-open,
@@ -473,11 +482,37 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   cursor: pointer;
 }
 
+/*
+  Der Wrapper steht zwischen Rahmen und Bild, also darf er sich nicht selbst
+  am Bild messen: als inline-block nimmt er seine Groesse vom Kind, ein Bild
+  mit width/height: 100% nimmt sie vom Wrapper - beide warten aufeinander und
+  fallen auf 0x0 zusammen. Bei `loading="lazy"` wird das Bild dann nicht einmal
+  angefordert, die Flaeche bleibt komplett leer. Deshalb block: die Breite kommt
+  vom Rahmen, nicht vom Inhalt.
+
+  Die Hoehe reicht er bewusst NICHT pauschal durch. Wo ein Bild seine Hoehe aus
+  dem Seitenverhaeltnis bezieht (Biografie), waere der Wrapper sonst hoeher als
+  das Bild und das Icon rutschte unter die Bildkante. Rahmen, die Breite und
+  Hoehe vorgeben und deren Bild sie mit object-fit: cover fuellen soll, sagen
+  das ueber `data-lightbox-fill` (siehe unten).
+*/
 .site-lightbox-trigger {
   position: relative;
-  display: inline-block;
+  display: block;
   max-width: 100%;
   line-height: 0;
+}
+
+/*
+  `data-lightbox-fill` gehoert im Designer auf dasselbe Element wie `js-lightbox`,
+  also aufs Bild - lightbox.ts traegt es beim Verpacken auf den Wrapper um. Auf
+  dem Rahmen funktioniert es ebenso, fuer Trigger, die ohne erzeugten Wrapper
+  auskommen.
+*/
+.site-lightbox-trigger[data-lightbox-fill],
+[data-lightbox-fill] > .site-lightbox-trigger {
+  width: 100%;
+  height: 100%;
 }
 
 .site-lightbox-trigger__image {
@@ -503,9 +538,9 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 /*
-  Nur fuer Rahmen, die ihre Hoehe bisher vom Bild im Fluss bezogen haben - der
-  Lightbox-Wrapper etwa ist ein inline-block und faellt sonst auf 0x0 zusammen. Rahmen mit
-  eigener Hoehe bekommen das nicht, sonst zerstoert es ihr Layout.
+  Nur fuer Rahmen, die ihre Hoehe bisher vom Bild im Fluss bezogen haben und
+  sonst auf 0 zusammenfallen. Rahmen mit eigener Hoehe bekommen das nicht, sonst
+  zerstoert es ihr Layout.
 */
 .fw-parallax-window--self-sized {
   display: block;
@@ -1214,5 +1249,143 @@ footer a.w--current:focus-visible::after,
 @media (prefers-reduced-motion: reduce) {
   [data-reveal-pending] {
     visibility: visible;
+  }
+}
+
+/*
+  Button-Hover als CSS statt Webflow-Interaction.
+
+  Bis hierher lief der Hover ueber drei Paare von Webflow-Interactions - "Button In/Out"
+  (a-9/a-10), "Button In 3/Out 5" (a-46/a-47) und "Button - Map - In/Out" (a-27/a-26).
+  Alle drei taten dasselbe, nur an unterschiedlichen Elementen, und alle drei liefen mit
+  150ms easeOut. Das ist jetzt eine Regel hier, damit der Button dieselbe Kurve nimmt wie
+  jeder Bild-Hover der Site.
+
+  Die Bewegung selbst bleibt wie gehabt: die rosa Maske faehrt von unten nach oben ins
+  Bild, der Pfeil rueckt nach rechts, der Punkt davor zieht sich zur Linie.
+
+  Warum ueberall !important: die Interactions duerfen noch im Designer stehen. IX2
+  schreibt seine Werte inline auf die Elemente - ein inline transform schlaegt jede
+  normale Regel, ein !important schlaegt das inline transform. Damit gewinnt CSS, egal
+  ob die Interaction noch existiert. Sobald die sechs Actions im Designer geloescht sind,
+  koennen die !important hier ersatzlos raus.
+
+  Der Hover haengt an (hover: hover) - auf dem Touchgeraet bliebe die Fuellung sonst nach
+  dem Tap kleben. Die Webflow-Interaction lief auf allen Breakpoints und hatte genau das
+  Problem.
+*/
+.button-outlined .button-mask,
+.button-outlined .arrow-arrow,
+.button-outlined .arrow-dot,
+.button-outlined .tp_l,
+.button-outlined .tp_r,
+.button-outlined .bt_l,
+.button-outlined .bt_r {
+  transition: transform var(--fw-button-hover-duration, 0.45s)
+    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1));
+}
+
+.button-outlined .button-mask {
+  transform: translate3d(0, 100%, 0) !important;
+  will-change: transform;
+}
+
+/*
+  Die Pfeilteile sind SVG-Pfade ohne eigene CSS-Box. transform-box und -origin sind hier
+  festgenagelt, weil die Browser-Defaults dafuer auseinandergehen: Prozentwerte und der
+  Skalierungspunkt beziehen sich so verlaesslich auf die viewBox-Ecke oben links - genau
+  die Bezugsgroesse, mit der IX2 bisher gerechnet hat.
+*/
+.button-outlined .arrow-arrow,
+.button-outlined .arrow-dot,
+.button-outlined .tp_l,
+.button-outlined .tp_r,
+.button-outlined .bt_l,
+.button-outlined .bt_r {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.button-outlined .arrow-arrow,
+.button-outlined .tp_l,
+.button-outlined .tp_r,
+.button-outlined .bt_l,
+.button-outlined .bt_r {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+.button-outlined .arrow-dot {
+  transform: scaleX(1) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button-outlined:hover .button-mask {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .button-outlined:hover .arrow-arrow {
+    transform: translate3d(30%, 0, 0) !important;
+  }
+
+  .button-outlined:hover .arrow-dot {
+    transform: scaleX(3.8) !important;
+  }
+
+  /* Die vier Klammern des Map-Buttons laufen zur Mitte. */
+  .button-outlined:hover .tp_l {
+    transform: translate3d(60%, 60%, 0) !important;
+  }
+
+  .button-outlined:hover .tp_r {
+    transform: translate3d(-60%, 60%, 0) !important;
+  }
+
+  .button-outlined:hover .bt_l {
+    transform: translate3d(60%, -60%, 0) !important;
+  }
+
+  .button-outlined:hover .bt_r {
+    transform: translate3d(-60%, -60%, 0) !important;
+  }
+}
+
+/* Tastaturbedienung bekommt denselben Zustand - die Interaction konnte das nie. */
+.button-outlined:focus-visible .button-mask {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+.button-outlined:focus-visible .arrow-arrow {
+  transform: translate3d(30%, 0, 0) !important;
+}
+
+.button-outlined:focus-visible .arrow-dot {
+  transform: scaleX(3.8) !important;
+}
+
+.button-outlined:focus-visible .tp_l {
+  transform: translate3d(60%, 60%, 0) !important;
+}
+
+.button-outlined:focus-visible .tp_r {
+  transform: translate3d(-60%, 60%, 0) !important;
+}
+
+.button-outlined:focus-visible .bt_l {
+  transform: translate3d(60%, -60%, 0) !important;
+}
+
+.button-outlined:focus-visible .bt_r {
+  transform: translate3d(-60%, -60%, 0) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-outlined .button-mask,
+  .button-outlined .arrow-arrow,
+  .button-outlined .arrow-dot,
+  .button-outlined .tp_l,
+  .button-outlined .tp_r,
+  .button-outlined .bt_l,
+  .button-outlined .bt_r {
+    transition: none;
   }
 }
