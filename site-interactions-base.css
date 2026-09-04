@@ -157,6 +157,43 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   padding-bottom: 0.125rem;
 }
 
+/* Zweiter Teil derselben Sache: der Streifen zwischen einer Trennlinie und
+   dem ersten bzw. letzten Punkt einer Sektion (0.75rem Margin der
+   Trennlinie) sowie der Streifen unter einer Ueberschrift ("Person",
+   "Werk" — die sind keine Links) waren weiter tot. Bei News, Atelier und
+   Editionen ist das die Haelfte der sichtbaren Zeile.
+
+   Hier bewusst ein Pseudo-Element statt Padding: die Flaeche waechst in
+   fremden Abstand hinein, der zu einem anderen Element gehoert. Als
+   Padding muesste ich diesen Abstand woanders wieder abziehen und der
+   Pfeil (top: 50%) saesse nicht mehr auf der Textmitte. Das ::before
+   liegt transparent ueber dem Link, ist selbst kein Event-Ziel — Hover und
+   Klick landen auf dem Link. Ober- und Unterkante stossen genau an der
+   Trennlinie aneinander, es ueberlappt also nichts. */
+[data-site-menu-item][data-site-menu-link]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.site-menu__section > [data-site-menu-item][data-site-menu-link]:first-child::before {
+  top: -0.75rem;
+}
+
+.site-menu__section > [data-site-menu-item][data-site-menu-link]:last-child::before {
+  bottom: -0.75rem;
+}
+
+/* Erster Link direkt unter einer Ueberschrift: deren 0.5rem nach unten. */
+.site-menu__section
+  > [data-site-menu-item]:not([data-site-menu-link])
+  + [data-site-menu-item][data-site-menu-link]::before {
+  top: -0.5rem;
+}
+
 [data-site-menu-item][data-site-menu-link]::after {
   content: "";
   position: absolute;
