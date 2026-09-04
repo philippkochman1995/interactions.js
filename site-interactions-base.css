@@ -3,6 +3,29 @@
   Webflow should own layout, spacing, typography, colors, animation, and breakpoints.
 */
 
+/*
+  Ein Hover-Zoom fuer alle Bilder der Site. Die Werte stammen aus dem Zoom der
+  Lightbox-Bilder (Biografie, Editionen, Atelier) - der war das Vorbild, alle
+  anderen Bildhover ziehen jetzt nach: Werk-Uebersicht, Werk-Detail, Canvas
+  (Kontexte/Werke) und die Werkkarte im Modal. Das grosse Modal-Bild bleibt
+  bewusst ohne Zoom - dort animiert nur das Lightbox-Icon.
+
+  0.62s ist nach Augenmass gesetzt, knapp unter Stufe 5 der Skala (0.685s) - hier zaehlt
+  das Gefuehl, nicht die Herleitung. Die Kurve ist bewusst nicht expo.out wie beim
+  Zeilen-Reveal: die steckt fast die ganze Bewegung in das erste Drittel, dann wuerde die
+  laengere Dauer gar nicht auffallen. easeOutCubic verteilt sie gleichmaessiger, das Bild
+  gleitet sichtbar.
+
+  Wer einzelne Bilder anders haben will, ueberschreibt die Variablen am Element
+  oder am Container - nicht die Regeln selbst, sonst laufen die Seiten wieder
+  auseinander.
+*/
+:root {
+  --fw-image-zoom: 1.035;
+  --fw-image-zoom-duration: 0.62s;
+  --fw-image-zoom-ease: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
 html.is-modal-open,
 html.is-lightbox-open,
 body.is-modal-open,
@@ -495,39 +518,39 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   ueber seine Box hinaus. Das Icon liegt 1rem vom Rand entfernt und bleibt auch
   vergroessert innerhalb, wird vom Clipping also nicht angeschnitten.
 
-  0.62s ist nach Augenmass gesetzt, knapp unter Stufe 5 der Skala (0.685s) - hier zaehlt
-  das Gefuehl, nicht die Herleitung. Die Kurve ist bewusst nicht expo.out wie beim
-  Zeilen-Reveal: die steckt fast die ganze Bewegung in das erste Drittel, dann wuerde die
-  laengere Dauer gar nicht auffallen. easeOutCubic verteilt sie gleichmaessiger, das Bild
-  gleitet sichtbar. Zoomstaerke haengt an --fw-lightbox-zoom und laesst sich pro Element
-  oder global ueberschreiben.
+  Timing und Zoomstaerke kommen aus den :root-Tokens ganz oben. --fw-lightbox-zoom
+  bleibt als Sonderweg fuer einzelne Lightbox-Bilder bestehen; ohne Wert faellt es
+  auf den Site-Wert zurueck.
 */
 .site-lightbox-trigger {
   overflow: hidden;
 }
 
 .site-lightbox-trigger__image {
-  transition: transform 0.62s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 /* Nur auf Geraeten mit echtem Zeiger: nach einem Tap bliebe der Zoom sonst kleben. */
 @media (hover: hover) and (pointer: fine) {
   .site-lightbox-trigger:hover .site-lightbox-trigger__image {
-    transform: scale(var(--fw-lightbox-zoom, 1.035));
+    transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
   }
 }
 
 .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image {
-  transform: scale(var(--fw-lightbox-zoom, 1.035));
+  transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-lightbox-trigger__image {
+  .site-lightbox-trigger__image,
+  .fwm-modal__work-image {
     transition: none;
   }
 
   .site-lightbox-trigger:hover .site-lightbox-trigger__image,
-  .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image {
+  .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image,
+  .fwm-modal__work-card[href]:hover .fwm-modal__work-image,
+  .fwm-modal__work-card[href]:focus-visible .fwm-modal__work-image {
     transform: none;
   }
 }
@@ -997,7 +1020,8 @@ footer a.w--current:focus-visible::after,
   display: block;
   width: 100%;
   height: auto;
-  transition: transform 180ms ease;
+  transform-origin: center center;
+  transition: transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .fwm-modal__work-footer {
@@ -1050,9 +1074,14 @@ footer a.w--current:focus-visible::after,
   transform-origin: center;
 }
 
-.fwm-modal__work-card[href]:hover .fwm-modal__work-image,
+@media (hover: hover) and (pointer: fine) {
+  .fwm-modal__work-card[href]:hover .fwm-modal__work-image {
+    transform: scale(var(--fw-image-zoom, 1.035));
+  }
+}
+
 .fwm-modal__work-card[href]:focus-visible .fwm-modal__work-image {
-  transform: scale(1.03);
+  transform: scale(var(--fw-image-zoom, 1.035));
 }
 
 .fwm-modal__work-card[href]:hover .fwm-modal__work-icon,

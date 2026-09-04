@@ -250,7 +250,7 @@
 
   .cms-work-detail .cms-works__item:hover .cms-works__image,
   .cms-work-detail .cms-works__item:focus-visible .cms-works__image {
-    transform: scale(1.055);
+    transform: scale(var(--fw-image-zoom, 1.035));
   }
 
   .cms-work-detail .cms-works__item:hover .cms-works__eye,

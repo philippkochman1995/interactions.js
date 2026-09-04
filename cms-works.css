@@ -328,7 +328,7 @@
   width: 100%;
   height: auto;
   transform-origin: center center;
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
   will-change: transform;
 }
 
@@ -386,7 +386,7 @@
 
   .cms-works__item:hover .cms-works__image,
   .cms-works__item:focus-visible .cms-works__image {
-    transform: scale(1.055);
+    transform: scale(var(--fw-image-zoom, 1.035));
   }
 
   .cms-works__item:hover .cms-works__eye,
