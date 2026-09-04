@@ -171,6 +171,41 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   color: var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c));
 }
 
+/* Toggle-Icon — Zustaende und Uebergaenge. Struktur und Grundstyling liegen in
+   Webflow, hier stehen nur die States, die sich dort nicht als Selektor
+   ausdruecken lassen. Lag bis 04.09.2026 im Site-Head-Custom-Code und ist
+   hierher gezogen, damit die Menue-Styles an einer Stelle liegen — diese Datei
+   laedt nach der Webflow-CSS und gewinnt bei gleicher Spezifitaet.
+
+   Alle Werte hier liegen bewusst auf ganzen Pixeln (Icon = 21x20px, Balken =
+   2px hoch). Krumme Werte fallen zwischen zwei Pixelreihen und rendern
+   sichtbar blasser als ihre Nachbarn. */
+.site-menu__toggle {
+  transition: color 200ms ease;
+}
+
+.site-menu__toggle-icon > span {
+  transition:
+    transform 300ms cubic-bezier(0.76, 0, 0.24, 1),
+    width 240ms cubic-bezier(0.76, 0, 0.24, 1),
+    left 240ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Offen: alle drei Balken laufen auf die Mittellinie zusammen, Farbe gedaempft.
+   0.5625rem = 9px = Abstand zur Mittellinie bei 2px hohen Balken auf 20px Icon.
+   Muss zur top-Position von --mid (45%) passen, sonst treffen sie sich daneben. */
+[data-site-menu].is-open [data-site-menu-toggle] {
+  color: var(--fw_dark_purple_50);
+}
+
+[data-site-menu].is-open .site-menu__toggle-bar--top {
+  transform: translateY(0.5625rem);
+}
+
+[data-site-menu].is-open .site-menu__toggle-bar--bottom {
+  transform: translateY(-0.5625rem);
+}
+
 [data-site-menu-link] {
   position: relative;
 }
@@ -314,6 +349,20 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
     opacity: 1;
     transform: scaleX(1);
   }
+
+  /* Toggle-Hover im geschlossenen Zustand: der Mittelbalken zieht sich mittig
+     zusammen. 23.81% / 52.38% von 21px = 5px Versatz, 11px Breite — mittig und
+     pixelgenau. Im geschlossenen Zustand deckt sich die Nav-Box exakt mit dem
+     Balken, :hover auf ihr ist also dieselbe Flaeche wie der Toggle-Button.
+
+     Der rosa Balken selbst waechst hier bewusst nicht mehr mit: der frueher
+     dazugehoerige Spread-Ring (2px in --fw_rosa) ist am 04.09.2026 entfallen.
+     Der Schlagschatten des Panels kommt unveraendert aus dem Designer
+     (.site-menu__panel, 0 0 0.75rem #00000026). */
+  [data-site-menu]:not(.is-open) [data-site-menu-toggle]:hover .site-menu__toggle-bar--mid {
+    left: 23.81%;
+    width: 52.38%;
+  }
 }
 
 @media (max-width: 767px) {
@@ -327,6 +376,8 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   [data-site-menu-panel],
   [data-site-menu-link],
   [data-site-menu-indicator],
+  .site-menu__toggle,
+  .site-menu__toggle-icon > span,
   [data-page-transition-overlay],
   .page-transition-overlay {
     transition-duration: 1ms !important;
