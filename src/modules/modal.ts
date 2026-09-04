@@ -92,7 +92,7 @@ function createSingleton(): SingletonElements {
   root.hidden = true;
 
   root.innerHTML = `
-    <div class="fwm-modal__panel" data-modal-panel role="dialog" aria-modal="true" tabindex="-1">
+    <div class="fwm-modal__panel" data-modal-panel data-lenis-prevent role="dialog" aria-modal="true" tabindex="-1">
       <div class="fwm-modal__top">
         <div class="fwm-modal__address" data-site-modal-address></div>
         <button class="fwm-modal__close" type="button" data-modal-close></button>
