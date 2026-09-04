@@ -630,8 +630,15 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   }
 }
 
+/*
+  z-index, damit kein positioniertes Geschwister das Icon verdeckt: Webflow gibt
+  formatfuellenden Bildern gern selbst eins mit (`.image-absolute-full` steht auf
+  1). 10 liegt komfortabel darueber und bleibt weit unter der Z-Landschaft der
+  Site (Modal 1000, Lightbox 1100, Menue 1800).
+*/
 .site-lightbox-trigger__icon {
   position: absolute;
+  z-index: 10;
   left: 1rem;
   bottom: 1rem;
   width: 1.4875rem;
