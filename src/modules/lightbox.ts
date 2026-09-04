@@ -207,7 +207,16 @@ function decorateImageTrigger(image: HTMLImageElement): void {
   wrapper.className = `${LIGHTBOX_TRIGGER_WRAPPER_CLASS} ${LIGHTBOX_CLASS}`;
   wrapper.dataset.lightboxAutoWrapper = '';
 
-  for (const attrName of ['data-lightbox-src', 'data-lightbox-caption', 'data-lightbox-alt', 'data-lightbox-group']) {
+  for (const attrName of [
+    'data-lightbox-src',
+    'data-lightbox-caption',
+    'data-lightbox-alt',
+    'data-lightbox-group',
+    // Sagt dem Wrapper, dass er die Box des Rahmens durchreichen soll. Muss
+    // mitwandern: die CSS-Regel haengt am Wrapper, gesetzt wird es im Designer
+    // am Bild, neben js-lightbox.
+    'data-lightbox-fill',
+  ]) {
     const value = getStringAttr(image, attrName);
 
     if (value) {

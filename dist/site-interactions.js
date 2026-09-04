@@ -1394,7 +1394,8 @@ function zi(e) {
 		"data-lightbox-src",
 		"data-lightbox-caption",
 		"data-lightbox-alt",
-		"data-lightbox-group"
+		"data-lightbox-group",
+		"data-lightbox-fill"
 	]) {
 		let i = r(e, n);
 		i && (t.setAttribute(n, i), e.removeAttribute(n));

@@ -515,6 +515,19 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   height: 100%;
 }
 
+/*
+  Die Hoehe am Bild zu wiederholen ist kein Ueberfluss: Webflows eigenes
+  height: 100% am Bild misst sich am Wrapper, dessen Hoehe zu dem Zeitpunkt noch
+  nicht feststeht, und faellt auf auto zurueck - das Bild bliebe in seinem
+  Seitenverhaeltnis stehen statt den Rahmen zu fuellen (auf der Atelier-Seite
+  gemessen: 399x299 statt 399x326). Erst diese Regel greift auf die dann
+  aufgeloeste Wrapper-Hoehe zu.
+*/
+.site-lightbox-trigger[data-lightbox-fill] > .site-lightbox-trigger__image,
+[data-lightbox-fill] > .site-lightbox-trigger > .site-lightbox-trigger__image {
+  height: 100%;
+}
+
 .site-lightbox-trigger__image {
   display: block;
   max-width: 100%;
