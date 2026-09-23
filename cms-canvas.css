@@ -106,7 +106,8 @@ body {
 }
 
 .cms-canvas__item[data-canvas-item-size="small"] .cms-canvas__title {
-  width: max(100%, 15rem);
+  /* Medium-Bildbreite bei gleichem Seitenverhaeltnis (CANVAS_SIZE_SCALE). */
+  width: min(max(100%, 15rem), calc(100% * 0.864 / 0.66));
 }
 
 .cms-canvas__title::after {

@@ -14,6 +14,7 @@ const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overl
 const TRANSITION_STORAGE_KEY = 'site-page-transition';
 const TRANSITION_STORAGE_VALUE = 'pending';
 const PENDING_CLASS = 'is-page-transition-pending';
+const MENU_SELECTOR = '[data-site-menu]';
 const IGNORED_LINK_SELECTOR = [
   '[data-transition="false"]',
   '[data-lightbox-src]',
@@ -105,8 +106,32 @@ function consumeTransitionPending(): boolean {
  * allein aus yPercent.
  */
 function revealPage(overlay: HTMLElement): void {
-  if (prefersReducedMotion() || !consumeTransitionPending()) {
+  const hasPendingTransition = consumeTransitionPending();
+  const menus = Array.from(document.querySelectorAll<HTMLElement>(MENU_SELECTOR));
+  const revealMenus = (): void => {
+    menus.forEach((menu) => {
+      gsap.fromTo(menu, {
+        y: Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
+        autoAlpha: 1,
+      }, {
+        y: 0,
+        duration: 0.65,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity,visibility',
+      });
+    });
+  };
+
+  if (prefersReducedMotion()) {
     gsap.set(overlay, { yPercent: -100, y: 0 });
+    return;
+  }
+
+  gsap.set(menus, { autoAlpha: 0 });
+
+  if (!hasPendingTransition) {
+    gsap.set(overlay, { yPercent: -100, y: 0 });
+    revealMenus();
     return;
   }
 
@@ -120,6 +145,7 @@ function revealPage(overlay: HTMLElement): void {
       ease: PAGE_TRANSITION.ease,
       onComplete: () => {
         gsap.set(overlay, { yPercent: -100, y: 0 });
+        revealMenus();
       },
     },
   );
@@ -151,7 +177,11 @@ function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement
 
   isTransitioning = false;
   consumeTransitionPending();
+  gsap.killTweensOf(overlay);
   gsap.set(overlay, { yPercent: -100, y: 0 });
+  const menus = document.querySelectorAll<HTMLElement>(MENU_SELECTOR);
+  gsap.killTweensOf(menus);
+  gsap.set(menus, { clearProps: 'transform,opacity,visibility' });
 }
 
 export function initPageTransitions(): void {
