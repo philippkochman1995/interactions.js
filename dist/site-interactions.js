@@ -1968,7 +1968,7 @@ function Ao(e = document) {
 }
 //#endregion
 //#region src/modules/site-menu.ts
-var jo = "[data-site-menu]", Mo = "[data-site-menu-panel]", No = "[data-site-menu-toggle]", Po = "[data-site-menu-toggle-label]", Fo = "[data-site-menu-toggle-label-text]", Io = "[data-site-menu-toggle-label-ghost]", Lo = "data-site-menu-toggle-label-text", Ro = "data-site-menu-toggle-label-ghost", zo = "[data-site-menu-link]", Bo = "[data-site-menu-indicator]", Vo = "is-active", Ho = "is-open", Uo = "is-ready", Wo = "data-site-menu-open-label", Go = "data-site-menu-closed-label", Ko = "data-site-menu-current-key", qo = "data-site-menu-label", Jo = "data-site-menu-key", Yo = "data-site-menu-original-tabindex", Xo = "CLOSE", Zo = "MENU", Qo = .28, $o = [], es = !1;
+var jo = "[data-site-menu]", Mo = "[data-site-menu-panel]", No = "[data-site-menu-toggle]", Po = "[data-site-menu-toggle-label]", Fo = "[data-site-menu-toggle-label-text]", Io = "[data-site-menu-toggle-label-ghost]", Lo = "data-site-menu-toggle-label-text", Ro = "data-site-menu-toggle-label-ghost", zo = "[data-site-menu-link]", Bo = "[data-site-menu-indicator]", Vo = "is-active", Ho = "is-open", Uo = "is-ready", Wo = "data-site-menu-open-label", Go = "data-site-menu-closed-label", Ko = "data-site-menu-current-key", qo = "data-site-menu-label", Jo = "data-site-menu-key", Yo = "data-site-menu-original-tabindex", Xo = "CLOSE", Zo = "MENU", Qo = .42, $o = [], es = !1;
 function ts(e) {
 	return e.split("#")[0].split("?")[0].replace(/\/index\.html?$/i, "/").replace(/\/+$/g, "") || "/";
 }
@@ -2025,12 +2025,12 @@ function ls(e, t = !0) {
 	p.setAttribute(Ro, ""), p.setAttribute("aria-hidden", "true"), p.textContent = f, l.appendChild(p), d.textContent = c, b.fromTo(p, { yPercent: 0 }, {
 		yPercent: -100,
 		duration: Qo,
-		ease: "power3.inOut",
+		ease: "power2.inOut",
 		onComplete: () => p.remove()
 	}), b.fromTo(d, { yPercent: 100 }, {
 		yPercent: 0,
 		duration: Qo,
-		ease: "power3.inOut",
+		ease: "power2.inOut",
 		onComplete: () => {
 			b.set(d, { clearProps: "transform" });
 		}

@@ -24,7 +24,7 @@ const LINK_KEY_ATTR = 'data-site-menu-key';
 const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
-const LABEL_FADE_DURATION = 0.28;
+const LABEL_SLIDE_DURATION = 0.42;
 
 interface SiteMenuInstance {
   root: HTMLElement;
@@ -188,8 +188,8 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
 
   gsap.fromTo(ghost, { yPercent: 0 }, {
     yPercent: -100,
-    duration: LABEL_FADE_DURATION,
-    ease: 'power3.inOut',
+    duration: LABEL_SLIDE_DURATION,
+    ease: 'power2.inOut',
     onComplete: () => ghost.remove(),
   });
   gsap.fromTo(
@@ -197,8 +197,8 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
     { yPercent: 100 },
     {
       yPercent: 0,
-      duration: LABEL_FADE_DURATION,
-      ease: 'power3.inOut',
+      duration: LABEL_SLIDE_DURATION,
+      ease: 'power2.inOut',
       onComplete: () => {
         gsap.set(textLayer, { clearProps: 'transform' });
       },
