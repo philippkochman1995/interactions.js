@@ -321,8 +321,8 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
     { height: fromHeight },
     {
       height: toHeight,
-      duration: open ? 0.38 : 0.28,
-      ease: open ? 'power3.out' : 'power2.inOut',
+      duration: open ? 0.48 : 0.38,
+      ease: 'power2.inOut',
       onComplete: () => {
         gsap.set(instance.panel, { clearProps: 'height' });
       },

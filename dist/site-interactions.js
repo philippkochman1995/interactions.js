@@ -1916,8 +1916,8 @@ function ko(e, t, n) {
 	let r = e.panel.getBoundingClientRect().height;
 	if (!u()) return b.fromTo(e.panel, { height: n }, {
 		height: r,
-		duration: t ? .38 : .28,
-		ease: t ? "power3.out" : "power2.inOut",
+		duration: t ? .48 : .38,
+		ease: "power2.inOut",
 		onComplete: () => {
 			b.set(e.panel, { clearProps: "height" });
 		}
