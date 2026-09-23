@@ -268,6 +268,12 @@ missing, the hover text is used. Older `data-canvas-modal-address`,
 `data-canvas-modal-image`, and `data-canvas-modal-caption` fields remain
 supported as a context-only fallback. Other modals keep the default image-before-text layout.
 
+Bind a CMS text element containing the `Größe` option to `data-canvas-size`.
+The accepted values are `Klein`, `Mittel`, and `Groß`; a missing or unrecognized
+value defaults to `Klein`. Sizes set the image's longest edge to 50%, 72%, or
+94% of its available column width. This keeps portrait and landscape images
+visually balanced while preserving their original aspect ratios.
+
 All root configuration attributes are optional:
 
 ```text

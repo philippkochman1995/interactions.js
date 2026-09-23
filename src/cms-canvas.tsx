@@ -9,8 +9,11 @@ interface CanvasItem {
   title: string;
   thumbnail: string;
   thumbnailAlt: string;
+  size: CanvasSize;
   modal: ContentModalData;
 }
+
+type CanvasSize = 'small' | 'medium' | 'large';
 
 interface CanvasTileData extends CanvasItem {
   instanceId: string;
@@ -74,6 +77,11 @@ const SOURCE_SELECTOR = '[data-cms-canvas-source]';
 const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
+const CANVAS_SIZE_SCALE: Record<CanvasSize, number> = {
+  small: 0.5,
+  medium: 0.72,
+  large: 0.94,
+};
 const roots = new WeakMap<HTMLElement, Root>();
 
 function ready(callback: () => void): void {
@@ -253,6 +261,14 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
     element.getAttribute('data-cms-item-id')?.trim() ||
     `canvas-item-${index + 1}-${hashString(`${title}-${thumbnail}`)}`;
   const modalBody = element.querySelector<HTMLElement>('[data-canvas-modal-body]');
+  const rawSize = (textFrom(element, '[data-canvas-size]') || element.getAttribute('data-canvas-size') || '')
+    .trim()
+    .toLocaleLowerCase('de');
+  const size: CanvasSize = rawSize === 'mittel'
+    ? 'medium'
+    : rawSize === 'groß' || rawSize === 'gross'
+      ? 'large'
+      : 'small';
   const gallery = readModalGallery(element);
   const firstGalleryItem = gallery[0];
   const topText = textFrom(element, '[data-canvas-modal-hover-text]') || textFrom(element, '[data-canvas-modal-address]') || title;
@@ -263,6 +279,7 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
     title,
     thumbnail,
     thumbnailAlt: thumbnailElement?.alt ?? title,
+    size,
     modal: {
       id: `canvas-${id}`,
       address: topText,
@@ -411,7 +428,9 @@ function placeTiles(
     const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
     const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
-    const width = Math.max(columnWidth - margin, columnWidth * 0.35);
+    const availableWidth = Math.max(columnWidth - margin, columnWidth * 0.35);
+    const maxEdge = availableWidth * CANVAS_SIZE_SCALE[tile.size];
+    const width = Math.min(availableWidth, maxEdge * Math.min(aspectRatio, 1));
     const height = width / Math.max(aspectRatio, 0.2);
     const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
     const offsetDirectionX = random() > 0.5 ? 1 : -1;
