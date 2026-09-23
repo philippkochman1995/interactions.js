@@ -138,10 +138,10 @@ body.wm-labels-on .wm-marker-label{display:block;}
 
 /* Keep the visually closed filter panel out of the hit-testing tree even
    though the top bar itself accepts pointer input. */
-.top_bar_right .wm-legend:not(.is-open){
+.wm-legend:not(.is-open){
   pointer-events:none !important;
-  visibility:hidden;
+  visibility:hidden !important;
 }
-.top_bar_right .wm-legend.is-open{
-  visibility:visible;
+.wm-legend.is-open{
+  visibility:visible !important;
 }
