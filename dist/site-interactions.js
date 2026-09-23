@@ -1997,6 +1997,7 @@ function Io(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var Lo = {
+	menuOverlap: .2,
 	coverDuration: .82,
 	holdDuration: .1,
 	revealDuration: .92,
@@ -2100,7 +2101,8 @@ function ts(e, t, n) {
 		let e = Mo(n);
 		e && r.add(e);
 	}
-	r.call(Qo), r.fromTo(t, {
+	let i = Math.max(0, r.duration() - Lo.menuOverlap);
+	r.call(Qo, [], i), r.fromTo(t, {
 		yPercent: -100,
 		y: 0
 	}, {
@@ -2110,7 +2112,7 @@ function ts(e, t, n) {
 		onComplete: () => {
 			window.location.href = e.href;
 		}
-	});
+	}, i);
 }
 function ns(e, t) {
 	if (!e.persisted) return;

@@ -4,6 +4,7 @@ import { collapseSiteMenu } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
+  menuOverlap: 0.2,
   coverDuration: 0.82,
   holdDuration: 0.1,
   revealDuration: 0.92,
@@ -166,7 +167,8 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
     }
   }
 
-  transition.call(markTransitionPending);
+  const coverStart = Math.max(0, transition.duration() - PAGE_TRANSITION.menuOverlap);
+  transition.call(markTransitionPending, [], coverStart);
   transition.fromTo(
     overlay,
     { yPercent: -100, y: 0 },
@@ -178,6 +180,7 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
         window.location.href = url.href;
       },
     },
+    coverStart,
   );
 }
 
