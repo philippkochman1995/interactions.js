@@ -1653,16 +1653,21 @@ function Aa(e) {
 	return a && ya.set(n, a), (t = a == null ? ya.get(n) : a) == null ? null : t;
 }
 function ja(e) {
-	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("span"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
-	if (t.className = "fwm-modal__work-card", e.href && t.setAttribute("href", e.href), e.thumbnail) {
-		let r = document.createElement("img");
-		r.className = "fwm-modal__work-image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.className = "fwm-modal__work-image-wrap", n.append(r), t.append(n);
+	var t;
+	let n = (t = e.href) == null ? void 0 : t.trim(), r = !!(n && !n.startsWith("#")), i = document.createElement(r ? "a" : "article"), a = document.createElement("span"), o = document.createElement("span"), s = document.createElement("span"), c = document.createElement("span");
+	if (i.className = "fwm-modal__work-card", r && i.setAttribute("href", n), e.thumbnail) {
+		let t = document.createElement("img");
+		t.className = "fwm-modal__work-image", t.src = e.thumbnail, t.alt = e.thumbnailAlt, t.loading = "lazy", t.decoding = "async", a.className = "fwm-modal__work-image-wrap", a.append(t), i.append(a);
 	}
-	if (i.className = "fwm-modal__work-meta", a.className = "fwm-modal__work-title", a.textContent = e.title, e.title && i.append(a), e.year) {
+	if (s.className = "fwm-modal__work-meta", c.className = "fwm-modal__work-title", c.textContent = e.title, e.title && s.append(c), e.year) {
 		let t = document.createElement("span");
-		t.className = "fwm-modal__work-year", t.textContent = e.year, i.append(t);
+		t.className = "fwm-modal__work-year", t.textContent = e.year, s.append(t);
 	}
-	return r.className = "fwm-modal__work-footer", o.className = "fwm-modal__work-icon", o.innerHTML = da, r.append(i, o), t.append(r), t;
+	if (o.className = "fwm-modal__work-footer", o.append(s), r) {
+		let e = document.createElement("span");
+		e.className = "fwm-modal__work-icon", e.innerHTML = da, o.append(e);
+	}
+	return i.append(o), i;
 }
 function Ma(e, t) {
 	let n = document.createElement("a"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span");

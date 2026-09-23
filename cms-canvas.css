@@ -87,7 +87,7 @@ body {
   left: 0;
   display: block;
   box-sizing: border-box;
-  width: max(100%, 15rem);
+  width: 100%;
   padding-top: 0.8rem;
   padding-right: 1.75em;
   overflow-wrap: anywhere;
@@ -103,6 +103,10 @@ body {
     opacity 280ms ease,
     transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
+}
+
+.cms-canvas__item[data-canvas-item-size="small"] .cms-canvas__title {
+  width: max(100%, 15rem);
 }
 
 .cms-canvas__title::after {

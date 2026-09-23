@@ -8024,7 +8024,7 @@ var n = Object.create, r = Object.defineProperty, i = Object.getOwnPropertyDescr
 })), x = /* @__PURE__ */ u(f(), 1), S = v(), C = b(), w = "[data-cms-canvas]", ee = "[data-cms-canvas-source]", te = "[data-cms-canvas-item]", ne = 6, T = 1.1, re = {
 	small: .66,
 	medium: .864,
-	large: 1.128
+	large: 1.2408
 }, ie = /* @__PURE__ */ new WeakMap();
 function ae(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
@@ -8086,8 +8086,8 @@ function O(e) {
 	var n, r, i, a, o, s;
 	let c = e.querySelector("[data-canvas-modal-work]");
 	if (!c) return null;
-	let l = pe(c, "[data-works-thumbnail]"), u = de(c, "[data-works-title]") || ((n = c.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || "", d = de(c, "[data-works-year]") || ((r = c.getAttribute("data-works-year")) == null ? void 0 : r.trim()) || "", f = (i = (a = (o = c.getAttribute("data-works-href")) == null ? c.getAttribute("data-works-url") : o) == null ? (s = c.querySelector("[data-works-link], a[href]")) == null ? void 0 : s.href : a) == null ? "" : i, p = t(l);
-	return !u && !p && !f ? null : {
+	let l = pe(c, "[data-works-thumbnail]"), u = de(c, "[data-works-title]") || ((n = c.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || "", d = de(c, "[data-works-year]") || ((r = c.getAttribute("data-works-year")) == null ? void 0 : r.trim()) || "", f = ((i = (a = (o = c.getAttribute("data-works-href")) == null ? c.getAttribute("data-works-url") : o) == null ? (s = c.querySelector("[data-works-link], a[href]")) == null ? void 0 : s.getAttribute("href") : a) == null ? "" : i).trim(), p = t(l);
+	return !f || f.startsWith("#") ? null : {
 		title: u,
 		year: d,
 		thumbnail: p,
@@ -8314,6 +8314,7 @@ function De({ placed: e }) {
 			top: e.y + e.offsetY,
 			width: e.width
 		},
+		"data-canvas-item-size": e.tile.size,
 		"data-canvas-item-id": e.tile.instanceId,
 		"data-canvas-source-item-id": e.tile.sourceId,
 		"aria-label": e.tile.title || "Details öffnen",

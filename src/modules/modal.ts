@@ -346,17 +346,18 @@ function resolveContent(id: string): ContentModalData | null {
 }
 
 function renderWork(work: ContentModalWork): HTMLElement {
-  const card = document.createElement(work.href ? 'a' : 'article');
+  const href = work.href?.trim();
+  const hasLink = Boolean(href && !href.startsWith('#'));
+  const card = document.createElement(hasLink ? 'a' : 'article');
   const imageWrap = document.createElement('span');
   const footer = document.createElement('span');
   const meta = document.createElement('span');
   const title = document.createElement('span');
-  const icon = document.createElement('span');
 
   card.className = 'fwm-modal__work-card';
 
-  if (work.href) {
-    card.setAttribute('href', work.href);
+  if (hasLink) {
+    card.setAttribute('href', href!);
   }
 
   if (work.thumbnail) {
@@ -388,9 +389,13 @@ function renderWork(work: ContentModalWork): HTMLElement {
   }
 
   footer.className = 'fwm-modal__work-footer';
-  icon.className = 'fwm-modal__work-icon';
-  icon.innerHTML = WORK_LINK_ICON_SVG;
-  footer.append(meta, icon);
+  footer.append(meta);
+  if (hasLink) {
+    const icon = document.createElement('span');
+    icon.className = 'fwm-modal__work-icon';
+    icon.innerHTML = WORK_LINK_ICON_SVG;
+    footer.append(icon);
+  }
   card.append(footer);
 
   return card;

@@ -80,7 +80,7 @@ const WHEEL_PAN_SPEED = 1.1;
 const CANVAS_SIZE_SCALE: Record<CanvasSize, number> = {
   small: 0.66,
   medium: 0.864,
-  large: 1.128,
+  large: 1.2408,
 };
 const roots = new WeakMap<HTMLElement, Root>();
 
@@ -189,14 +189,15 @@ function readModalWork(element: HTMLElement): ContentModalWork | null {
     textFrom(workElement, '[data-works-year]') ||
     workElement.getAttribute('data-works-year')?.trim() ||
     '';
-  const href =
+  const href = (
     workElement.getAttribute('data-works-href') ??
     workElement.getAttribute('data-works-url') ??
-    workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.href ??
-    '';
+    workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.getAttribute('href') ??
+    ''
+  ).trim();
   const thumbnail = imageSource(thumbnailElement);
 
-  if (!title && !thumbnail && !href) {
+  if (!href || href.startsWith('#')) {
     return null;
   }
 
@@ -570,6 +571,7 @@ function CanvasTile({ placed }: { placed: PlacedTile }): React.ReactElement {
       type="button"
       className="cms-canvas__item"
       style={style}
+      data-canvas-item-size={placed.tile.size}
       data-canvas-item-id={placed.tile.instanceId}
       data-canvas-source-item-id={placed.tile.sourceId}
       aria-label={placed.tile.title || 'Details öffnen'}
