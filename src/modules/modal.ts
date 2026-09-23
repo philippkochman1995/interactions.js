@@ -43,8 +43,7 @@ const MODAL_OPEN_SELECTOR = '[data-modal-open]';
 const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
 const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
 const MODAL_HASH_PREFIX = '#modal:';
-const MODAL_CLOSE_DURATION = 460;
-const MODAL_OPEN_DURATION = 620;
+const MODAL_CLOSE_DURATION = 260;
 
 const MODAL_CLOSE_ICON_SVG = `
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -552,7 +551,7 @@ function prepareContentReveal(singleton: SingletonElements): void {
   items.forEach((item, index) => {
     item.setAttribute('data-modal-reveal', '');
     // Cap the delay so long articles and galleries remain immediately usable.
-    item.style.setProperty('--modal-reveal-delay', `${MODAL_OPEN_DURATION + Math.min(index, 5) * 55}ms`);
+    item.style.setProperty('--modal-reveal-delay', `${90 + Math.min(index, 5) * 35}ms`);
   });
 }
 

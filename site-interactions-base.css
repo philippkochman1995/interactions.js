@@ -834,11 +834,11 @@ footer a.w--current:focus-visible::after,
   justify-content: flex-end;
   background: rgba(6, 2, 26, 0);
   pointer-events: none;
-  transition: background-color 460ms cubic-bezier(0.65, 0, 0.35, 1);
+  transition: background-color 260ms cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .fwm-modal.is-visible {
-  transition-duration: 400ms;
+  transition-duration: 320ms;
   background: rgba(6, 2, 26, 0.5);
   pointer-events: auto;
 }
@@ -853,31 +853,30 @@ footer a.w--current:focus-visible::after,
   padding: 0.75rem 1.5625rem;
   color: var(--fw_dark_purple);
   font-family: 'StyreneA', sans-serif;
-  /* The diagonal left edge reveals the top first, without fading the panel. */
-  clip-path: polygon(100% 0, 130% 0, 130% 100%, 130% 100%);
+  transform: translate3d(100%, 0, 0);
   /* Keep the closing duration in sync with MODAL_CLOSE_DURATION. */
-  transition: clip-path 460ms cubic-bezier(0.65, 0, 0.35, 1);
-  will-change: clip-path;
+  transition: transform 260ms cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
 }
 
 .fwm-modal.is-visible .fwm-modal__panel {
-  clip-path: polygon(-30% 0, 130% 0, 130% 100%, 0 100%);
-  transition-duration: 620ms;
+  transform: translate3d(0, 0, 0);
+  transition-duration: 420ms;
   transition-timing-function: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .fwm-modal [data-modal-reveal] {
   opacity: 0;
-  transform: translate3d(0, 0.75rem, 0);
-  transition: opacity 180ms ease, transform 180ms ease;
+  transform: translate3d(0, 0.5rem, 0);
+  transition: opacity 140ms ease, transform 140ms ease;
 }
 
 .fwm-modal.is-visible [data-modal-reveal] {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  transition-duration: 500ms;
+  transition-duration: 300ms;
   transition-timing-function: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
-  transition-delay: var(--modal-reveal-delay, 620ms);
+  transition-delay: var(--modal-reveal-delay, 90ms);
 }
 
 .fwm-modal__top {
