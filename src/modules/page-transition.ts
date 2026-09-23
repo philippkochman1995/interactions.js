@@ -115,7 +115,7 @@ function revealPage(overlay: HTMLElement): void {
         autoAlpha: 1,
       }, {
         y: 0,
-        duration: 0.65,
+        duration: 0.55,
         ease: 'power3.out',
         clearProps: 'transform,opacity,visibility',
       });
@@ -151,12 +151,23 @@ function revealPage(overlay: HTMLElement): void {
   );
 }
 
-function navigateWithTransition(url: URL, overlay: HTMLElement): void {
+function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElement | null): void {
   isTransitioning = true;
-  markTransitionPending();
-
   gsap.killTweensOf(overlay);
-  gsap.fromTo(
+
+  const transition = gsap.timeline();
+
+  if (menu) {
+    gsap.killTweensOf(menu);
+    transition.to(menu, {
+      y: Number(gsap.getProperty(menu, 'y')) + Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
+      duration: 0.4,
+      ease: 'power2.in',
+    });
+  }
+
+  transition.call(markTransitionPending);
+  transition.fromTo(
     overlay,
     { yPercent: -100, y: 0 },
     {
@@ -228,7 +239,7 @@ export function initPageTransitions(): void {
     }
 
     event.preventDefault();
-    navigateWithTransition(url, overlay);
+    navigateWithTransition(url, overlay, link.closest<HTMLElement>(MENU_SELECTOR));
   }, true);
 
   window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay));

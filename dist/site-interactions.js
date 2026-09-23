@@ -1840,7 +1840,7 @@ function lo(e) {
 				autoAlpha: 1
 			}, {
 				y: 0,
-				duration: .65,
+				duration: .55,
 				ease: "power3.out",
 				clearProps: "transform,opacity,visibility"
 			});
@@ -1876,8 +1876,14 @@ function lo(e) {
 		}
 	});
 }
-function uo(e, t) {
-	to = !0, so(), b.killTweensOf(t), b.fromTo(t, {
+function uo(e, t, n) {
+	to = !0, b.killTweensOf(t);
+	let r = b.timeline();
+	n && (b.killTweensOf(n), r.to(n, {
+		y: Number(b.getProperty(n, "y")) + Math.max(0, window.innerHeight - n.getBoundingClientRect().top) + 8,
+		duration: .4,
+		ease: "power2.in"
+	})), r.call(so), r.fromTo(t, {
 		yPercent: -100,
 		y: 0
 	}, {
@@ -1917,7 +1923,7 @@ function po() {
 		}
 		if (!oo(t, r)) return;
 		let i = h(r);
-		!i || u() || (t.preventDefault(), uo(i, e));
+		!i || u() || (t.preventDefault(), uo(i, e, r.closest(Qa)));
 	}, !0), window.addEventListener("pageshow", (t) => fo(t, e));
 }
 ro();
@@ -2181,7 +2187,7 @@ function ys(e) {
 		e.key !== "Escape" || !i.isOpen || (gs(i), i.toggle.focus({ preventScroll: !0 }));
 	}, u = (e) => {
 		let t = e.target;
-		!(t instanceof Element) || !t.closest(Bo) || gs(i);
+		e.defaultPrevented || !(t instanceof Element) || !t.closest(Bo) || gs(i);
 	}, d = () => {
 		i.isHovered = !0, ds(i);
 	}, f = () => {

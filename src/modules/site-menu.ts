@@ -436,7 +436,8 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   const onLinkClick = (event: Event): void => {
     const target = event.target;
 
-    if (!(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
+    // Der Seitenuebergang faehrt das gesamte Menue heraus; nicht gleichzeitig zuklappen.
+    if (event.defaultPrevented || !(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
       return;
     }
 
