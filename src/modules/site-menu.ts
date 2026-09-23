@@ -118,16 +118,77 @@ function getCurrentPageLabel(instance: SiteMenuInstance): string {
   return activeLink ? getLinkLabel(activeLink) : '';
 }
 
-/* Das Label wechselt zwischen zwei Woertern (Seitenname <-> MENU) und braucht
-   dafuer zwei uebereinanderliegende Ebenen. Vorher lief das nacheinander —
-   erst auf Deckkraft 0 ausblenden, Text tauschen, wieder einblenden — und
-   genau der Moment, in dem gar nichts dasteht, liest sich als Aufblitzen.
+function reserveLabelWidth(instance: SiteMenuInstance): Cleanup {
+  const target = instance.toggleLabel ?? instance.toggle;
+  const originalWidth = target.style.width;
+  let active = true;
+  let resizeFrame = 0;
 
-   Die Textebene liegt im Fluss und bestimmt die Breite des Labels; die
-   Ghost-Ebene haengt absolut darueber und traegt das alte Wort, bis es
-   ausgeblendet ist. Beide muessen Geschwister sein: die Deckkraft eines
-   Kindes multipliziert sich mit der des Elternteils, in einer Verschachtelung
-   gaebe es also keine echte Kreuzblende. */
+  const probe = document.createElement('span');
+  probe.setAttribute('aria-hidden', 'true');
+  probe.style.cssText = [
+    'position:absolute',
+    'left:-100000px',
+    'top:0',
+    'display:inline-block',
+    'width:max-content',
+    'min-width:0',
+    'max-width:none',
+    'white-space:nowrap',
+    'visibility:hidden',
+    'pointer-events:none',
+    'overflow:visible',
+    'transform:none',
+    'transition:none',
+  ].join(';');
+
+  target.append(probe);
+
+  const measure = (): void => {
+    if (!active) return;
+
+    const labels = [
+      getCurrentPageLabel(instance),
+      getStringAttr(instance.root, CLOSED_TEXT_ATTR) || DEFAULT_CLOSED_LABEL,
+      getStringAttr(instance.root, OPEN_TEXT_ATTR) || DEFAULT_OPEN_LABEL,
+    ];
+
+    probe.textContent = '';
+    const width = labels.reduce((maximum, label) => {
+      probe.textContent = label;
+      return Math.max(maximum, probe.getBoundingClientRect().width);
+    }, 0);
+
+    if (width > 0) {
+      target.style.width = `${Math.ceil(width)}px`;
+    }
+  };
+
+  const onResize = (): void => {
+    if (resizeFrame) cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = 0;
+      measure();
+    });
+  };
+
+  measure();
+  window.addEventListener('resize', onResize);
+  document.fonts?.ready.then(measure);
+
+  return () => {
+    active = false;
+    window.removeEventListener('resize', onResize);
+    if (resizeFrame) cancelAnimationFrame(resizeFrame);
+    probe.remove();
+    target.style.width = originalWidth;
+  };
+}
+
+/* Das Label wechselt zwischen Seitenname, MENU und CLOSE mit zwei
+   uebereinanderliegenden Textebenen. Die maximale Textbreite wird separat
+   reserviert; die Ghost-Ebene traegt das alte Wort waehrend des vertikalen
+   Wechsels. */
 function getLabelTextLayer(target: HTMLElement): HTMLElement {
   const existing = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, target);
 
@@ -338,6 +399,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   toggle.setAttribute('aria-controls', panel.id);
   updateActiveLinks(instance);
   setPanelState(instance, instance.isOpen, false);
+  instance.cleanup.push(reserveLabelWidth(instance));
 
   root.classList.add(READY_CLASS);
 

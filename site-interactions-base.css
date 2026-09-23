@@ -197,6 +197,7 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 [data-site-menu-toggle-label] {
   position: relative;
   display: inline-block;
+  flex: 0 0 auto;
   overflow: hidden;
   vertical-align: bottom;
   white-space: nowrap;
