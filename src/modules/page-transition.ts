@@ -4,7 +4,6 @@ import { collapseSiteMenu } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
-  menuOverlap: 0.1,
   coverDuration: 0.82,
   holdDuration: 0.1,
   revealDuration: 0.92,
@@ -167,7 +166,7 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
     }
   }
 
-  const coverStart = Math.max(0, transition.duration() - PAGE_TRANSITION.menuOverlap);
+  const coverStart = 0;
   transition.call(markTransitionPending, [], coverStart);
   transition.fromTo(
     overlay,
