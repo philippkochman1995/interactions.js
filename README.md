@@ -125,6 +125,16 @@ Use a stable CMS-generated slug/id for `data-modal-content` and `data-modal-open
 
 Legacy `[data-modal]` elements are read into the content registry and removed at boot, which permits a staged Webflow migration.
 
+To keep a legacy modal Embed while using a CMS Rich Text field, add a native
+Webflow Rich Text element beside the Embed in the same Collection Item. Connect
+it to the CMS field and add `data-modal-rich-text="true"`. Keep one modal and
+one marked Rich Text element per Collection Item. Set the source Rich Text to
+`display: none` in Webflow to prevent it appearing before JavaScript loads.
+The script appends its inner HTML after the existing `.fwm-modal__text` content
+(including the title) and hides the source. Paragraphs, line breaks, links and
+formatting are preserved. The updated `dist/site-interactions.js` must be hosted
+at the URL used by the Webflow script include before publishing the page.
+
 Recommended ID prefixes:
 
 ```text

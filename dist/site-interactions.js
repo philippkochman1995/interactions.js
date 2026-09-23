@@ -1615,24 +1615,24 @@ function Da(e) {
 	};
 }
 function Oa(e) {
-	var t, n, i, a, o, s, c, l;
-	let u = r(e, "data-modal");
-	if (!u) return null;
-	let d = e.querySelector(".fwm-modal__image"), f = x(d), p = (t = (n = e.querySelector(".fwm-modal__caption")) == null || (n = n.textContent) == null ? void 0 : n.trim()) == null ? "" : t;
-	return {
-		id: u,
-		address: (i = (a = e.querySelector(".fwm-modal__address")) == null || (a = a.textContent) == null ? void 0 : a.trim()) == null ? "" : i,
+	var t, n, i, a, o, s, c, l, u, d, f;
+	let p = r(e, "data-modal");
+	if (!p) return null;
+	let m = e.querySelector(".fwm-modal__image"), h = x(m), g = (t = (n = e.querySelector(".fwm-modal__caption")) == null || (n = n.textContent) == null ? void 0 : n.trim()) == null ? "" : t, _ = (i = e.closest(".w-dyn-item")) == null ? (a = e.closest(".w-embed")) == null ? void 0 : a.parentElement : i, v = _ ? Array.from(_.querySelectorAll("[data-modal-rich-text]")).find((t) => t.closest(".w-dyn-item") === e.closest(".w-dyn-item")) : void 0, y = (o = (s = e.querySelector(".fwm-modal__text")) == null ? void 0 : s.innerHTML) == null ? "" : o;
+	return v && (v.hidden = !0), {
+		id: p,
+		address: (c = (l = e.querySelector(".fwm-modal__address")) == null || (l = l.textContent) == null ? void 0 : l.trim()) == null ? "" : c,
 		layout: "default",
 		headline: "",
-		image: f,
-		imageAlt: (o = d == null ? void 0 : d.alt) == null ? "" : o,
-		caption: p,
-		html: (s = (c = e.querySelector(".fwm-modal__text")) == null ? void 0 : c.innerHTML) == null ? "" : s,
+		image: h,
+		imageAlt: (u = m == null ? void 0 : m.alt) == null ? "" : u,
+		caption: g,
+		html: y + ((d = v == null ? void 0 : v.innerHTML) == null ? "" : d),
 		work: null,
-		gallery: f ? [{
-			src: f,
-			alt: (l = d == null ? void 0 : d.alt) == null ? "" : l,
-			caption: p
+		gallery: h ? [{
+			src: h,
+			alt: (f = m == null ? void 0 : m.alt) == null ? "" : f,
+			caption: g
 		}] : []
 	};
 }

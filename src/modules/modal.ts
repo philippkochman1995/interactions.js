@@ -270,6 +270,19 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
   const imageElement = element.querySelector<HTMLImageElement>('.fwm-modal__image');
   const image = getImageSource(imageElement);
   const caption = element.querySelector<HTMLElement>('.fwm-modal__caption')?.textContent?.trim() ?? '';
+  // Webflow cannot bind CMS Rich Text inside an Embed. Read a native sibling
+  // from the same Collection Item, preserving its paragraphs and formatting.
+  const scope = element.closest('.w-dyn-item') ?? element.closest('.w-embed')?.parentElement;
+  const richText = scope
+    ? Array.from(scope.querySelectorAll<HTMLElement>('[data-modal-rich-text]')).find(
+        (candidate) => candidate.closest('.w-dyn-item') === element.closest('.w-dyn-item'),
+      )
+    : undefined;
+  const existingHtml = element.querySelector<HTMLElement>('.fwm-modal__text')?.innerHTML ?? '';
+
+  if (richText) {
+    richText.hidden = true;
+  }
 
   return {
     id,
@@ -279,7 +292,7 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
     image,
     imageAlt: imageElement?.alt ?? '',
     caption,
-    html: element.querySelector<HTMLElement>('.fwm-modal__text')?.innerHTML ?? '',
+    html: existingHtml + (richText?.innerHTML ?? ''),
     work: null,
     gallery: image
       ? [
