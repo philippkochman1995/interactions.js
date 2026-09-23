@@ -78,9 +78,9 @@ const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
 const CANVAS_SIZE_SCALE: Record<CanvasSize, number> = {
-  small: 0.5,
-  medium: 0.72,
-  large: 0.94,
+  small: 0.6,
+  medium: 0.864,
+  large: 1.128,
 };
 const roots = new WeakMap<HTMLElement, Root>();
 
@@ -430,7 +430,7 @@ function placeTiles(
     const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
     const availableWidth = Math.max(columnWidth - margin, columnWidth * 0.35);
     const maxEdge = availableWidth * CANVAS_SIZE_SCALE[tile.size];
-    const width = Math.min(availableWidth, maxEdge * Math.min(aspectRatio, 1));
+    const width = maxEdge * Math.min(aspectRatio, 1);
     const height = width / Math.max(aspectRatio, 0.2);
     const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
     const offsetDirectionX = random() > 0.5 ? 1 : -1;

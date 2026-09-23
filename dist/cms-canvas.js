@@ -8022,9 +8022,9 @@ var n = Object.create, r = Object.defineProperty, i = Object.getOwnPropertyDescr
 })), b = /* @__PURE__ */ c(((e, t) => {
 	t.exports = y();
 })), x = /* @__PURE__ */ u(f(), 1), S = v(), C = b(), w = "[data-cms-canvas]", ee = "[data-cms-canvas-source]", te = "[data-cms-canvas-item]", ne = 6, T = 1.1, re = {
-	small: .5,
-	medium: .72,
-	large: .94
+	small: .6,
+	medium: .864,
+	large: 1.128
 }, ie = /* @__PURE__ */ new WeakMap();
 function ae(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
@@ -8229,15 +8229,15 @@ function Te(e, t, n, r, i, a) {
 	};
 	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = ue(e, a).map((e) => {
 		var n, r;
-		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35), m = p * re[e.size], h = Math.min(p, m * Math.min(o, 1)), g = h / Math.max(o, .2), _ = d + a() * Math.max(f - d, 0), v = a() > .5 ? 1 : -1, y = a() > .5 ? 1 : -1;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35) * re[e.size] * Math.min(o, 1), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
 		return {
 			tile: e,
-			width: h,
-			height: g,
+			width: p,
+			height: m,
 			margin: u,
-			offsetX: v * h * _,
-			offsetY: y * g * _,
-			totalHeight: g + u
+			offsetX: g * p * h,
+			offsetY: _ * m * h,
+			totalHeight: m + u
 		};
 	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(l, s * .12);
 	p.forEach((e) => {
