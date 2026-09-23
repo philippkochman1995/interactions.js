@@ -351,8 +351,18 @@ function closeMenu(instance: SiteMenuInstance): gsap.core.Tween | undefined {
 }
 
 export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined {
-  const instance = instances.find((candidate) => candidate.root === root);
-  return instance ? closeMenu(instance) : undefined;
+  const panel = qs<HTMLElement>(PANEL_SELECTOR, root);
+  if (!panel) {
+    return;
+  }
+
+  gsap.killTweensOf(panel);
+  // Den aktuellen Menuezustand beibehalten und direkt komplett einklappen.
+  return gsap.to(panel, {
+    height: 0,
+    duration: 0.4,
+    ease: 'power2.inOut',
+  });
 }
 
 function toggleMenu(instance: SiteMenuInstance): void {
@@ -441,7 +451,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   const onLinkClick = (event: Event): void => {
     const target = event.target;
 
-    // Der Seitenuebergang steuert Zuklappen und Herausfahren in einer Timeline.
+    // Der Seitenuebergang klappt das gesamte Panel direkt auf Hoehe 0.
     if (event.defaultPrevented || !(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
       return;
     }

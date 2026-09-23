@@ -1934,8 +1934,12 @@ function jo(e) {
 	return Oo(e, !1), ko(e, !1, t);
 }
 function Mo(e) {
-	let t = ho.find((t) => t.root === e);
-	return t ? jo(t) : void 0;
+	let t = s(qa, e);
+	if (t) return b.killTweensOf(t), b.to(t, {
+		height: 0,
+		duration: .4,
+		ease: "power2.inOut"
+	});
 }
 function No(e) {
 	e.isOpen ? jo(e) : Ao(e);
@@ -2094,11 +2098,7 @@ function ts(e, t, n) {
 	if (n) {
 		b.killTweensOf(n);
 		let e = Mo(n);
-		e && r.add(e), r.to(n, {
-			y: () => Number(b.getProperty(n, "y")) + Math.max(0, window.innerHeight - n.getBoundingClientRect().top) + 8,
-			duration: .4,
-			ease: "power2.in"
-		});
+		e && r.add(e);
 	}
 	r.call(Qo), r.fromTo(t, {
 		yPercent: -100,
@@ -2120,6 +2120,8 @@ function ns(e, t) {
 	});
 	let n = document.querySelectorAll(Uo);
 	b.killTweensOf(n), b.set(n, { clearProps: "transform,opacity,visibility" });
+	let r = document.querySelectorAll("[data-site-menu-panel]");
+	b.killTweensOf(r), b.set(r, { clearProps: "height" });
 }
 function rs() {
 	if (Go) return;

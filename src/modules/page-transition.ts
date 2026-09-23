@@ -164,11 +164,6 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
     if (collapse) {
       transition.add(collapse);
     }
-    transition.to(menu, {
-      y: () => Number(gsap.getProperty(menu, 'y')) + Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
-      duration: 0.4,
-      ease: 'power2.in',
-    });
   }
 
   transition.call(markTransitionPending);
@@ -198,6 +193,9 @@ function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement
   const menus = document.querySelectorAll<HTMLElement>(MENU_SELECTOR);
   gsap.killTweensOf(menus);
   gsap.set(menus, { clearProps: 'transform,opacity,visibility' });
+  const panels = document.querySelectorAll<HTMLElement>('[data-site-menu-panel]');
+  gsap.killTweensOf(panels);
+  gsap.set(panels, { clearProps: 'height' });
 }
 
 export function initPageTransitions(): void {
