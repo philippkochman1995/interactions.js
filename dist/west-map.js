@@ -61,7 +61,7 @@
 			if (!g) {
 				if (v !== null) {
 					var t = Math.min(e - v, 64) / 1e3, n = h.getCenter();
-					h.jumpTo({ center: [(n.lng + t * .75 + 180) % 360 - 180, n.lat] });
+					h.jumpTo({ center: [(n.lng - t * 3 + 540) % 360 - 180, n.lat] });
 				}
 				v = e, _ = requestAnimationFrame(b);
 			}

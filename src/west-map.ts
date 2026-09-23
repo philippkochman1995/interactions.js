@@ -93,11 +93,11 @@
     function rotateGlobe(time){
       if(rotationStopped) return;
       if(previousRotationTime !== null){
-        // Increasing camera longitude moves the globe left. One turn takes 8 min.
+        // Decreasing camera longitude moves the globe right. One turn takes 2 min.
         // Cap elapsed time so returning to a background tab never causes a jump.
         var elapsed = Math.min(time - previousRotationTime, 64) / 1000;
         var center = map.getCenter();
-        map.jumpTo({ center: [((center.lng + elapsed * 0.75 + 180) % 360) - 180, center.lat] });
+        map.jumpTo({ center: [((center.lng - elapsed * 3 + 540) % 360) - 180, center.lat] });
       }
       previousRotationTime = time;
       rotationFrame = requestAnimationFrame(rotateGlobe);
