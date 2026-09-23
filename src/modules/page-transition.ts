@@ -4,7 +4,7 @@ import { collapseSiteMenu } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
-  menuOverlap: 0.2,
+  menuOverlap: 0.1,
   coverDuration: 0.82,
   holdDuration: 0.1,
   revealDuration: 0.92,

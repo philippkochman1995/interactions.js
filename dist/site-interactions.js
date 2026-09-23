@@ -1997,7 +1997,7 @@ function Io(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var Lo = {
-	menuOverlap: .2,
+	menuOverlap: .1,
 	coverDuration: .82,
 	holdDuration: .1,
 	revealDuration: .92,
