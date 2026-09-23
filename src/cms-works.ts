@@ -13,7 +13,6 @@ interface WorkItem {
   thumbnailAlt: string;
   href: string;
   year: string;
-  curatedPosition: number | null;
   categories: string[];
   index: number;
 }
@@ -34,7 +33,6 @@ const ITEM_SELECTOR = '[data-cms-works-item], [data-cms-canvas-item]';
 const THUMBNAIL_SELECTOR = '[data-works-thumbnail], [data-canvas-thumbnail]';
 const TITLE_SELECTOR = '[data-works-title], [data-canvas-title]';
 const YEAR_SELECTOR = '[data-works-year], [data-canvas-year]';
-const CURATED_POSITION_SELECTOR = '[data-works-curated-position], [data-works-position]';
 const CATEGORY_SELECTOR = '[data-works-category], [data-works-categories]';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 const LINK_SELECTOR = [
@@ -102,19 +100,6 @@ function createRandom(seed: number): () => number {
   };
 }
 
-function parseNumber(value: string): number | null {
-  const number = Number.parseFloat(value.trim().replace(',', '.'));
-  return Number.isFinite(number) ? number : null;
-}
-
-function readCuratedPosition(element: HTMLElement): number | null {
-  return parseNumber(
-    element.getAttribute('data-works-curated-position') ??
-      element.getAttribute('data-works-position') ??
-      textFrom(element, CURATED_POSITION_SELECTOR),
-  );
-}
-
 function readCategories(element: HTMLElement): string[] {
   const raw =
     element.getAttribute('data-works-categories') ??
@@ -177,7 +162,6 @@ function readItem(element: HTMLElement, index: number): WorkItem | null {
     thumbnailAlt: thumbnailElement?.alt || title,
     href: readHref(element),
     year: textFrom(element, YEAR_SELECTOR) || element.getAttribute('data-works-year')?.trim() || '',
-    curatedPosition: readCuratedPosition(element),
     categories: readCategories(element),
     index,
   };
@@ -196,7 +180,7 @@ function readSortMode(root: HTMLElement): WorksSortMode {
     return value;
   }
 
-  return 'curated';
+  return 'year';
 }
 
 function parseFirstYear(value: string): number | null {
@@ -223,18 +207,10 @@ function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): W
       .map(({ item }) => item);
   }
 
-  if (mode === 'year') {
-    return nextItems.sort((first, second) => {
-      const firstYear = parseFirstYear(first.year) ?? Number.POSITIVE_INFINITY;
-      const secondYear = parseFirstYear(second.year) ?? Number.POSITIVE_INFINITY;
-      return firstYear - secondYear || first.title.localeCompare(second.title, 'de', { sensitivity: 'base' });
-    });
-  }
-
   return nextItems.sort((first, second) => {
-    const firstPosition = first.curatedPosition ?? Number.POSITIVE_INFINITY;
-    const secondPosition = second.curatedPosition ?? Number.POSITIVE_INFINITY;
-    return firstPosition - secondPosition || first.title.localeCompare(second.title, 'de', { sensitivity: 'base' });
+    const firstYear = parseFirstYear(first.year) ?? Number.POSITIVE_INFINITY;
+    const secondYear = parseFirstYear(second.year) ?? Number.POSITIVE_INFINITY;
+    return firstYear - secondYear || first.title.localeCompare(second.title, 'de', { sensitivity: 'base' });
   });
 }
 

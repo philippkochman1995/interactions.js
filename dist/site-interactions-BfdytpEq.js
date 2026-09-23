@@ -35,7 +35,7 @@ function l() {
 }
 function u() {
 	let e = r(t);
-	return !e || !Array.isArray(e.categories) || typeof e.visibleCount != "number" ? null : e;
+	return !e || !Array.isArray(e.categories) || typeof e.visibleCount != "number" ? null : (e.sort !== "year" && e.sort !== "random" && (e.sort = "year"), e);
 }
 function d(e) {
 	i(t, e);
@@ -51,4 +51,4 @@ function f() {
 //#endregion
 export { u as a, s as i, l as n, c as o, f as r, d as s, n as t };
 
-//# sourceMappingURL=site-interactions-CVfIYK-Q.js.map
+//# sourceMappingURL=site-interactions-BfdytpEq.js.map

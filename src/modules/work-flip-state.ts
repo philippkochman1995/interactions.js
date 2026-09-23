@@ -118,6 +118,11 @@ export function readWorksViewState(): WorksViewState | null {
     return null;
   }
 
+  // Alte gespeicherte Sortierungen auf die aktuelle Standardauswahl umstellen.
+  if (state.sort !== 'year' && state.sort !== 'random') {
+    state.sort = 'year';
+  }
+
   return state;
 }
 

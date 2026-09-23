@@ -1,4 +1,4 @@
-export type WorksSortMode = 'curated' | 'random' | 'year';
+export type WorksSortMode = 'random' | 'year';
 
 export interface WorksFilterItem {
   categories: string[];
@@ -32,11 +32,10 @@ const ARROW_ICON = `
 `;
 
 const SORT_LABELS: Record<WorksSortMode, string> = {
-  curated: 'Kuratiert',
-  random: 'Zufällig',
+  random: 'zufällig',
   year: 'Entstehungsjahr',
 };
-const SORT_MODES = ['year', 'random', 'curated'] as const;
+const SORT_MODES = ['year', 'random'] as const;
 
 interface WorksFilterOptions {
   onOpenChange?: (open: boolean) => void;
