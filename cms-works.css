@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 0.5rem 0;
+  padding: 0;
   border: 0;
   background: var(--cms-works-dark-5);
   color: inherit;
