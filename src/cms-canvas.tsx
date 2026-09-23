@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { gsap } from 'gsap';
+import { getCmsImageSource as imageSource } from './modules/cms-image';
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork } from './types';
 
 interface CanvasItem {
@@ -154,10 +155,6 @@ function imageFrom(element: HTMLElement, selector: string): HTMLImageElement | n
   return element.querySelector<HTMLImageElement>(selector);
 }
 
-function imageSource(image: HTMLImageElement | null): string {
-  return image?.currentSrc || image?.src || '';
-}
-
 function imageFromTarget(element: HTMLElement, selector: string): HTMLImageElement | null {
   const target = element.querySelector<HTMLElement>(selector);
 
@@ -240,7 +237,7 @@ function readModalGallery(element: HTMLElement): ContentModalGalleryItem[] {
 function readItem(element: HTMLElement, index: number): CanvasItem | null {
   const thumbnailElement =
     imageFrom(element, '[data-canvas-thumbnail]') ?? element.querySelector<HTMLImageElement>('img');
-  const thumbnail = thumbnailElement?.currentSrc || thumbnailElement?.src || '';
+  const thumbnail = imageSource(thumbnailElement);
 
   if (!thumbnail) {
     return null;

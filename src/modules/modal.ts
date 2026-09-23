@@ -1,4 +1,5 @@
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
+import { getCmsImageSource as getImageSource } from './cms-image';
 import {
   delegate,
   dispatchSiteEvent,
@@ -149,10 +150,6 @@ function updateLabels(singleton: SingletonElements): void {
   singleton.closeButton.setAttribute('aria-label', closeLabel);
   singleton.closeButton.title = closeLabel;
   singleton.panel.setAttribute('aria-label', dialogLabel);
-}
-
-function getImageSource(image: HTMLImageElement | null): string {
-  return image?.currentSrc || image?.src || '';
 }
 
 function getImageFrom(element: HTMLElement, selector: string): HTMLImageElement | null {
