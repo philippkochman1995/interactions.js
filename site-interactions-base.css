@@ -835,10 +835,11 @@ footer a.w--current:focus-visible::after,
   background: rgba(6, 2, 26, 0.5);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 150ms ease;
+  transition: opacity 280ms cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .fwm-modal.is-visible {
+  transition-duration: 400ms;
   opacity: 1;
   pointer-events: auto;
 }
@@ -854,54 +855,29 @@ footer a.w--current:focus-visible::after,
   color: var(--fw_dark_purple);
   font-family: 'StyreneA', sans-serif;
   transform: translate3d(100%, 0, 0);
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Keep the closing duration in sync with MODAL_CLOSE_DURATION. */
+  transition: transform 280ms cubic-bezier(0.65, 0, 0.35, 1);
   will-change: transform;
 }
 
 .fwm-modal.is-visible .fwm-modal__panel {
   transform: translate3d(0, 0, 0);
+  transition-duration: 620ms;
+  transition-timing-function: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
-.fwm-modal__top,
-.fwm-modal__image-link,
-.fwm-modal__headline,
-.fwm-modal__text,
-.fwm-modal__work,
-.fwm-modal__gallery {
+.fwm-modal [data-modal-reveal] {
   opacity: 0;
-  transform: translate3d(0.5rem, 0, 0);
-  transition: opacity 150ms ease, transform 150ms ease;
+  transform: translate3d(0, 0.75rem, 0);
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
-.fwm-modal.is-visible .fwm-modal__top,
-.fwm-modal.is-visible .fwm-modal__image-link,
-.fwm-modal.is-visible .fwm-modal__headline,
-.fwm-modal.is-visible .fwm-modal__text,
-.fwm-modal.is-visible .fwm-modal__work,
-.fwm-modal.is-visible .fwm-modal__gallery {
+.fwm-modal.is-visible [data-modal-reveal] {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-}
-
-.fwm-modal.is-visible .fwm-modal__top {
-  transition-delay: 50ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__image-link,
-.fwm-modal.is-visible .fwm-modal__headline {
-  transition-delay: 100ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__text {
-  transition-delay: 150ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__work {
-  transition-delay: 200ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__gallery {
-  transition-delay: 250ms;
+  transition-duration: 500ms;
+  transition-timing-function: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
+  transition-delay: var(--modal-reveal-delay, 100ms);
 }
 
 .fwm-modal__top {
@@ -1342,6 +1318,10 @@ footer a.w--current:focus-visible::after,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .fwm-modal.is-visible,
+  .fwm-modal.is-visible .fwm-modal__panel,
+  .fwm-modal [data-modal-reveal],
+  .fwm-modal.is-visible [data-modal-reveal],
   .fwm-modal,
   .fwm-modal__panel,
   .fwm-modal__top,

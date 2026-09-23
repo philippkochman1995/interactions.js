@@ -10,6 +10,7 @@ import {
   getStringAttr,
   isHTMLElement,
   lockScroll,
+  prefersReducedMotion,
   qsa,
   restoreFocus,
   trapFocus,
@@ -42,7 +43,7 @@ const MODAL_OPEN_SELECTOR = '[data-modal-open]';
 const MODAL_CLOSE_SELECTOR = '[data-modal-close]';
 const MODAL_HASH_LINK_SELECTOR = 'a[href^="#modal:"]';
 const MODAL_HASH_PREFIX = '#modal:';
-const MODAL_CLOSE_DURATION = 220;
+const MODAL_CLOSE_DURATION = 280;
 
 const MODAL_CLOSE_ICON_SVG = `
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -523,10 +524,35 @@ function showModal(singleton: SingletonElements): void {
   singleton.root.hidden = false;
   singleton.root.setAttribute('aria-hidden', 'false');
   singleton.root.classList.add('is-active');
+  prepareContentReveal(singleton);
   void singleton.root.offsetWidth;
   singleton.root.classList.add('is-visible');
   document.documentElement.classList.add('is-modal-open');
   document.body.classList.add('is-modal-open');
+}
+
+function prepareContentReveal(singleton: SingletonElements): void {
+  qsa<HTMLElement>('[data-modal-reveal]', singleton.panel).forEach((item) => {
+    item.removeAttribute('data-modal-reveal');
+    item.style.removeProperty('--modal-reveal-delay');
+  });
+
+  const items = Array.from(singleton.panel.children).flatMap((section) => {
+    if (!(section instanceof HTMLElement) || section.hidden) return [];
+    if (section === singleton.text || section === singleton.gallery) {
+      const children = Array.from(section.children).filter(
+        (child): child is HTMLElement => child instanceof HTMLElement && !child.hidden,
+      );
+      return children.length ? children : section.textContent?.trim() ? [section] : [];
+    }
+    return [section];
+  });
+
+  items.forEach((item, index) => {
+    item.setAttribute('data-modal-reveal', '');
+    // Cap the delay so long articles and galleries remain immediately usable.
+    item.style.setProperty('--modal-reveal-delay', `${100 + Math.min(index, 5) * 55}ms`);
+  });
 }
 
 function hideModal(singleton: SingletonElements): void {
@@ -537,7 +563,7 @@ function hideModal(singleton: SingletonElements): void {
     singleton.root.hidden = true;
     singleton.root.classList.remove('is-active');
     closeTimer = null;
-  }, MODAL_CLOSE_DURATION);
+  }, prefersReducedMotion() ? 0 : MODAL_CLOSE_DURATION);
 
   document.documentElement.classList.remove('is-modal-open');
   document.body.classList.remove('is-modal-open');
