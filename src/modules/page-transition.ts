@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 
+import { collapseSiteMenu } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
@@ -159,8 +160,12 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
 
   if (menu) {
     gsap.killTweensOf(menu);
+    const collapse = collapseSiteMenu(menu);
+    if (collapse) {
+      transition.add(collapse);
+    }
     transition.to(menu, {
-      y: Number(gsap.getProperty(menu, 'y')) + Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
+      y: () => Number(gsap.getProperty(menu, 'y')) + Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
       duration: 0.4,
       ease: 'power2.in',
     });

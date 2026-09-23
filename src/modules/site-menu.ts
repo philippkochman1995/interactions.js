@@ -306,7 +306,7 @@ function setPanelState(instance: SiteMenuInstance, open: boolean, animateLabel =
   setLabel(instance, animateLabel);
 }
 
-function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): void {
+function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): gsap.core.Tween | undefined {
   gsap.killTweensOf(instance.panel);
 
   gsap.set(instance.panel, { clearProps: 'height' });
@@ -316,7 +316,7 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
     return;
   }
 
-  gsap.fromTo(
+  return gsap.fromTo(
     instance.panel,
     { height: fromHeight },
     {
@@ -340,14 +340,19 @@ function openMenu(instance: SiteMenuInstance): void {
   animatePanel(instance, true, fromHeight);
 }
 
-function closeMenu(instance: SiteMenuInstance): void {
+function closeMenu(instance: SiteMenuInstance): gsap.core.Tween | undefined {
   if (!instance.isOpen) {
     return;
   }
 
   const fromHeight = instance.panel.getBoundingClientRect().height;
   setPanelState(instance, false);
-  animatePanel(instance, false, fromHeight);
+  return animatePanel(instance, false, fromHeight);
+}
+
+export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined {
+  const instance = instances.find((candidate) => candidate.root === root);
+  return instance ? closeMenu(instance) : undefined;
 }
 
 function toggleMenu(instance: SiteMenuInstance): void {
@@ -436,7 +441,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   const onLinkClick = (event: Event): void => {
     const target = event.target;
 
-    // Der Seitenuebergang faehrt das gesamte Menue heraus; nicht gleichzeitig zuklappen.
+    // Der Seitenuebergang steuert Zuklappen und Herausfahren in einer Timeline.
     if (event.defaultPrevented || !(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
       return;
     }

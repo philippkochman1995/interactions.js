@@ -42,25 +42,39 @@
 		var p = document.getElementById("wmCmsSource");
 		p && p.classList.add("wm-cms-source");
 		function m() {
-			var e = Math.min(o.clientHeight * .68, o.clientWidth * .88);
+			var e = Math.min(o.clientHeight * .68, o.clientWidth * .88) * .97;
 			return Math.max(0, Math.min(3, Math.log2(Math.max(1, e) * Math.PI / 512)));
 		}
-		var h = new mapboxgl.Map({
+		var h = document.querySelector(".top_bar_center .nav_logo");
+		function g() {
+			var e = h ? h.getBoundingClientRect().bottom - o.getBoundingClientRect().top : 0;
+			return {
+				top: Math.max(0, Math.min(o.clientHeight - 1, e)),
+				bottom: 0,
+				left: 0,
+				right: 0
+			};
+		}
+		var _ = new mapboxgl.Map({
 			container: "wmMap",
 			style: "mapbox://styles/mapbox/light-v11",
 			projection: "globe",
 			center: [16.3738, 10],
+			bearing: 0,
+			pitch: 0,
 			zoom: m(),
 			minZoom: 0,
 			maxZoom: 18
-		}), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, _ = 0;
-		function v() {
-			g || (g = !0, cancelAnimationFrame(_), _ = 0, h.stop());
+		});
+		_.setPadding(g());
+		var v = window.matchMedia("(prefers-reduced-motion: reduce)").matches, y = 0;
+		function b() {
+			v || (v = !0, cancelAnimationFrame(y), y = 0, _.stop());
 		}
-		function y() {
-			if (_ = 0, !g) {
-				var e = h.getCenter();
-				h.easeTo({
+		function x() {
+			if (y = 0, !v) {
+				var e = _.getCenter();
+				_.easeTo({
 					center: [e.lng - 3.6, e.lat],
 					duration: 1e3,
 					easing: function(e) {
@@ -69,8 +83,8 @@
 				});
 			}
 		}
-		function b() {
-			g || _ || (_ = requestAnimationFrame(y));
+		function S() {
+			v || y || (y = requestAnimationFrame(x));
 		}
 		[
 			"pointerdown",
@@ -80,14 +94,22 @@
 			"keydown",
 			"click"
 		].forEach(function(e) {
-			o.addEventListener(e, v, {
+			o.addEventListener(e, b, {
 				capture: !0,
 				passive: !0
 			});
-		}), h.on("remove", v), h.on("resize", function() {
-			g || h.jumpTo({ zoom: m() });
-		}), h.on("style.load", function() {
-			h.setFog({
+		}), _.on("remove", b);
+		function C() {
+			_.setPadding(g()), v || _.jumpTo({ zoom: m() });
+		}
+		if (_.on("resize", C), h) {
+			var w = new ResizeObserver(C);
+			w.observe(h), _.on("remove", function() {
+				w.disconnect();
+			});
+		}
+		_.on("style.load", function() {
+			_.setFog({
 				color: "#ffffff",
 				"high-color": "#ffffff",
 				"space-color": "#ffffff",
@@ -95,61 +117,61 @@
 				"star-intensity": 0
 			});
 		});
-		var x = document.querySelector(".top_bar_right");
-		if (x) {
-			var S = document.createElement("div");
-			S.className = "wm-zoom-controls";
-			var C = document.createElement("button");
-			C.type = "button", C.className = "wm-zoom-btn", C.setAttribute("aria-label", "Reinzoomen"), C.innerHTML = r;
-			var w = document.createElement("button");
-			w.type = "button", w.className = "wm-zoom-btn", w.setAttribute("aria-label", "Rauszoomen"), w.innerHTML = i;
-			var T = document.createElement("button");
-			T.type = "button", T.className = "wm-zoom-btn wm-filter-btn", T.setAttribute("aria-label", "Legende"), T.setAttribute("aria-expanded", "false"), T.innerHTML = a, S.appendChild(C), S.appendChild(w), S.appendChild(T), l && l.parentElement === x ? x.insertBefore(S, l) : x.appendChild(S), C.addEventListener("click", function() {
-				v(), h.zoomIn();
-			}), w.addEventListener("click", function() {
-				v(), h.zoomOut();
+		var T = document.querySelector(".top_bar_right");
+		if (T) {
+			var E = document.createElement("div");
+			E.className = "wm-zoom-controls";
+			var D = document.createElement("button");
+			D.type = "button", D.className = "wm-zoom-btn", D.setAttribute("aria-label", "Reinzoomen"), D.innerHTML = r;
+			var O = document.createElement("button");
+			O.type = "button", O.className = "wm-zoom-btn", O.setAttribute("aria-label", "Rauszoomen"), O.innerHTML = i;
+			var k = document.createElement("button");
+			k.type = "button", k.className = "wm-zoom-btn wm-filter-btn", k.setAttribute("aria-label", "Legende"), k.setAttribute("aria-expanded", "false"), k.innerHTML = a, E.appendChild(D), E.appendChild(O), E.appendChild(k), l && l.parentElement === T ? T.insertBefore(E, l) : T.appendChild(E), D.addEventListener("click", function() {
+				b(), _.zoomIn();
+			}), O.addEventListener("click", function() {
+				b(), _.zoomOut();
 			});
 			function e() {
 				if (l) {
-					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = T.getBoundingClientRect();
+					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = k.getBoundingClientRect();
 					l.style.right = Math.max(0, window.innerWidth - t.right - 1.5 * e) + "px";
 				}
 			}
-			T.addEventListener("click", function() {
+			k.addEventListener("click", function() {
 				if (l) {
 					e();
 					var t = l.classList.toggle("is-open");
-					document.body.classList.toggle("wm-legend-open", t), T.setAttribute("aria-expanded", t ? "true" : "false");
+					document.body.classList.toggle("wm-legend-open", t), k.setAttribute("aria-expanded", t ? "true" : "false");
 				}
 			}), window.addEventListener("resize", function() {
 				l && l.classList.contains("is-open") && e();
 			}), document.addEventListener("click", function(e) {
-				!l || !l.classList.contains("is-open") || l.contains(e.target) || T.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), T.setAttribute("aria-expanded", "false"));
+				!l || !l.classList.contains("is-open") || l.contains(e.target) || k.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), k.setAttribute("aria-expanded", "false"));
 			});
-		} else h.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
-		var E = document.createElement("div");
-		E.className = "wm-map-fade", o.appendChild(E);
-		function D(e, t) {
-			if (Math.abs(t - h.getZoom()) <= 4) {
-				h.easeTo({
+		} else _.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
+		var A = document.createElement("div");
+		A.className = "wm-map-fade", o.appendChild(A);
+		function j(e, t) {
+			if (Math.abs(t - _.getZoom()) <= 4) {
+				_.easeTo({
 					center: e,
 					zoom: t
 				});
 				return;
 			}
-			E.classList.add("is-active"), setTimeout(function() {
-				h.jumpTo({
+			A.classList.add("is-active"), setTimeout(function() {
+				_.jumpTo({
 					center: e,
 					zoom: t
 				});
 				var n = !1;
 				function r() {
-					n || (n = !0, E.classList.remove("is-active"));
+					n || (n = !0, A.classList.remove("is-active"));
 				}
-				h.once("idle", r), setTimeout(r, 2500);
+				_.once("idle", r), setTimeout(r, 2500);
 			}, 280);
 		}
-		function O(e) {
+		function M(e) {
 			window.SiteInteractions && window.SiteInteractions.openContentModal({
 				id: "west-map-detail",
 				address: e.name && e.adresse ? e.name + " | " + e.adresse : e.name || e.adresse || "",
@@ -165,12 +187,12 @@
 		}), u.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), u.click());
 		}));
-		var k = [];
+		var N = [];
 		document.querySelectorAll(".wm-cms-item").forEach(function(e) {
 			var t = parseFloat((e.querySelector(".wm-f-lat") || {}).textContent || ""), n = parseFloat((e.querySelector(".wm-f-lng") || {}).textContent || "");
 			if (!(isNaN(t) || isNaN(n))) {
 				var r = e.querySelector(".wm-f-bild"), i = e.querySelector(".wm-f-text");
-				k.push({
+				N.push({
 					lat: t,
 					lng: n,
 					name: (e.querySelector(".wm-f-name") || {}).textContent || "",
@@ -182,15 +204,15 @@
 				});
 			}
 		});
-		var A = {
+		var P = {
 			Ausstellungen: !0,
 			Werke: !0,
 			"Wichtige Orte": !0
 		};
-		function j() {
+		function F() {
 			var e = [];
-			return k.forEach(function(n, r) {
-				A[n.kategorie] !== !1 && e.push({
+			return N.forEach(function(n, r) {
+				P[n.kategorie] !== !1 && e.push({
 					type: "Feature",
 					id: r,
 					properties: {
@@ -204,24 +226,24 @@
 				});
 			}), e;
 		}
-		function M() {
-			for (var e in R) clearTimeout(R[e]), delete R[e];
-			for (var t in I) I[t].remove(), I[t]._wmAdded = !1;
-			I = {}, L = {};
-			var n = h.getSource("wmOrte");
+		function I() {
+			for (var e in H) clearTimeout(H[e]), delete H[e];
+			for (var t in B) B[t].remove(), B[t]._wmAdded = !1;
+			B = {}, V = {};
+			var n = _.getSource("wmOrte");
 			n && n.setData({
 				type: "FeatureCollection",
-				features: j()
+				features: F()
 			});
 		}
 		l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
 			e.addEventListener("click", function() {
 				var t = e.querySelector(".wm-dot"), r = null;
 				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-				r && (A[r] = !e.classList.toggle("is-off"), M());
+				r && (P[r] = !e.classList.toggle("is-off"), I());
 			});
 		});
-		function N(e) {
+		function L(e) {
 			var t = document.createElement("div");
 			t.className = "wm-marker " + e;
 			var n = document.createElement("div");
@@ -230,64 +252,64 @@
 				inner: n
 			};
 		}
-		function P(t) {
-			var n = N(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
+		function R(t) {
+			var n = L(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
 			if (r.className = "wm-marker-circle", t.bild && (r.style.backgroundImage = "url(" + t.bild + ")"), n.inner.appendChild(r), t.adresse) {
 				var i = document.createElement("div");
 				i.className = "wm-marker-tooltip", i.textContent = t.adresse, n.inner.appendChild(i);
 			}
 			var a = document.createElement("div");
 			return a.className = "wm-marker-label", a.textContent = t.name, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				O(t);
+				M(t);
 			}), n.el;
 		}
-		function F(e, t) {
-			var n = N("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
+		function z(e, t) {
+			var n = L("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
 			r.className = "wm-marker-circle";
-			var i = k[e.firstIdx];
+			var i = N[e.firstIdx];
 			i && i.bild && (r.style.backgroundImage = "url(" + i.bild + ")"), n.inner.appendChild(r);
 			var a = document.createElement("div");
 			return a.className = "wm-cluster-badge", a.textContent = e.point_count_abbreviated, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				h.getSource("wmOrte").getClusterExpansionZoom(e.cluster_id, function(e, n) {
-					e || D(t, n + .2);
+				_.getSource("wmOrte").getClusterExpansionZoom(e.cluster_id, function(e, n) {
+					e || j(t, n + .2);
 				});
 			}), n.el;
 		}
-		var I = {}, L = {}, R = {};
-		function z(e, t) {
-			R[e] && (clearTimeout(R[e]), delete R[e]), t._wmAdded || (t.addTo(h), t._wmAdded = !0);
+		var B = {}, V = {}, H = {};
+		function U(e, t) {
+			H[e] && (clearTimeout(H[e]), delete H[e]), t._wmAdded || (t.addTo(_), t._wmAdded = !0);
 			var n = t.getElement();
 			n.classList.contains("wm-visible") || (n.offsetWidth, n.classList.add("wm-visible"));
 		}
-		function B(e, t) {
-			R[e] || (t.getElement().classList.remove("wm-visible"), R[e] = setTimeout(function() {
-				t.remove(), t._wmAdded = !1, delete R[e];
+		function W(e, t) {
+			H[e] || (t.getElement().classList.remove("wm-visible"), H[e] = setTimeout(function() {
+				t.remove(), t._wmAdded = !1, delete H[e];
 			}, 200));
 		}
-		function V() {
-			for (var e = {}, t = h.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
+		function G() {
+			for (var e = {}, t = _.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
 				var r = t[n], i = r.properties, a = r.geometry.coordinates, o = i.cluster ? "c" + i.cluster_id : "p" + i.idx;
 				if (!e[o]) {
-					var s = I[o];
+					var s = B[o];
 					if (!s) {
-						var c = i.cluster ? F(i, a) : P(k[i.idx]);
+						var c = i.cluster ? z(i, a) : R(N[i.idx]);
 						s = new mapboxgl.Marker({
 							element: c,
 							anchor: "center"
-						}).setLngLat(a), I[o] = s;
+						}).setLngLat(a), B[o] = s;
 					}
-					e[o] = s, z(o, s);
+					e[o] = s, U(o, s);
 				}
 			}
-			for (var l in L) e[l] || B(l, L[l]);
-			L = e;
+			for (var l in V) e[l] || W(l, V[l]);
+			V = e;
 		}
-		h.on("load", function() {
-			h.addSource("wmOrte", {
+		_.on("load", function() {
+			_.addSource("wmOrte", {
 				type: "geojson",
 				data: {
 					type: "FeatureCollection",
-					features: j()
+					features: F()
 				},
 				cluster: !0,
 				clusterMaxZoom: 17,
@@ -315,7 +337,7 @@
 						0
 					]]
 				}
-			}), h.addLayer({
+			}), _.addLayer({
 				id: "wmOrteHidden",
 				type: "circle",
 				source: "wmOrte",
@@ -323,9 +345,9 @@
 					"circle-radius": 0,
 					"circle-opacity": 0
 				}
-			}), h.on("render", function() {
-				h.isSourceLoaded("wmOrte") && V();
-			}), h.on("moveend", V), h.on("moveend", b), b();
+			}), _.on("render", function() {
+				_.isSourceLoaded("wmOrte") && G();
+			}), _.on("moveend", G), _.on("moveend", S), S();
 		});
 	});
 })();

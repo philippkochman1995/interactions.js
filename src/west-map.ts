@@ -65,8 +65,15 @@
 
     function globeZoom(){
       // Leave the same generous whitespace as the reference, also on mobile.
-      var diameter = Math.min(mapEl.clientHeight * 0.68, mapEl.clientWidth * 0.88);
+      var diameter = Math.min(mapEl.clientHeight * 0.68, mapEl.clientWidth * 0.88) * 0.97;
       return Math.max(0, Math.min(3, Math.log2(Math.max(1, diameter) * Math.PI / 512)));
+    }
+
+    var logo = document.querySelector('.top_bar_center .nav_logo');
+    function globePadding(){
+      var top = logo ? logo.getBoundingClientRect().bottom - mapEl.getBoundingClientRect().top : 0;
+      // Center the globe in the space between the logo's lower edge and the viewport bottom.
+      return { top: Math.max(0, Math.min(mapEl.clientHeight - 1, top)), bottom: 0, left: 0, right: 0 };
     }
 
     var map = new mapboxgl.Map({
@@ -75,10 +82,13 @@
       projection: 'globe',
       // Vienna's meridian stays centered; the lower latitude frames Europe/Africa.
       center: [16.3738, 10],
+      bearing: 0,
+      pitch: 0,
       zoom: globeZoom(),
       minZoom: 0,
       maxZoom: 18
     });
+    map.setPadding(globePadding());
 
     var rotationStopped = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var rotationFrame = 0;
@@ -115,9 +125,16 @@
       mapEl.addEventListener(event, stopRotation, { capture: true, passive: true });
     });
     map.on('remove', stopRotation);
-    map.on('resize', function(){
+    function updateGlobeFraming(){
+      map.setPadding(globePadding());
       if(!rotationStopped) map.jumpTo({ zoom: globeZoom() });
-    });
+    }
+    map.on('resize', updateGlobeFraming);
+    if(logo){
+      var logoObserver = new ResizeObserver(updateGlobeFraming);
+      logoObserver.observe(logo);
+      map.on('remove', function(){ logoObserver.disconnect(); });
+    }
     map.on('style.load', function(){
       map.setFog({
         color: '#ffffff',
