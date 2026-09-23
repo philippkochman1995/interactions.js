@@ -63,13 +63,62 @@
     var src = document.getElementById('wmCmsSource');
     if(src) src.classList.add('wm-cms-source');
 
+    function globeZoom(){
+      // Leave the same generous whitespace as the reference, also on mobile.
+      var diameter = Math.min(mapEl.clientHeight * 0.68, mapEl.clientWidth * 0.88);
+      return Math.max(0, Math.min(3, Math.log2(Math.max(1, diameter) * Math.PI / 512)));
+    }
+
     var map = new mapboxgl.Map({
       container: 'wmMap',
       style: 'mapbox://styles/mapbox/light-v11',
-      center: [16.3738, 48.2082],
-      zoom: 12,
-      minZoom: 1,
+      projection: 'globe',
+      // Vienna's meridian stays centered; the lower latitude frames Europe/Africa.
+      center: [16.3738, 10],
+      zoom: globeZoom(),
+      minZoom: 0,
       maxZoom: 18
+    });
+
+    var rotationStopped = false;
+    var rotationFrame = 0;
+    var previousRotationTime = null;
+
+    function stopRotation(){
+      rotationStopped = true;
+      cancelAnimationFrame(rotationFrame);
+      rotationFrame = 0;
+    }
+
+    function rotateGlobe(time){
+      if(rotationStopped) return;
+      if(previousRotationTime !== null){
+        // Increasing camera longitude moves the globe left. One turn takes 8 min.
+        // Cap elapsed time so returning to a background tab never causes a jump.
+        var elapsed = Math.min(time - previousRotationTime, 64) / 1000;
+        var center = map.getCenter();
+        map.jumpTo({ center: [((center.lng + elapsed * 0.75 + 180) % 360) - 180, center.lat] });
+      }
+      previousRotationTime = time;
+      rotationFrame = requestAnimationFrame(rotateGlobe);
+    }
+
+    // Capture input before Mapbox or a marker handles it, even before map load.
+    ['pointerdown', 'mousedown', 'touchstart', 'wheel', 'keydown', 'click'].forEach(function(event){
+      mapEl.addEventListener(event, stopRotation, { capture: true, passive: true });
+    });
+    map.on('remove', stopRotation);
+    map.on('resize', function(){
+      if(!rotationStopped) map.jumpTo({ zoom: globeZoom() });
+    });
+    map.on('style.load', function(){
+      map.setFog({
+        color: '#ffffff',
+        'high-color': '#ffffff',
+        'space-color': '#ffffff',
+        'horizon-blend': 0.02,
+        'star-intensity': 0
+      });
     });
 
     var topBarRight = document.querySelector('.top_bar_right');
@@ -108,10 +157,12 @@
       }
 
       zoomInBtn.addEventListener('click', function(){
+        stopRotation();
         map.zoomIn();
       });
 
       zoomOutBtn.addEventListener('click', function(){
+        stopRotation();
         map.zoomOut();
       });
 
@@ -490,6 +541,7 @@ function openMapModal(data){
       });
 
       map.on('moveend', updateMarkers);
+      if(!rotationStopped) rotationFrame = requestAnimationFrame(rotateGlobe);
     });
   });
 })();

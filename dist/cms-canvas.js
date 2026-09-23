@@ -8022,7 +8022,7 @@ var n = Object.create, r = Object.defineProperty, i = Object.getOwnPropertyDescr
 })), b = /* @__PURE__ */ c(((e, t) => {
 	t.exports = y();
 })), x = /* @__PURE__ */ u(f(), 1), S = v(), C = b(), w = "[data-cms-canvas]", ee = "[data-cms-canvas-source]", te = "[data-cms-canvas-item]", ne = 6, T = 1.1, re = {
-	small: .6,
+	small: .66,
 	medium: .864,
 	large: 1.128
 }, ie = /* @__PURE__ */ new WeakMap();

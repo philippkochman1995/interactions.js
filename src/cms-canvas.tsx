@@ -78,7 +78,7 @@ const ITEM_SELECTOR = '[data-cms-canvas-item]';
 const DRAG_THRESHOLD = 6;
 const WHEEL_PAN_SPEED = 1.1;
 const CANVAS_SIZE_SCALE: Record<CanvasSize, number> = {
-  small: 0.6,
+  small: 0.66,
   medium: 0.864,
   large: 1.128,
 };

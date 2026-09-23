@@ -86,9 +86,11 @@ body {
   top: 100%;
   left: 0;
   display: block;
-  width: 100%;
+  box-sizing: border-box;
+  width: max(100%, 15rem);
   padding-top: 0.8rem;
-  padding-right: 1.75rem;
+  padding-right: 1.75em;
+  overflow-wrap: anywhere;
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, currentColor));
   font-family: "StyreneB", "Styrene B", StyreneB, sans-serif !important;
   font-size: var(--p-font-size, clamp(0.75rem, 0.85vw, 1rem));
