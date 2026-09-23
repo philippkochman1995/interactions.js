@@ -99,9 +99,11 @@
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 75svh;
+  max-height: 90svh;
   min-width: 0;
-  place-self: start;
+  margin-left: auto;
+  margin-right: 0;
+  place-self: start end;
 }
 
 .cms-work-detail__caption {
