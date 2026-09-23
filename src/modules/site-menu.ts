@@ -34,6 +34,7 @@ interface SiteMenuInstance {
   links: HTMLElement[];
   isOpen: boolean;
   isHovered: boolean;
+  labelTransition?: { timeline: gsap.core.Timeline; from: string; to: string };
   cleanup: Cleanup[];
 }
 
@@ -222,49 +223,56 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
   const textLayer = getLabelTextLayer(target);
   const previous = textLayer.textContent ?? '';
 
-  if (previous === label) {
+  const transition = instance.labelTransition;
+
+  if (transition && animate && !prefersReducedMotion()) {
+    if (label === transition.from) {
+      transition.timeline.reverse();
+      return;
+    }
+    if (label === transition.to) {
+      transition.timeline.play();
+      return;
+    }
+  }
+
+  if (previous === label && !transition) {
     return;
   }
 
+  const outgoing = transition && transition.timeline.progress() < 0.5 ? transition.from : previous;
+  transition?.timeline.kill();
+  instance.labelTransition = undefined;
   gsap.killTweensOf(textLayer);
+  removeLabelGhosts(target);
+  gsap.set(textLayer, { clearProps: 'transform,opacity' });
+  textLayer.removeAttribute('aria-hidden');
 
-  if (prefersReducedMotion() || !animate || !previous) {
-    removeLabelGhosts(target);
+  if (prefersReducedMotion() || !animate || !outgoing || outgoing === label) {
     textLayer.textContent = label;
-    gsap.set(textLayer, { clearProps: 'opacity' });
     return;
   }
-
-  removeLabelGhosts(target);
-  gsap.set(textLayer, { yPercent: 0 });
 
   const ghost = document.createElement('span');
 
   ghost.setAttribute(TOGGLE_LABEL_GHOST_ATTR, '');
   ghost.setAttribute('aria-hidden', 'true');
-  ghost.textContent = previous;
+  ghost.textContent = outgoing;
   target.appendChild(ghost);
-
   textLayer.textContent = label;
 
-  gsap.fromTo(ghost, { yPercent: 0 }, {
-    yPercent: -100,
-    duration: LABEL_SLIDE_DURATION,
-    ease: 'power2.inOut',
-    onComplete: () => ghost.remove(),
-  });
-  gsap.fromTo(
-    textLayer,
-    { yPercent: 100 },
-    {
-      yPercent: 0,
-      duration: LABEL_SLIDE_DURATION,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        gsap.set(textLayer, { clearProps: 'transform' });
-      },
+  const timeline = gsap.timeline({
+    defaults: { duration: LABEL_SLIDE_DURATION, ease: 'power2.inOut' },
+    onUpdate: () => {
+      // Beim Rueckwaertslauf bleibt auch der zugaengliche Text aktuell.
+      const reversed = timeline.reversed();
+      textLayer.setAttribute('aria-hidden', String(reversed));
+      ghost.setAttribute('aria-hidden', String(!reversed));
     },
-  );
+  });
+  timeline.fromTo(ghost, { yPercent: 0 }, { yPercent: -100 }, 0);
+  timeline.fromTo(textLayer, { yPercent: 100 }, { yPercent: 0 }, 0);
+  instance.labelTransition = { timeline, from: outgoing, to: label };
 }
 
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
@@ -486,6 +494,7 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
       const labelTarget = instance.toggleLabel ?? instance.toggle;
       const labelTextLayer = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, labelTarget);
 
+      instance.labelTransition?.timeline.kill();
       gsap.killTweensOf(instance.panel);
       gsap.killTweensOf(labelTarget);
       removeLabelGhosts(labelTarget);

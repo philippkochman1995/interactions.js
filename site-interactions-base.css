@@ -189,6 +189,7 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
 }
 
 [data-site-menu-toggle] {
+  text-align: left;
   cursor: pointer;
 }
 
@@ -200,6 +201,7 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   flex: 0 0 auto;
   overflow: hidden;
   vertical-align: bottom;
+  text-align: left;
   white-space: nowrap;
   transition: color 160ms ease;
 }

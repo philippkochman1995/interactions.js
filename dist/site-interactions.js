@@ -2051,27 +2051,40 @@ function ls(e) {
 }
 function us(e, t = !0) {
 	var n, i;
-	let a = r(e.root, Wo) || Xo, o = r(e.root, Go) || Zo, s = os(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = cs(l), f = (i = d.textContent) == null ? "" : i;
-	if (f === c) return;
-	if (b.killTweensOf(d), u() || !t || !f) {
-		ls(l), d.textContent = c, b.set(d, { clearProps: "opacity" });
+	let a = r(e.root, Wo) || Xo, o = r(e.root, Go) || Zo, s = os(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = cs(l), f = (i = d.textContent) == null ? "" : i, p = e.labelTransition;
+	if (p && t && !u()) {
+		if (c === p.from) {
+			p.timeline.reverse();
+			return;
+		}
+		if (c === p.to) {
+			p.timeline.play();
+			return;
+		}
+	}
+	if (f === c && !p) return;
+	let m = p && p.timeline.progress() < .5 ? p.from : f;
+	if (p == null || p.timeline.kill(), e.labelTransition = void 0, b.killTweensOf(d), ls(l), b.set(d, { clearProps: "transform,opacity" }), d.removeAttribute("aria-hidden"), u() || !t || !m || m === c) {
+		d.textContent = c;
 		return;
 	}
-	ls(l), b.set(d, { yPercent: 0 });
-	let p = document.createElement("span");
-	p.setAttribute(Ro, ""), p.setAttribute("aria-hidden", "true"), p.textContent = f, l.appendChild(p), d.textContent = c, b.fromTo(p, { yPercent: 0 }, {
-		yPercent: -100,
-		duration: Qo,
-		ease: "power2.inOut",
-		onComplete: () => p.remove()
-	}), b.fromTo(d, { yPercent: 100 }, {
-		yPercent: 0,
-		duration: Qo,
-		ease: "power2.inOut",
-		onComplete: () => {
-			b.set(d, { clearProps: "transform" });
+	let h = document.createElement("span");
+	h.setAttribute(Ro, ""), h.setAttribute("aria-hidden", "true"), h.textContent = m, l.appendChild(h), d.textContent = c;
+	let g = b.timeline({
+		defaults: {
+			duration: Qo,
+			ease: "power2.inOut"
+		},
+		onUpdate: () => {
+			let e = g.reversed();
+			d.setAttribute("aria-hidden", String(e)), h.setAttribute("aria-hidden", String(!e));
 		}
 	});
+	g.fromTo(h, { yPercent: 0 }, { yPercent: -100 }, 0), g.fromTo(d, { yPercent: 100 }, { yPercent: 0 }, 0), e.labelTransition = {
+		timeline: g,
+		from: m,
+		to: c
+	};
 }
 function ds(e, t) {
 	e.links.forEach((e) => {
@@ -2154,10 +2167,10 @@ function ys(e = document) {
 	let t = o(jo, e).map(vs).filter((e) => !!e);
 	return $o.push(...t), () => {
 		t.forEach((e) => {
-			var t;
+			var t, n;
 			e.cleanup.forEach((e) => e()), e.root.classList.remove(Uo, Ho);
-			let n = (t = e.toggleLabel) == null ? e.toggle : t, r = s(Fo, n);
-			b.killTweensOf(e.panel), b.killTweensOf(n), ls(n), r && (b.killTweensOf(r), n.textContent = r.textContent), b.set(e.panel, { clearProps: "height" }), b.set(n, { clearProps: "transform,overflow" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), ds(e, !0);
+			let r = (t = e.toggleLabel) == null ? e.toggle : t, i = s(Fo, r);
+			(n = e.labelTransition) == null || n.timeline.kill(), b.killTweensOf(e.panel), b.killTweensOf(r), ls(r), i && (b.killTweensOf(i), r.textContent = i.textContent), b.set(e.panel, { clearProps: "height" }), b.set(r, { clearProps: "transform,overflow" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), ds(e, !0);
 		});
 	};
 }
