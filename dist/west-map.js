@@ -53,18 +53,24 @@
 			zoom: m(),
 			minZoom: 0,
 			maxZoom: 18
-		}), g = !1, _ = 0, v = null;
-		function y() {
-			g = !0, cancelAnimationFrame(_), _ = 0;
+		}), g = window.matchMedia("(prefers-reduced-motion: reduce)").matches, _ = 0;
+		function v() {
+			g || (g = !0, cancelAnimationFrame(_), _ = 0, h.stop());
 		}
-		function b(e) {
-			if (!g) {
-				if (v !== null) {
-					var t = Math.min(e - v, 64) / 1e3, n = h.getCenter();
-					h.jumpTo({ center: [(n.lng - t * 3 + 540) % 360 - 180, n.lat] });
-				}
-				v = e, _ = requestAnimationFrame(b);
+		function y() {
+			if (_ = 0, !g) {
+				var e = h.getCenter();
+				h.easeTo({
+					center: [e.lng - 3.6, e.lat],
+					duration: 1e3,
+					easing: function(e) {
+						return e;
+					}
+				});
 			}
+		}
+		function b() {
+			g || _ || (_ = requestAnimationFrame(y));
 		}
 		[
 			"pointerdown",
@@ -74,11 +80,11 @@
 			"keydown",
 			"click"
 		].forEach(function(e) {
-			o.addEventListener(e, y, {
+			o.addEventListener(e, v, {
 				capture: !0,
 				passive: !0
 			});
-		}), h.on("remove", y), h.on("resize", function() {
+		}), h.on("remove", v), h.on("resize", function() {
 			g || h.jumpTo({ zoom: m() });
 		}), h.on("style.load", function() {
 			h.setFog({
@@ -99,9 +105,9 @@
 			w.type = "button", w.className = "wm-zoom-btn", w.setAttribute("aria-label", "Rauszoomen"), w.innerHTML = i;
 			var T = document.createElement("button");
 			T.type = "button", T.className = "wm-zoom-btn wm-filter-btn", T.setAttribute("aria-label", "Legende"), T.setAttribute("aria-expanded", "false"), T.innerHTML = a, S.appendChild(C), S.appendChild(w), S.appendChild(T), l && l.parentElement === x ? x.insertBefore(S, l) : x.appendChild(S), C.addEventListener("click", function() {
-				y(), h.zoomIn();
+				v(), h.zoomIn();
 			}), w.addEventListener("click", function() {
-				y(), h.zoomOut();
+				v(), h.zoomOut();
 			});
 			function e() {
 				if (l) {
@@ -319,7 +325,7 @@
 				}
 			}), h.on("render", function() {
 				h.isSourceLoaded("wmOrte") && V();
-			}), h.on("moveend", V), g || (_ = requestAnimationFrame(b));
+			}), h.on("moveend", V), h.on("moveend", b), b();
 		});
 	});
 })();

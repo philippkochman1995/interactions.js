@@ -80,26 +80,33 @@
       maxZoom: 18
     });
 
-    var rotationStopped = false;
+    var rotationStopped = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var rotationFrame = 0;
-    var previousRotationTime = null;
 
     function stopRotation(){
+      if(rotationStopped) return;
       rotationStopped = true;
       cancelAnimationFrame(rotationFrame);
       rotationFrame = 0;
+      map.stop();
     }
 
-    function rotateGlobe(time){
+    function rotateGlobe(){
+      rotationFrame = 0;
       if(rotationStopped) return;
-      if(previousRotationTime !== null){
-        // Decreasing camera longitude moves the globe right. One turn takes 2 min.
-        // Cap elapsed time so returning to a background tab never causes a jump.
-        var elapsed = Math.min(time - previousRotationTime, 64) / 1000;
-        var center = map.getCenter();
-        map.jumpTo({ center: [((center.lng - elapsed * 3 + 540) % 360) - 180, center.lat] });
-      }
-      previousRotationTime = time;
+      var center = map.getCenter();
+      // Native animation keeps markers in sync with the camera. Per-frame jumpTo
+      // emits moveend every frame, making Mapbox snap marker positions to pixels.
+      // Decreasing longitude moves the globe right: 3.6 degrees/s = 100s/turn.
+      map.easeTo({
+        center: [center.lng - 3.6, center.lat],
+        duration: 1000,
+        easing: function(t){ return t; }
+      });
+    }
+
+    function queueRotation(){
+      if(rotationStopped || rotationFrame) return;
       rotationFrame = requestAnimationFrame(rotateGlobe);
     }
 
@@ -541,7 +548,8 @@ function openMapModal(data){
       });
 
       map.on('moveend', updateMarkers);
-      if(!rotationStopped) rotationFrame = requestAnimationFrame(rotateGlobe);
+      map.on('moveend', queueRotation);
+      queueRotation();
     });
   });
 })();
