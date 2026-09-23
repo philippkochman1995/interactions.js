@@ -2014,28 +2014,25 @@ function cs(e) {
 }
 function ls(e, t = !0) {
 	var n, i;
-	let a = r(e.root, Wo) || Xo, s = r(e.root, Go) || Zo, c = os(e), l = e.isOpen ? a : e.isHovered ? s : c || s, d = (n = e.toggleLabel) == null ? e.toggle : n, f = ss(d), p = (i = f.textContent) == null ? "" : i;
-	if (p === l) return;
-	if (b.killTweensOf(f), u() || !t || !p) {
-		cs(d), f.textContent = l, b.set(f, { clearProps: "opacity" });
+	let a = r(e.root, Wo) || Xo, o = r(e.root, Go) || Zo, s = os(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = ss(l), f = (i = d.textContent) == null ? "" : i;
+	if (f === c) return;
+	if (b.killTweensOf(d), u() || !t || !f) {
+		cs(l), d.textContent = c, b.set(d, { clearProps: "opacity" });
 		return;
 	}
-	let m = Number(b.getProperty(f, "opacity")), h = o(Io, d).find((e) => e.textContent === l), g = h ? Number(b.getProperty(h, "opacity")) : 0;
-	cs(d);
-	let _ = document.createElement("span");
-	_.setAttribute(Ro, ""), _.setAttribute("aria-hidden", "true"), _.textContent = p, d.appendChild(_), f.textContent = l, b.fromTo(_, { opacity: Number.isFinite(m) ? m : 1 }, {
-		opacity: 0,
+	cs(l), b.set(d, { yPercent: 0 });
+	let p = document.createElement("span");
+	p.setAttribute(Ro, ""), p.setAttribute("aria-hidden", "true"), p.textContent = f, l.appendChild(p), d.textContent = c, b.fromTo(p, { yPercent: 0 }, {
+		yPercent: -100,
 		duration: Qo,
-		ease: "sine.inOut",
-		onComplete: () => {
-			_.remove();
-		}
-	}), b.fromTo(f, { opacity: Number.isFinite(g) ? g : 0 }, {
-		opacity: 1,
+		ease: "power3.inOut",
+		onComplete: () => p.remove()
+	}), b.fromTo(d, { yPercent: 100 }, {
+		yPercent: 0,
 		duration: Qo,
-		ease: "sine.inOut",
+		ease: "power3.inOut",
 		onComplete: () => {
-			b.set(f, { clearProps: "opacity" });
+			b.set(d, { clearProps: "transform" });
 		}
 	});
 }
@@ -2123,7 +2120,7 @@ function vs(e = document) {
 			var t;
 			e.cleanup.forEach((e) => e()), e.root.classList.remove(Uo, Ho);
 			let n = (t = e.toggleLabel) == null ? e.toggle : t, r = s(Fo, n);
-			b.killTweensOf(e.panel), b.killTweensOf(n), cs(n), r && (b.killTweensOf(r), n.textContent = r.textContent), b.set(e.panel, { clearProps: "height" }), b.set(n, { clearProps: "opacity" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), us(e, !0);
+			b.killTweensOf(e.panel), b.killTweensOf(n), cs(n), r && (b.killTweensOf(r), n.textContent = r.textContent), b.set(e.panel, { clearProps: "height" }), b.set(n, { clearProps: "transform,overflow" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), us(e, !0);
 		});
 	};
 }

@@ -174,19 +174,8 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
     return;
   }
 
-  /* Beide Ebenen setzen dort an, wo sie gerade stehen — wer schnell raus- und
-     wieder reinfaehrt, unterbricht die laufende Blende mitten drin. Der Ghost
-     uebernimmt den Stand der Textebene; laeuft die Blende zurueck (das neue
-     Wort ist genau das, was der alte Ghost noch traegt), erbt die Textebene
-     dessen Deckkraft, statt wieder bei 0 anzufangen. Sonst verschwindet das
-     halb sichtbare Wort schlagartig und blendet von vorn ein. */
-  const ghostOpacity = Number(gsap.getProperty(textLayer, 'opacity'));
-  const reversedGhost = qsa<HTMLElement>(TOGGLE_LABEL_GHOST_SELECTOR, target).find(
-    (candidate) => candidate.textContent === label,
-  );
-  const textOpacity = reversedGhost ? Number(gsap.getProperty(reversedGhost, 'opacity')) : 0;
-
   removeLabelGhosts(target);
+  gsap.set(textLayer, { yPercent: 0 });
 
   const ghost = document.createElement('span');
 
@@ -197,28 +186,21 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
 
   textLayer.textContent = label;
 
-  gsap.fromTo(
-    ghost,
-    { opacity: Number.isFinite(ghostOpacity) ? ghostOpacity : 1 },
-    {
-      opacity: 0,
-      duration: LABEL_FADE_DURATION,
-      ease: 'sine.inOut',
-      onComplete: () => {
-        ghost.remove();
-      },
-    },
-  );
-
+  gsap.fromTo(ghost, { yPercent: 0 }, {
+    yPercent: -100,
+    duration: LABEL_FADE_DURATION,
+    ease: 'power3.inOut',
+    onComplete: () => ghost.remove(),
+  });
   gsap.fromTo(
     textLayer,
-    { opacity: Number.isFinite(textOpacity) ? textOpacity : 0 },
+    { yPercent: 100 },
     {
-      opacity: 1,
+      yPercent: 0,
       duration: LABEL_FADE_DURATION,
-      ease: 'sine.inOut',
+      ease: 'power3.inOut',
       onComplete: () => {
-        gsap.set(textLayer, { clearProps: 'opacity' });
+        gsap.set(textLayer, { clearProps: 'transform' });
       },
     },
   );
@@ -452,7 +434,7 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
       }
 
       gsap.set(instance.panel, { clearProps: 'height' });
-      gsap.set(labelTarget, { clearProps: 'opacity' });
+      gsap.set(labelTarget, { clearProps: 'transform,overflow' });
       instance.panel.removeAttribute('aria-hidden');
       instance.toggle.removeAttribute('aria-expanded');
       setLinksFocusable(instance, true);

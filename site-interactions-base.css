@@ -192,14 +192,13 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   cursor: pointer;
 }
 
-/* Zwei Ebenen fuer die Kreuzblende des Toggle-Labels: die Textebene liegt im
-   Fluss und gibt dem Label seine Breite, der Ghost haengt absolut darueber und
-   traegt beim Wechsel das alte Wort. Weil der Toggle ein Flex-Row mit
-   space-between ist, bleibt das Icon rechts stehen — die springende Breite
-   des Labels verschiebt nichts. */
+/* Textwechsel wie eine vertikale Laufschrift: die Beschriftung ist die Maske,
+   die alte und neue Textebene fahren in entgegengesetzte Richtungen. */
 [data-site-menu-toggle-label] {
   position: relative;
   display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
   white-space: nowrap;
   transition: color 160ms ease;
 }
@@ -213,6 +212,7 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
   white-space: nowrap;
   pointer-events: none;
 }
