@@ -101,6 +101,33 @@ body.is-lightbox-open {
   will-change: transform;
 }
 
+/* Covers the first paint until site-body.js creates the real overlay. */
+html.is-page-transition-boot::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+  pointer-events: none;
+}
+
+.top_bar_center [data-logo-variant] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  pointer-events: none;
+  display: none;
+}
+
 html.is-page-transition-pending [data-page-transition-overlay],
 html.is-page-transition-pending .page-transition-overlay {
   transform: translate3d(0, 0, 0);
@@ -129,7 +156,7 @@ html.is-page-transition-pending .page-transition-overlay {
 }
 
 /*
-  Haelt die Zielseite bis zum Start der Animation zurueck. Wird vom Inline-Snippet im
+  Haelt die Zielseite bis zum Start der Animation zurueck. Wird von site-head.js im
   Head gesetzt und vom Skript wieder entfernt; der Wachhund in work-flip.ts sorgt
   dafuer, dass die Klasse auch im Fehlerfall verschwindet.
 */

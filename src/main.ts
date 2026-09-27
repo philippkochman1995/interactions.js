@@ -7,6 +7,7 @@ import { initParallax } from './modules/parallax';
 import { initSiteMenu } from './modules/site-menu';
 import { initWorkFlip } from './modules/work-flip';
 import { initBackButtons } from './modules/utils';
+import { initLogoVariants } from './modules/logo-variants';
 
 let booted = false;
 
@@ -34,6 +35,7 @@ function boot(): void {
   initParallax();
   initSiteMenu();
   initBackButtons();
+  initLogoVariants();
 
   window.SiteInteractions = {
     openModal,

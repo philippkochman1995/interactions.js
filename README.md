@@ -17,11 +17,19 @@ The production file is generated at:
 /dist/site-interactions.js
 /dist/cms-canvas.js
 /dist/cms-work-detail.js
+/dist/site-head.js
+/dist/site-body.js
 ```
 
-The default Vite config outputs an ES module, so include it with `type="module"`.
+The default Vite config outputs ES modules. The separate boot config builds
+`site-head.js` and `site-body.js` as synchronous classic scripts.
 
 ## Webflow script include
+
+For the complete site setup, use `snippets/site-head.html` and
+`snippets/site-footer.html`, replacing `COMMIT` with the same published Git commit
+in every URL. These replace the former inline transition and logo code. See
+[External bootstrap scripts](#external-bootstrap-scripts) for the required load order.
 
 Host `dist/site-interactions.js` on your CDN or static host, then add it globally in Webflow before `</body>`:
 
@@ -565,14 +573,24 @@ Weil dazwischen ein echter Seitenwechsel liegt, wandern Geometrie und Bildquelle
 `sessionStorage` (`site-work-flip`), und ein `position: fixed` Klon des Bildes ueberlebt
 den Wechsel optisch. Fuer alle uebrigen Links bleibt das rosa Overlay zustaendig.
 
-### Inline snippets
+### External bootstrap scripts
 
 `dist/site-interactions.js` laeuft als `type="module"` und damit deferred - zu spaet fuer
-den ersten Paint der Zielseite. Beide Bloecke aus `snippets/work-flip-boot.html` gehoeren
-darum in "Site settings -> Custom code":
+den ersten Paint der Zielseite. Die Imports aus `snippets/site-head.html` und
+`snippets/site-footer.html` gehoeren darum in "Site settings -> Custom code".
+`COMMIT` in allen sechs URLs durch denselben veroeffentlichten Git-Commit ersetzen.
+Die bisherigen Inline-Scripts, Inline-Styles und das Overlay-Div werden damit ersetzt:
 
-- **Inside `<head>` tag:** setzt `html.is-work-flip-pending`, solange eine Uebergabe offen ist.
-- **Before `</body>` tag, vor den Modul-Includes:** baut den Klon an der alten Bildposition auf.
+- **Inside `<head>` tag:** CSS zuerst, dann `dist/site-head.js` setzt die Startklassen
+  fuer Seitenuebergang und Work-Flip vor dem ersten Paint.
+- **Before `</body>` tag:** `dist/site-body.js` erzeugt Ghost und Page-Transition-Overlay,
+  danach folgen die beiden Module. Kein zusaetzliches Overlay-Markup noetig.
+
+Die beiden Boot-Scripts brauchen klassische Script-Tags **ohne** `type="module"`,
+`defer` oder `async`. Der Build erzeugt eigenstaendige IIFEs ohne weitere Imports.
+Die Logo-Hover-Animation liegt in `src/modules/logo-variants.ts` und startet ueber
+`site-interactions.js`; ihre Styles und die Erst-Paint-Abdeckung liegen in der Basis-CSS.
+Webflow enthaelt damit nur externe Imports, keine eigene Logik mehr.
 
 Ohne die Snippets funktioniert der Uebergang weiterhin, die Zielseite blitzt aber kurz auf,
 bevor die Animation startet.
@@ -772,7 +790,7 @@ window.SiteInteractions.closeLightbox();
 - If a collection list duplicates the same group name across multiple hidden modals, grouped lightbox navigation may include all matching triggers on the page.
 - Webflow builders should keep buttons as actual `<button>` elements where possible, especially for close controls.
 - The primary integration surface is `data-*` attributes. Avoid binding behavior to class names.
-- Der Werk-Flip braucht die beiden Inline-Snippets aus `snippets/work-flip-boot.html` im Site
-  Custom Code. Ohne sie laeuft die Seite normal, der Uebergang blitzt aber beim Seitenwechsel.
+- Der Werk-Flip braucht die synchronen Imports aus `snippets/site-head.html` und
+  `snippets/site-footer.html`. Ohne sie kann die Zielseite beim Seitenwechsel aufblitzen.
 - CSS hooks des Werk-Flips: `html.is-work-flip-pending`, `.work-flip-ghost`,
   `[data-work-flip-ghost]`.

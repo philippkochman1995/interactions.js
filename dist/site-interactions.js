@@ -3075,14 +3075,51 @@ function Wl() {
 	});
 }
 //#endregion
+//#region src/modules/logo-variants.ts
+var Gl = "https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/", Kl = [
+	"6ab93c11c0209913a6f4ab46_West-Signatur-Variant2.svg",
+	"6ab93c11630b54996257245a_West-Signatur-Variant3.svg",
+	"6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg",
+	"6ab93c127b1c73994a56f043_West-Signatur-Variant5.svg",
+	"6ab93c12f66f79789e902fc4_West-Signatur-Variant7.svg",
+	"6ab93c1232f656f444927b94_West-Signatur-Variant8.svg"
+].map((e) => Gl + e);
+function ql() {
+	let e = window.matchMedia("(prefers-reduced-motion: reduce)");
+	document.querySelectorAll(".top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link").forEach((t) => {
+		let n = t.querySelector("svg, img.nav_logo");
+		if (!n || t.querySelector("[data-logo-variant]")) return;
+		let r = document.createElement("span");
+		r.setAttribute("data-logo-variant", ""), r.setAttribute("aria-hidden", "true"), getComputedStyle(t).position === "static" && (t.style.position = "relative"), t.appendChild(r);
+		let i = n.style.visibility, a = null, o = 0;
+		function s() {
+			a !== null && window.clearInterval(a), a = null, r.style.display = "none", n.style.visibility = i;
+		}
+		function c() {
+			if (o >= Kl.length) {
+				s();
+				return;
+			}
+			let e = o++, t = `url("${Kl[e]}")`;
+			r.style.height = e === 4 ? "240%" : "100%", r.style.maskImage = t, r.style.setProperty("-webkit-mask-image", t), r.style.color = getComputedStyle(n).color, r.style.display = "block", n.style.visibility = "hidden";
+		}
+		t.addEventListener("pointerenter", () => {
+			e.matches || (s(), o = 0, c(), a = window.setInterval(c, 250));
+		}), t.addEventListener("pointerleave", s), t.addEventListener("blur", s);
+	}), Kl.forEach((e) => {
+		let t = new Image();
+		t.src = e;
+	});
+}
+//#endregion
 //#region src/main.ts
-var Gl = !1;
+var Jl = !1;
 Wl(), rs(), li();
-function Kl() {
-	if (Gl) return;
-	Gl = !0;
+function Yl() {
+	if (Jl) return;
+	Jl = !0;
 	let e = O();
-	Ga({ i18n: e }), ta({ i18n: e }), xs(), Io(), _(), window.SiteInteractions = {
+	Ga({ i18n: e }), ta({ i18n: e }), xs(), Io(), _(), ql(), window.SiteInteractions = {
 		openModal: Va,
 		openContentModal: Ba,
 		closeModal: Ha,
@@ -3090,7 +3127,7 @@ function Kl() {
 		closeLightbox: Qi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Kl, { once: !0 }) : Kl();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Yl, { once: !0 }) : Yl();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

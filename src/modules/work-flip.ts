@@ -96,7 +96,7 @@ function removeGhosts(): void {
 }
 
 /**
- * Raeumt eine Uebergabe auf, die nicht animiert wird. Das Inline-Snippet baut den Ghost
+ * Raeumt eine Uebergabe auf, die nicht animiert wird. site-body.js baut den Ghost
  * schon vor dem ersten Paint auf; wird die Uebergabe hier verworfen, muss er wieder weg.
  */
 function discardArrival(): void {
