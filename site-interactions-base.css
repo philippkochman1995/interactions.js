@@ -724,6 +724,23 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
+/* News images stay static. The exception belongs here with the shared interaction CSS,
+   not in Webflow Page/Site Custom Code. */
+.news_img img,
+.news_event img,
+.news_img .site-lightbox-trigger__image,
+.news_event .site-lightbox-trigger__image {
+  transform: none !important;
+  transition: none !important;
+}
+
+.news_img .site-lightbox-trigger:hover .site-lightbox-trigger__image,
+.news_img .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image,
+.news_event .site-lightbox-trigger:hover .site-lightbox-trigger__image,
+.news_event .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image {
+  transform: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-lightbox-trigger__image,
   .fwm-modal__work-image {

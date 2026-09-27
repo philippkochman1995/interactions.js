@@ -460,7 +460,9 @@ Layout bleibt unveraendert. Die Staerke haengt an `--fw-lightbox-zoom`:
 
 Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bliebe er
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
-Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt.
+Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt. News-Bilder in
+`.news_img` und `.news_event` bleiben statisch; diese Ausnahme liegt in der zentralen
+Interaktions-CSS und nicht im Webflow Custom Code.
 
 ## Parallax
 
