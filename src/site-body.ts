@@ -1,6 +1,9 @@
 import { WORK_FLIP_PENDING_CLASS, WORK_FLIP_STORAGE_KEY } from './modules/work-flip-state';
+import { createSitePreloader } from './modules/site-preloader-markup';
 
 // Loaded synchronously at the end of <body>, before the deferred main bundle.
+createSitePreloader();
+
 function createWorkGhost(): void {
   try {
     if (!document.documentElement.classList.contains(WORK_FLIP_PENDING_CLASS)) return;

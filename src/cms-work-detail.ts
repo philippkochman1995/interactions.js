@@ -398,6 +398,7 @@ function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
     root.after(relatedSection);
   }
 
+  root.setAttribute('data-site-assets-ready', '');
   document.dispatchEvent(
     new CustomEvent(DETAIL_READY_EVENT, {
       bubbles: true,

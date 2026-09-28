@@ -794,3 +794,98 @@ window.SiteInteractions.closeLightbox();
   `snippets/site-footer.html`. Ohne sie kann die Zielseite beim Seitenwechsel aufblitzen.
 - CSS hooks des Werk-Flips: `html.is-work-flip-pending`, `.work-flip-ghost`,
   `[data-work-flip-ghost]`.
+
+## Session-Preloader (Figma 1358:10234)
+
+Der globale Preloader ist Teil derselben synchronen Head/Body-Boot-Kette wie
+Page-Transition und Work-Flip. Ein zusätzliches Webflow-Element ist nicht nötig.
+Alle eingebundenen Dateien müssen denselben Commit verwenden, einschließlich
+`site-interactions-base.css`, `dist/` und `assets/`. Die beiden originalen
+Figma-SVGs liegen in `assets/preloader-signature.svg` und
+`assets/preloader-background.svg`; ihre URLs werden relativ zum ausgelieferten
+CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
+Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
+
+- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`),
+  markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
+- Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
+  überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
+- Mindestanzeige 500 ms, unabhängiger Head-Wachhund maximal 8 s ab Aktivierung.
+  Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
+- Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
+  explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
+- Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
+  mit `data-site-assets-ready`. Darauf wartet die Erfassung maximal 2 s. Später
+  erzeugte Inhalte unterliegen dem normalen Browser-Laden und werden nicht
+  nachträglich zum bereits festgelegten Fortschrittsnenner addiert.
+- Bei `picture` und `srcset` wird das tatsächliche Bild geladen; alternative
+  Auflösungen werden nicht separat vorgeladen. Kritische Lazy-Bilder werden eager.
+- Fortschritt = abgeschlossene kritische Aufgaben / festgelegte Gesamtzahl,
+  einschließlich Fehlern, nicht übertragene Bytes. Beim Timeout verschwindet
+  der Preloader beim erreichten Stand, ohne einen falschen Ladeerfolg vorzugeben.
+- Weitere erkannte Bilder und markierte Warmup-Assets laden nach der Freigabe mit
+  höchstens drei parallelen Aufgaben, bis `pagehide` oder maximal 30 s. Bei
+  `navigator.connection.saveData` wird auf dieses zusätzliche Vorwärmen verzichtet.
+- Prozentrollen bewegen sich mit `power2.out` über 180 ms. Reduced Motion schaltet
+  sofort um. Menü- und Text-Eintrittsanimationen warten auf die Freigabe.
+- Währenddessen ist der Seiteninhalt `inert`; bestehende `inert`-Zustände bleiben
+  erhalten. Nur die eigenen Scroll-/Interaktionssperren werden aufgehoben.
+
+### Explizite Priorität und Spline
+
+`data-preload-priority="critical"` bzw. `"warm"` kann auf einem Asset oder seinem
+Container stehen. Nicht markierte Spline-Szenen sind standardmäßig Warmup.
+
+```html
+<img src="hero.jpg" data-preload-priority="critical" alt="Werk">
+<spline-viewer url="https://prod.spline.design/ID/scene.splinecode"
+  data-preload-priority="critical"></spline-viewer>
+<div data-animation-type="spline"
+  data-spline-url="https://prod.spline.design/ID/scene.splinecode"
+  data-preload-priority="critical"><canvas></canvas></div>
+```
+
+Bei kritischen Viewern wird `loading="eager"` gesetzt und `load-complete`
+abgewartet. Native Webflow-Szenen werden über die vorhandene Spline-Instanz bzw.
+`w-spline-load` erkannt; der Loader startet keine zweite Runtime und überschreibt
+keinen Webflow-Load-Handler. Der Head merkt bereits eingetroffene Ready-Ereignisse.
+
+Ein Cross-Origin-iframe besitzt kein verlässliches öffentliches Scene-Ready-Signal.
+Unmarkierte/Warmup-Frames werden nach der Freigabe eager geladen. Ein explizit
+kritischer Frame wartet auf `site:spline-ready` am iframe-Element oder den globalen
+Timeout. `iframe.load` wird nicht als renderbereite Szene interpretiert. Eine eigene
+postMessage-Integration muss Absender und Origin prüfen, bevor sie dieses lokale
+Ereignis auslöst.
+
+Ein URL-Marker ohne Viewer/Runtime lädt ausschließlich die Szenendatei in den
+Browsercache; er garantiert keine initialisierte Szene und keine geladenen
+abhängigen Texturen:
+
+```html
+<div data-preload-spline
+  data-preload-spline-url="https://prod.spline.design/ID/scene.splinecode"
+  data-preload-priority="warm"></div>
+<script type="application/json" data-site-preload-manifest>
+[
+  { "url": "/images/next-work.jpg", "type": "image", "priority": "warm" },
+  { "url": "https://prod.spline.design/ID/scene.splinecode", "type": "spline", "priority": "warm" }
+]
+</script>
+```
+
+Manifest-URLs werden validiert und nach Typ/URL dedupliziert; `critical` hat Vorrang.
+Spline-Datei-Warmup hängt von CORS und den Cache-Headern des Anbieters ab und ist
+best effort. Ungültige optionale Manifeste blockieren die Seite nicht.
+
+### Prüfung und Vorschau
+
+`npm run check` führt Typecheck, Produktionsbuild, Boot-Tests und Playwright-
+Browserprüfungen aus. Auf macOS wird das installierte Google Chrome verwendet;
+auf anderen Systemen zuerst `npx playwright install chromium` ausführen.
+`npm run test:browser` startet nur die Browserprüfungen.
+
+Die lokale Fixture ist bei laufendem `npm run dev` unter
+`/tests/fixtures/preloader.html` erreichbar. Zum erneuten Anzeigen nur den
+Schlüssel `site-preloader-seen` löschen. Die Desktop-Vorlage ist 1728 × 1117;
+unter 768 px wird die Signatur proportional in der Bildschirmmitte platziert.
+Ein eigener mobiler Figma-Frame war nicht Teil der Referenz.

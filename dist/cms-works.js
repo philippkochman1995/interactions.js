@@ -252,7 +252,7 @@ function J(t, n) {
 		let n = () => L(R(l, p.appliedCategories), p.appliedSortMode, t), i = (e = !1) => {
 			window.cancelAnimationFrame(v), v = window.requestAnimationFrame(() => {
 				let n = H(t), r = Math.round(t.getBoundingClientRect().width), i = E.slice(0, w);
-				!e && n === y && r === S || (y = n, S = r, W(g, i, D), _ && (_.hidden = E.length <= w), T !== null && (window.scrollTo(0, T), T = null), document.dispatchEvent(new CustomEvent(C, {
+				!e && n === y && r === S || (y = n, S = r, W(g, i, D), _ && (_.hidden = E.length <= w), T !== null && (window.scrollTo(0, T), T = null), t.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(C, {
 					bubbles: !0,
 					detail: {
 						count: i.length,

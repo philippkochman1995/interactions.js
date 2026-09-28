@@ -8,8 +8,10 @@ import { initSiteMenu } from './modules/site-menu';
 import { initWorkFlip } from './modules/work-flip';
 import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
+import { initSitePreloader } from './modules/site-preloader';
 
 let booted = false;
+initSitePreloader();
 
 // Muss vor den Seitenuebergaengen laufen: Werk-Links werden vom Flip uebernommen,
 // das rosa Overlay bleibt fuer alle anderen Links zustaendig.

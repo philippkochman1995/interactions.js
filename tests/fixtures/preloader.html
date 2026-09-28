@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    body { margin: 0; }
+    main { min-height: 200vh; }
+    .test-image { width: 240px; height: 180px; }
+  </style>
+  <script src="/dist/site-head.js"></script>
+</head>
+<body>
+  <main id="content"><a href="?next">Weiter</a><img class="test-image" src="/tests/fixtures/image.svg" alt="Werk"></main>
+  <aside id="already-inert" inert>Unverändert gesperrt</aside>
+  <script>
+    const mode = new URLSearchParams(location.search).get('mode');
+    if (mode === 'cms') {
+      document.querySelector('main').setAttribute('data-cms-works', '');
+    }
+    if (mode === 'spline' || mode === 'iframe' || mode === 'native') {
+      const scene = document.createElement(mode === 'iframe' ? 'iframe' : mode === 'native' ? 'div' : 'spline-viewer');
+      scene.id = 'scene';
+      scene.setAttribute('data-preload-priority', 'critical');
+      if (mode === 'native') {
+        scene.setAttribute('data-animation-type', 'spline');
+        scene.setAttribute('data-spline-url', 'https://prod.spline.design/test/scene.splinecode');
+      } else scene.setAttribute(mode === 'iframe' ? 'src' : 'url', 'https://prod.spline.design/test/scene.splinecode');
+      document.querySelector('main').append(scene);
+    }
+  </script>
+  <script src="/dist/site-body.js"></script>
+  <script type="module" src="/dist/site-interactions.js"></script>
+</body>
+</html>

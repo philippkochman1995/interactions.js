@@ -160,12 +160,12 @@ html.is-page-transition-pending .page-transition-overlay {
   Head gesetzt und vom Skript wieder entfernt; der Wachhund in work-flip.ts sorgt
   dafuer, dass die Klasse auch im Fehlerfall verschwindet.
 */
-html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
+html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-preloader]) {
   visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.is-work-flip-pending body > *:not([data-work-flip-ghost]) {
+  html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-preloader]) {
     visibility: visible;
   }
 
@@ -1570,5 +1570,94 @@ footer a.w--current:focus-visible::after,
   .button-outlined .bt_l,
   .button-outlined .bt_r {
     transition: none;
+  }
+}
+
+/* Figma 1358:10234 — one session intro. Assets are original local Figma exports.
+   Root coverage exists before body markup; no display:none on page content,
+   so responsive images, CMS geometry and native Spline can initialize normally. */
+html.is-site-preloading,
+html.is-site-preloading body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+html.is-site-preloading::after,
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  background: var(--fw_rosa, #ffc7d1);
+}
+html.is-site-preloading::after {
+  content: '';
+  z-index: 2100;
+}
+.site-preloader {
+  z-index: 2101;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--fw_dark_purple, #06021a);
+  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: none;
+  cursor: progress;
+}
+.site-preloader::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  background: url('./assets/preloader-background.svg') center / cover no-repeat;
+  /* SVG feFlood alpha differs from Figma's noise opacity in browsers. */
+  opacity: 0.25;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.site-preloader__progress,
+.site-preloader__name {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+.site-preloader__progress {
+  top: 12.0412%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.site-preloader__digit {
+  display: block;
+  height: 18px;
+  overflow: hidden;
+}
+.site-preloader__digit[hidden] { display: none; }
+.site-preloader__track,
+.site-preloader__track > span {
+  display: block;
+}
+.site-preloader__track > span { height: 18px; }
+.site-preloader__name { top: 86.5264%; }
+.site-preloader__signature {
+  position: absolute;
+  top: 42.7%;
+  left: 6.38%;
+  width: 87.1927%;
+  height: auto;
+  max-width: none;
+  display: block;
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .site-preloader__signature {
+    top: 50%;
+    transform: translateY(-50%);
   }
 }

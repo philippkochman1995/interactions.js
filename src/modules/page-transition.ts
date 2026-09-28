@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 
 import { collapseSiteMenu } from './site-menu';
+import { afterSitePreloader } from './site-preloader-state';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 const PAGE_TRANSITION = {
@@ -213,7 +214,7 @@ export function initPageTransitions(): void {
   initialized = true;
 
   const overlay = ensureOverlay();
-  revealPage(overlay);
+  afterSitePreloader(() => revealPage(overlay));
 
   document.addEventListener('click', (event) => {
     const target = event.target;

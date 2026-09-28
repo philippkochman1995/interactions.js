@@ -472,6 +472,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
           pendingScrollRestore = null;
         }
 
+        root.setAttribute('data-site-assets-ready', '');
         document.dispatchEvent(
           new CustomEvent(WORKS_READY_EVENT, {
             bubbles: true,

@@ -119,7 +119,7 @@ function b(e, t, n) {
 }
 function x(e, t) {
 	let n = h(e), r = t ? v(p(t), n) : [], i = y(n), a = b(e, n, r);
-	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.after(a), document.dispatchEvent(new CustomEvent("site:work-detail-ready", {
+	t && (t.hidden = !0, t.setAttribute("aria-hidden", "true")), e.classList.add("cms-work-detail"), e.replaceChildren(i), a && e.after(a), e.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent("site:work-detail-ready", {
 		bubbles: !0,
 		detail: { id: n.id }
 	}));

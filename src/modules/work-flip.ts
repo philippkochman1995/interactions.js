@@ -59,7 +59,7 @@ function rectOf(element: Element): WorkFlipRect {
 }
 
 function isVisualElement(node: Element): node is HTMLElement {
-  return node instanceof HTMLElement && !NON_VISUAL_TAGS.includes(node.tagName);
+  return node instanceof HTMLElement && !NON_VISUAL_TAGS.includes(node.tagName) && !node.hasAttribute('data-site-preloader');
 }
 
 function createGhost(rect: WorkFlipRect, src: string): HTMLElement {

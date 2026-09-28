@@ -1,4 +1,5 @@
 import { WORK_FLIP_MAX_AGE, WORK_FLIP_PENDING_CLASS, WORK_FLIP_STORAGE_KEY } from './modules/work-flip-state';
+import { primeSitePreloader } from './modules/site-preloader-state';
 
 // Loaded as a blocking classic script in <head>, not as a deferred module.
 function primePageTransition(): void {
@@ -40,3 +41,4 @@ function primeWorkFlip(): void {
 
 primePageTransition();
 primeWorkFlip();
+primeSitePreloader();

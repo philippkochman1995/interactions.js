@@ -8,9 +8,11 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build && vite build --config vite.boot.config.ts --mode head && vite build --config vite.boot.config.ts --mode body",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build && node --test tests/site-boot.test.mjs"
+    "check": "npm run typecheck && npm run build && node --test tests/site-boot.test.mjs && npm run test:browser",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

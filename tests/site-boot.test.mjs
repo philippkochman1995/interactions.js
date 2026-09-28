@@ -12,7 +12,7 @@ const logo = ts.transpileModule(readFileSync(new URL('../src/modules/logo-varian
 
 function fixture(values = {}, reduced = false, blocked = false) {
   const classes = new Set();
-  const storage = new Map(Object.entries(values));
+  const storage = new Map([['site-preloader-seen', '1'], ...Object.entries(values)]);
   const events = {};
   const timers = [];
   const intervals = new Map();
@@ -95,11 +95,11 @@ test('work flip ghost retains image and geometry, without duplicates', () => {
   assert.equal(f.context.document.body.children.length, 2);
 });
 
-test('invalid, expired, reduced motion and unavailable storage do not hide the page', () => {
+test('invalid, expired and reduced motion work flips do not hide the page', () => {
   const stale = JSON.parse(payload()); stale.ts -= 9000;
   const invalid = JSON.parse(payload()); invalid.rect.width = 0;
   for (const f of [fixture({ 'site-work-flip': '{bad' }), fixture({ 'site-work-flip': JSON.stringify(stale) }),
-    fixture({ 'site-work-flip': JSON.stringify(invalid) }), fixture({ 'site-work-flip': payload() }, true), fixture({}, false, true)]) {
+    fixture({ 'site-work-flip': JSON.stringify(invalid) }), fixture({ 'site-work-flip': payload() }, true)]) {
     f.run(head); f.run(body);
     assert.equal(f.classes.size, 0);
   }

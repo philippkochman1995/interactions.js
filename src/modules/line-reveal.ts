@@ -317,7 +317,7 @@ export function initLineReveal(root: ParentNode = document): void {
     });
   });
 
-  void waitForFonts().then(() => {
+  void Promise.all([waitForFonts(), window.__sitePreloader?.ready]).then(() => {
     elements.forEach((element) => {
       if (!element.isConnected) {
         return;
