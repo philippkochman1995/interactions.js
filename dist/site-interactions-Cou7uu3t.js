@@ -87,14 +87,16 @@ var m = {
 	bodyPaddingRight: ""
 };
 function h() {
+	var e;
 	if (m.count += 1, m.count > 1) return;
-	let { body: e, documentElement: t } = document, n = window.innerWidth - t.clientWidth;
-	m.scrollY = window.scrollY || t.scrollTop || 0, m.bodyOverflow = e.style.overflow, m.bodyPosition = e.style.position, m.bodyTop = e.style.top, m.bodyWidth = e.style.width, m.bodyPaddingRight = e.style.paddingRight, e.style.overflow = "hidden", e.style.position = "fixed", e.style.top = `-${m.scrollY}px`, e.style.width = "100%", n > 0 && (e.style.paddingRight = `${n}px`);
+	let { body: t, documentElement: n } = document, r = window.innerWidth - n.clientWidth;
+	m.scrollY = window.scrollY || n.scrollTop || 0, m.bodyOverflow = t.style.overflow, m.bodyPosition = t.style.position, m.bodyTop = t.style.top, m.bodyWidth = t.style.width, m.bodyPaddingRight = t.style.paddingRight, (e = window.lenis) == null || e.stop(), t.style.overflow = "hidden", t.style.position = "fixed", t.style.top = `-${m.scrollY}px`, t.style.width = "100%", r > 0 && (t.style.paddingRight = `${r}px`);
 }
 function g() {
+	var e, t;
 	if (m.count === 0 || (--m.count, m.count > 0)) return;
-	let { body: e } = document, t = m.scrollY;
-	e.style.overflow = m.bodyOverflow, e.style.position = m.bodyPosition, e.style.top = m.bodyTop, e.style.width = m.bodyWidth, e.style.paddingRight = m.bodyPaddingRight, window.scrollTo(0, t);
+	let { body: n } = document, r = m.scrollY;
+	n.style.overflow = m.bodyOverflow, n.style.position = m.bodyPosition, n.style.top = m.bodyTop, n.style.width = m.bodyWidth, n.style.paddingRight = m.bodyPaddingRight, window.scrollTo(0, r), (e = window.lenis) == null || e.resize(), (t = window.lenis) == null || t.start();
 }
 function _() {
 	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -143,4 +145,4 @@ function S(e, t, n) {
 //#endregion
 export { f as _, s as a, g as b, o as c, i as d, a as f, n as g, t as h, d as i, v as l, _ as m, S as n, l as o, h as p, u as r, y as s, b as t, x as u, r as v, p as y };
 
-//# sourceMappingURL=site-interactions-CeaJphsN.js.map
+//# sourceMappingURL=site-interactions-Cou7uu3t.js.map

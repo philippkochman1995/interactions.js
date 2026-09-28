@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .hero { min-height: 100vh; padding: 5vw; box-sizing: border-box; }
+    h1 { font-size: clamp(48px, 7vw, 100px); line-height: 1; max-width: 11ch; }
+    .hero p { max-width: 36ch; font-size: 25px; }
+    .body-section { min-height: 130vh; padding: 10vh 5vw; box-sizing: border-box; }
+    .body-section h2 { max-width: 12ch; font-size: clamp(32px, 5vw, 70px); line-height: 1.1; }
+    .body-section p { max-width: 35ch; font-size: 24px; line-height: 1.25; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" data-reveal-hero>
+      <h1 data-testid="hero-heading">A headline that wraps with its true width</h1>
+      <p data-testid="hero-paragraph">A hero paragraph that follows the heading in the shared intro sequence.</p>
+    </section>
+    <section class="body-section">
+      <h2 data-testid="scroll-heading">A heading revealed while scrolling</h2>
+      <p data-testid="scroll-paragraph">A paragraph with enough words to wrap across multiple lines on smaller screens.</p>
+    </section>
+  </main>
+  <div class="fwm-modal"><h2 data-testid="modal-heading">Modal heading stays untouched</h2></div>
+  <script>
+    if (new URLSearchParams(location.search).has('news')) history.replaceState(null, '', '/news/preview');
+  </script>
+  <script type="module" src="/dist/site-interactions.js"></script>
+</body>
+</html>

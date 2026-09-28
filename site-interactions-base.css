@@ -81,6 +81,12 @@ body {
   -o-font-smoothing: antialiased;
 }
 
+html.lenis,
+html.lenis body {
+  scroll-behavior: auto !important;
+  scroll-snap-type: none !important;
+}
+
 html.is-modal-open,
 html.is-lightbox-open,
 body.is-modal-open,
@@ -879,7 +885,7 @@ footer a.w--current:focus-visible::after,
   background: rgba(6, 2, 26, 0.5);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 150ms ease;
+  transition: opacity 260ms ease-out;
 }
 
 .fwm-modal.is-visible {
@@ -898,12 +904,14 @@ footer a.w--current:focus-visible::after,
   color: var(--fw_dark_purple);
   font-family: 'StyreneA', sans-serif;
   transform: translate3d(100%, 0, 0);
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 360ms cubic-bezier(0.76, 0, 0.24, 1);
   will-change: transform;
 }
 
 .fwm-modal.is-visible .fwm-modal__panel {
   transform: translate3d(0, 0, 0);
+  transition-duration: 560ms;
+  transition-timing-function: cubic-bezier(0.18, 1.16, 0.32, 1);
 }
 
 .fwm-modal__top,
@@ -914,7 +922,7 @@ footer a.w--current:focus-visible::after,
 .fwm-modal__gallery {
   opacity: 0;
   transform: translate3d(0.5rem, 0, 0);
-  transition: opacity 150ms ease, transform 150ms ease;
+  transition: opacity 220ms ease-out, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fwm-modal.is-visible .fwm-modal__top,
@@ -928,24 +936,24 @@ footer a.w--current:focus-visible::after,
 }
 
 .fwm-modal.is-visible .fwm-modal__top {
-  transition-delay: 50ms;
+  transition-delay: 90ms;
 }
 
 .fwm-modal.is-visible .fwm-modal__image-link,
 .fwm-modal.is-visible .fwm-modal__headline {
-  transition-delay: 100ms;
+  transition-delay: 130ms;
 }
 
 .fwm-modal.is-visible .fwm-modal__text {
-  transition-delay: 150ms;
+  transition-delay: 180ms;
 }
 
 .fwm-modal.is-visible .fwm-modal__work {
-  transition-delay: 200ms;
+  transition-delay: 230ms;
 }
 
 .fwm-modal.is-visible .fwm-modal__gallery {
-  transition-delay: 250ms;
+  transition-delay: 280ms;
 }
 
 .fwm-modal__top {
@@ -1401,32 +1409,22 @@ footer a.w--current:focus-visible::after,
   }
 }
 
-/*
-  Zeilen-Reveal (line-reveal.ts). Die Masken baut GSAP SplitText selbst; hier steht nur,
-  was ohne CSS nicht funktioniert. Das Timing und die Bewegung gehoeren ins Modul.
-*/
+/* Line wrappers are created at runtime after the web fonts have loaded. */
 [data-reveal-pending] {
   visibility: hidden;
 }
 
-.fw-ln-mask {
+.split-line {
   display: block;
+  line-height: inherit;
   overflow: hidden;
+  transform-origin: 50% 100%;
 }
 
-.fw-ln-mask .fw-ln {
-  display: block;
-}
-
-.fw-ln-mask .fw-wd,
-.fw-ln-mask .fw-ch {
-  display: inline-block;
-}
-
-.fw-ln-mask .fw-ln,
-.fw-ln-mask .fw-wd,
-.fw-ln-mask .fw-ch {
-  will-change: transform;
+h2 .split-line,
+h3 .split-line {
+  padding-bottom: .5vw;
+  margin-bottom: -.5vw;
 }
 
 @media (prefers-reduced-motion: reduce) {

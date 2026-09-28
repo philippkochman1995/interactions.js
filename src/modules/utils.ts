@@ -192,6 +192,8 @@ export function lockScroll(): void {
   scrollState.bodyWidth = body.style.width;
   scrollState.bodyPaddingRight = body.style.paddingRight;
 
+  window.lenis?.stop();
+
   body.style.overflow = 'hidden';
   body.style.position = 'fixed';
   body.style.top = `-${scrollState.scrollY}px`;
@@ -223,6 +225,8 @@ export function unlockScroll(): void {
   body.style.paddingRight = scrollState.bodyPaddingRight;
 
   window.scrollTo(0, scrollY);
+  window.lenis?.resize();
+  window.lenis?.start();
 }
 
 export function prefersReducedMotion(): boolean {

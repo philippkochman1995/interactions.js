@@ -621,75 +621,36 @@ abgeschlossen. Die Navigation selbst wird nie blockiert.
 
 ## Line reveal
 
-Zeilenweiser Text-Reveal: GSAP SplitText zerlegt den Text, legt pro Zeile eine Maske
-darum, und die Zeilen fahren beim Scrollen aus dieser Maske hoch. Der Code liegt in
-`src/modules/line-reveal.ts` und laeuft ueber `site-interactions.js` mit - in Webflow ist
-also **kein eigener Script-Tag** noetig.
+`src/modules/line-reveal.ts` animiert auf allen Seiten ausser `/news` und dessen
+Detailseiten jedes sichtbare `h1`–`h6` und `p`. Texte in Modals, Lightboxes und
+versteckten Modal-Quellen bleiben unberuehrt. `data-reveal="off"` nimmt ein einzelnes
+Element aus. Die alten `data-splitline`-, Gruppen-, Delay- und Stagger-Attribute
+steuern den neuen Reveal nicht mehr.
 
-### Testbetrieb
+Nach `document.fonts.ready` erzeugt SplitText pro Element `.split-line`-Zeilen.
+Jede Zeile faehrt ohne Opacity-Fade in 0,8 s mit `power2.out` und 0,09 s Versatz
+von `yPercent: 100`, `skewY: -1` und geschlossenem `clipPath` in den Endzustand.
+Unterhalb des Heros startet jedes Element mit eigenem ScrollTrigger bei `top 90%`.
+Hero-Texte teilen eine Intro-Timeline ab 0,6 s nach Freigabe des Preloaders;
+aufeinanderfolgende Texte folgen mit 0,12 s Versatz. `.hero-price` erhaelt 0,42 s
+zusaetzlich. Ein Container kann mit `data-reveal-hero` explizit als Hero markiert
+werden; sonst zaehlen Hero-Klassen und Texte im ersten Viewport. Marquees sind nicht
+Teil dieses Moduls.
 
-Der Selektor ist aktuell `[data-reveal], h2`, greift also zusaetzlich auf **alle H2**.
-Fuer den Dauerbetrieb in `line-reveal.ts` auf `'[data-reveal]'` reduzieren und die
-gewuenschten Elemente in Webflow per Attribut markieren.
+Bei Breiten- oder Schriftwechsel werden alte Zeilen, Timelines und ScrollTrigger
+entfernt und neu aufgebaut. Bereits gestartete Reveals bleiben sichtbar. Bei
+`prefers-reduced-motion: reduce` wird nicht gesplittet.
 
-### Attribute
+### Smooth scroll
 
-| Attribut | Werte | Wirkung |
-| --- | --- | --- |
-| `data-reveal` | *(leer)* / `lines` / `words` / `chars` | Was gestaffelt faehrt. Ohne Wert: `lines`. |
-| `data-reveal` | `off` | Nimmt das Element aus, auch wenn es ein H2 ist. |
-| `data-reveal-delay` | Sekunden | Verzoegerung vor dem Start. |
-| `data-reveal-stagger` | Sekunden | Ueberschreibt den Versatz zwischen den Teilen. |
-| `data-reveal-trigger` | `false` | Kein ScrollTrigger, laeuft sofort beim Laden. |
-| `data-reveal-group` | *(leer)* / Sekunden | **Auf einen Container**: alle markierten Elemente darin starten nacheinander statt gleichzeitig. |
-| `data-splitline` | *(leer)* | Altname aus dem Vorgaengermodul, gilt gleichwertig wie `data-reveal`. |
-
-### Gruppen
-
-Ohne Gruppe hat jedes Element seinen eigenen Ausloeser und startet, sobald es weit genug
-im Bild ist. Ueberschrift und Absatz werden dadurch praktisch gleichzeitig sichtbar.
-Traegt ein Vorfahre `data-reveal-group`, teilen sich alle markierten Elemente darin einen
-gemeinsamen Ausloeser und laufen in DOM-Reihenfolge nacheinander an - erst die
-Ueberschrift, dann der Absatz, dann die Bildunterschrift.
-
-```html
-<div class="bio_row" data-reveal-group>        Standardversatz, 0,162 s
-<div class="bio_row" data-reveal-group="0.3">  eigener Versatz in Sekunden
-```
-
-Nach vier Schritten waechst die Verzoegerung nicht weiter. Die Zeilen der Biografie
-fassen bis zu sieben markierte Elemente; ungedeckelt warteten die letzten fast eine
-Sekunde, obwohl sie laengst im Bild stehen.
-
-Auf der Biografie-Seite tragen die zehn `.bio_row` und die fuenf `.bio_era_head` dieses
-Attribut.
-
-Modal und Lightbox sind fest ausgenommen: die bauen ihre Ueberschriften selbst und
-tauschen deren Inhalt bei jedem Oeffnen aus, ein Split wuerde dabei zerreissen.
-
-### Timing
-
-Dauer und Versatz kommen aus einer Skala auf Basis des goldenen Schnitts
-(`step(n) = 0.1 * phi^(n-1)`): Dauer 1,109 s, Versatz 0,1 s zwischen Zeilen bzw.
-Woertern, 0,062 s zwischen Zeichen. Gesplittet wird erst nach `document.fonts.ready`,
-sonst bricht SplitText die Zeilen anhand der Fallback-Schrift um.
-
-### Zwei Fallstricke, die hier bereits geloest sind
-
-`set()` + `to()` statt `from()`: bei `from()` entscheidet GSAP selbst, wann der
-Startzustand gerendert wird, und in der Kombination aus `autoSplit` und ScrollTrigger
-faellt er weg - der Text steht dann sichtbar da und springt beim Erreichen des Triggers
-erst nach unten. Auch `immediateRender: true` reicht dagegen nicht.
-
-Enge Zeilenhoehen (bis `line-height: 1.1`) bekommen `overflow-clip-margin` inline in
-Pixeln, damit die Maske Ober- und Unterlaengen nicht abschneidet. Negative Margins
-waeren hier falsch: die kollabieren zwischen benachbarten Masken, und die Ueberschrift
-wandert dadurch in der Hoehe. Der Wert muss in px kommen, `em` nimmt die Property nicht.
-Preis der Loesung: im geweiteten Bereich kann waehrend der Bewegung ein Rest der
-Nachbarzeile durchscheinen - bei `line-height` unter 1 ueberlappen sich die Zeilenboxen
-physisch, beides gleichzeitig geht nicht.
-
-Bei `prefers-reduced-motion: reduce` wird gar nicht gesplittet.
+Die Site hat bereits ein registriertes Lenis-Skript. `snippets/smoothscrollinit.js`
+ist dessen neuer Inhalt: eine Instanz mit `lerp: 0.0822`, `wheelMultiplier: 0.8`,
+`touchMultiplier: 2.5`, `syncTouch: true` und `autoRaf: false`. Das globale Bundle
+haengt diese Instanz an den GSAP-Ticker und aktualisiert ScrollTrigger bei jedem
+Lenis-Scroll. Es startet keinen zweiten RAF-Loop. Das CSS von Lenis 1.3.26 wird
+im Site-Head eingebunden; `scroll-behavior: smooth` und Scroll-Snap sind am
+Fenster-Scroller deaktiviert. News-Seiten und Reduced Motion starten Lenis nicht.
+Modal und Lightbox stoppen die Instanz waehrend ihrer Scroll-Sperre.
 
 ## CSS hooks
 
@@ -706,7 +667,6 @@ body.is-lightbox-open
 [data-site-lightbox].is-visible
 [data-reveal-pending]
 [data-reveal-ready]
-.fw-reveal-tight
 ```
 
 Variablen, an denen sich drehen laesst:
@@ -718,13 +678,10 @@ Variablen, an denen sich drehen laesst:
 Der Parallax setzt ausserdem `data-parallax-ready`, sobald ein Element verdrahtet ist.
 
 
-Der Zeilen-Reveal erzeugt ausserdem diese Struktur pro Textelement:
+Der Zeilen-Reveal erzeugt pro Textelement:
 
 ```text
-.fw-ln-mask   Maske pro Zeile, schneidet ab
-.fw-ln        die Zeile
-.fw-wd        Wort
-.fw-ch        Zeichen
+.split-line   gesplittete Zeile und Maske
 ```
 
 The generated lightbox uses these structural classes:

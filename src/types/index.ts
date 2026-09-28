@@ -56,5 +56,15 @@ export type Cleanup = () => void;
 declare global {
   interface Window {
     SiteInteractions?: ModalApi & LightboxApi;
+    __siteLenisManaged?: boolean;
+    __siteLenisTickerConnected?: boolean;
+    lenis?: {
+      raf(time: number): void;
+      on(event: 'scroll', callback: () => void): void;
+      off(event: 'scroll', callback: () => void): void;
+      stop(): void;
+      start(): void;
+      resize(): void;
+    };
   }
 }

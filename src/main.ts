@@ -9,6 +9,7 @@ import { initWorkFlip } from './modules/work-flip';
 import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
 import { initSitePreloader } from './modules/site-preloader';
+import { initSmoothScrollSync } from './modules/smooth-scroll';
 
 let booted = false;
 initSitePreloader();
@@ -20,6 +21,7 @@ initPageTransitions();
 
 // Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.
 initLineReveal();
+initSmoothScrollSync();
 
 function boot(): void {
   if (booted) {
