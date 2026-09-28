@@ -361,6 +361,29 @@ function openMapModal(data){
       }
     }
 
+    function setLegendItemState(item, cat){
+      item.classList.toggle('is-off', activeCats[cat] === false);
+    }
+
+    function syncLegendState(){
+      if(!legend) return;
+
+      legend.querySelectorAll('.wm-legend-item').forEach(function(item){
+        var dot = item.querySelector('.wm-dot');
+        var cat = null;
+
+        if(dot){
+          for(var c in dotCatMap){
+            if(dot.classList.contains(c)){
+              cat = dotCatMap[c];
+            }
+          }
+        }
+
+        if(cat) setLegendItemState(item, cat);
+      });
+    }
+
     if(legend){
       legend.querySelectorAll('.wm-legend-item').forEach(function(item){
         item.addEventListener('click', function(){
@@ -377,12 +400,20 @@ function openMapModal(data){
 
           if(!cat) return;
 
-          var off = item.classList.toggle('is-off');
-          activeCats[cat] = !off;
+          if(activeCats[cat] === false){
+            activeCats[cat] = true;
+          } else {
+            for(var activeCat in activeCats){
+              activeCats[activeCat] = activeCat === cat;
+            }
+          }
 
+          syncLegendState();
           applyFilter();
         });
       });
+
+      syncLegendState();
     }
 
     function buildMarkerShell(catClass){

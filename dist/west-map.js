@@ -227,23 +227,37 @@
 			}), e;
 		}
 		function I() {
-			for (var e in H) clearTimeout(H[e]), delete H[e];
-			for (var t in B) B[t].remove(), B[t]._wmAdded = !1;
-			B = {}, V = {};
+			for (var e in W) clearTimeout(W[e]), delete W[e];
+			for (var t in H) H[t].remove(), H[t]._wmAdded = !1;
+			H = {}, U = {};
 			var n = _.getSource("wmOrte");
 			n && n.setData({
 				type: "FeatureCollection",
 				features: F()
 			});
 		}
-		l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
+		function L(e, t) {
+			e.classList.toggle("is-off", P[t] === !1);
+		}
+		function R() {
+			l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
+				var t = e.querySelector(".wm-dot"), r = null;
+				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
+				r && L(e, r);
+			});
+		}
+		l && (l.querySelectorAll(".wm-legend-item").forEach(function(e) {
 			e.addEventListener("click", function() {
 				var t = e.querySelector(".wm-dot"), r = null;
 				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-				r && (P[r] = !e.classList.toggle("is-off"), I());
+				if (r) {
+					if (P[r] === !1) P[r] = !0;
+					else for (var a in P) P[a] = a === r;
+					R(), I();
+				}
 			});
-		});
-		function L(e) {
+		}), R());
+		function z(e) {
 			var t = document.createElement("div");
 			t.className = "wm-marker " + e;
 			var n = document.createElement("div");
@@ -252,8 +266,8 @@
 				inner: n
 			};
 		}
-		function R(t) {
-			var n = L(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
+		function B(t) {
+			var n = z(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
 			if (r.className = "wm-marker-circle", t.bild && (r.style.backgroundImage = "url(" + t.bild + ")"), n.inner.appendChild(r), t.adresse) {
 				var i = document.createElement("div");
 				i.className = "wm-marker-tooltip", i.textContent = t.adresse, n.inner.appendChild(i);
@@ -263,8 +277,8 @@
 				M(t);
 			}), n.el;
 		}
-		function z(e, t) {
-			var n = L("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
+		function V(e, t) {
+			var n = z("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
 			r.className = "wm-marker-circle";
 			var i = N[e.firstIdx];
 			i && i.bild && (r.style.backgroundImage = "url(" + i.bild + ")"), n.inner.appendChild(r);
@@ -275,34 +289,34 @@
 				});
 			}), n.el;
 		}
-		var B = {}, V = {}, H = {};
-		function U(e, t) {
-			H[e] && (clearTimeout(H[e]), delete H[e]), t._wmAdded || (t.addTo(_), t._wmAdded = !0);
+		var H = {}, U = {}, W = {};
+		function G(e, t) {
+			W[e] && (clearTimeout(W[e]), delete W[e]), t._wmAdded || (t.addTo(_), t._wmAdded = !0);
 			var n = t.getElement();
 			n.classList.contains("wm-visible") || (n.offsetWidth, n.classList.add("wm-visible"));
 		}
-		function W(e, t) {
-			H[e] || (t.getElement().classList.remove("wm-visible"), H[e] = setTimeout(function() {
-				t.remove(), t._wmAdded = !1, delete H[e];
+		function K(e, t) {
+			W[e] || (t.getElement().classList.remove("wm-visible"), W[e] = setTimeout(function() {
+				t.remove(), t._wmAdded = !1, delete W[e];
 			}, 200));
 		}
-		function G() {
+		function q() {
 			for (var e = {}, t = _.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
 				var r = t[n], i = r.properties, a = r.geometry.coordinates, o = i.cluster ? "c" + i.cluster_id : "p" + i.idx;
 				if (!e[o]) {
-					var s = B[o];
+					var s = H[o];
 					if (!s) {
-						var c = i.cluster ? z(i, a) : R(N[i.idx]);
+						var c = i.cluster ? V(i, a) : B(N[i.idx]);
 						s = new mapboxgl.Marker({
 							element: c,
 							anchor: "center"
-						}).setLngLat(a), B[o] = s;
+						}).setLngLat(a), H[o] = s;
 					}
-					e[o] = s, U(o, s);
+					e[o] = s, G(o, s);
 				}
 			}
-			for (var l in V) e[l] || W(l, V[l]);
-			V = e;
+			for (var l in U) e[l] || K(l, U[l]);
+			U = e;
 		}
 		_.on("load", function() {
 			_.addSource("wmOrte", {
@@ -346,8 +360,8 @@
 					"circle-opacity": 0
 				}
 			}), _.on("render", function() {
-				_.isSourceLoaded("wmOrte") && G();
-			}), _.on("moveend", G), _.on("moveend", S), S();
+				_.isSourceLoaded("wmOrte") && q();
+			}), _.on("moveend", q), _.on("moveend", S), S();
 		});
 	});
 })();
