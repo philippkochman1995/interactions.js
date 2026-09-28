@@ -627,9 +627,11 @@ versteckten Modal-Quellen bleiben unberuehrt. `data-reveal="off"` nimmt ein einz
 Element aus. Die alten `data-splitline`-, Gruppen-, Delay- und Stagger-Attribute
 steuern den neuen Reveal nicht mehr.
 
-Nach `document.fonts.ready` erzeugt SplitText pro Element `.split-line`-Zeilen.
-Jede Zeile faehrt ohne Opacity-Fade in 0,8 s mit `power2.out` und 0,09 s Versatz
-von `yPercent: 100`, `skewY: -1` und geschlossenem `clipPath` in den Endzustand.
+Nach `document.fonts.ready` erzeugt SplitText nur fuer Headings `.split-line`-Zeilen.
+Jede Heading-Zeile faehrt ohne Opacity-Fade in 0,8 s mit `power2.out` und 0,09 s
+Versatz von `yPercent: 100`, `skewY: -1` und geschlossenem `clipPath` in den
+Endzustand. Jeder Absatz bleibt ungeteilt und blendet als Ganzes in 0,8 s mit
+`power2.out` von `opacity: 0` und `y: 12px` ein.
 Unterhalb des Heros startet jedes Element mit eigenem ScrollTrigger bei `top 90%`.
 Hero-Texte teilen eine Intro-Timeline ab 0,6 s nach Freigabe des Preloaders;
 aufeinanderfolgende Texte folgen mit 0,12 s Versatz. `.hero-price` erhaelt 0,42 s
@@ -637,7 +639,7 @@ zusaetzlich. Ein Container kann mit `data-reveal-hero` explizit als Hero markier
 werden; sonst zaehlen Hero-Klassen und Texte im ersten Viewport. Marquees sind nicht
 Teil dieses Moduls.
 
-Bei Breiten- oder Schriftwechsel werden alte Zeilen, Timelines und ScrollTrigger
+Bei Breiten- oder Schriftwechsel werden alte Heading-Zeilen, Timelines und ScrollTrigger
 entfernt und neu aufgebaut. Bereits gestartete Reveals bleiben sichtbar. Bei
 `prefers-reduced-motion: reduce` wird nicht gesplittet.
 
@@ -678,7 +680,7 @@ Variablen, an denen sich drehen laesst:
 Der Parallax setzt ausserdem `data-parallax-ready`, sobald ein Element verdrahtet ist.
 
 
-Der Zeilen-Reveal erzeugt pro Textelement:
+Der Zeilen-Reveal erzeugt pro Heading:
 
 ```text
 .split-line   gesplittete Zeile und Maske

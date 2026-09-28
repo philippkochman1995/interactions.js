@@ -28,6 +28,8 @@ const TO = {
   ease: 'power2.out',
   stagger: 0.09,
 };
+const PARAGRAPH_FROM = { y: 12, opacity: 0 };
+const PARAGRAPH_TO = { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' };
 
 interface RevealState {
   element: HTMLElement;
@@ -37,6 +39,8 @@ interface RevealState {
   timeline?: gsap.core.Timeline;
   trigger?: ScrollTrigger;
   signature: string;
+  originalOpacity: string;
+  originalTransform: string;
 }
 
 let initialized = false;
@@ -70,29 +74,37 @@ function clear(state: RevealState): void {
   state.trigger?.kill();
   state.timeline?.kill();
   state.split?.revert();
+  if (state.element.tagName === 'P') {
+    state.element.style.opacity = state.played ? '1' : state.originalOpacity;
+    state.element.style.transform = state.originalTransform;
+  }
   state.trigger = undefined;
   state.timeline = undefined;
   state.split = undefined;
 }
 
-function split(state: RevealState): Element[] {
-  state.split = SplitText.create(state.element, {
-    type: 'lines',
-    linesClass: 'split-line',
-    smartWrap: true,
-  });
+function targets(state: RevealState): Element[] {
+  if (state.element.tagName !== 'P') {
+    state.split = SplitText.create(state.element, {
+      type: 'lines',
+      linesClass: 'split-line',
+      smartWrap: true,
+    });
+  }
   state.signature = signature(state.element);
   state.element.removeAttribute(PENDING);
   state.element.setAttribute(READY, '');
-  return state.split.lines;
+  return state.split?.lines ?? [state.element];
 }
 
 function buildScrollReveal(state: RevealState): void {
-  const lines = split(state);
-  if (!lines.length || state.played) return;
+  const elements = targets(state);
+  if (!elements.length || state.played) return;
 
   const timeline = gsap.timeline({ paused: true, onComplete: () => { state.played = true; } });
-  timeline.fromTo(lines, FROM, TO);
+  timeline.fromTo(elements,
+    state.element.tagName === 'P' ? PARAGRAPH_FROM : FROM,
+    state.element.tagName === 'P' ? PARAGRAPH_TO : TO);
   state.timeline = timeline;
   state.trigger = ScrollTrigger.create({
     trigger: state.element,
@@ -106,10 +118,13 @@ function buildScrollReveal(state: RevealState): void {
 
 function buildHeroReveal(states: RevealState[], intro: gsap.core.Timeline): void {
   states.forEach((state, index) => {
-    const lines = split(state);
-    if (!lines.length || state.played) return;
+    const elements = targets(state);
+    if (!elements.length || state.played) return;
     const priceDelay = state.element.matches('.hero-price') ? 0.42 : 0;
-    intro.fromTo(lines, FROM, TO, 0.6 + index * 0.12 + priceDelay);
+    intro.fromTo(elements,
+      state.element.tagName === 'P' ? PARAGRAPH_FROM : FROM,
+      state.element.tagName === 'P' ? PARAGRAPH_TO : TO,
+      0.6 + index * 0.12 + priceDelay);
   });
 }
 
@@ -131,6 +146,8 @@ export function initLineReveal(root: ParentNode = document): void {
     hero: isHero(element),
     played: false,
     signature: '',
+    originalOpacity: element.style.opacity,
+    originalTransform: element.style.transform,
   }));
   states.forEach(({ element }) => element.setAttribute(PENDING, ''));
 
