@@ -1,5 +1,5 @@
 import { _ as e, a as t, b as n, c as r, d as i, f as a, g as o, h as s, i as c, l, m as u, n as d, o as f, p, r as m, s as h, t as g, u as _, v, y } from "./site-interactions-Cou7uu3t.js";
-import { t as b } from "./site-interactions-Bso9rHzz.js";
+import { t as b } from "./site-interactions-CvFCGyZp.js";
 import { t as x } from "./site-interactions-QtEWUsWn.js";
 import { i as S, n as ee, o as C, r as w, t as T } from "./site-interactions-BfdytpEq.js";
 //#region src/modules/i18n.ts
@@ -23,7 +23,7 @@ function k(e, t) {
 	return a(r) ? r.trim() : t.trim();
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Observer.js
+//#region ../../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Observer.js
 function A(e, t) {
 	for (var n = 0; n < t.length; n++) {
 		var r = t[n];
@@ -249,7 +249,7 @@ G.version = "3.15.0", G.create = function(e) {
 	})[0];
 }, se() && j.registerPlugin(G);
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/ScrollTrigger.js
+//#region ../../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/ScrollTrigger.js
 var K, De, q, J, Oe, Y, ke, Ae, je, Me, Ne, Pe, Fe, Ie, Le, X, Re, ze, Z, Be, Ve, He, Ue, We, Ge, Ke, qe, Je, Ye, Xe, Ze, Qe, $e, et, tt = 1, nt = Date.now, rt = nt(), it = 0, at = 0, ot = function(e, t, n) {
 	var r = St(e) && (e.substr(0, 6) === "clamp(" || e.indexOf("max") > -1);
 	return n["_" + t + "Clamp"] = r, r ? e.substr(6, e.length - 7) : e;
@@ -1081,7 +1081,7 @@ $.sort = function(e) {
 	}
 }, mt() && K.registerPlugin($);
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/SplitText.js
+//#region ../../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/SplitText.js
 var or, sr, cr = typeof Symbol == "function" ? Symbol() : "_split", lr, ur = () => lr || kr.register(window.gsap), dr = typeof Intl < "u" && "Segmenter" in Intl ? new Intl.Segmenter() : 0, fr = (e) => e ? typeof e == "string" ? fr(document.querySelectorAll(e)) : "length" in e ? Array.from(e).reduce((e, t) => (typeof t == "string" ? e.push(...fr(t)) : e.push(t), e), []) : [e] : [], pr = (e) => fr(e).filter((e) => e && e.nodeType === 1), mr = [], hr = function() {}, gr = { add: (e) => e() }, _r = /\s+/g, vr = /* @__PURE__ */ RegExp("\\p{RI}\\p{RI}|\\p{Emoji}(\\p{EMod}|\\u{FE0F}\\u{20E3}?|[\\u{E0020}-\\u{E007E}]+\\u{E007F})?(\\u{200D}\\p{Emoji}(\\p{EMod}|\\u{FE0F}\\u{20E3}?|[\\u{E0020}-\\u{E007E}]+\\u{E007F})?)*|.", "gu"), yr = {
 	left: 0,
 	top: 0,
@@ -1554,7 +1554,7 @@ function Vi(e) {
 }
 //#endregion
 //#region src/modules/modal.ts
-var Hi = "[data-modal]", Ui = "[data-modal-content]", Wi = "[data-modal-open]", Gi = "[data-modal-close]", Ki = "a[href^=\"#modal:\"]", qi = "#modal:", Ji = 220, Yi = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", Xi = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", Zi = "\n  <svg class=\"fwm-modal__work-eye\" viewBox=\"0 0 26 17\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path class=\"fwm-modal__work-eye-pupil\" d=\"M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z\" fill=\"currentColor\"/>\n    <path d=\"M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z\" fill=\"currentColor\"/>\n  </svg>\n", Qi = !1, $i = !0, ea = null, ta = null, na = "", ra = null, ia = null, aa = /* @__PURE__ */ new Map();
+var Hi = "[data-modal]", Ui = "[data-modal-content]", Wi = "[data-modal-open]", Gi = "[data-modal-close]", Ki = "a[href^=\"#modal:\"]", qi = "#modal:", Ji = 460, Yi = "\n  <svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle cx=\"20\" cy=\"20\" r=\"20\" fill=\"#F3F2F4\"/>\n    <path d=\"M13.2357 15.1706L17.7555 19.6904L17.7555 20.3096L13.2357 24.8294L15.1707 26.7644L19.6905 22.2446L20.3097 22.2446L24.8295 26.7644L26.7645 24.8294L22.2447 20.3096L22.2447 19.6904L26.7645 15.1706L24.8295 13.2356L20.3097 17.7554L19.6905 17.7554L15.1707 13.2356L13.2357 15.1706Z\" fill=\"#444153\"/>\n  </svg>\n", Xi = "\n  <svg width=\"34\" height=\"34\" viewBox=\"0 0 30 30\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle class=\"fwm-modal__lightbox-icon-circle--centered\" cx=\"15\" cy=\"15\" r=\"15\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-bottom\" d=\"M8 21.1209L8.00962 14.376L10.5048 14.376L10.4945 19.27L10.7346 19.5097L15.6332 19.4994L15.6332 21.9906L8.88068 22.0002C8.70853 21.8288 8.17173 21.2928 8 21.1209Z\"/>\n    <path class=\"fwm-modal__lightbox-icon-arrow--centered-top\" d=\"M22.0009 8.87929L21.9913 15.6243L19.4961 15.6243L19.5065 10.7302L19.2664 10.4905L14.3633 10.5009L14.3633 8.00961L21.1202 8C21.2924 8.17146 21.8292 8.70741 22.0009 8.87929Z\"/>\n  </svg>\n", Zi = "\n  <svg class=\"fwm-modal__work-eye\" viewBox=\"0 0 26 17\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path class=\"fwm-modal__work-eye-pupil\" d=\"M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z\" fill=\"currentColor\"/>\n    <path d=\"M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z\" fill=\"currentColor\"/>\n  </svg>\n", Qi = !1, $i = !0, ea = null, ta = null, na = "", ra = null, ia = null, aa = /* @__PURE__ */ new Map();
 function oa(e) {
 	var t;
 	let n = (t = e.getAttribute("href")) == null ? "" : t;
@@ -1736,7 +1736,7 @@ function wa(e) {
 function Ta(e) {
 	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), ia = window.setTimeout(() => {
 		e.root.hidden = !0, e.root.classList.remove("is-active"), ia = null;
-	}, Ji), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
+	}, u() ? 0 : Ji), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
 }
 function Ea(e, t) {
 	var n, r, i, a, o, s, l, u, f, m, h;
@@ -2255,7 +2255,7 @@ function ds(e = document) {
 	}));
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/utils/matrix.js
+//#region ../../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/utils/matrix.js
 var fs, ps, ms, hs, gs, _s, vs, ys, bs = "transform", xs = bs + "Origin", Ss, Cs = function(e) {
 	var t = e.ownerDocument || e;
 	for (!(bs in e.style) && ("msTransform" in e.style) && (bs = "msTransform", xs = bs + "Origin"); t.parentNode && (t = t.parentNode););
@@ -2341,7 +2341,7 @@ function Ls(e, t, n, r) {
 	return t ? f.inverse() : f;
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Flip.js
+//#region ../../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Flip.js
 var Rs = 1, zs, Bs, Vs, Hs, Us, Ws, Gs, Ks = function(e, t) {
 	return e.actions.forEach(function(e) {
 		return e.vars[t] && e.vars[t](e);

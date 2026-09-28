@@ -883,13 +883,10 @@ footer a.w--current:focus-visible::after,
 .fwm-modal {
   justify-content: flex-end;
   background: rgba(6, 2, 26, 0.5);
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 260ms ease-out;
 }
 
 .fwm-modal.is-visible {
-  opacity: 1;
   pointer-events: auto;
 }
 
@@ -903,57 +900,15 @@ footer a.w--current:focus-visible::after,
   padding: 0.75rem 1.5625rem;
   color: var(--fw_dark_purple);
   font-family: 'StyreneA', sans-serif;
-  transform: translate3d(100%, 0, 0);
-  transition: transform 360ms cubic-bezier(0.76, 0, 0.24, 1);
-  will-change: transform;
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path 420ms cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: clip-path;
 }
 
 .fwm-modal.is-visible .fwm-modal__panel {
-  transform: translate3d(0, 0, 0);
-  transition-duration: 560ms;
-  transition-timing-function: cubic-bezier(0.18, 1.16, 0.32, 1);
-}
-
-.fwm-modal__top,
-.fwm-modal__image-link,
-.fwm-modal__headline,
-.fwm-modal__text,
-.fwm-modal__work,
-.fwm-modal__gallery {
-  opacity: 0;
-  transform: translate3d(0.5rem, 0, 0);
-  transition: opacity 220ms ease-out, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fwm-modal.is-visible .fwm-modal__top,
-.fwm-modal.is-visible .fwm-modal__image-link,
-.fwm-modal.is-visible .fwm-modal__headline,
-.fwm-modal.is-visible .fwm-modal__text,
-.fwm-modal.is-visible .fwm-modal__work,
-.fwm-modal.is-visible .fwm-modal__gallery {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.fwm-modal.is-visible .fwm-modal__top {
-  transition-delay: 90ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__image-link,
-.fwm-modal.is-visible .fwm-modal__headline {
-  transition-delay: 130ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__text {
-  transition-delay: 180ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__work {
-  transition-delay: 230ms;
-}
-
-.fwm-modal.is-visible .fwm-modal__gallery {
-  transition-delay: 280ms;
+  clip-path: inset(0 0 0 0);
+  transition-duration: 600ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fwm-modal__top {
