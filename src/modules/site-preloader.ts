@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { collectPreloadTasks, untilAborted, waitForCmsAssets, warmAssets } from './site-preloader-assets';
-import { PRELOADER_MINIMUM, PRELOADER_SELECTOR } from './site-preloader-state';
+import { PRELOADER_EXIT_CLASS, PRELOADER_MINIMUM, PRELOADER_SELECTOR } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
 let initialized = false;
@@ -51,10 +51,115 @@ export function setPreloaderProgress(overlay: HTMLElement, value: number): void 
       current.textContent = target;
       return;
     }
-    gsap.to(track, { yPercent: -50, y: 0, duration: 0.18, ease: 'power2.out', onComplete: () => {
+    gsap.to(track, { yPercent: -50, y: 0, duration: 0.065, ease: 'power2.out', onComplete: () => {
       current.textContent = target;
       gsap.set(track, { yPercent: 0, y: 0 });
     } });
+  });
+}
+
+interface ProgressController {
+  setTasks: (complete: number, total: number) => void;
+  complete: () => Promise<void>;
+  stop: () => void;
+}
+
+function createProgressController(overlay: HTMLElement, startedAt: number): ProgressController {
+  const reduced = prefersReducedMotion();
+  let taskComplete = 0;
+  let taskTotal = 0;
+  let visual = 0;
+  let shown = 0;
+  let ready = false;
+  let stopped = false;
+  let frame = 0;
+  let lastFrame = performance.now();
+  let lastRender = 0;
+  let resolveComplete!: () => void;
+  const completed = new Promise<void>((resolve) => { resolveComplete = resolve; });
+
+  const render = (value: number): void => {
+    const next = Math.max(shown, Math.min(100, Math.floor(value)));
+    if (next === shown && next !== 100) return;
+    shown = next;
+    setPreloaderProgress(overlay, shown);
+  };
+  const tick = (now: number): void => {
+    if (stopped) return;
+    const delta = Math.min(64, Math.max(0, now - lastFrame));
+    lastFrame = now;
+    const elapsed = Math.max(0, Date.now() - startedAt);
+    // Time provides a continuous estimate while large images/Splines are in
+    // flight. Settled tasks can pull the display further ahead, but never to
+    // 100: that value is reserved for complete runtime readiness.
+    const timeTarget = Math.min(88, 90 * (1 - Math.exp(-elapsed / 1900)));
+    const taskTarget = taskTotal ? Math.min(90, 8 + 82 * taskComplete / taskTotal) : 0;
+    const target = ready ? 100 : Math.max(timeTarget, taskTarget);
+    const smoothing = 1 - Math.exp(-delta * (ready ? 0.014 : 0.0042));
+    const easedStep = (target - visual) * smoothing;
+    // Cap the normal counting speed so a batch of cached assets cannot make
+    // the first painted value jump straight from 0 to 60 or 80.
+    const maximumStep = (ready ? 180 : 30) * delta / 1000;
+    visual += Math.min(easedStep, maximumStep);
+    if (ready && visual >= 99.4) visual = 100;
+    if (now - lastRender >= 70 || visual === 100) {
+      render(visual);
+      lastRender = now;
+    }
+    if (visual === 100) resolveComplete();
+    else frame = window.requestAnimationFrame(tick);
+  };
+
+  if (!reduced) frame = window.requestAnimationFrame(tick);
+  return {
+    setTasks: (complete, total) => {
+      taskComplete = complete;
+      taskTotal = total;
+      if (reduced) render(total ? 8 + 82 * complete / total : 0);
+    },
+    complete: () => {
+      ready = true;
+      if (reduced) { visual = 100; render(100); resolveComplete(); }
+      return completed;
+    },
+    stop: () => {
+      stopped = true;
+      window.cancelAnimationFrame(frame);
+    },
+  };
+}
+
+function wait(duration: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const finish = (): void => {
+      window.clearTimeout(timer);
+      signal.removeEventListener('abort', finish);
+      resolve();
+    };
+    const timer = window.setTimeout(finish, Math.max(0, duration));
+    signal.addEventListener('abort', finish, { once: true });
+    if (signal.aborted) finish();
+  });
+}
+
+function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promise<void> {
+  if (prefersReducedMotion() || signal.aborted) return Promise.resolve();
+  document.documentElement.classList.add(PRELOADER_EXIT_CLASS);
+  const contents = overlay.querySelectorAll('.site-preloader__progress, .site-preloader__name, .site-preloader__signature');
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (): void => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener('abort', finish);
+      resolve();
+    };
+    const timeline = gsap.timeline({ onComplete: finish });
+    timeline
+      .to({}, { duration: 0.12 })
+      .to(contents, { autoAlpha: 0, duration: 0.22, ease: 'power2.out' })
+      .to(overlay, { yPercent: -100, duration: 0.72, ease: 'power3.inOut' });
+    signal.addEventListener('abort', () => { timeline.kill(); finish(); }, { once: true });
   });
 }
 
@@ -66,11 +171,12 @@ export function initSitePreloader(): void {
   const overlay = document.querySelector<HTMLElement>(PRELOADER_SELECTOR);
   if (!overlay) { state.release(); return; }
   const controller = new AbortController();
-  let finishTimer = 0;
+  const progress = createProgressController(overlay, state.startedAt);
   state.cleanup.push(() => {
     controller.abort();
-    window.clearTimeout(finishTimer);
-    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track'));
+    progress.stop();
+    gsap.killTweensOf(overlay);
+    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature'));
   });
   const run = async (): Promise<void> => {
     await waitForCmsAssets(controller.signal);
@@ -78,22 +184,26 @@ export function initSitePreloader(): void {
     const tasks = collectPreloadTasks();
     const critical = tasks.filter((task) => task.priority === 'critical');
     let complete = 0;
+    progress.setTasks(0, critical.length);
     await Promise.all(critical.map(async (task) => {
       await untilAborted(Promise.resolve().then(() => task.load(controller.signal)), controller.signal);
       complete++;
-      if (state.active) setPreloaderProgress(overlay, complete / critical.length * 100);
+      if (state.active) progress.setTasks(complete, critical.length);
     }));
     if (!state.active) return;
     // Webflow dispatches w-spline-load when Application.load() resolves. Give
     // every ready canvas two frames to paint before uncovering the document.
     await waitForPaint(controller.signal);
     if (!state.active) return;
-    setPreloaderProgress(overlay, 100);
     const minimumRemaining = Math.max(0, PRELOADER_MINIMUM - (Date.now() - state.startedAt));
-    finishTimer = window.setTimeout(() => {
-      state.release();
-      void warmAssets(tasks);
-    }, Math.max(minimumRemaining, prefersReducedMotion() ? 0 : 180));
+    await wait(minimumRemaining, controller.signal);
+    if (!state.active) return;
+    await progress.complete();
+    if (!state.active) return;
+    await animatePreloaderExit(overlay, controller.signal);
+    if (!state.active) return;
+    state.release();
+    void warmAssets(tasks);
   };
   const start = (): void => { void run().catch(state.release); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });

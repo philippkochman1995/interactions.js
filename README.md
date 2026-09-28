@@ -806,12 +806,16 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 
-- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `2`),
+- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `3`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
 - Mindestanzeige 2.000 ms, unabhängiger Head-Wachhund maximal 6 s ab Aktivierung.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
+- Der sichtbare Zähler beginnt bei 0, kombiniert erledigte kritische Tasks mit
+  einer geglätteten Ladezeitschätzung und reserviert 100 % für den echten
+  Ready-Zustand. Danach blenden die Inhalte aus und die rosa Fläche fährt nach
+  oben aus dem Viewport; reduzierte Bewegung überspringt diese Animation.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
 - Native Webflow-Spline-Szenen werden im synchronen Body-Skript parallel in den

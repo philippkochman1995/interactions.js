@@ -1,9 +1,10 @@
 // Shared by the two classic boot bundles and the deferred module. No GSAP here:
 // the head watchdog must be able to release the page even if the main bundle fails.
 export const PRELOADER_CLASS = 'is-site-preloading';
+export const PRELOADER_EXIT_CLASS = 'is-site-preloader-exiting';
 export const PRELOADER_SELECTOR = '[data-site-preloader]';
 export const PRELOADER_STORAGE_KEY = 'site-preloader-seen';
-export const PRELOADER_STORAGE_VERSION = '2';
+export const PRELOADER_STORAGE_VERSION = '3';
 export const PRELOADER_TIMEOUT = 6000;
 export const PRELOADER_MINIMUM = 2000;
 
@@ -41,7 +42,7 @@ export function primeSitePreloader(): void {
     release: () => {
       if (!state.active) return;
       state.active = false;
-      root.classList.remove(PRELOADER_CLASS);
+      root.classList.remove(PRELOADER_CLASS, PRELOADER_EXIT_CLASS);
       document.querySelector(PRELOADER_SELECTOR)?.remove();
       state.cleanup.splice(0).forEach((cleanup) => { try { cleanup(); } catch { /* Release all owners. */ } });
       resolveReady();

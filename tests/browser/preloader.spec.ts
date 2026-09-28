@@ -105,6 +105,47 @@ test('three native Webflow scenes all gate release, including an offscreen scene
   expect(requests.size).toBe(3);
 });
 
+test('visible progress advances continuously, then content fades before the panel reveals the page', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as any).__progressValues = [];
+    (window as any).__preloaderExitOrder = { fadeAt: null, moveAt: null };
+    const capture = (): void => {
+      const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
+      const value = Number(overlay?.getAttribute('aria-valuenow'));
+      const values = (window as any).__progressValues as number[];
+      if (Number.isFinite(value) && values.at(-1) !== value) values.push(value);
+      if (!overlay) return;
+      const order = (window as any).__preloaderExitOrder as { fadeAt: number | null; moveAt: number | null };
+      const progress = overlay.querySelector<HTMLElement>('.site-preloader__progress');
+      if (progress && Number(getComputedStyle(progress).opacity) < 0.99 && order.fadeAt === null) order.fadeAt = performance.now();
+      if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) order.moveAt = performance.now();
+    };
+    new MutationObserver(capture).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow', 'style'] });
+  });
+  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
+  await page.goto(`${fixture}?mode=native`);
+  await page.waitForTimeout(1000);
+  const values = await page.evaluate(() => (window as any).__progressValues as number[]);
+  expect(values[0]).toBe(0);
+  expect(values.length).toBeGreaterThan(5);
+  expect(values.at(-1)).toBeGreaterThan(values[0]);
+  expect(values.every((value, index) => index === 0 || value >= values[index - 1])).toBe(true);
+  expect(values.every((value, index) => index === 0 || value - values[index - 1] <= 4)).toBe(true);
+  expect(values.at(-1)).toBeLessThan(100);
+
+  await page.locator('#scene').dispatchEvent('w-spline-load');
+  await expect(page.locator('html')).toHaveClass(/is-site-preloader-exiting/);
+  await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100');
+  await page.waitForFunction(() => {
+    const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
+    return overlay && new DOMMatrix(getComputedStyle(overlay).transform).m42 < -10;
+  });
+  await expect(page.locator(loader)).toHaveCount(0);
+  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { fadeAt: number; moveAt: number });
+  expect(exitOrder.fadeAt).toBeGreaterThan(0);
+  expect(exitOrder.moveAt).toBeGreaterThan(exitOrder.fadeAt);
+});
+
 test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {
   await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
   await page.goto(`${fixture}?mode=native-early`);

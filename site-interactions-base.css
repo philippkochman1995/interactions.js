@@ -1593,6 +1593,9 @@ html.is-site-preloading::after {
   content: '';
   z-index: 2100;
 }
+html.is-site-preloading.is-site-preloader-exiting::after {
+  visibility: hidden;
+}
 .site-preloader {
   z-index: 2101;
   isolation: isolate;
@@ -1607,6 +1610,7 @@ html.is-site-preloading::after {
   text-transform: uppercase;
   touch-action: none;
   cursor: progress;
+  will-change: transform;
 }
 .site-preloader::before {
   content: '';
@@ -1624,6 +1628,7 @@ html.is-site-preloading::after {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+  will-change: opacity;
 }
 .site-preloader__progress {
   top: 12.0412%;
@@ -1654,6 +1659,7 @@ html.is-site-preloading::after {
   max-width: none;
   display: block;
   pointer-events: none;
+  will-change: opacity;
 }
 @media (max-width: 767px) {
   .site-preloader__signature {
