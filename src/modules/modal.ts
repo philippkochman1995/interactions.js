@@ -443,6 +443,22 @@ function clearContextContent(singleton: SingletonElements): void {
   singleton.gallery.hidden = true;
 }
 
+function renderModalText(target: HTMLElement, html: string): void {
+  target.innerHTML = html;
+  target.querySelectorAll<HTMLElement>(
+    '[data-reveal-pending], [data-reveal-ready], [data-splitline], .split-line, .bio_fade',
+  ).forEach((element) => {
+    element.removeAttribute('data-reveal-pending');
+    element.removeAttribute('data-reveal-ready');
+    element.removeAttribute('data-splitline');
+    element.classList.remove('split-line', 'bio_fade');
+    element.style.removeProperty('opacity');
+    element.style.removeProperty('transform');
+    element.style.removeProperty('clip-path');
+    element.style.removeProperty('visibility');
+  });
+}
+
 function renderDefaultContent(singleton: SingletonElements, content: ContentModalData): void {
   const hasImage = content.image.trim().length > 0;
 
@@ -457,7 +473,7 @@ function renderDefaultContent(singleton: SingletonElements, content: ContentModa
   singleton.image.src = hasImage ? content.image : '';
   singleton.image.alt = content.imageAlt;
   singleton.caption.textContent = content.caption;
-  singleton.text.innerHTML = content.html;
+  renderModalText(singleton.text, content.html);
   clearContextContent(singleton);
 }
 
@@ -483,7 +499,7 @@ function renderContextContent(singleton: SingletonElements, content: ContentModa
   singleton.caption.textContent = '';
   singleton.headline.textContent = content.headline ?? '';
   singleton.headline.hidden = !content.headline;
-  singleton.text.innerHTML = content.html;
+  renderModalText(singleton.text, content.html);
   singleton.work.replaceChildren();
   singleton.work.hidden = !content.work;
   singleton.gallery.replaceChildren();

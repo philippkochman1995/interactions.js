@@ -882,11 +882,13 @@ footer a.w--current:focus-visible::after,
 
 .fwm-modal {
   justify-content: flex-end;
-  background: rgba(6, 2, 26, 0.5);
+  background-color: rgba(6, 2, 26, 0);
   pointer-events: none;
+  transition: background-color 420ms ease;
 }
 
 .fwm-modal.is-visible {
+  background-color: rgba(6, 2, 26, 0.5);
   pointer-events: auto;
 }
 

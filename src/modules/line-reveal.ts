@@ -7,6 +7,7 @@ import { prefersReducedMotion, qsa } from './utils';
 const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p';
 const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
+  '[data-modal-rich-text]', '[data-modal-body]',
   '.site-lightbox', '[data-site-lightbox]', '[role="dialog"]',
   '[data-reveal="off"]',
 ].join(', ');

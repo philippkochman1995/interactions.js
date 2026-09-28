@@ -142,6 +142,8 @@ The script appends its inner HTML after the existing `.fwm-modal__text` content
 (including the title) and hides the source. Paragraphs, line breaks, links and
 formatting are preserved. The updated `dist/site-interactions.js` must be hosted
 at the URL used by the Webflow script include before publishing the page.
+Modal text has no text-reveal animation. The backdrop darkens over 420 ms when
+the modal opens; the panel keeps its separate reveal mask.
 
 Recommended ID prefixes:
 
@@ -623,7 +625,9 @@ abgeschlossen. Die Navigation selbst wird nie blockiert.
 
 `src/modules/line-reveal.ts` animiert auf allen Seiten ausser `/news` und dessen
 Detailseiten jedes sichtbare `h1`–`h6` und `p`. Texte in Modals, Lightboxes und
-versteckten Modal-Quellen bleiben unberuehrt. `data-reveal="off"` nimmt ein einzelnes
+versteckten Modal-Quellen bleiben unberuehrt. Das gilt auch fuer die separaten
+`data-modal-rich-text`-Quellen; beim Einsetzen ins Modal werden verbliebene Reveal-Hooks
+und alte Animationsklassen vom Text entfernt. `data-reveal="off"` nimmt ein einzelnes
 Element aus. Die alten `data-splitline`-, Gruppen-, Delay- und Stagger-Attribute
 steuern den neuen Reveal nicht mehr.
 
