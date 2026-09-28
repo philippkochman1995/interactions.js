@@ -1,5 +1,25 @@
 import { PRELOADER_SELECTOR } from './site-preloader-state';
 
+/**
+ * Start every native Webflow scene request before the deferred application bundle.
+ * This only warms the HTTP cache; runtime readiness is tracked separately through
+ * Webflow's w-spline-load event and never inferred from this Promise.
+ */
+export function primeSplinePreloads(): void {
+  const preloads = window.__siteSplinePreloads ??= new Map<string, Promise<void>>();
+  for (const element of Array.from(document.querySelectorAll<HTMLElement>('[data-animation-type="spline"][data-spline-url]'))) {
+    const value = element.getAttribute('data-spline-url');
+    if (!value) continue;
+    let url: URL;
+    try { url = new URL(value, document.baseURI); } catch { continue; }
+    if (!/^https?:$/.test(url.protocol) || preloads.has(url.href)) continue;
+    const request = fetch(url.href, { cache: 'force-cache', credentials: 'omit' })
+      .then(async (response) => { if (response.ok) await response.arrayBuffer(); })
+      .catch(() => undefined);
+    preloads.set(url.href, request);
+  }
+}
+
 export function createSitePreloader(): void {
   const state = window.__sitePreloader;
   if (!state?.active || document.querySelector(PRELOADER_SELECTOR)) return;

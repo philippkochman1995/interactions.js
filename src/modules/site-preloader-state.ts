@@ -3,7 +3,9 @@
 export const PRELOADER_CLASS = 'is-site-preloading';
 export const PRELOADER_SELECTOR = '[data-site-preloader]';
 export const PRELOADER_STORAGE_KEY = 'site-preloader-seen';
-export const PRELOADER_TIMEOUT = 8000;
+export const PRELOADER_STORAGE_VERSION = '2';
+export const PRELOADER_TIMEOUT = 6000;
+export const PRELOADER_MINIMUM = 2000;
 
 export interface PreloaderState {
   active: boolean;
@@ -14,16 +16,19 @@ export interface PreloaderState {
 }
 
 declare global {
-  interface Window { __sitePreloader?: PreloaderState }
+  interface Window {
+    __sitePreloader?: PreloaderState;
+    __siteSplinePreloads?: Map<string, Promise<void>>;
+  }
 }
 
 export function primeSitePreloader(): void {
   if (window.__sitePreloader) return;
   const root = document.documentElement;
   try {
-    if (window.sessionStorage.getItem(PRELOADER_STORAGE_KEY)) return;
+    if (window.sessionStorage.getItem(PRELOADER_STORAGE_KEY) === PRELOADER_STORAGE_VERSION) return;
     // Mark the attempt, including a timeout, so a failed asset cannot repeat the intro.
-    window.sessionStorage.setItem(PRELOADER_STORAGE_KEY, '1');
+    window.sessionStorage.setItem(PRELOADER_STORAGE_KEY, PRELOADER_STORAGE_VERSION);
   } catch { /* No storage: one attempt for this document, still bounded by the watchdog. */ }
 
   // An incoming navigation already has its own visual handover.

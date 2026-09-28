@@ -1,9 +1,32 @@
 import { gsap } from 'gsap';
 import { collectPreloadTasks, untilAborted, waitForCmsAssets, warmAssets } from './site-preloader-assets';
-import { PRELOADER_SELECTOR } from './site-preloader-state';
+import { PRELOADER_MINIMUM, PRELOADER_SELECTOR } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
 let initialized = false;
+
+function waitForPaint(signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    let firstFrame = 0;
+    let secondFrame = 0;
+    let settled = false;
+    const fallback = window.setTimeout(finish, 160);
+    function finish(): void {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(fallback);
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+      signal.removeEventListener('abort', finish);
+      resolve();
+    }
+    if (signal.aborted) return finish();
+    signal.addEventListener('abort', finish, { once: true });
+    firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(finish);
+    });
+  });
+}
 
 export function setPreloaderProgress(overlay: HTMLElement, value: number): void {
   if (!Number.isFinite(value)) return;
@@ -61,8 +84,12 @@ export function initSitePreloader(): void {
       if (state.active) setPreloaderProgress(overlay, complete / critical.length * 100);
     }));
     if (!state.active) return;
+    // Webflow dispatches w-spline-load when Application.load() resolves. Give
+    // every ready canvas two frames to paint before uncovering the document.
+    await waitForPaint(controller.signal);
+    if (!state.active) return;
     setPreloaderProgress(overlay, 100);
-    const minimumRemaining = Math.max(0, 500 - (Date.now() - state.startedAt));
+    const minimumRemaining = Math.max(0, PRELOADER_MINIMUM - (Date.now() - state.startedAt));
     finishTimer = window.setTimeout(() => {
       state.release();
       void warmAssets(tasks);

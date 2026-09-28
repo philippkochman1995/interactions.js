@@ -19,15 +19,22 @@
     if (mode === 'cms') {
       document.querySelector('main').setAttribute('data-cms-works', '');
     }
-    if (mode === 'spline' || mode === 'iframe' || mode === 'native') {
-      const scene = document.createElement(mode === 'iframe' ? 'iframe' : mode === 'native' ? 'div' : 'spline-viewer');
-      scene.id = 'scene';
-      scene.setAttribute('data-preload-priority', 'critical');
-      if (mode === 'native') {
-        scene.setAttribute('data-animation-type', 'spline');
-        scene.setAttribute('data-spline-url', 'https://prod.spline.design/test/scene.splinecode');
-      } else scene.setAttribute(mode === 'iframe' ? 'src' : 'url', 'https://prod.spline.design/test/scene.splinecode');
-      document.querySelector('main').append(scene);
+    if (mode === 'spline' || mode === 'iframe' || mode === 'native' || mode === 'native3' || mode === 'native-early') {
+      const native = mode.startsWith('native');
+      const count = mode === 'native3' ? 3 : 1;
+      for (let index = 0; index < count; index++) {
+        const scene = document.createElement(mode === 'iframe' ? 'iframe' : native ? 'div' : 'spline-viewer');
+        scene.id = index === 0 ? 'scene' : `scene-${index + 1}`;
+        if (native) {
+          scene.setAttribute('data-animation-type', 'spline');
+          scene.setAttribute('data-spline-url', `https://prod.spline.design/test-${index + 1}/scene.splinecode`);
+        } else {
+          scene.setAttribute('data-preload-priority', 'critical');
+          scene.setAttribute(mode === 'iframe' ? 'src' : 'url', 'https://prod.spline.design/test/scene.splinecode');
+        }
+        document.querySelector('main').append(scene);
+        if (mode === 'native-early') scene.dispatchEvent(new Event('w-spline-load'));
+      }
     }
   </script>
   <script src="/dist/site-body.js"></script>

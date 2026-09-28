@@ -67,7 +67,7 @@ function inInitialViewport(element: Element): boolean {
 
 function splineReady(element: Element, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
-    const events = ['load-complete', 'w-spline-load', 'site:spline-ready', 'error'];
+    const events = ['load-complete', 'w-spline-load', 'site:spline-ready'];
     const finish = (): void => {
       events.forEach((name) => element.removeEventListener(name, finish));
       signal.removeEventListener('abort', finish);
@@ -116,14 +116,17 @@ export function collectPreloadTasks(): PreloadTask[] {
   const signature = document.querySelector<HTMLImageElement>('.site-preloader__signature');
   if (signature) addUrl(new URL('preloader-background.svg', signature.src).href, 'image', 'critical');
 
-  for (const element of Array.from(document.querySelectorAll('spline-viewer, [data-animation-type="spline"], [data-preload-spline], iframe[src]'))) {
+  for (const [index, element] of Array.from(document.querySelectorAll('spline-viewer, [data-animation-type="spline"], [data-preload-spline], iframe[src]')).entries()) {
     const isIframe = element instanceof HTMLIFrameElement;
     const url = absoluteUrl(element.getAttribute('data-preload-spline-url') || element.getAttribute('data-spline-url') || element.getAttribute('url') || element.getAttribute('src'));
     if (!url || (isIframe && !element.hasAttribute('data-preload-spline') && !/(^|\.)spline\.design$/.test(new URL(url).hostname))) continue;
-    const priority = explicitPriority(element) ?? 'warm';
+    const isNativeWebflowSpline = element.matches('[data-animation-type="spline"][data-spline-url]');
+    const priority = explicitPriority(element) ?? (isNativeWebflowSpline ? 'critical' : 'warm');
     const hasRuntime = element.matches('spline-viewer, [data-animation-type="spline"]');
     if (priority === 'critical' && hasRuntime) {
-      add({ key: `spline:${url}`, priority, load: (signal) => splineReady(element, signal) });
+      // Runtime tasks are per element: two canvases that share a URL must both
+      // reach Webflow readiness. Network preloads remain URL-deduplicated.
+      add({ key: `spline-runtime:${index}:${url}`, priority, load: (signal) => splineReady(element, signal) });
     } else if (isIframe) {
       // Cross-origin iframe load does not mean scene-ready. Only an explicit
       // integration signal on the host iframe can satisfy a critical scene.

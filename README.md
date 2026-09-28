@@ -806,14 +806,17 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 
-- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`),
+- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `2`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
-- Mindestanzeige 500 ms, unabhängiger Head-Wachhund maximal 8 s ab Aktivierung.
+- Mindestanzeige 2.000 ms, unabhängiger Head-Wachhund maximal 6 s ab Aktivierung.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
+- Native Webflow-Spline-Szenen werden im synchronen Body-Skript parallel in den
+  HTTP-Cache vorgeladen und zählen automatisch als kritisch. Fertig sind sie erst
+  nach `w-spline-load` für jedes Element und zwei weiteren Rendering-Frames.
 - Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
   mit `data-site-assets-ready`. Darauf wartet die Erfassung maximal 2 s. Später
   erzeugte Inhalte unterliegen dem normalen Browser-Laden und werden nicht
@@ -834,7 +837,8 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 ### Explizite Priorität und Spline
 
 `data-preload-priority="critical"` bzw. `"warm"` kann auf einem Asset oder seinem
-Container stehen. Nicht markierte Spline-Szenen sind standardmäßig Warmup.
+Container stehen. Native Webflow-Spline-Szenen sind standardmäßig kritisch;
+andere Spline-Einbindungen bleiben ohne Markierung Warmup.
 
 ```html
 <img src="hero.jpg" data-preload-priority="critical" alt="Werk">

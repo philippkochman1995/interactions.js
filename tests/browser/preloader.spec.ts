@@ -17,7 +17,7 @@ test('cached assets, minimum visibility, session skip and ownership of inert', a
   await page.waitForFunction(() => !window.__sitePreloader?.active);
   expect(await page.evaluate(() => (window as any).__wasLocked)).toBe(true);
   const duration = await page.evaluate(() => (window as any).__introDuration);
-  expect(duration).toBeGreaterThanOrEqual(490);
+  expect(duration).toBeGreaterThanOrEqual(1950);
   await expect(page.locator('#content')).not.toHaveAttribute('inert', '');
   await expect(page.locator('#already-inert')).toHaveAttribute('inert', '');
   await page.reload();
@@ -86,6 +86,45 @@ for (const mode of ['spline', 'native']) {
   });
 }
 
+test('three native Webflow scenes all gate release, including an offscreen scene', async ({ page }) => {
+  const requests = new Set<string>();
+  await page.route('https://prod.spline.design/**', (route) => {
+    requests.add(route.request().url());
+    return route.fulfill({ body: 'scene', contentType: 'application/octet-stream' });
+  });
+  await page.goto(`${fixture}?mode=native3`);
+  await page.waitForTimeout(2050);
+  await expect(page.locator(loader)).toBeVisible();
+  await page.locator('#scene').dispatchEvent('w-spline-load');
+  await page.locator('#scene-2').dispatchEvent('w-spline-load');
+  await page.waitForTimeout(100);
+  await expect(page.locator(loader)).toBeVisible();
+  expect(Number(await page.locator(loader).getAttribute('aria-valuenow'))).toBeLessThan(100);
+  await page.locator('#scene-3').dispatchEvent('w-spline-load');
+  await expect(page.locator(loader)).toHaveCount(0);
+  expect(requests.size).toBe(3);
+});
+
+test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {
+  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
+  await page.goto(`${fixture}?mode=native-early`);
+  await page.waitForFunction(() => !window.__sitePreloader?.active);
+  const duration = await page.evaluate(() => Date.now() - window.__sitePreloader!.startedAt);
+  expect(duration).toBeGreaterThanOrEqual(1950);
+  await expect(page.locator(loader)).toHaveCount(0);
+});
+
+test('successful splinecode prefetch alone never counts as runtime readiness', async ({ page }) => {
+  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
+  const startedAt = Date.now();
+  await page.goto(`${fixture}?mode=native`);
+  await page.waitForTimeout(2200);
+  await expect(page.locator(loader)).toBeVisible();
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 6500 });
+  expect(Date.now() - startedAt).toBeGreaterThanOrEqual(5900);
+  await expect(page.locator('#content')).not.toHaveAttribute('inert', '');
+});
+
 test('iframe load does not falsely signal a ready scene; timeout releases', async ({ page }) => {
   await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: '<html></html>', contentType: 'text/html' }));
   await page.goto(`${fixture}?mode=iframe`);
@@ -103,9 +142,10 @@ test('rolling digits carry 9→10 and 99→100 without queued intermediate value
       setPreloaderProgress(document.querySelector('[data-site-preloader]')!, value);
     }, value);
     await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', String(value));
-    await page.waitForTimeout(220);
-    const shown = await page.locator('.site-preloader__digit:not([hidden]) .site-preloader__track > span:first-child').allTextContents();
-    expect(shown.join('')).toBe(String(value));
+    await expect.poll(async () => {
+      const shown = await page.locator('.site-preloader__digit:not([hidden]) .site-preloader__track > span:first-child').allTextContents();
+      return shown.join('');
+    }).toBe(String(value));
   }
 });
 
