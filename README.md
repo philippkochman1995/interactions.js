@@ -325,7 +325,12 @@ individual item spacing plus a small per-item transform offset.
 The item spacing is the central layout control: vertically it is added after each
 item; horizontally it is applied inside the 25vw column by reducing the rendered
 item width, so the same value controls the visual gap to neighboring
-columns/items. Set min and max to the same value when you want a more exact grid,
+columns/items. Nearby images are compared before their offsets are set to avoid
+close alignment where possible. The configured offset range is preferred; if no
+direction works, the offset can grow to 1.5 times the configured maximum. On
+hover-capable screens, the wrapped title gets enough space below the image to
+leave at least 8px before the next image, including at the pattern seam. Set min
+and max to the same value when you want a more exact grid,
 for example `data-canvas-item-margin-min="5"` and
 `data-canvas-item-margin-max="5"`. Columns themselves do not get a Y start
 offset. The balanced base pattern is rendered around the viewport and wrapped

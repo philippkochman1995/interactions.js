@@ -1,4 +1,4 @@
-import { t as e } from "./site-interactions-Bso9rHzz.js";
+import { t as e } from "./site-interactions-BxJ-FVg3.js";
 import { t } from "./site-interactions-QtEWUsWn.js";
 //#region \0rolldown/runtime.js
 var n = Object.create, r = Object.defineProperty, i = Object.getOwnPropertyDescriptor, a = Object.getOwnPropertyNames, o = Object.getPrototypeOf, s = Object.prototype.hasOwnProperty, c = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t.exports), l = (e, t, n, o) => {
@@ -8227,75 +8227,122 @@ function Te(e, t, n, r, i, a) {
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = ue(e, a).map((e) => {
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r * (r <= n.mobileBreakpoint ? n.mobileColumnWidth : n.columnWidth) / 100, c = r * n.itemMarginMin / 100, l = r * n.itemMarginMax / 100, u = o * s, d = n.itemOffsetMin / 100, f = n.itemOffsetMax / 100, p = Math.max(n.itemOffsetMin, n.itemOffsetMax) * 1.5 / 100, m = document.createElement("button"), h = document.createElement("span");
+	m.className = "cms-canvas__item", m.style.cssText = "position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none", m.tabIndex = -1, m.setAttribute("aria-hidden", "true"), h.className = "cms-canvas__title", m.append(h), document.body.append(m);
+	let g = ue(e, a).map((e) => {
 		var n, r;
-		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35) * re[e.size] * Math.min(o, 1), m = p / Math.max(o, .2), h = d + a() * Math.max(f - d, 0), g = a() > .5 ? 1 : -1, _ = a() > .5 ? 1 : -1;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), u = c + a() * Math.max(l - c, 0), p = Math.max(s - u, s * .35) * re[e.size] * Math.min(o, 1), g = p / Math.max(o, .2);
+		m.style.width = `${p}px`, m.dataset.canvasItemSize = e.size, h.textContent = e.title;
+		let _ = e.title ? h.offsetHeight : 0, v = d + a() * Math.max(f - d, 0), y = a() > .5 ? 1 : -1, b = a() > .5 ? 1 : -1;
 		return {
 			tile: e,
 			width: p,
-			height: m,
+			height: g,
+			titleHeight: _,
 			margin: u,
-			offsetX: g * p * h,
-			offsetY: _ * m * h,
-			totalHeight: m + u
+			offsetX: y * p * v,
+			offsetY: b * g * v,
+			totalHeight: g + Math.max(u, _ ? _ + 8 : 0)
 		};
-	}), m = Array.from({ length: o }, () => []), h = Array.from({ length: o }, () => 0), g = Math.max(l, s * .12);
-	p.forEach((e) => {
-		let t = h.indexOf(Math.min(...h));
-		m[t].push(e), h[t] += e.totalHeight;
 	});
-	let _ = 0, v = o * Math.max(p.length, 1) * 3;
-	for (; p.length > 0 && Math.max(...h) - Math.min(...h) > g && _ < v;) {
-		let e = h.indexOf(Math.min(...h)), t = h.indexOf(Math.max(...h)), n = h[t] - h[e], r = m[t].length > 0 ? m[t] : p, i = r.reduce((e, t) => {
-			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + g;
-			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + g) < r ? t : e;
+	m.remove();
+	let _ = Array.from({ length: o }, () => []), v = Array.from({ length: o }, () => 0), y = Math.max(l, s * .12);
+	g.forEach((e) => {
+		let t = v.indexOf(Math.min(...v));
+		_[t].push(e), v[t] += e.totalHeight;
+	});
+	let b = 0, x = o * Math.max(g.length, 1) * 3;
+	for (; g.length > 0 && Math.max(...v) - Math.min(...v) > y && b < x;) {
+		let e = v.indexOf(Math.min(...v)), t = v.indexOf(Math.max(...v)), n = v[t] - v[e], r = _[t].length > 0 ? _[t] : g, i = r.reduce((e, t) => {
+			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + y;
+			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + y) < r ? t : e;
 		}, r[0]), a = {
 			...i,
 			tile: {
 				...i.tile,
-				instanceId: `${i.tile.sourceId}--fill-${e}-${_}`,
-				copyIndex: i.tile.copyIndex + _ + 1
+				instanceId: `${i.tile.sourceId}--fill-${e}-${b}`,
+				copyIndex: i.tile.copyIndex + b + 1
 			}
 		};
-		m[e].push(a), h[e] += a.totalHeight, _ += 1;
+		_[e].push(a), v[e] += a.totalHeight, b += 1;
 	}
-	let y = [], b = Math.max(...h, 1);
-	m.forEach((e, t) => {
-		let n = t * s - u / 2 + s / 2, r = e.reduce((e, t) => e + t.totalHeight, 0), i = e.length > 0 ? Math.max(b - r, 0) / e.length : 0, a = 0;
-		e.forEach((e) => {
-			y.push({
-				tile: e.tile,
-				x: n - e.width / 2,
+	let S = [], C = [], w = _.map((e) => e.map((t, n) => {
+		let r = e[(n + 1) % e.length];
+		return Math.max(t.margin, t.titleHeight ? t.titleHeight + 8 + p * (t.height + r.height) : 0);
+	})), ee = _.map((e, t) => e.reduce((e, n, r) => e + n.height + w[t][r], 0)), te = Math.max(...ee, 1), ne = s * .05;
+	_.forEach((e, t) => {
+		let n = t * s - u / 2 + s / 2, r = e.length > 0 ? Math.max(te - ee[t], 0) / e.length : 0, i = [], a = 0;
+		e.forEach((s, c) => {
+			let l = n - s.width / 2, u = i[i.length - 1], d = t > 0 ? [C[t - 1]] : [];
+			t === o - 1 && o > 1 && d.push(C[0]);
+			let f = (t, n) => {
+				let r = l + t + s.width / 2, o = a + n + s.height / 2, f = 0;
+				for (let t of [u, c === e.length - 1 ? i[0] : void 0]) t && (f += Math.max(0, ne - Math.abs(r - Ce(t).x)));
+				for (let e of d) for (let t of e) for (let e of [
+					-te,
+					0,
+					te
+				]) {
+					let r = t.y + t.offsetY + e, i = r + t.height / 2;
+					if (!(Math.abs(o - i) > Math.max(s.height, t.height))) for (let [e, c] of [
+						[a + n, r],
+						[o, i],
+						[a + n + s.height, r + t.height]
+					]) f += Math.max(0, ne - Math.abs(e - c));
+				}
+				return f;
+			}, m = s.offsetX < 0 ? [-1, 1] : [1, -1], h = s.offsetY < 0 ? [-1, 1] : [1, -1], g = {
+				x: s.offsetX,
+				y: s.offsetY,
+				penalty: Infinity
+			}, _ = (e, t) => {
+				for (let n of m) for (let r of h) {
+					let i = n * e, a = r * t, o = f(i, a);
+					o < g.penalty && (g = {
+						x: i,
+						y: a,
+						penalty: o
+					});
+				}
+			};
+			if (_(Math.abs(s.offsetX), Math.abs(s.offsetY)), g.penalty > 0) {
+				let e = Math.max(Math.abs(s.offsetX), s.width * p), t = Math.max(Math.abs(s.offsetY), s.height * p);
+				_(e, Math.abs(s.offsetY)), _(Math.abs(s.offsetX), t), _(e, t);
+			}
+			let v = {
+				tile: s.tile,
+				x: l,
 				y: a,
-				width: e.width,
-				height: e.height,
-				offsetX: e.offsetX,
-				offsetY: e.offsetY
-			}), a += e.totalHeight + i;
-		});
+				width: s.width,
+				height: s.height,
+				offsetX: g.x,
+				offsetY: g.y
+			};
+			i.push(v), S.push(v), a += s.height + w[t][c] + r;
+		}), C.push(i);
 	});
-	let x = y.map((e) => ({
+	let T = S.map((e) => ({
 		...e,
-		y: e.y - b / 2
-	})), S = [], C = xe(u, r);
-	return xe(b, i).forEach((e) => {
-		C.forEach((t) => {
-			x.forEach((n, r) => {
-				S.push({
+		y: e.y - te / 2
+	})), ie = [], ae = xe(u, r);
+	return xe(te, i).forEach((e) => {
+		ae.forEach((t) => {
+			T.forEach((n, r) => {
+				ie.push({
 					...n,
 					tile: {
 						...n.tile,
 						instanceId: `${n.tile.instanceId}--grid-${r}--${t}-${e}`
 					},
 					x: n.x + t * u,
-					y: n.y + e * b
+					y: n.y + e * te
 				});
 			});
 		});
 	}), {
-		placed: S,
+		placed: ie,
 		patternWidth: u,
-		patternHeight: b
+		patternHeight: te
 	};
 }
 function Ee(e, t) {
@@ -8355,16 +8402,17 @@ function Oe({ root: t, items: n, source: r }) {
 			window.cancelAnimationFrame(e), window.removeEventListener("resize", n);
 		};
 	}, [t]), (0, x.useEffect)(() => {
-		let e = !1, t = D(f.current), r = _e(n);
-		return Promise.all(r.map(async (e) => [e.instanceId, await ve(e.thumbnail)])).then((n) => {
-			if (e) return;
-			let i = new Map(n), a = Te(r, i, d, l.width, l.height, t);
-			o(a.placed), c({
-				width: a.patternWidth,
-				height: a.patternHeight
+		var e, t;
+		let r = !1, i = D(f.current), a = _e(n);
+		return Promise.all([Promise.all(a.map(async (e) => [e.instanceId, await ve(e.thumbnail)])), (e = (t = document.fonts) == null ? void 0 : t.ready) == null ? Promise.resolve() : e]).then(([e]) => {
+			if (r) return;
+			let t = new Map(e), n = Te(a, t, d, l.width, l.height, i);
+			o(n.placed), c({
+				width: n.patternWidth,
+				height: n.patternHeight
 			});
 		}), () => {
-			e = !0;
+			r = !0;
 		};
 	}, [
 		d,

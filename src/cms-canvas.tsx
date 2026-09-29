@@ -40,6 +40,7 @@ interface PreparedTile {
   tile: CanvasTileData;
   width: number;
   height: number;
+  titleHeight: number;
   margin: number;
   offsetX: number;
   offsetY: number;
@@ -425,6 +426,16 @@ function placeTiles(
   const patternWidth = columnCount * columnWidth;
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
+  const maxOffset = (Math.max(config.itemOffsetMin, config.itemOffsetMax) * 1.5) / 100;
+  const titleProbe = document.createElement('button');
+  const titleLabel = document.createElement('span');
+  titleProbe.className = 'cms-canvas__item';
+  titleProbe.style.cssText = 'position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none';
+  titleProbe.tabIndex = -1;
+  titleProbe.setAttribute('aria-hidden', 'true');
+  titleLabel.className = 'cms-canvas__title';
+  titleProbe.append(titleLabel);
+  document.body.append(titleProbe);
   const preparedTiles: PreparedTile[] = shuffled(tiles, random).map((tile) => {
     const measure = measures.get(tile.sourceId) ?? measures.get(tile.instanceId) ?? fallbackMeasure(tile);
     const aspectRatio = measure.width / Math.max(measure.height, 1);
@@ -433,6 +444,10 @@ function placeTiles(
     const maxEdge = availableWidth * CANVAS_SIZE_SCALE[tile.size];
     const width = maxEdge * Math.min(aspectRatio, 1);
     const height = width / Math.max(aspectRatio, 0.2);
+    titleProbe.style.width = `${width}px`;
+    titleProbe.dataset.canvasItemSize = tile.size;
+    titleLabel.textContent = tile.title;
+    const titleHeight = tile.title ? titleLabel.offsetHeight : 0;
     const offsetAmount = offsetMin + random() * Math.max(offsetMax - offsetMin, 0);
     const offsetDirectionX = random() > 0.5 ? 1 : -1;
     const offsetDirectionY = random() > 0.5 ? 1 : -1;
@@ -441,12 +456,14 @@ function placeTiles(
       tile,
       width,
       height,
+      titleHeight,
       margin,
       offsetX: offsetDirectionX * width * offsetAmount,
       offsetY: offsetDirectionY * height * offsetAmount,
-      totalHeight: height + margin,
+      totalHeight: height + Math.max(margin, titleHeight ? titleHeight + 8 : 0),
     };
   });
+  titleProbe.remove();
   const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
   const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
   const maxAllowedColumnGap = Math.max(marginMax, columnWidth * 0.12);
@@ -496,28 +513,102 @@ function placeTiles(
   }
 
   const basePlaced: PlacedTile[] = [];
-  const patternHeight = Math.max(...preparedColumnHeights, 1);
+  const placedColumns: PlacedTile[][] = [];
+  const columnGaps = orderedColumns.map((column) => column.map((tile, index) => {
+    const next = column[(index + 1) % column.length];
+    return Math.max(
+      tile.margin,
+      tile.titleHeight ? tile.titleHeight + 8 + maxOffset * (tile.height + next.height) : 0,
+    );
+  }));
+  const columnHeights = orderedColumns.map((column, index) =>
+    column.reduce((height, tile, tileIndex) => height + tile.height + columnGaps[index][tileIndex], 0),
+  );
+  const patternHeight = Math.max(...columnHeights, 1);
+  const alignmentThreshold = columnWidth * 0.05;
 
   orderedColumns.forEach((column, columnIndex) => {
     const columnCenter = columnIndex * columnWidth - patternWidth / 2 + columnWidth / 2;
-    const columnContentHeight = column.reduce((height, tile) => height + tile.totalHeight, 0);
     const distributedLoopGap = column.length > 0
-      ? Math.max(patternHeight - columnContentHeight, 0) / column.length
+      ? Math.max(patternHeight - columnHeights[columnIndex], 0) / column.length
       : 0;
+    const placedColumn: PlacedTile[] = [];
     let y = 0;
 
-    column.forEach((tile) => {
-      basePlaced.push({
+    column.forEach((tile, tileIndex) => {
+      const x = columnCenter - tile.width / 2;
+      const previous = placedColumn[placedColumn.length - 1];
+      const sideColumns = columnIndex > 0 ? [placedColumns[columnIndex - 1]] : [];
+      if (columnIndex === columnCount - 1 && columnCount > 1) {
+        sideColumns.push(placedColumns[0]);
+      }
+      const score = (offsetX: number, offsetY: number): number => {
+        const centerX = x + offsetX + tile.width / 2;
+        const centerY = y + offsetY + tile.height / 2;
+        let penalty = 0;
+
+        for (const neighbor of [previous, tileIndex === column.length - 1 ? placedColumn[0] : undefined]) {
+          if (neighbor) {
+            penalty += Math.max(0, alignmentThreshold - Math.abs(centerX - getTileCenter(neighbor).x));
+          }
+        }
+
+        for (const sideColumn of sideColumns) {
+          for (const neighbor of sideColumn) {
+            for (const repeatY of [-patternHeight, 0, patternHeight]) {
+              const neighborTop = neighbor.y + neighbor.offsetY + repeatY;
+              const neighborCenter = neighborTop + neighbor.height / 2;
+              if (Math.abs(centerY - neighborCenter) > Math.max(tile.height, neighbor.height)) continue;
+              for (const [first, second] of [
+                [y + offsetY, neighborTop],
+                [centerY, neighborCenter],
+                [y + offsetY + tile.height, neighborTop + neighbor.height],
+              ]) {
+                penalty += Math.max(0, alignmentThreshold - Math.abs(first - second));
+              }
+            }
+          }
+        }
+
+        return penalty;
+      };
+      const signsX = tile.offsetX < 0 ? [-1, 1] : [1, -1];
+      const signsY = tile.offsetY < 0 ? [-1, 1] : [1, -1];
+      let best = { x: tile.offsetX, y: tile.offsetY, penalty: Number.POSITIVE_INFINITY };
+      const consider = (amountX: number, amountY: number) => {
+        for (const signX of signsX) {
+          for (const signY of signsY) {
+            const offsetX = signX * amountX;
+            const offsetY = signY * amountY;
+            const penalty = score(offsetX, offsetY);
+            if (penalty < best.penalty) best = { x: offsetX, y: offsetY, penalty };
+          }
+        }
+      };
+
+      consider(Math.abs(tile.offsetX), Math.abs(tile.offsetY));
+      if (best.penalty > 0) {
+        const expandedX = Math.max(Math.abs(tile.offsetX), tile.width * maxOffset);
+        const expandedY = Math.max(Math.abs(tile.offsetY), tile.height * maxOffset);
+        consider(expandedX, Math.abs(tile.offsetY));
+        consider(Math.abs(tile.offsetX), expandedY);
+        consider(expandedX, expandedY);
+      }
+
+      const placedTile: PlacedTile = {
         tile: tile.tile,
-        x: columnCenter - tile.width / 2,
+        x,
         y,
         width: tile.width,
         height: tile.height,
-        offsetX: tile.offsetX,
-        offsetY: tile.offsetY,
-      });
-      y += tile.totalHeight + distributedLoopGap;
+        offsetX: best.x,
+        offsetY: best.y,
+      };
+      placedColumn.push(placedTile);
+      basePlaced.push(placedTile);
+      y += tile.height + columnGaps[columnIndex][tileIndex] + distributedLoopGap;
     });
+    placedColumns.push(placedColumn);
   });
   const normalizedPlaced = basePlaced.map((tile) => ({
     ...tile,
@@ -626,9 +717,10 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     const random = createRandom(seedRef.current);
     const tiles = itemsToTiles(items);
 
-    Promise.all(
-      tiles.map(async (tile) => [tile.instanceId, await measureImage(tile.thumbnail)] as const),
-    ).then((entries) => {
+    Promise.all([
+      Promise.all(tiles.map(async (tile) => [tile.instanceId, await measureImage(tile.thumbnail)] as const)),
+      document.fonts?.ready ?? Promise.resolve(),
+    ]).then(([entries]) => {
       if (cancelled) {
         return;
       }

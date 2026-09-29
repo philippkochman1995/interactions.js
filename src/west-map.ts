@@ -49,10 +49,20 @@
     if(legend) legend.classList.add('wm-legend');
 
     var sw = document.getElementById('wmLabelsSwitch');
+    var currentSwitch;
+    var currentRow;
     if(sw){
       sw.classList.add('wm-switch');
       var row = sw.parentElement;
       row.classList.add('wm-legend-toggle-row');
+
+      currentRow = row.cloneNode(true);
+      currentRow.classList.add('wm-current-row');
+      currentRow.querySelector('span').textContent = 'Aktuell zu sehen';
+      currentSwitch = currentRow.querySelector('#wmLabelsSwitch');
+      currentSwitch.id = 'wmCurrentSwitch';
+      currentSwitch.setAttribute('aria-label', 'Nur aktuell zu sehende Orte');
+      row.parentElement.insertBefore(currentRow, row);
 
       var prev = row.previousElementSibling;
       if(prev && !prev.classList.length){
@@ -336,10 +346,12 @@ function openMapModal(data){
         kategorie: ((item.querySelector('.wm-f-kategorie') || {}).textContent || '').trim(),
         bildrechte: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '',
         bild: imgEl ? imgEl.getAttribute('src') : '',
-        text: textEl ? textEl.innerHTML : ''
+        text: textEl ? textEl.innerHTML : '',
+        aktuell: !!item.querySelector('.wm-f-bildrechte + div')
       });
     });
 
+    var currentOnly = false;
     var activeCats = {
       'Ausstellungen': true,
       'Werke': true,
@@ -350,7 +362,7 @@ function openMapModal(data){
       var feats = [];
 
       orte.forEach(function(o, i){
-        if(activeCats[o.kategorie] === false) return;
+        if(activeCats[o.kategorie] === false || (currentOnly && !o.aktuell)) return;
 
         feats.push({
           type:'Feature',
@@ -390,6 +402,22 @@ function openMapModal(data){
           features: buildFeatures()
         });
       }
+    }
+
+    if(currentSwitch){
+      currentSwitch.setAttribute('aria-checked', 'false');
+      currentSwitch.addEventListener('click', function(){
+        currentOnly = currentSwitch.classList.toggle('is-on');
+        currentSwitch.setAttribute('aria-checked', currentOnly ? 'true' : 'false');
+        currentRow.classList.toggle('is-on', currentOnly);
+        applyFilter();
+      });
+      currentSwitch.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          currentSwitch.click();
+        }
+      });
     }
 
     function setLegendItemState(item, cat){
