@@ -18,8 +18,12 @@ function i(e, t) {
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
 function a(e, t) {
-	var n, r;
-	return (n = (r = e.querySelector(t)) == null ? void 0 : r.innerHTML.trim()) == null ? "" : n;
+	let n = e.querySelector(t);
+	if (!n) return "";
+	let r = n.cloneNode(!0);
+	return r.querySelectorAll("p[data-reveal-pending], p[data-reveal-ready]").forEach((e) => {
+		e.removeAttribute("data-reveal-pending"), e.removeAttribute("data-reveal-ready"), e.style.removeProperty("opacity"), e.style.removeProperty("transform");
+	}), r.innerHTML.trim();
 }
 function o(e) {
 	var t;

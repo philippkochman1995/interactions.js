@@ -55,7 +55,23 @@ function textFrom(element: HTMLElement, selector: string): string {
 }
 
 function htmlFrom(element: HTMLElement, selector: string): string {
-  return element.querySelector<HTMLElement>(selector)?.innerHTML.trim() ?? '';
+  const source = element.querySelector<HTMLElement>(selector);
+
+  if (!source) {
+    return '';
+  }
+
+  // The site-wide reveal can animate CMS paragraphs before this page replaces
+  // the Webflow markup. Do not carry its inline hidden state into the new DOM.
+  const copy = source.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll<HTMLElement>('p[data-reveal-pending], p[data-reveal-ready]').forEach((paragraph) => {
+    paragraph.removeAttribute('data-reveal-pending');
+    paragraph.removeAttribute('data-reveal-ready');
+    paragraph.style.removeProperty('opacity');
+    paragraph.style.removeProperty('transform');
+  });
+
+  return copy.innerHTML.trim();
 }
 
 function directImageChildFrom(element: HTMLElement): HTMLImageElement | null {
