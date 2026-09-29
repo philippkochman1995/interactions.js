@@ -475,6 +475,9 @@ function renderDefaultContent(singleton: SingletonElements, content: ContentModa
   singleton.caption.textContent = content.caption;
   renderModalText(singleton.text, content.html);
   clearContextContent(singleton);
+  const extraImages = content.gallery?.slice(1).filter((item) => item.src) ?? [];
+  singleton.gallery.hidden = extraImages.length === 0;
+  extraImages.forEach((item, index) => singleton.gallery.append(renderGalleryItem(item, index)));
 }
 
 function renderContextContent(singleton: SingletonElements, content: ContentModalData): void {

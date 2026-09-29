@@ -306,7 +306,8 @@ function openMapModal(data){
     image: data.bild || '',
     imageAlt: data.name || '',
     caption: data.bildrechte || '',
-    html: data.text || ''
+    html: data.text || '',
+    gallery: data.gallery
   });
 }
 
@@ -337,6 +338,15 @@ function openMapModal(data){
 
       var imgEl = item.querySelector('.wm-f-bild');
       var textEl = item.querySelector('.wm-f-text');
+      var gallery = [{ src: imgEl ? imgEl.getAttribute('src') || '' : '', alt: '', caption: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '' }];
+      [2, 3].forEach(function(n){
+        var image = item.querySelector('.wm-f-bild-' + n);
+        if(image && image.getAttribute('src')) gallery.push({
+          src: image.getAttribute('src'),
+          alt: image.getAttribute('alt') || '',
+          caption: (item.querySelector('.wm-f-bild-' + n + '-unterschrift') || {}).textContent || ''
+        });
+      });
 
       orte.push({
         lat: lat,
@@ -346,6 +356,7 @@ function openMapModal(data){
         kategorie: ((item.querySelector('.wm-f-kategorie') || {}).textContent || '').trim(),
         bildrechte: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '',
         bild: imgEl ? imgEl.getAttribute('src') : '',
+        gallery: gallery,
         text: textEl ? textEl.innerHTML : '',
         aktuell: !!item.querySelector('.wm-f-bildrechte + div')
       });

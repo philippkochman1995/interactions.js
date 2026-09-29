@@ -1,5 +1,5 @@
 import { _ as e, a as t, b as n, c as r, d as i, f as a, g as o, h as s, i as c, l, m as u, n as d, o as f, p, r as m, s as h, t as g, u as _, v, y } from "./site-interactions-Cou7uu3t.js";
-import { t as b } from "./site-interactions-Bso9rHzz.js";
+import { t as b } from "./site-interactions-BxJ-FVg3.js";
 import { t as x } from "./site-interactions-QtEWUsWn.js";
 import { i as S, n as ee, o as C, r as w, t as T } from "./site-interactions-BfdytpEq.js";
 //#region src/modules/i18n.ts
@@ -23,7 +23,7 @@ function k(e, t) {
 	return a(r) ? r.trim() : t.trim();
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Observer.js
+//#region node_modules/gsap/Observer.js
 function A(e, t) {
 	for (var n = 0; n < t.length; n++) {
 		var r = t[n];
@@ -249,7 +249,7 @@ G.version = "3.15.0", G.create = function(e) {
 	})[0];
 }, se() && j.registerPlugin(G);
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/ScrollTrigger.js
+//#region node_modules/gsap/ScrollTrigger.js
 var K, De, q, J, Oe, Y, ke, Ae, je, Me, Ne, Pe, Fe, Ie, Le, X, Re, ze, Z, Be, Ve, He, Ue, We, Ge, Ke, qe, Je, Ye, Xe, Ze, Qe, $e, et, tt = 1, nt = Date.now, rt = nt(), it = 0, at = 0, ot = function(e, t, n) {
 	var r = St(e) && (e.substr(0, 6) === "clamp(" || e.indexOf("max") > -1);
 	return n["_" + t + "Clamp"] = r, r ? e.substr(6, e.length - 7) : e;
@@ -1081,7 +1081,7 @@ $.sort = function(e) {
 	}
 }, mt() && K.registerPlugin($);
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/SplitText.js
+//#region node_modules/gsap/SplitText.js
 var or, sr, cr = typeof Symbol == "function" ? Symbol() : "_split", lr, ur = () => lr || kr.register(window.gsap), dr = typeof Intl < "u" && "Segmenter" in Intl ? new Intl.Segmenter() : 0, fr = (e) => e ? typeof e == "string" ? fr(document.querySelectorAll(e)) : "length" in e ? Array.from(e).reduce((e, t) => (typeof t == "string" ? e.push(...fr(t)) : e.push(t), e), []) : [e] : [], pr = (e) => fr(e).filter((e) => e && e.nodeType === 1), mr = [], hr = function() {}, gr = { add: (e) => e() }, _r = /\s+/g, vr = /* @__PURE__ */ RegExp("\\p{RI}\\p{RI}|\\p{Emoji}(\\p{EMod}|\\u{FE0F}\\u{20E3}?|[\\u{E0020}-\\u{E007E}]+\\u{E007F})?(\\u{200D}\\p{Emoji}(\\p{EMod}|\\u{FE0F}\\u{20E3}?|[\\u{E0020}-\\u{E007E}]+\\u{E007F})?)*|.", "gu"), yr = {
 	left: 0,
 	top: 0,
@@ -1712,8 +1712,11 @@ function ba(e, t) {
 	});
 }
 function xa(e, t) {
-	let n = t.image.trim().length > 0;
-	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !n, e.imageLink.href = n ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", n ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = n ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, ba(e.text, t.html), ya(e);
+	var n, r;
+	let i = t.image.trim().length > 0;
+	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !i, e.imageLink.href = i ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", i ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = i ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, ba(e.text, t.html), ya(e);
+	let a = (n = (r = t.gallery) == null ? void 0 : r.slice(1).filter((e) => e.src)) == null ? [] : n;
+	e.gallery.hidden = a.length === 0, a.forEach((t, n) => e.gallery.append(va(t, n)));
 }
 function Sa(e, t) {
 	var n, r;
@@ -2262,7 +2265,7 @@ function fs(e = document) {
 	}));
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/utils/matrix.js
+//#region node_modules/gsap/utils/matrix.js
 var ps, ms, hs, gs, _s, vs, ys, bs, xs = "transform", Ss = xs + "Origin", Cs, ws = function(e) {
 	var t = e.ownerDocument || e;
 	for (!(xs in e.style) && ("msTransform" in e.style) && (xs = "msTransform", Ss = xs + "Origin"); t.parentNode && (t = t.parentNode););
@@ -2348,7 +2351,7 @@ function Rs(e, t, n, r) {
 	return t ? f.inverse() : f;
 }
 //#endregion
-//#region ../../../Users/philipp/Downloads/site-interactions/node_modules/gsap/Flip.js
+//#region node_modules/gsap/Flip.js
 var zs = 1, Bs, Vs, Hs, Us, Ws, Gs, Ks, qs = function(e, t) {
 	return e.actions.forEach(function(e) {
 		return e.vars[t] && e.vars[t](e);

@@ -1018,7 +1018,7 @@ footer a.w--current:focus-visible::after,
   background: var(--fw_dark_purple_5);
 }
 
-.fwm-modal[data-modal-variant="context"] .fwm-modal__gallery .fwm-modal__image-link {
+.fwm-modal__gallery .fwm-modal__image-link {
   width: 50%;
   max-width: 50%;
   margin-bottom: 0;

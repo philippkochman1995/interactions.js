@@ -192,7 +192,8 @@
 				image: e.bild || "",
 				imageAlt: e.name || "",
 				caption: e.bildrechte || "",
-				html: e.text || ""
+				html: e.text || "",
+				gallery: e.gallery
 			});
 		}
 		u && (u.setAttribute("aria-checked", "false"), u.addEventListener("click", function() {
@@ -205,8 +206,19 @@
 		document.querySelectorAll(".wm-cms-item").forEach(function(e) {
 			var t = parseFloat((e.querySelector(".wm-f-lat") || {}).textContent || ""), n = parseFloat((e.querySelector(".wm-f-lng") || {}).textContent || "");
 			if (!(isNaN(t) || isNaN(n))) {
-				var r = e.querySelector(".wm-f-bild"), i = e.querySelector(".wm-f-text");
-				I.push({
+				var r = e.querySelector(".wm-f-bild"), i = e.querySelector(".wm-f-text"), a = [{
+					src: r && r.getAttribute("src") || "",
+					alt: "",
+					caption: (e.querySelector(".wm-f-bildrechte") || {}).textContent || ""
+				}];
+				[2, 3].forEach(function(t) {
+					var n = e.querySelector(".wm-f-bild-" + t);
+					n && n.getAttribute("src") && a.push({
+						src: n.getAttribute("src"),
+						alt: n.getAttribute("alt") || "",
+						caption: (e.querySelector(".wm-f-bild-" + t + "-unterschrift") || {}).textContent || ""
+					});
+				}), I.push({
 					lat: t,
 					lng: n,
 					name: (e.querySelector(".wm-f-name") || {}).textContent || "",
@@ -214,6 +226,7 @@
 					kategorie: ((e.querySelector(".wm-f-kategorie") || {}).textContent || "").trim(),
 					bildrechte: (e.querySelector(".wm-f-bildrechte") || {}).textContent || "",
 					bild: r ? r.getAttribute("src") : "",
+					gallery: a,
 					text: i ? i.innerHTML : "",
 					aktuell: !!e.querySelector(".wm-f-bildrechte + div")
 				});
