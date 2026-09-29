@@ -15,3 +15,15 @@ test('CMS detail text stays visible after reveal styles were applied to its sour
   await expect(text).toHaveCSS('transform', 'none');
   await expect(page.locator('.cms-work-detail__properties [data-reveal-ready], .cms-work-detail__text [data-reveal-pending]')).toHaveCount(0);
 });
+
+test('detail title shows the overview year in brackets and in the same gray', async ({ page }) => {
+  await page.goto('/tests/fixtures/work-detail.html');
+
+  const title = page.locator('.cms-work-detail__title');
+  const year = title.locator('.cms-work-detail__year');
+
+  await expect(title).toContainText('„PA 1” [1990]');
+  await expect(year).toHaveText('[1990]');
+  await expect(year).toHaveCSS('color', 'rgb(130, 128, 140)');
+  await expect(year).toHaveCSS('font-size', await title.evaluate((element) => getComputedStyle(element).fontSize));
+});

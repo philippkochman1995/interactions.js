@@ -46,6 +46,11 @@
   line-height: 1;
 }
 
+.cms-work-detail__year {
+  color: var(--cms-work-detail-dark-50);
+  white-space: nowrap;
+}
+
 .cms-work-detail__properties {
   margin-top: clamp(1.25rem, 3.2vw, 3rem);
   color: var(--cms-work-detail-dark-50);

@@ -12,6 +12,7 @@ interface WorkItem {
 interface WorkDetail {
   id: string;
   title: string;
+  year: string;
   properties: string;
   html: string;
   view: string;
@@ -185,19 +186,37 @@ function formatYear(value: string): string {
   return trimmedValue.startsWith('[') && trimmedValue.endsWith(']') ? trimmedValue : `[${trimmedValue}]`;
 }
 
-function readDetail(root: HTMLElement): WorkDetail {
+function readDetailYear(root: HTMLElement, source: HTMLElement | null, id: string): string {
+  const directYear = root.getAttribute('data-work-detail-year')?.trim() || textFrom(root, '[data-work-detail-year]');
+
+  if (directYear) {
+    return directYear;
+  }
+
+  const currentItem = Array.from(source?.querySelectorAll<HTMLElement>(ITEM_SELECTOR) ?? []).find(
+    (item) => item.getAttribute('data-works-id')?.trim() === id,
+  );
+
+  return currentItem
+    ? textFrom(currentItem, YEAR_SELECTOR) || currentItem.getAttribute('data-works-year')?.trim() || ''
+    : '';
+}
+
+function readDetail(root: HTMLElement, source: HTMLElement | null): WorkDetail {
   const imageElement = imageFrom(root, '[data-work-detail-image]');
   const title = textFrom(root, '[data-work-detail-title]') || root.getAttribute('data-work-detail-title')?.trim() || '';
   const image = imageElement?.currentSrc || imageElement?.src || '';
   const rawImageAlt = imageElement?.alt.trim() || '';
   const imageAlt = rawImageAlt || title;
+  const id =
+    root.getAttribute('data-work-detail-id')?.trim() ||
+    textFrom(root, '[data-work-detail-id]') ||
+    `current-work-${hashString(`${title}-${image}`)}`;
 
   return {
-    id:
-      root.getAttribute('data-work-detail-id')?.trim() ||
-      textFrom(root, '[data-work-detail-id]') ||
-      `current-work-${hashString(`${title}-${image}`)}`,
+    id,
     title,
+    year: readDetailYear(root, source, id),
     properties: htmlFrom(root, '[data-work-detail-properties]'),
     html: htmlFrom(root, '[data-work-detail-text]'),
     view: htmlFrom(root, '[data-work-detail-view], [data-work-detail-ansicht]'),
@@ -317,6 +336,15 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   caption.className = 'cms-work-detail__caption';
 
   title.textContent = detail.title;
+
+  if (detail.year) {
+    const year = document.createElement('span');
+
+    year.className = 'cms-work-detail__year';
+    year.textContent = formatYear(detail.year);
+    title.append(document.createTextNode(' '), year);
+  }
+
   properties.innerHTML = detail.properties;
   text.innerHTML = detail.html;
   view.innerHTML = detail.view;
@@ -397,7 +425,7 @@ function createRelatedSection(root: HTMLElement, detail: WorkDetail, relatedItem
 }
 
 function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
-  const detail = readDetail(root);
+  const detail = readDetail(root, source);
   const relatedItems = source ? pickRelatedItems(readItems(source), detail) : [];
   const detailSection = createDetailSection(detail);
   const relatedSection = createRelatedSection(root, detail, relatedItems);

@@ -363,6 +363,7 @@ Before `</body>`:
 <main
   data-cms-work-detail
   data-work-detail-id="current-cms-slug"
+  data-work-detail-year="1990"
   data-work-detail-categories="Möbel, Skulptur"
   data-work-detail-overview-href="/werke"
 >
@@ -389,6 +390,9 @@ The related list may also use the existing overview attributes
 `data-works-title`, `data-works-year`, `data-works-link`, and
 `data-works-categories`. Bind `data-work-detail-id` and each related
 `data-works-id` to the CMS slug so the current work can be excluded.
+The detail heading reads `data-work-detail-year` when available. Otherwise it
+uses `data-works-year` from the matching item in the related source list and
+shows it in gray brackets beside the title.
 If the source is fed by a Sheet calendar, the whole rendered entry can link to
 that URL via `data-sheet-calendar-href` on the item or a hidden
 `data-sheet-calendar-link` anchor inside the item. The `calender` spelling is
