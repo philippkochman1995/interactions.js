@@ -1129,7 +1129,7 @@ footer a.w--current:focus-visible::after,
   line-height: 1.4;
 }
 
-.fwm-modal[data-modal-variant="context"] .fwm-modal__caption {
+.fwm-modal__gallery .fwm-modal__caption {
   display: block;
 }
 
