@@ -90,6 +90,7 @@
     });
     map.setPadding(globePadding());
 
+    var pendingControlZoom = null;
     var rotationStopped = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var rotationFrame = 0;
 
@@ -122,10 +123,14 @@
 
     // Capture input before Mapbox or a marker handles it, even before map load.
     ['pointerdown', 'mousedown', 'touchstart', 'wheel', 'keydown', 'click'].forEach(function(event){
-      mapEl.addEventListener(event, stopRotation, { capture: true, passive: true });
+      mapEl.addEventListener(event, function(){
+        pendingControlZoom = null;
+        stopRotation();
+      }, { capture: true, passive: true });
     });
     map.on('remove', stopRotation);
     function updateGlobeFraming(){
+      pendingControlZoom = null;
       map.setPadding(globePadding());
       if(!rotationStopped) map.jumpTo({ zoom: globeZoom() });
     }
@@ -180,15 +185,41 @@
         topBarRight.appendChild(zoomWrap);
       }
 
-      zoomInBtn.addEventListener('click', function(){
+      // Leave some space around mainland Europe, including the top bar.
+      function europeZoom(){
+        var camera = map.cameraForBounds([[-12, 34], [36, 72]]);
+        return camera && Number.isFinite(camera.zoom) ? Math.max(0, Math.min(18, camera.zoom - 0.25)) : 3;
+      }
+
+      function zoomByControl(direction){
         stopRotation();
-        map.zoomIn();
+        var current = pendingControlZoom === null ? map.getZoom() : pendingControlZoom;
+        var overviewZoom = europeZoom();
+        var target;
+
+        if(direction > 0){
+          target = current + (current >= overviewZoom ? 2 : 1);
+        } else if(current > overviewZoom){
+          target = Math.max(overviewZoom, current - 2);
+        } else {
+          target = current - 1;
+        }
+
+        target = Math.max(0, Math.min(18, target));
+        if(Math.abs(target - current) < 0.001) return;
+
+        map.zoomTo(target);
+        pendingControlZoom = target;
+      }
+
+      map.on('zoomend', function(){
+        if(pendingControlZoom !== null && Math.abs(map.getZoom() - pendingControlZoom) < 0.001){
+          pendingControlZoom = null;
+        }
       });
 
-      zoomOutBtn.addEventListener('click', function(){
-        stopRotation();
-        map.zoomOut();
-      });
+      zoomInBtn.addEventListener('click', function(){ zoomByControl(1); });
+      zoomOutBtn.addEventListener('click', function(){ zoomByControl(-1); });
 
       function positionLegend(){
         if(!legend) return;

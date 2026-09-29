@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #wmMap { position: fixed; inset: 0; }
+    .top_bar_center { position: relative; height: 72px; }
+    .nav_logo { height: 72px; }
+    .top_bar_right { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <div id="wmMap" data-mapbox-token="test-token"></div>
+  <div class="top_bar_center"><div class="nav_logo"></div></div>
+  <div class="top_bar_right"></div>
+  <div class="wm-cms-item" hidden>
+    <span class="wm-f-lat">48.2</span>
+    <span class="wm-f-lng">16.37</span>
+    <span class="wm-f-name">Wien</span>
+    <span class="wm-f-kategorie">Werke</span>
+  </div>
+  <script>
+    window.matchMedia = () => ({ matches: true });
+    window.mapboxgl = {
+      Map: class {
+        constructor(options){
+          this.zoom = options.zoom;
+          this.zoomCalls = [];
+          this.handlers = {};
+          window.westMapTest = this;
+        }
+        on(event, handler){
+          (this.handlers[event] ||= []).push(handler);
+          return this;
+        }
+        fire(event){
+          (this.handlers[event] || []).forEach(handler => handler());
+        }
+        setPadding(){}
+        getZoom(){ return this.zoom; }
+        zoomTo(zoom){ this.zoomCalls.push(zoom); }
+        easeTo(options){ this.lastEase = options; }
+        addSource(id){
+          this.source = {
+            getClusterExpansionZoom: (_id, callback) => callback(null, 8)
+          };
+        }
+        getSource(){ return this.source; }
+        addLayer(){}
+        isSourceLoaded(){ return true; }
+        querySourceFeatures(){
+          return [{
+            properties: { cluster: true, cluster_id: 1, firstIdx: 0, point_count_abbreviated: '2', hasW: 1 },
+            geometry: { coordinates: [16.37, 48.2] }
+          }];
+        }
+        cameraForBounds(bounds, options){
+          this.lastBounds = bounds;
+          this.lastBoundsOptions = options;
+          return { zoom: document.getElementById('wmMap').clientWidth < 700 ? 2.75 : 4.25 };
+        }
+        finishZoom(){
+          this.zoom = this.zoomCalls.at(-1);
+          this.fire('zoomend');
+        }
+      },
+      Marker: class {
+        constructor(options){ this.element = options.element; }
+        setLngLat(){ return this; }
+        addTo(){ document.getElementById('wmMap').appendChild(this.element); return this; }
+        getElement(){ return this.element; }
+        remove(){ this.element.remove(); }
+      }
+    };
+  </script>
+  <script type="module" src="/dist/west-map.js"></script>
+</body>
+</html>
