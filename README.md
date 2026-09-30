@@ -318,10 +318,8 @@ visible horizontally. On screens up to 767px, columns are 50vw by default, so
 about two columns are visible. Items are measured first and then assigned to the
 currently shortest column, so the distribution balances actual rendered height
 instead of only item count. If a column would still be much shorter than the
-tallest column, the base pattern fills it with visual copies from other columns.
-Each context is used at most once as a filler and never copied into its own
-column; remaining height is distributed as spacing. Copies open the same modal
-as their original item. Items are stacked inside
+tallest column, the remaining height is distributed as spacing instead of adding
+copies of other contexts. Items are stacked inside
 their column, centered on the X axis, keep their natural aspect ratio, and get
 individual item spacing plus a small per-item transform offset.
 The item spacing is the central layout control: vertically it is added after each

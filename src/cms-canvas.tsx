@@ -466,54 +466,12 @@ function placeTiles(
   titleProbe.remove();
   const orderedColumns: PreparedTile[][] = Array.from({ length: columnCount }, () => []);
   const preparedColumnHeights = Array.from({ length: columnCount }, () => 0);
-  const maxAllowedColumnGap = Math.max(marginMax, columnWidth * 0.12);
 
   preparedTiles.forEach((tile) => {
     const columnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
     orderedColumns[columnIndex].push(tile);
     preparedColumnHeights[columnIndex] += tile.totalHeight;
   });
-
-  let fillIndex = 0;
-  const usedFillSources = new Set<string>();
-
-  while (
-    preparedTiles.length > 0 &&
-    Math.max(...preparedColumnHeights) - Math.min(...preparedColumnHeights) > maxAllowedColumnGap &&
-    usedFillSources.size < preparedTiles.length
-  ) {
-    const shortestColumnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
-    const tallestColumnIndex = preparedColumnHeights.indexOf(Math.max(...preparedColumnHeights));
-    const deficit = preparedColumnHeights[tallestColumnIndex] - preparedColumnHeights[shortestColumnIndex];
-    const sourcePool = preparedTiles.filter((candidate) =>
-      !usedFillSources.has(candidate.tile.sourceId) &&
-      !orderedColumns[shortestColumnIndex].some((placed) => placed.tile.sourceId === candidate.tile.sourceId),
-    );
-    if (sourcePool.length === 0) break;
-    const sourceTile = sourcePool.reduce((best, candidate) => {
-      const bestDelta = best.totalHeight <= deficit
-        ? deficit - best.totalHeight
-        : best.totalHeight - deficit + maxAllowedColumnGap;
-      const candidateDelta = candidate.totalHeight <= deficit
-        ? deficit - candidate.totalHeight
-        : candidate.totalHeight - deficit + maxAllowedColumnGap;
-
-      return candidateDelta < bestDelta ? candidate : best;
-    }, sourcePool[0]);
-    const copy: PreparedTile = {
-      ...sourceTile,
-      tile: {
-        ...sourceTile.tile,
-        instanceId: `${sourceTile.tile.sourceId}--fill-${shortestColumnIndex}-${fillIndex}`,
-        copyIndex: sourceTile.tile.copyIndex + fillIndex + 1,
-      },
-    };
-
-    orderedColumns[shortestColumnIndex].push(copy);
-    preparedColumnHeights[shortestColumnIndex] += copy.totalHeight;
-    usedFillSources.add(sourceTile.tile.sourceId);
-    fillIndex += 1;
-  }
 
   const basePlaced: PlacedTile[] = [];
   const placedColumns: PlacedTile[][] = [];
