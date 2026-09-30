@@ -142,19 +142,25 @@ function N(e) {
 	return Array.from(e.querySelectorAll(p)).map(M).filter((e) => e !== null);
 }
 function P(e) {
+	for (let t of Array.from(e.querySelectorAll(p))) {
+		let e = D(t);
+		e && (e.removeAttribute("srcset"), e.removeAttribute("sizes"), e.removeAttribute("src"));
+	}
+}
+function F(e) {
 	var t;
 	let n = (t = e.getAttribute("data-works-sort")) == null ? void 0 : t.trim().toLowerCase();
 	return n === "random" || n === "year" ? n : "year";
 }
-function F(e) {
+function I(e) {
 	let t = e.match(/\b(?:18|19|20)\d{2}\b/);
 	return t ? Number.parseInt(t[0], 10) : null;
 }
-function I(e) {
+function L(e) {
 	let t = e.trim();
 	return t.startsWith("[") && t.endsWith("]") ? t : `[${t}]`;
 }
-function L(e, t, n) {
+function R(e, t, n) {
 	let r = [...e];
 	if (t === "random") {
 		let t = k(O(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
@@ -165,25 +171,25 @@ function L(e, t, n) {
 	}
 	return r.sort((e, t) => {
 		var n, r;
-		return ((n = F(e.year)) == null ? Infinity : n) - ((r = F(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
+		return ((n = I(e.year)) == null ? Infinity : n) - ((r = I(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	});
 }
-function R(e, t) {
+function z(e, t) {
 	return t.size === 0 ? e : e.filter((e) => e.categories.some((e) => t.has(e)));
 }
-function z() {
+function B() {
 	let e = document.createElementNS(v, "svg"), t = document.createElementNS(v, "path"), n = document.createElementNS(v, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function B(e) {
+function V(e) {
 	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
 	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && (t.classList.add("cms-works__item--clickable"), t.setAttribute("href", e.href), t.setAttribute("data-work-flip", ""), t.setAttribute("data-work-flip-id", e.id)), n.className = "cms-works__image-wrap", r.className = "cms-works__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.append(r), i.className = "cms-works__meta", a.className = "cms-works__label", o.className = "cms-works__title", o.textContent = e.title, a.append(o), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = I(e.year), a.append(t);
+		t.className = "cms-works__year", t.textContent = L(e.year), a.append(t);
 	}
-	return i.append(a, z()), t.append(n, i), t;
+	return i.append(a, B()), t.append(n, i), t;
 }
-function V(e) {
+function H(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -197,11 +203,11 @@ function V(e) {
 		}), n.src = e;
 	});
 }
-function H(e) {
+function U(e) {
 	let t = window.getComputedStyle(e).getPropertyValue("--cms-works-active-columns").trim(), n = Number.parseInt(t, 10);
 	return Number.isFinite(n) && n > 0 ? n : 4;
 }
-function U(e, t, n) {
+function W(e, t, n) {
 	let r = Array.from({ length: n }, () => ({
 		items: [],
 		height: 0
@@ -215,94 +221,100 @@ function U(e, t, n) {
 		s.items.push(e), s.height += o.height / Math.max(o.width, 1);
 	}), r;
 }
-function W(e, t, n) {
-	let r = document.createElement("div"), i = U(t, n, H(e));
+function G(e, t, n) {
+	let r = document.createElement("div"), i = W(t, n, U(e));
 	r.className = "cms-works__grid", i.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
-			t.append(B(e));
+			t.append(V(e));
 		}), r.append(t);
 	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
-function G(e, t) {
+function K(e, t) {
 	var n, r, i;
 	let a = (n = (r = (i = e.querySelector("[data-cms-works-load-more-text]")) == null ? e.querySelector("[data-button-text]") : i) == null ? e.querySelector(".button-text") : r) == null ? e : n;
 	a.textContent = t;
 }
-function K(e, t) {
+function q(e, t) {
 	var n, r;
 	let i = (n = (r = e.querySelector(S)) == null ? t.querySelector(S) : r) == null ? document.querySelector(S) : n;
-	return i ? (i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), G(i, "MEHR ANZEIGEN"), i) : null;
+	return i ? (i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), K(i, "MEHR ANZEIGEN"), i) : null;
 }
-function q() {
+function J() {
 	var e;
 	return n() || ((e = t()) == null ? void 0 : e.direction) === "back";
 }
-function J(t, n) {
+function Y(t, n) {
 	var i, a, o, s, c;
-	let l = N(n), d = q() ? e() : null, f = (i = d == null ? void 0 : d.categories) == null ? [] : i, p = {
+	let l = N(n), d = J() ? e() : null, f = (i = d == null ? void 0 : d.categories) == null ? [] : i, p = {
 		appliedCategories: new Set(f),
 		pendingCategories: new Set(f),
-		appliedSortMode: (a = d == null ? void 0 : d.sort) == null ? P(t) : a,
-		pendingSortMode: (o = d == null ? void 0 : d.sort) == null ? P(t) : o,
+		appliedSortMode: (a = d == null ? void 0 : d.sort) == null ? F(t) : a,
+		pendingSortMode: (o = d == null ? void 0 : d.sort) == null ? F(t) : o,
 		open: !1
-	}, m = document.createElement("div"), h = document.createElement("button"), g = document.createElement("div"), _ = K(t, n), v = 0, y = 0, S = 0, w = (s = d == null ? void 0 : d.visibleCount) == null ? b : s, T = (c = d == null ? void 0 : d.scrollY) == null ? null : c, E = [], D = /* @__PURE__ */ new Map();
-	n.hidden = !0, n.setAttribute("aria-hidden", "true"), t.classList.add("cms-works"), m.className = "cms-works__grid-host u-section", h.className = "cms-works__collection-overlay", h.type = "button", h.setAttribute("aria-label", "Filter schliessen"), g.className = "cms-works__grid-mount", m.append(g), _ && m.append(_), Promise.all(l.map(async (e) => [e.id, await V(e.thumbnail)])).then((e) => {
-		D = new Map(e);
-		let n = () => L(R(l, p.appliedCategories), p.appliedSortMode, t), i = (e = !1) => {
-			window.cancelAnimationFrame(v), v = window.requestAnimationFrame(() => {
-				let n = H(t), r = Math.round(t.getBoundingClientRect().width), i = E.slice(0, w);
-				!e && n === y && r === S || (y = n, S = r, W(g, i, D), _ && (_.hidden = E.length <= w), T !== null && (window.scrollTo(0, T), T = null), t.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(C, {
+	}, m = document.createElement("div"), h = document.createElement("button"), g = document.createElement("div"), _ = q(t, n), v = 0, y = 0, S = 0, w = (s = d == null ? void 0 : d.visibleCount) == null ? b : s, T = (c = d == null ? void 0 : d.scrollY) == null ? null : c, E = [], D = /* @__PURE__ */ new Map(), O = /* @__PURE__ */ new Map(), k = 0;
+	n.hidden = !0, n.setAttribute("aria-hidden", "true"), P(n), t.classList.add("cms-works"), m.className = "cms-works__grid-host u-section", h.className = "cms-works__collection-overlay", h.type = "button", h.setAttribute("aria-label", "Filter schliessen"), g.className = "cms-works__grid-mount", m.append(g), _ && m.append(_);
+	let A = () => R(z(l, p.appliedCategories), p.appliedSortMode, t), j = (e = !1) => {
+		let n = ++k, r = E.slice(0, w);
+		Promise.all(r.map(async (e) => {
+			if (D.has(e.id)) return;
+			let t = O.get(e.thumbnail);
+			t || (t = H(e.thumbnail), O.set(e.thumbnail, t)), D.set(e.id, await t);
+		})).then(() => {
+			n === k && (window.cancelAnimationFrame(v), v = window.requestAnimationFrame(() => {
+				if (n !== k) return;
+				let i = U(t), a = Math.round(t.getBoundingClientRect().width);
+				!e && i === y && a === S || (y = i, S = a, G(g, r, D), _ && (_.hidden = E.length <= w), T !== null && (window.scrollTo(0, T), T = null), t.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(C, {
 					bubbles: !0,
 					detail: {
-						count: i.length,
+						count: r.length,
 						total: E.length
 					}
 				})));
-			});
-		}, a = () => {
-			r({
-				categories: Array.from(p.appliedCategories),
-				sort: p.appliedSortMode,
-				visibleCount: w,
-				scrollY: window.scrollY,
-				ts: Date.now()
-			});
-		}, o = () => {
-			var e;
-			let t = s.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? s.element.getBoundingClientRect().bottom : e;
-			h.style.setProperty("--cms-works-overlay-top", `${Math.max(0, n)}px`);
-		}, s = u(l, p, () => {
-			E = n(), w = b, i(!0), s.sync(), a();
-		}, { onOpenChange: (e) => {
-			t.classList.toggle("is-filter-open", e), e && o();
-		} });
-		if (h.addEventListener("click", () => s.close(!0)), _) {
-			let e = () => {
-				w += x, i(!0), a();
-			};
-			_.addEventListener("click", (t) => {
-				t.preventDefault(), e();
-			}), _.addEventListener("keydown", (t) => {
-				t.key !== "Enter" && t.key !== " " || (t.preventDefault(), e());
-			});
-		}
-		E = n(), t.replaceChildren(s.element, h, m);
-		let c = new ResizeObserver(() => i());
-		i(!0), s.sync(), c.observe(t), window.addEventListener("orientationchange", () => i(!0)), window.addEventListener("resize", o), window.addEventListener("scroll", o, { passive: !0 }), window.addEventListener("pagehide", a);
-	});
+			}));
+		});
+	}, M = () => {
+		r({
+			categories: Array.from(p.appliedCategories),
+			sort: p.appliedSortMode,
+			visibleCount: w,
+			scrollY: window.scrollY,
+			ts: Date.now()
+		});
+	}, I = () => {
+		var e;
+		let t = L.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? L.element.getBoundingClientRect().bottom : e;
+		h.style.setProperty("--cms-works-overlay-top", `${Math.max(0, n)}px`);
+	}, L = u(l, p, () => {
+		E = A(), w = b, j(!0), L.sync(), M();
+	}, { onOpenChange: (e) => {
+		t.classList.toggle("is-filter-open", e), e && I();
+	} });
+	if (h.addEventListener("click", () => L.close(!0)), _) {
+		let e = () => {
+			w += x, j(!0), M();
+		};
+		_.addEventListener("click", (t) => {
+			t.preventDefault(), e();
+		}), _.addEventListener("keydown", (t) => {
+			t.key !== "Enter" && t.key !== " " || (t.preventDefault(), e());
+		});
+	}
+	E = A(), t.replaceChildren(L.element, h, m);
+	let B = new ResizeObserver(() => j());
+	j(!0), L.sync(), B.observe(t), window.addEventListener("orientationchange", () => j(!0)), window.addEventListener("resize", I), window.addEventListener("scroll", I, { passive: !0 }), window.addEventListener("pagehide", M);
 }
-function Y(e) {
+function X(e) {
 	var t;
 	let n = (t = e.querySelector(f)) == null ? document.querySelector(f) : t;
 	if (!n) {
 		console.error("CMS Works: Element mit data-cms-works-source wurde nicht gefunden.");
 		return;
 	}
-	J(e, n);
+	Y(e, n);
 }
 w(() => {
-	Array.from(document.querySelectorAll(d)).forEach(Y);
+	Array.from(document.querySelectorAll(d)).forEach(X);
 });
 //#endregion
 

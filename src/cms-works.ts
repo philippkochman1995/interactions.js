@@ -173,6 +173,16 @@ function readItems(source: HTMLElement): WorkItem[] {
     .filter((item): item is WorkItem => item !== null);
 }
 
+function releaseSourceImages(source: HTMLElement): void {
+  for (const element of Array.from(source.querySelectorAll<HTMLElement>(ITEM_SELECTOR))) {
+    const image = imageFrom(element);
+    if (!image) continue;
+    image.removeAttribute('srcset');
+    image.removeAttribute('sizes');
+    image.removeAttribute('src');
+  }
+}
+
 function readSortMode(root: HTMLElement): WorksSortMode {
   const value = root.getAttribute('data-works-sort')?.trim().toLowerCase();
 
@@ -427,9 +437,12 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   let pendingScrollRestore = storedView?.scrollY ?? null;
   let currentItems: WorkItem[] = [];
   let measures = new Map<string, ImageMeasure>();
+  const pendingMeasures = new Map<string, Promise<ImageMeasure>>();
+  let renderRevision = 0;
 
   source.hidden = true;
   source.setAttribute('aria-hidden', 'true');
+  releaseSourceImages(source);
   root.classList.add('cms-works');
   gridHost.className = 'cms-works__grid-host u-section';
   collectionOverlay.className = 'cms-works__collection-overlay';
@@ -442,17 +455,31 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
     gridHost.append(loadMoreButton);
   }
 
-  Promise.all(items.map(async (item) => [item.id, await measureImage(item.thumbnail)] as const)).then((entries) => {
-    measures = new Map(entries);
+  const getRenderedItems = () => sortItems(filterItems(items, state.appliedCategories), state.appliedSortMode, root);
 
-    const getRenderedItems = () => sortItems(filterItems(items, state.appliedCategories), state.appliedSortMode, root);
+  const renderCurrentItems = (force = false) => {
+    const revision = ++renderRevision;
+    const visibleItems = currentItems.slice(0, visibleCount);
 
-    const renderCurrentItems = (force = false) => {
+    void Promise.all(visibleItems.map(async (item) => {
+      if (measures.has(item.id)) return;
+
+      let pending = pendingMeasures.get(item.thumbnail);
+      if (!pending) {
+        pending = measureImage(item.thumbnail);
+        pendingMeasures.set(item.thumbnail, pending);
+      }
+
+      measures.set(item.id, await pending);
+    })).then(() => {
+      if (revision !== renderRevision) return;
+
       window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
+        if (revision !== renderRevision) return;
+
         const nextColumnCount = getColumnCount(root);
         const nextWidth = Math.round(root.getBoundingClientRect().width);
-        const visibleItems = currentItems.slice(0, visibleCount);
 
         if (!force && nextColumnCount === previousColumnCount && nextWidth === previousWidth) {
           return;
@@ -480,71 +507,71 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
           }),
         );
       });
-    };
-    const persistView = () => {
-      writeWorksViewState({
-        categories: Array.from(state.appliedCategories),
-        sort: state.appliedSortMode,
-        visibleCount,
-        scrollY: window.scrollY,
-        ts: Date.now(),
-      });
-    };
-    const updateOverlayTop = () => {
-      const panel = controls.element.querySelector<HTMLElement>('.cms-works-filter__panel');
-      const bottom = panel?.getBoundingClientRect().bottom ?? controls.element.getBoundingClientRect().bottom;
-
-      collectionOverlay.style.setProperty('--cms-works-overlay-top', `${Math.max(0, bottom)}px`);
-    };
-    const controls = createWorksFilterInterface(items, state, () => {
-      currentItems = getRenderedItems();
-      visibleCount = INITIAL_VISIBLE_COUNT;
-      renderCurrentItems(true);
-      controls.sync();
-      persistView();
-    }, {
-      onOpenChange: (open) => {
-        root.classList.toggle('is-filter-open', open);
-
-        if (open) {
-          updateOverlayTop();
-        }
-      },
     });
-    collectionOverlay.addEventListener('click', () => controls.close(true));
-    if (loadMoreButton) {
-      const showMoreItems = () => {
-        visibleCount += LOAD_MORE_INCREMENT;
-        renderCurrentItems(true);
-        persistView();
-      };
-      loadMoreButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        showMoreItems();
-      });
-      loadMoreButton.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') {
-          return;
-        }
+  };
+  const persistView = () => {
+    writeWorksViewState({
+      categories: Array.from(state.appliedCategories),
+      sort: state.appliedSortMode,
+      visibleCount,
+      scrollY: window.scrollY,
+      ts: Date.now(),
+    });
+  };
+  const updateOverlayTop = () => {
+    const panel = controls.element.querySelector<HTMLElement>('.cms-works-filter__panel');
+    const bottom = panel?.getBoundingClientRect().bottom ?? controls.element.getBoundingClientRect().bottom;
 
-        event.preventDefault();
-        showMoreItems();
-      });
-    }
-
+    collectionOverlay.style.setProperty('--cms-works-overlay-top', `${Math.max(0, bottom)}px`);
+  };
+  const controls = createWorksFilterInterface(items, state, () => {
     currentItems = getRenderedItems();
-    root.replaceChildren(controls.element, collectionOverlay, gridHost);
-
-    const resizeObserver = new ResizeObserver(() => renderCurrentItems());
-
+    visibleCount = INITIAL_VISIBLE_COUNT;
     renderCurrentItems(true);
     controls.sync();
-    resizeObserver.observe(root);
-    window.addEventListener('orientationchange', () => renderCurrentItems(true));
-    window.addEventListener('resize', updateOverlayTop);
-    window.addEventListener('scroll', updateOverlayTop, { passive: true });
-    window.addEventListener('pagehide', persistView);
+    persistView();
+  }, {
+    onOpenChange: (open) => {
+      root.classList.toggle('is-filter-open', open);
+
+      if (open) {
+        updateOverlayTop();
+      }
+    },
   });
+  collectionOverlay.addEventListener('click', () => controls.close(true));
+  if (loadMoreButton) {
+    const showMoreItems = () => {
+      visibleCount += LOAD_MORE_INCREMENT;
+      renderCurrentItems(true);
+      persistView();
+    };
+    loadMoreButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      showMoreItems();
+    });
+    loadMoreButton.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      showMoreItems();
+    });
+  }
+
+  currentItems = getRenderedItems();
+  root.replaceChildren(controls.element, collectionOverlay, gridHost);
+
+  const resizeObserver = new ResizeObserver(() => renderCurrentItems());
+
+  renderCurrentItems(true);
+  controls.sync();
+  resizeObserver.observe(root);
+  window.addEventListener('orientationchange', () => renderCurrentItems(true));
+  window.addEventListener('resize', updateOverlayTop);
+  window.addEventListener('scroll', updateOverlayTop, { passive: true });
+  window.addEventListener('pagehide', persistView);
 }
 
 function mount(root: HTMLElement): void {

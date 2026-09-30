@@ -786,13 +786,20 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
   Szene vorgeladen und für den Preloader abgewartet. Inaktive Slides werden nach
   `w-spline-load` mit Webflows `stop()` pausiert und beim Aktivieren mit `play()`
-  fortgesetzt. Das gilt auf Desktop und Mobilgeräten.
+  fortgesetzt. Webflows eigene Szeneninitialisierung ist davon unabhängig;
+  `stop()` pausiert die Wiedergabe, garantiert aber kein Freigeben des Szenenspeichers.
+  Das gilt auf Desktop und Mobilgeräten.
 - Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
   mit `data-site-assets-ready`. Darauf wartet die Erfassung maximal 2 s. Später
   erzeugte Inhalte unterliegen dem normalen Browser-Laden und werden nicht
   nachträglich zum bereits festgelegten Fortschrittsnenner addiert.
 - Bei `picture` und `srcset` wird das tatsächliche Bild geladen; alternative
   Auflösungen werden nicht separat vorgeladen. Kritische Lazy-Bilder werden eager.
+- Die Werkübersicht liest weiterhin alle CMS-Metadaten für Filter und Sortierung,
+  lädt und vermisst aber zunächst nur die ersten 16 passenden Vorschaubilder.
+  „Mehr anzeigen“ lädt die nächste 16er-Gruppe nach; ein Filter setzt die Gruppe
+  zurück und lädt die ersten 16 Treffer der gewählten Sortierung. Bilder im
+  versteckten CMS-Quellbereich werden nach dem Auslesen ihrer URLs freigegeben.
 - Fortschritt = abgeschlossene kritische Aufgaben / festgelegte Gesamtzahl,
   einschließlich Fehlern, nicht übertragene Bytes. Beim Timeout verschwindet
   der Preloader beim erreichten Stand, ohne einen falschen Ladeerfolg vorzugeben.
