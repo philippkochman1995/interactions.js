@@ -145,7 +145,19 @@ function w(e, t) {
 }
 function T(t) {
 	var n;
-	w(t, (n = t.querySelector(e)) == null ? document.querySelector(t.getAttribute("data-work-detail-source") || e) : n);
+	w(t, (n = t.querySelector(e)) == null ? document.querySelector(t.getAttribute("data-work-detail-source") || e) : n), E(t);
+}
+function E(e) {
+	let t = Array.from(document.querySelectorAll("[data-site-header], header, [role=\"banner\"], .w-nav, .navbar")).find((t) => {
+		if (e.contains(t)) return !1;
+		let n = window.getComputedStyle(t), r = t.getBoundingClientRect();
+		return n.display !== "none" && n.visibility !== "hidden" && r.height > 0;
+	}), n = () => {
+		var n;
+		let r = (n = t == null ? void 0 : t.getBoundingClientRect().height) == null ? 0 : n;
+		e.style.setProperty("--cms-work-detail-header-height", `${r}px`);
+	};
+	n(), window.addEventListener("resize", n, { passive: !0 }), t && "ResizeObserver" in window && new ResizeObserver(n).observe(t);
 }
 a(() => {
 	Array.from(document.querySelectorAll("[data-cms-work-detail]")).forEach(T);

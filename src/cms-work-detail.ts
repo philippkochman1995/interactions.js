@@ -457,6 +457,35 @@ function mount(root: HTMLElement): void {
     document.querySelector<HTMLElement>(root.getAttribute('data-work-detail-source') || SOURCE_SELECTOR);
 
   renderDetail(root, source);
+  syncDetailHeaderHeight(root);
+}
+
+function syncDetailHeaderHeight(root: HTMLElement): void {
+  const header = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-site-header], header, [role="banner"], .w-nav, .navbar'),
+  ).find((candidate) => {
+    if (root.contains(candidate)) {
+      return false;
+    }
+
+    const styles = window.getComputedStyle(candidate);
+    const rect = candidate.getBoundingClientRect();
+
+    return styles.display !== 'none' && styles.visibility !== 'hidden' && rect.height > 0;
+  });
+
+  const updateHeight = (): void => {
+    const height = header?.getBoundingClientRect().height ?? 0;
+    root.style.setProperty('--cms-work-detail-header-height', `${height}px`);
+  };
+
+  updateHeight();
+  window.addEventListener('resize', updateHeight, { passive: true });
+
+  if (header && 'ResizeObserver' in window) {
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(header);
+  }
 }
 
 ready(() => {
