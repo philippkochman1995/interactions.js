@@ -902,7 +902,7 @@ footer a.w--current:focus-visible::after,
 }
 
 .fwm-modal__panel {
-  width: 30rem;
+  width: 34.5rem;
   max-width: 92vw;
   height: 100dvh;
   background: var(--fw_off_white);
