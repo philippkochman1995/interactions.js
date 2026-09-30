@@ -461,12 +461,10 @@ function mount(root: HTMLElement): void {
 }
 
 function fitDetailImage(root: HTMLElement): void {
-  const hero = root.querySelector<HTMLElement>('.cms-work-detail__hero');
   const figure = root.querySelector<HTMLElement>('.cms-work-detail__figure');
   const image = root.querySelector<HTMLImageElement>('.cms-work-detail__image');
-  const caption = root.querySelector<HTMLElement>('.cms-work-detail__caption');
 
-  if (!hero || !figure || !image) {
+  if (!figure || !image) {
     return;
   }
 
@@ -482,13 +480,9 @@ function fitDetailImage(root: HTMLElement): void {
     const viewportBottom = window.visualViewport
       ? window.visualViewport.offsetTop + window.visualViewport.height
       : window.innerHeight;
-    const captionHeight = caption
-      ? caption.getBoundingClientRect().height + (parseFloat(window.getComputedStyle(caption).marginTop) || 0)
-      : 0;
-    const bottomPadding = parseFloat(window.getComputedStyle(hero).paddingBottom) || 0;
     const availableHeight = Math.max(
       0,
-      Math.floor(viewportBottom - figure.getBoundingClientRect().top - captionHeight - bottomPadding),
+      Math.floor(viewportBottom - figure.getBoundingClientRect().top),
     );
     const maxHeight = `${availableHeight}px`;
 

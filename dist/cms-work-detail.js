@@ -149,16 +149,16 @@ function T(t) {
 }
 function E(e) {
 	var t, n;
-	let r = e.querySelector(".cms-work-detail__hero"), i = e.querySelector(".cms-work-detail__figure"), a = e.querySelector(".cms-work-detail__image"), o = e.querySelector(".cms-work-detail__caption");
-	if (!r || !i || !a) return;
-	let s = 0, c = () => {
-		if (s = 0, !a.complete || a.naturalWidth === 0) return;
-		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = o ? o.getBoundingClientRect().height + (parseFloat(window.getComputedStyle(o).marginTop) || 0) : 0, n = parseFloat(window.getComputedStyle(r).paddingBottom) || 0, c = `${Math.max(0, Math.floor(e - i.getBoundingClientRect().top - t - n))}px`;
-		a.style.maxHeight !== c && (a.style.maxHeight = c);
-	}, l = () => {
-		s || (s = window.requestAnimationFrame(c));
+	let r = e.querySelector(".cms-work-detail__figure"), i = e.querySelector(".cms-work-detail__image");
+	if (!r || !i) return;
+	let a = 0, o = () => {
+		if (a = 0, !i.complete || i.naturalWidth === 0) return;
+		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = `${Math.max(0, Math.floor(e - r.getBoundingClientRect().top))}px`;
+		i.style.maxHeight !== t && (i.style.maxHeight = t);
+	}, s = () => {
+		a || (a = window.requestAnimationFrame(o));
 	};
-	c(), a.addEventListener("load", l), window.addEventListener("resize", l, { passive: !0 }), (t = window.visualViewport) == null || t.addEventListener("resize", l, { passive: !0 }), (n = document.fonts) == null || n.ready.then(l), "ResizeObserver" in window && new ResizeObserver(l).observe(i);
+	o(), i.addEventListener("load", s), window.addEventListener("resize", s, { passive: !0 }), (t = window.visualViewport) == null || t.addEventListener("resize", s, { passive: !0 }), (n = document.fonts) == null || n.ready.then(s), "ResizeObserver" in window && new ResizeObserver(s).observe(r);
 }
 a(() => {
 	Array.from(document.querySelectorAll("[data-cms-work-detail]")).forEach(T);

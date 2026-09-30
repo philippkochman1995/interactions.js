@@ -28,22 +28,17 @@ test('detail title shows the overview year in brackets and in the same gray', as
   await expect(year).toHaveCSS('font-size', await title.evaluate((element) => getComputedStyle(element).fontSize));
 });
 
-test('detail image and caption fit below a custom header', async ({ page }) => {
+test('detail image reaches the viewport edge below a custom header', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tests/fixtures/work-detail-fit.html');
 
-  const figure = page.locator('.cms-work-detail__figure');
   const image = page.locator('.cms-work-detail__image');
 
   for (const height of [900, 700]) {
     await page.setViewportSize({ width: 1440, height });
 
-    await expect.poll(async () => figure.evaluate((element) => {
-      const hero = element.closest<HTMLElement>('.cms-work-detail__hero');
-      const bottomPadding = hero ? parseFloat(getComputedStyle(hero).paddingBottom) : 0;
-
-      return element.getBoundingClientRect().bottom + bottomPadding;
-    })).toBeLessThanOrEqual(height + 1);
+    await expect.poll(async () => image.evaluate((element) => element.getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(height - 1);
+    await expect.poll(async () => image.evaluate((element) => element.getBoundingClientRect().bottom)).toBeLessThanOrEqual(height + 1);
 
     await expect(image).toBeVisible();
   }
