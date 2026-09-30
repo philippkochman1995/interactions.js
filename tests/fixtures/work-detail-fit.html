@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/cms-work-detail.css">
+  <style>
+    body { margin: 0; }
+    .top_bar { height: 220px; }
+    [data-cms-work-detail] {
+      --cms-work-detail-padding-top: 32px;
+      --cms-work-detail-padding-bottom: 64px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top_bar">Header</div>
+  <main data-cms-work-detail>
+    <h1 data-work-detail-title>Passstück</h1>
+    <img
+      data-work-detail-image
+      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='1200'/%3E"
+      alt="Eine längere Bildunterschrift, die auf mehrere Zeilen umbrechen kann"
+    >
+  </main>
+  <script type="module" src="/dist/cms-work-detail.js"></script>
+</body>
+</html>

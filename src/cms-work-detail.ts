@@ -457,34 +457,61 @@ function mount(root: HTMLElement): void {
     document.querySelector<HTMLElement>(root.getAttribute('data-work-detail-source') || SOURCE_SELECTOR);
 
   renderDetail(root, source);
-  syncDetailHeaderHeight(root);
+  fitDetailImage(root);
 }
 
-function syncDetailHeaderHeight(root: HTMLElement): void {
-  const header = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-site-header], header, [role="banner"], .w-nav, .navbar'),
-  ).find((candidate) => {
-    if (root.contains(candidate)) {
-      return false;
-    }
+function fitDetailImage(root: HTMLElement): void {
+  const hero = root.querySelector<HTMLElement>('.cms-work-detail__hero');
+  const figure = root.querySelector<HTMLElement>('.cms-work-detail__figure');
+  const image = root.querySelector<HTMLImageElement>('.cms-work-detail__image');
+  const caption = root.querySelector<HTMLElement>('.cms-work-detail__caption');
 
-    const styles = window.getComputedStyle(candidate);
-    const rect = candidate.getBoundingClientRect();
+  if (!hero || !figure || !image) {
+    return;
+  }
 
-    return styles.display !== 'none' && styles.visibility !== 'hidden' && rect.height > 0;
-  });
+  let frame = 0;
 
   const updateHeight = (): void => {
-    const height = header?.getBoundingClientRect().height ?? 0;
-    root.style.setProperty('--cms-work-detail-header-height', `${height}px`);
+    frame = 0;
+
+    if (!image.complete || image.naturalWidth === 0) {
+      return;
+    }
+
+    const viewportBottom = window.visualViewport
+      ? window.visualViewport.offsetTop + window.visualViewport.height
+      : window.innerHeight;
+    const captionHeight = caption
+      ? caption.getBoundingClientRect().height + (parseFloat(window.getComputedStyle(caption).marginTop) || 0)
+      : 0;
+    const bottomPadding = parseFloat(window.getComputedStyle(hero).paddingBottom) || 0;
+    const availableHeight = Math.max(
+      0,
+      Math.floor(viewportBottom - figure.getBoundingClientRect().top - captionHeight - bottomPadding),
+    );
+    const maxHeight = `${availableHeight}px`;
+
+    if (image.style.maxHeight !== maxHeight) {
+      image.style.maxHeight = maxHeight;
+    }
+  };
+
+  const scheduleUpdate = (): void => {
+    if (!frame) {
+      frame = window.requestAnimationFrame(updateHeight);
+    }
   };
 
   updateHeight();
-  window.addEventListener('resize', updateHeight, { passive: true });
+  image.addEventListener('load', scheduleUpdate);
+  window.addEventListener('resize', scheduleUpdate, { passive: true });
+  window.visualViewport?.addEventListener('resize', scheduleUpdate, { passive: true });
+  document.fonts?.ready.then(scheduleUpdate);
 
-  if (header && 'ResizeObserver' in window) {
-    const observer = new ResizeObserver(updateHeight);
-    observer.observe(header);
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(scheduleUpdate);
+    observer.observe(figure);
   }
 }
 

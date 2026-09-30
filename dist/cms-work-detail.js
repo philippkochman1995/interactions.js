@@ -148,16 +148,17 @@ function T(t) {
 	w(t, (n = t.querySelector(e)) == null ? document.querySelector(t.getAttribute("data-work-detail-source") || e) : n), E(t);
 }
 function E(e) {
-	let t = Array.from(document.querySelectorAll("[data-site-header], header, [role=\"banner\"], .w-nav, .navbar")).find((t) => {
-		if (e.contains(t)) return !1;
-		let n = window.getComputedStyle(t), r = t.getBoundingClientRect();
-		return n.display !== "none" && n.visibility !== "hidden" && r.height > 0;
-	}), n = () => {
-		var n;
-		let r = (n = t == null ? void 0 : t.getBoundingClientRect().height) == null ? 0 : n;
-		e.style.setProperty("--cms-work-detail-header-height", `${r}px`);
+	var t, n;
+	let r = e.querySelector(".cms-work-detail__hero"), i = e.querySelector(".cms-work-detail__figure"), a = e.querySelector(".cms-work-detail__image"), o = e.querySelector(".cms-work-detail__caption");
+	if (!r || !i || !a) return;
+	let s = 0, c = () => {
+		if (s = 0, !a.complete || a.naturalWidth === 0) return;
+		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = o ? o.getBoundingClientRect().height + (parseFloat(window.getComputedStyle(o).marginTop) || 0) : 0, n = parseFloat(window.getComputedStyle(r).paddingBottom) || 0, c = `${Math.max(0, Math.floor(e - i.getBoundingClientRect().top - t - n))}px`;
+		a.style.maxHeight !== c && (a.style.maxHeight = c);
+	}, l = () => {
+		s || (s = window.requestAnimationFrame(c));
 	};
-	n(), window.addEventListener("resize", n, { passive: !0 }), t && "ResizeObserver" in window && new ResizeObserver(n).observe(t);
+	c(), a.addEventListener("load", l), window.addEventListener("resize", l, { passive: !0 }), (t = window.visualViewport) == null || t.addEventListener("resize", l, { passive: !0 }), (n = document.fonts) == null || n.ready.then(l), "ResizeObserver" in window && new ResizeObserver(l).observe(i);
 }
 a(() => {
 	Array.from(document.querySelectorAll("[data-cms-work-detail]")).forEach(T);
