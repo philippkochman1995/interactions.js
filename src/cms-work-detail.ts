@@ -484,7 +484,7 @@ function fitDetailImage(root: HTMLElement): void {
       0,
       Math.floor(viewportBottom - figure.getBoundingClientRect().top),
     );
-    const maxHeight = `${availableHeight}px`;
+    const maxHeight = `max(0px, calc(${availableHeight}px - 1.5rem))`;
 
     if (image.style.maxHeight !== maxHeight) {
       image.style.maxHeight = maxHeight;

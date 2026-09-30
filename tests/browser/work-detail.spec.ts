@@ -28,7 +28,7 @@ test('detail title shows the overview year in brackets and in the same gray', as
   await expect(year).toHaveCSS('font-size', await title.evaluate((element) => getComputedStyle(element).fontSize));
 });
 
-test('detail image reaches the viewport edge below a custom header', async ({ page }) => {
+test('detail image keeps a 1.5rem gap below a custom header', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tests/fixtures/work-detail-fit.html');
 
@@ -37,8 +37,12 @@ test('detail image reaches the viewport edge below a custom header', async ({ pa
   for (const height of [900, 700]) {
     await page.setViewportSize({ width: 1440, height });
 
-    await expect.poll(async () => image.evaluate((element) => element.getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(height - 1);
-    await expect.poll(async () => image.evaluate((element) => element.getBoundingClientRect().bottom)).toBeLessThanOrEqual(height + 1);
+    await expect.poll(async () => image.evaluate((element) => {
+      const gap = window.innerHeight - element.getBoundingClientRect().bottom;
+      const expectedGap = 1.5 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+      return Math.abs(gap - expectedGap);
+    })).toBeLessThanOrEqual(1);
 
     await expect(image).toBeVisible();
   }

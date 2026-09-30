@@ -153,7 +153,7 @@ function E(e) {
 	if (!r || !i) return;
 	let a = 0, o = () => {
 		if (a = 0, !i.complete || i.naturalWidth === 0) return;
-		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = `${Math.max(0, Math.floor(e - r.getBoundingClientRect().top))}px`;
+		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = `max(0px, calc(${Math.max(0, Math.floor(e - r.getBoundingClientRect().top))}px - 1.5rem))`;
 		i.style.maxHeight !== t && (i.style.maxHeight = t);
 	}, s = () => {
 		a || (a = window.requestAnimationFrame(o));
