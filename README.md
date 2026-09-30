@@ -31,10 +31,6 @@ For the complete site setup, use `snippets/site-head.html` and
 in every URL. These replace the former inline transition and logo code. See
 [External bootstrap scripts](#external-bootstrap-scripts) for the required load order.
 
-The Home page additionally loads `home-responsive.css` in its page head at the
-same pinned commit. It adjusts the existing Webflow sections at tablet and
-mobile widths without duplicating their content.
-
 Host `dist/site-interactions.js` on your CDN or static host, then add it globally in Webflow before `</body>`:
 
 ```html
