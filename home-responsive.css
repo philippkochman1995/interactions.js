@@ -1,5 +1,10 @@
 /* Home page layout at tablet and mobile widths. Content stays in Webflow. */
 @media screen and (max-width: 991px) {
+  .intro_container,
+  .about_container {
+    max-width: 48rem;
+  }
+
   .intro_layout,
   .about_layout {
     grid-template-columns: minmax(0, 1fr);
