@@ -20,6 +20,20 @@ export function initSplineCursor(): void {
 
   let activeScene: Element | null = null;
   let isPressed = false;
+  const shadowCursorStyles: HTMLStyleElement[] = [];
+
+  const hideShadowCursors = (element: Element): void => {
+    const shadowRoot = element.shadowRoot;
+    if (shadowRoot && !shadowRoot.querySelector('[data-site-spline-cursor-style]')) {
+      const style = document.createElement('style');
+      style.dataset.siteSplineCursorStyle = '';
+      style.textContent = ':host, * { cursor: none !important; }';
+      shadowRoot.append(style);
+      shadowCursorStyles.push(style);
+    }
+
+    element.querySelectorAll('*').forEach(hideShadowCursors);
+  };
 
   const setHand = (): void => {
     cursor.classList.toggle('is-closed', isPressed);
@@ -27,12 +41,15 @@ export function initSplineCursor(): void {
 
   const moveCursor = (event: PointerEvent): void => {
     if (!activeScene || event.pointerType === 'touch') return;
+    hideShadowCursors(activeScene);
     cursor.style.transform = `translate3d(${event.clientX - 11}px, ${event.clientY - 11}px, 0)`;
   };
 
   const deactivate = (): void => {
     activeScene?.classList.remove('has-site-spline-cursor');
     activeScene = null;
+    shadowCursorStyles.forEach((style) => style.remove());
+    shadowCursorStyles.length = 0;
     isPressed = false;
     cursor.classList.remove('is-visible', 'is-closed');
   };
