@@ -3320,36 +3320,48 @@ function Fl() {
 	if (window.matchMedia("(hover: hover) and (pointer: fine)").matches === !1) return;
 	let e = document.createElement("span");
 	e.className = "site-spline-cursor", e.setAttribute("aria-hidden", "true"), e.style.setProperty("--site-spline-cursor-open", `url("${Nl}")`), e.style.setProperty("--site-spline-cursor-closed", `url("${Ml}")`), document.body.append(e);
-	let t = null, n = !1, r = [], i = (e) => {
+	let t = null, n = !1, r = null, i = [], a = (e) => {
+		if (!t || !(e instanceof Node)) return !1;
+		let n = e;
+		for (; n;) {
+			var r;
+			if (n === t) return !0;
+			let e = n.getRootNode();
+			n = (r = n.parentNode) == null ? e instanceof ShadowRoot ? e.host : null : r;
+		}
+		return !1;
+	}, o = (e) => {
 		let t = e.shadowRoot;
 		if (t && !t.querySelector("[data-site-spline-cursor-style]")) {
 			let e = document.createElement("style");
-			e.dataset.siteSplineCursorStyle = "", e.textContent = ":host, * { cursor: none !important; }", t.append(e), r.push(e);
+			e.dataset.siteSplineCursorStyle = "", e.textContent = ":host, * { cursor: none !important; }", t.append(e), i.push(e);
 		}
-		e.querySelectorAll("*").forEach(i);
-	}, a = () => {
-		e.classList.toggle("is-closed", n);
-	}, o = (n) => {
-		!t || n.pointerType === "touch" || (i(t), e.style.transform = `translate3d(${n.clientX - 11}px, ${n.clientY - 11}px, 0)`);
+		e.querySelectorAll("*").forEach(o);
 	}, s = () => {
-		t == null || t.classList.remove("has-site-spline-cursor"), t = null, r.forEach((e) => e.remove()), r.length = 0, n = !1, e.classList.remove("is-visible", "is-closed");
+		e.classList.toggle("is-closed", n);
+	}, c = (n) => {
+		!t || n.pointerType === "touch" || (o(t), e.style.transform = `translate3d(${n.clientX - 11}px, ${n.clientY - 11}px, 0)`);
+	}, l = () => {
+		t == null || t.classList.remove("has-site-spline-cursor"), t = null, i.forEach((e) => e.remove()), i.length = 0, n = !1, r = null, e.classList.remove("is-visible", "is-closed");
 	};
 	document.addEventListener("pointerover", (r) => {
-		if (r.pointerType === "touch") return;
-		let i = r.target, c = i instanceof Element ? i.closest(Pl) : null;
-		if (c) {
-			if (c === t) return;
-			s(), t = c, t.classList.add("has-site-spline-cursor"), e.classList.add("is-visible"), n = !1, a(), o(r);
+		if (r.pointerType === "touch" || n) return;
+		let i = r.target, o = i instanceof Element ? i.closest(Pl) : null;
+		if (o) {
+			if (o === t) return;
+			l(), t = o, t.classList.add("has-site-spline-cursor"), e.classList.add("is-visible"), n = !1, s(), c(r);
 			return;
 		}
-		t && !(r.relatedTarget instanceof Node && t.contains(r.relatedTarget)) && s();
+		t && !a(r.relatedTarget) && l();
 	}), document.addEventListener("pointerout", (e) => {
-		t && !(e.relatedTarget instanceof Node && t.contains(e.relatedTarget)) && s();
-	}), document.addEventListener("pointermove", o), document.addEventListener("pointerdown", (e) => {
-		!t || e.pointerType === "touch" || (n = !0, a());
-	}), document.addEventListener("pointerup", () => {
-		t && (n = !1, a());
-	}), document.addEventListener("pointercancel", s), window.addEventListener("blur", s);
+		!n && t && !a(e.relatedTarget) && l();
+	}), document.addEventListener("pointermove", c), document.addEventListener("pointerdown", (e) => {
+		!t || e.pointerType === "touch" || (n = !0, r = e.pointerId, s());
+	});
+	let u = (e) => {
+		!t || !n || r !== null && e.pointerId !== r || (n = !1, r = null, s(), a(document.elementFromPoint(e.clientX, e.clientY)) || l());
+	};
+	document.addEventListener("pointerup", u), document.addEventListener("pointercancel", u), window.addEventListener("blur", l);
 }
 //#endregion
 //#region src/main.ts

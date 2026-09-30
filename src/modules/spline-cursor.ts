@@ -20,7 +20,21 @@ export function initSplineCursor(): void {
 
   let activeScene: Element | null = null;
   let isPressed = false;
+  let activePointerId: number | null = null;
   const shadowCursorStyles: HTMLStyleElement[] = [];
+
+  const isInsideActiveScene = (target: EventTarget | null): boolean => {
+    if (!activeScene || !(target instanceof Node)) return false;
+
+    let node: Node | null = target;
+    while (node) {
+      if (node === activeScene) return true;
+      const root = node.getRootNode();
+      node = node.parentNode ?? (root instanceof ShadowRoot ? root.host : null);
+    }
+
+    return false;
+  };
 
   const hideShadowCursors = (element: Element): void => {
     const shadowRoot = element.shadowRoot;
@@ -51,11 +65,12 @@ export function initSplineCursor(): void {
     shadowCursorStyles.forEach((style) => style.remove());
     shadowCursorStyles.length = 0;
     isPressed = false;
+    activePointerId = null;
     cursor.classList.remove('is-visible', 'is-closed');
   };
 
   document.addEventListener('pointerover', (event: PointerEvent) => {
-    if (event.pointerType === 'touch') return;
+    if (event.pointerType === 'touch' || isPressed) return;
     const target = event.target;
     const scene = target instanceof Element ? target.closest(SPLINE_SCENE_SELECTOR) : null;
 
@@ -71,13 +86,13 @@ export function initSplineCursor(): void {
       return;
     }
 
-    if (activeScene && !(event.relatedTarget instanceof Node && activeScene.contains(event.relatedTarget))) {
+    if (activeScene && !isInsideActiveScene(event.relatedTarget)) {
       deactivate();
     }
   });
 
   document.addEventListener('pointerout', (event: PointerEvent) => {
-    if (activeScene && !(event.relatedTarget instanceof Node && activeScene.contains(event.relatedTarget))) {
+    if (!isPressed && activeScene && !isInsideActiveScene(event.relatedTarget)) {
       deactivate();
     }
   });
@@ -86,13 +101,17 @@ export function initSplineCursor(): void {
   document.addEventListener('pointerdown', (event: PointerEvent) => {
     if (!activeScene || event.pointerType === 'touch') return;
     isPressed = true;
+    activePointerId = event.pointerId;
     setHand();
   });
-  document.addEventListener('pointerup', () => {
-    if (!activeScene) return;
+  const finishPress = (event: PointerEvent): void => {
+    if (!activeScene || !isPressed || (activePointerId !== null && event.pointerId !== activePointerId)) return;
     isPressed = false;
+    activePointerId = null;
     setHand();
-  });
-  document.addEventListener('pointercancel', deactivate);
+    if (!isInsideActiveScene(document.elementFromPoint(event.clientX, event.clientY))) deactivate();
+  };
+  document.addEventListener('pointerup', finishPress);
+  document.addEventListener('pointercancel', finishPress);
   window.addEventListener('blur', deactivate);
 }
