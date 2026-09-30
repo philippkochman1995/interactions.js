@@ -3032,8 +3032,27 @@ function yl() {
 	});
 }
 //#endregion
+//#region src/modules/spline-slider.ts
+var bl = ".werk_hero_slider", xl = ".werk_hero_track";
+function Sl(e, t) {
+	let n = e.parentElement;
+	for (; n && n.parentElement !== t;) n = n.parentElement;
+	return (n == null ? void 0 : n.parentElement) === t ? n : null;
+}
+function Cl(e) {
+	var t, n;
+	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
+	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
+}
+function wl(e) {
+	let t = e.closest(bl), n = t == null ? void 0 : t.querySelector(xl);
+	if (!n) return !1;
+	let r = Sl(e, n), i = Cl(n);
+	return !!(r && i && r !== i);
+}
+//#endregion
 //#region src/modules/site-preloader-assets.ts
-function bl(e, t) {
+function Tl(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -3042,7 +3061,7 @@ function bl(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function xl(e, t) {
+function El(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -3053,7 +3072,7 @@ function xl(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function Sl(e, t) {
+function Dl(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -3062,7 +3081,7 @@ function Sl(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function Cl(e) {
+function Ol(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -3071,16 +3090,16 @@ function Cl(e) {
 		return null;
 	}
 }
-function wl(e) {
+function kl(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function Tl(e) {
+function Al(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function El(e, t) {
+function jl(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -3099,7 +3118,7 @@ function El(e, t) {
 		}
 	});
 }
-function Dl() {
+function Ml() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -3108,39 +3127,40 @@ function Dl() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return Sl(e, t);
+				if (n === "spline") return Dl(e, t);
 				let r = new Image();
-				return r.src = e, xl(r, t);
+				return r.src = e, El(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-work-flip-ghost], [data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template")) continue;
-		let i = wl(n);
+		let i = kl(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
-		let a = Cl(n.currentSrc || n.getAttribute("src")), o = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let a = Ol(n.currentSrc || n.getAttribute("src")), o = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!a && !o || t({
 			key: a ? `image:${a}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || Tl(n) ? "critical" : "warm" : i,
-			load: (e) => xl(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || Al(n) ? "critical" : "warm" : i,
+			load: (e) => El(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		let i = r instanceof HTMLIFrameElement, o = Cl(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && wl(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = Ol(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = wl(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = kl(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => El(r, e)
+			load: (e) => jl(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", El(r, e))
+			load: (e) => (r.loading = "eager", jl(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -3154,17 +3174,17 @@ function Dl() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = Cl(e.url);
+			let t = Ol(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => bl(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => Tl(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function Ol(e) {
+function Nl(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -3181,13 +3201,13 @@ function Ol(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function kl(e) {
+async function Pl(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await bl(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await Tl(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -3201,8 +3221,8 @@ async function kl(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var Al = !1;
-function jl(e) {
+var Fl = !1;
+function Il(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -3214,7 +3234,7 @@ function jl(e) {
 		});
 	});
 }
-function Ml(e, t) {
+function Ll(e, t) {
 	if (!Number.isFinite(t)) return;
 	let n = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.floor(t))));
 	e.setAttribute("aria-valuenow", String(n));
@@ -3245,12 +3265,12 @@ function Ml(e, t) {
 		}
 	});
 }
-function Nl(e, t) {
+function Rl(e, t) {
 	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = 0, d = performance.now(), f = 0, p, m = new Promise((e) => {
 		p = e;
 	}), h = (t) => {
 		let n = Math.max(o, Math.min(100, Math.floor(t)));
-		n === o && n !== 100 || (o = n, Ml(e, o));
+		n === o && n !== 100 || (o = n, Ll(e, o));
 	}, g = (e) => {
 		if (c) return;
 		let n = Math.min(64, Math.max(0, e - d));
@@ -3268,7 +3288,7 @@ function Nl(e, t) {
 		}
 	};
 }
-function Pl(e, t) {
+function zl(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -3276,7 +3296,7 @@ function Pl(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function Fl(e, t) {
+function Bl(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(ao);
 	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature");
@@ -3297,9 +3317,9 @@ function Fl(e, t) {
 		}, { once: !0 });
 	});
 }
-function Il() {
-	if (Al) return;
-	Al = !0;
+function Vl() {
+	if (Fl) return;
+	Fl = !0;
 	let e = window.__sitePreloader;
 	if (!(e != null && e.active)) return;
 	let t = document.querySelector(oo);
@@ -3307,16 +3327,16 @@ function Il() {
 		e.release();
 		return;
 	}
-	let n = new AbortController(), r = Nl(t, e.startedAt);
+	let n = new AbortController(), r = Rl(t, e.startedAt);
 	e.cleanup.push(() => {
 		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature"));
 	});
 	let i = async () => {
-		if (await Ol(n.signal), !e.active) return;
-		let i = Dl(), a = i.filter((e) => e.priority === "critical"), o = 0;
+		if (await Nl(n.signal), !e.active) return;
+		let i = Ml(), a = i.filter((e) => e.priority === "critical"), o = 0;
 		r.setTasks(0, a.length), await Promise.all(a.map(async (t) => {
-			await bl(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
-		})), e.active && (await jl(n.signal), e.active && (await Pl(Math.max(0, so - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await Fl(t, n.signal), e.active && (e.release(), kl(i))))));
+			await Tl(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
+		})), e.active && (await Il(n.signal), e.active && (await zl(Math.max(0, so - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await Bl(t, n.signal), e.active && (e.release(), Pl(i))))));
 	}, a = () => {
 		i().catch(e.release);
 	};
@@ -3324,27 +3344,27 @@ function Il() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var Ll = !1;
-function Rl() {
-	if (Ll || u() || /(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
+var Hl = !1;
+function Ul() {
+	if (Hl || u() || /(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
 	let e = () => {
 		let e = window.lenis;
-		if (Ll || !window.__siteLenisManaged || !e) return;
-		Ll = !0, b.registerPlugin(Q), e.on("scroll", Q.update);
+		if (Hl || !window.__siteLenisManaged || !e) return;
+		Hl = !0, b.registerPlugin(Q), e.on("scroll", Q.update);
 		let t = (t) => e.raf(t * 1e3);
 		b.ticker.add(t), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), Q.refresh(), window.addEventListener("pagehide", () => {
 			b.ticker.remove(t), e.off("scroll", Q.update);
 		}, { once: !0 });
 	};
-	e(), Ll || window.addEventListener("site:lenis-ready", e, { once: !0 });
+	e(), Hl || window.addEventListener("site:lenis-ready", e, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var zl = !1;
-Il(), gl(), Ao(), jr(), Rl();
-function Bl() {
-	if (zl) return;
-	zl = !0;
+var Wl = !1;
+Vl(), gl(), Ao(), jr(), Ul();
+function Gl() {
+	if (Wl) return;
+	Wl = !0;
 	let e = k();
 	ma({ i18n: e }), Ci({ i18n: e }), Jo(), io(), ie(), _(), yl(), window.SiteInteractions = {
 		openModal: ua,
@@ -3354,7 +3374,7 @@ function Bl() {
 		closeLightbox: bi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Bl, { once: !0 }) : Bl();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Gl, { once: !0 }) : Gl();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

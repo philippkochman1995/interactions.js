@@ -1,13 +1,15 @@
 import { PRELOADER_SELECTOR } from './site-preloader-state';
+import { isInactiveHeroSplineScene } from './spline-slider';
 
 /**
- * Start every native Webflow scene request before the deferred application bundle.
- * This only warms the HTTP cache; runtime readiness is tracked separately through
- * Webflow's w-spline-load event and never inferred from this Promise.
+ * Start native Webflow scene requests before the deferred application bundle.
+ * Inactive hero-carousel scenes are not fetched a second time by this helper;
+ * Webflow remains responsible for their runtime loading.
  */
 export function primeSplinePreloads(): void {
   const preloads = window.__siteSplinePreloads ??= new Map<string, Promise<void>>();
   for (const element of Array.from(document.querySelectorAll<HTMLElement>('[data-animation-type="spline"][data-spline-url]'))) {
+    if (isInactiveHeroSplineScene(element)) continue;
     const value = element.getAttribute('data-spline-url');
     if (!value) continue;
     let url: URL;

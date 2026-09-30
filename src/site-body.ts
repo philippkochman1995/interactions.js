@@ -1,9 +1,11 @@
 import { WORK_FLIP_PENDING_CLASS, WORK_FLIP_STORAGE_KEY } from './modules/work-flip-state';
 import { createSitePreloader, primeSplinePreloads } from './modules/site-preloader-markup';
+import { initHeroSplineSlides } from './modules/spline-slider';
 
 // Loaded synchronously at the end of <body>, before the deferred main bundle.
 // This also runs when the once-per-session overlay is skipped, so later pages
 // still begin fetching their own Spline scenes as early as possible.
+initHeroSplineSlides();
 primeSplinePreloads();
 createSitePreloader();
 

@@ -1,3 +1,5 @@
+import { isInactiveHeroSplineScene } from './spline-slider';
+
 export type AssetPriority = 'critical' | 'warm';
 export interface PreloadTask {
   key: string;
@@ -117,6 +119,7 @@ export function collectPreloadTasks(): PreloadTask[] {
   if (signature) addUrl(new URL('preloader-background.svg', signature.src).href, 'image', 'critical');
 
   for (const [index, element] of Array.from(document.querySelectorAll('spline-viewer, [data-animation-type="spline"], [data-preload-spline], iframe[src]')).entries()) {
+    if (element.matches('[data-animation-type="spline"]') && isInactiveHeroSplineScene(element)) continue;
     const isIframe = element instanceof HTMLIFrameElement;
     const url = absoluteUrl(element.getAttribute('data-preload-spline-url') || element.getAttribute('data-spline-url') || element.getAttribute('url') || element.getAttribute('src'));
     if (!url || (isIframe && !element.hasAttribute('data-preload-spline') && !/(^|\.)spline\.design$/.test(new URL(url).hostname))) continue;

@@ -782,9 +782,11 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   oben aus dem Viewport; reduzierte Bewegung überspringt diese Animation.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
-- Native Webflow-Spline-Szenen werden im synchronen Body-Skript parallel in den
-  HTTP-Cache vorgeladen und zählen automatisch als kritisch. Fertig sind sie erst
-  nach `w-spline-load` für jedes Element und zwei weiteren Rendering-Frames.
+- Native Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
+  vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
+  Szene vorgeladen und für den Preloader abgewartet. Inaktive Slides werden nach
+  `w-spline-load` mit Webflows `stop()` pausiert und beim Aktivieren mit `play()`
+  fortgesetzt. Das gilt auf Desktop und Mobilgeräten.
 - Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
   mit `data-site-assets-ready`. Darauf wartet die Erfassung maximal 2 s. Später
   erzeugte Inhalte unterliegen dem normalen Browser-Laden und werden nicht
