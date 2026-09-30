@@ -475,19 +475,21 @@ function placeTiles(
   });
 
   let fillIndex = 0;
-  const maxFillCopies = columnCount * Math.max(preparedTiles.length, 1) * 3;
+  const usedFillSources = new Set<string>();
 
   while (
     preparedTiles.length > 0 &&
     Math.max(...preparedColumnHeights) - Math.min(...preparedColumnHeights) > maxAllowedColumnGap &&
-    fillIndex < maxFillCopies
+    usedFillSources.size < preparedTiles.length
   ) {
     const shortestColumnIndex = preparedColumnHeights.indexOf(Math.min(...preparedColumnHeights));
     const tallestColumnIndex = preparedColumnHeights.indexOf(Math.max(...preparedColumnHeights));
     const deficit = preparedColumnHeights[tallestColumnIndex] - preparedColumnHeights[shortestColumnIndex];
-    const sourcePool = orderedColumns[tallestColumnIndex].length > 0
-      ? orderedColumns[tallestColumnIndex]
-      : preparedTiles;
+    const sourcePool = preparedTiles.filter((candidate) =>
+      !usedFillSources.has(candidate.tile.sourceId) &&
+      !orderedColumns[shortestColumnIndex].some((placed) => placed.tile.sourceId === candidate.tile.sourceId),
+    );
+    if (sourcePool.length === 0) break;
     const sourceTile = sourcePool.reduce((best, candidate) => {
       const bestDelta = best.totalHeight <= deficit
         ? deficit - best.totalHeight
@@ -509,6 +511,7 @@ function placeTiles(
 
     orderedColumns[shortestColumnIndex].push(copy);
     preparedColumnHeights[shortestColumnIndex] += copy.totalHeight;
+    usedFillSources.add(sourceTile.tile.sourceId);
     fillIndex += 1;
   }
 

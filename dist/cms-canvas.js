@@ -8251,20 +8251,22 @@ function Te(e, t, n, r, i, a) {
 		let t = v.indexOf(Math.min(...v));
 		_[t].push(e), v[t] += e.totalHeight;
 	});
-	let b = 0, x = o * Math.max(g.length, 1) * 3;
-	for (; g.length > 0 && Math.max(...v) - Math.min(...v) > y && b < x;) {
-		let e = v.indexOf(Math.min(...v)), t = v.indexOf(Math.max(...v)), n = v[t] - v[e], r = _[t].length > 0 ? _[t] : g, i = r.reduce((e, t) => {
-			let r = e.totalHeight <= n ? n - e.totalHeight : e.totalHeight - n + y;
-			return (t.totalHeight <= n ? n - t.totalHeight : t.totalHeight - n + y) < r ? t : e;
-		}, r[0]), a = {
-			...i,
+	let b = 0, x = /* @__PURE__ */ new Set();
+	for (; g.length > 0 && Math.max(...v) - Math.min(...v) > y && x.size < g.length;) {
+		let e = v.indexOf(Math.min(...v)), t = v[v.indexOf(Math.max(...v))] - v[e], n = g.filter((t) => !x.has(t.tile.sourceId) && !_[e].some((e) => e.tile.sourceId === t.tile.sourceId));
+		if (n.length === 0) break;
+		let r = n.reduce((e, n) => {
+			let r = e.totalHeight <= t ? t - e.totalHeight : e.totalHeight - t + y;
+			return (n.totalHeight <= t ? t - n.totalHeight : n.totalHeight - t + y) < r ? n : e;
+		}, n[0]), i = {
+			...r,
 			tile: {
-				...i.tile,
-				instanceId: `${i.tile.sourceId}--fill-${e}-${b}`,
-				copyIndex: i.tile.copyIndex + b + 1
+				...r.tile,
+				instanceId: `${r.tile.sourceId}--fill-${e}-${b}`,
+				copyIndex: r.tile.copyIndex + b + 1
 			}
 		};
-		_[e].push(a), v[e] += a.totalHeight, b += 1;
+		_[e].push(i), v[e] += i.totalHeight, x.add(r.tile.sourceId), b += 1;
 	}
 	let S = [], C = [], w = _.map((e) => e.map((t, n) => {
 		let r = e[(n + 1) % e.length];
