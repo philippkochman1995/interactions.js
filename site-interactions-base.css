@@ -143,6 +143,41 @@ html.is-page-transition-boot::before {
   }
 }
 
+/* Kleine, rosafarbene Handhinweise nur ueber interaktiven Spline-Szenen. */
+@media (hover: hover) and (pointer: fine) {
+  .has-site-spline-cursor,
+  .has-site-spline-cursor *,
+  .has-site-spline-cursor *::before,
+  .has-site-spline-cursor *::after {
+    cursor: none !important;
+  }
+
+  .site-spline-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2100;
+    width: 23px;
+    height: 23px;
+    background-color: var(--FW_Rosa, var(--fw_rosa, #ffc0cb));
+    -webkit-mask: var(--site-spline-cursor-open) center / contain no-repeat;
+    mask: var(--site-spline-cursor-open) center / contain no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+    transition: opacity 100ms ease;
+  }
+
+  .site-spline-cursor.is-visible {
+    opacity: 1;
+  }
+
+  .site-spline-cursor.is-closed {
+    -webkit-mask-image: var(--site-spline-cursor-closed);
+    mask-image: var(--site-spline-cursor-closed);
+  }
+}
+
 html.is-page-transition-pending [data-page-transition-overlay],
 html.is-page-transition-pending .page-transition-overlay {
   transform: translate3d(0, 0, 0);

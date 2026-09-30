@@ -10,6 +10,7 @@ import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
+import { initSplineCursor } from './modules/spline-cursor';
 
 let booted = false;
 initSitePreloader();
@@ -40,6 +41,7 @@ function boot(): void {
   initSiteMenu();
   initBackButtons();
   initLogoVariants();
+  initSplineCursor();
 
   window.SiteInteractions = {
     openModal,
