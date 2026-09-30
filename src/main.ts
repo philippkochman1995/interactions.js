@@ -1,4 +1,5 @@
 import { initI18n } from './modules/i18n';
+import { initLanguagePicker } from './modules/language-picker';
 import { initLineReveal } from './modules/line-reveal';
 import { closeLightbox, initLightbox, openLightbox } from './modules/lightbox';
 import { closeModal, initModals, openContentModal, openModal } from './modules/modal';
@@ -38,6 +39,7 @@ function boot(): void {
   // entsteht erst dort.
   initParallax();
   initSiteMenu();
+  initLanguagePicker();
   initBackButtons();
   initLogoVariants();
 

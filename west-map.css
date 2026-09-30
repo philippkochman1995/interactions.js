@@ -92,7 +92,7 @@ body.wm-labels-on .wm-legend-toggle-row:not(.wm-current-row){color:var(--fw_dark
 .wm-cat-werke .wm-cluster-badge{background:var(--fw_rosa);}
 .wm-cat-ausstellungen .wm-cluster-badge{background:var(--green);}
 .wm-cat-orte .wm-cluster-badge{background:var(--blue);}
-.wm-marker-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:0.375rem;white-space:nowrap;font-family:'StyreneA',sans-serif;font-size:0.6875rem;color:var(--fw_dark_purple);background:var(--fw_off_white);border:1px solid var(--fw_dark_purple_12);padding:0.1875rem 0.5rem;border-radius:0.125rem;display:none;}
+.wm-marker-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:0.375rem;white-space:nowrap;font-family:'StyreneA',sans-serif;font-size:0.6875rem;color:var(--fw_dark_purple);background:var(--fw_off_white);border:1px solid var(--fw_dark_purple_12);padding:0.1875rem 0.5rem;border-radius:0;display:none;}
 body.wm-labels-on .wm-marker-label{display:block;}
 .wm-marker-tooltip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-1rem);background:var(--blue);color:var(--fw_dark_purple);font-family:'StyreneA',sans-serif;font-size:var(--_sizes---p-small-font-size);font-weight:500;line-height:1.3;padding:0.75rem 1.375rem;border-radius:0.375rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.15s ease;z-index:5;}
 .wm-marker-tooltip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:0.625rem solid transparent;border-top-color:var(--blue);border-bottom:none;}

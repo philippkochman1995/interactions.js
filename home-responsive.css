@@ -1,0 +1,143 @@
+/* Home page layout at tablet and mobile widths. Content stays in Webflow. */
+@media screen and (max-width: 991px) {
+  .intro_layout,
+  .about_layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .intro_layout > *,
+  .about_layout > * {
+    min-width: 0;
+  }
+
+  .intro_content_about {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .about_layout {
+    align-items: stretch;
+    row-gap: 1.5rem;
+  }
+
+  .about_img {
+    grid-row: 1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .about_img .image-absolute-full-wrapper,
+  .about_img .site-lightbox-trigger,
+  .about_img .image-absolute-full {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .about_img .image-absolute-full {
+    object-fit: cover;
+  }
+
+  .about_text {
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-right: 0;
+  }
+
+  .about_text .u-h1,
+  .about_text .quote-block {
+    max-width: 100%;
+  }
+
+  .about_text_p.u-p {
+    margin-left: 0;
+  }
+
+  .about_button_wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about_button_wrapper .button-outlined {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .intro_layout .img-zoom {
+    aspect-ratio: 1 / 1;
+  }
+
+  .intro_img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .about_img {
+    aspect-ratio: 1 / 1;
+  }
+
+  .about_text .u-h1 {
+    font-size: 2rem;
+    line-height: 1.05;
+  }
+
+  .about_text .quote-block {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .map_txt.u-h2 {
+    font-size: 2.625rem;
+    line-height: 1;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .intro_layout .img-zoom,
+  .about_img {
+    aspect-ratio: 10 / 11;
+  }
+
+  .intro_content_about .u-h2,
+  .intro_date .u-h3 {
+    font-size: 1.375rem;
+    line-height: 1.2;
+  }
+
+  .intro_content_about .u-p,
+  .about_text_p.u-p {
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .about_text .u-h1 {
+    font-size: 1.75rem;
+  }
+
+  .about_button_wrapper {
+    column-gap: 0.75rem;
+  }
+
+  .about_button_wrapper .button-outlined {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .map_info {
+    width: 100%;
+    max-width: none;
+  }
+
+  .map_info .button-outlined {
+    width: 100%;
+    min-width: 0;
+  }
+}
