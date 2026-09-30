@@ -1375,22 +1375,9 @@ footer a.w--current:focus-visible::after,
   }
 }
 
-/* Line wrappers are created at runtime after the web fonts have loaded. */
+/* Text remains hidden until the shared fade-up reveal initializes. */
 [data-reveal-pending] {
   visibility: hidden;
-}
-
-.split-line {
-  display: block;
-  line-height: inherit;
-  overflow: hidden;
-  transform-origin: 50% 100%;
-}
-
-h2 .split-line,
-h3 .split-line {
-  padding-bottom: .5vw;
-  margin-bottom: -.5vw;
 }
 
 @media (prefers-reduced-motion: reduce) {

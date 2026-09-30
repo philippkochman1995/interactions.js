@@ -1,6 +1,5 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 
 import { prefersReducedMotion, qsa } from './utils';
 
@@ -15,28 +14,13 @@ const HERO_CONTAINER = '[data-reveal-hero], [class*="_hero"], [class*="-hero"]';
 const PENDING = 'data-reveal-pending';
 const READY = 'data-reveal-ready';
 
-const FROM = {
-  yPercent: 100,
-  skewY: -1,
-  opacity: 1,
-  clipPath: 'inset(0% 0% 100% 0%)',
-};
-const TO = {
-  yPercent: 0,
-  skewY: 0,
-  clipPath: 'inset(-40% 0% -28% 0%)',
-  duration: 0.8,
-  ease: 'power2.out',
-  stagger: 0.09,
-};
-const PARAGRAPH_FROM = { y: 12, opacity: 0 };
-const PARAGRAPH_TO = { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' };
+const FADE_UP_FROM = { y: 12, opacity: 0 };
+const FADE_UP_TO = { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' };
 
 interface RevealState {
   element: HTMLElement;
   hero: boolean;
   played: boolean;
-  split?: SplitText;
   timeline?: gsap.core.Timeline;
   trigger?: ScrollTrigger;
   signature: string;
@@ -74,28 +58,17 @@ function signature(element: HTMLElement): string {
 function clear(state: RevealState): void {
   state.trigger?.kill();
   state.timeline?.kill();
-  state.split?.revert();
-  if (state.element.tagName === 'P') {
-    state.element.style.opacity = state.played ? '1' : state.originalOpacity;
-    state.element.style.transform = state.originalTransform;
-  }
+  state.element.style.opacity = state.played ? '1' : state.originalOpacity;
+  state.element.style.transform = state.originalTransform;
   state.trigger = undefined;
   state.timeline = undefined;
-  state.split = undefined;
 }
 
 function targets(state: RevealState): Element[] {
-  if (state.element.tagName !== 'P') {
-    state.split = SplitText.create(state.element, {
-      type: 'lines',
-      linesClass: 'split-line',
-      smartWrap: true,
-    });
-  }
   state.signature = signature(state.element);
   state.element.removeAttribute(PENDING);
   state.element.setAttribute(READY, '');
-  return state.split?.lines ?? [state.element];
+  return [state.element];
 }
 
 function buildScrollReveal(state: RevealState): void {
@@ -103,9 +76,7 @@ function buildScrollReveal(state: RevealState): void {
   if (!elements.length || state.played) return;
 
   const timeline = gsap.timeline({ paused: true, onComplete: () => { state.played = true; } });
-  timeline.fromTo(elements,
-    state.element.tagName === 'P' ? PARAGRAPH_FROM : FROM,
-    state.element.tagName === 'P' ? PARAGRAPH_TO : TO);
+  timeline.fromTo(elements, FADE_UP_FROM, FADE_UP_TO);
   state.timeline = timeline;
   state.trigger = ScrollTrigger.create({
     trigger: state.element,
@@ -122,10 +93,7 @@ function buildHeroReveal(states: RevealState[], intro: gsap.core.Timeline): void
     const elements = targets(state);
     if (!elements.length || state.played) return;
     const priceDelay = state.element.matches('.hero-price') ? 0.42 : 0;
-    intro.fromTo(elements,
-      state.element.tagName === 'P' ? PARAGRAPH_FROM : FROM,
-      state.element.tagName === 'P' ? PARAGRAPH_TO : TO,
-      0.6 + index * 0.12 + priceDelay);
+    intro.fromTo(elements, FADE_UP_FROM, FADE_UP_TO, 0.6 + index * 0.12 + priceDelay);
   });
 }
 
@@ -140,7 +108,7 @@ export function initLineReveal(root: ParentNode = document): void {
   const elements = qsa<HTMLElement>(TEXT_SELECTOR, root).filter(isEligible);
   if (!elements.length) return;
   initialized = true;
-  gsap.registerPlugin(SplitText, ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 
   const states = elements.map<RevealState>((element) => ({
     element,
