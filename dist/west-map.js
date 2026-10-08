@@ -41,51 +41,20 @@
 		}
 		var h = document.getElementById("wmCmsSource");
 		h && h.classList.add("wm-cms-source");
-		function g() {
-			var e = Math.min(o.clientHeight * .68, o.clientWidth * .88) * .97;
-			return Math.max(0, Math.min(3, Math.log2(Math.max(1, e) * Math.PI / 512)));
-		}
-		var _ = document.querySelector(".top_bar_center .nav_logo");
-		function v() {
-			var e = _ ? _.getBoundingClientRect().bottom - o.getBoundingClientRect().top : 0;
-			return {
-				top: Math.max(0, Math.min(o.clientHeight - 1, e)),
-				bottom: 0,
-				left: 0,
-				right: 0
-			};
-		}
-		var y = new mapboxgl.Map({
+		var g = new mapboxgl.Map({
 			container: "wmMap",
 			style: "mapbox://styles/mapbox/light-v11",
-			projection: "globe",
-			center: [16.3738, 10],
+			projection: "mercator",
+			bounds: [[-12, 34], [37, 61]],
+			fitBoundsOptions: { padding: 24 },
 			bearing: 0,
 			pitch: 0,
-			zoom: g(),
+			dragRotate: !1,
 			minZoom: 0,
 			maxZoom: 18
 		});
-		y.setPadding(v());
-		var b = null, x = window.matchMedia("(prefers-reduced-motion: reduce)").matches, S = 0;
-		function C() {
-			x || (x = !0, cancelAnimationFrame(S), S = 0, y.stop());
-		}
-		function w() {
-			if (S = 0, !x) {
-				var e = y.getCenter();
-				y.easeTo({
-					center: [e.lng - 3.6, e.lat],
-					duration: 1e3,
-					easing: function(e) {
-						return e;
-					}
-				});
-			}
-		}
-		function T() {
-			x || S || (S = requestAnimationFrame(w));
-		}
+		g.touchZoomRotate.disableRotation();
+		var _ = null;
 		[
 			"pointerdown",
 			"mousedown",
@@ -95,109 +64,90 @@
 			"click"
 		].forEach(function(e) {
 			o.addEventListener(e, function() {
-				b = null, C();
+				_ = null;
 			}, {
 				capture: !0,
 				passive: !0
 			});
-		}), y.on("remove", C);
-		function E() {
-			b = null, y.setPadding(v()), x || y.jumpTo({ zoom: g() });
-		}
-		if (y.on("resize", E), _) {
-			var D = new ResizeObserver(E);
-			D.observe(_), y.on("remove", function() {
-				D.disconnect();
-			});
-		}
-		y.on("style.load", function() {
-			y.setFog({
-				color: "#ffffff",
-				"high-color": "#ffffff",
-				"space-color": "#ffffff",
-				"horizon-blend": .02,
-				"star-intensity": 0
-			});
 		});
-		var O = document.querySelector(".top_bar_right");
-		if (O) {
-			var k = document.createElement("div");
-			k.className = "wm-zoom-controls";
-			var A = document.createElement("button");
-			A.type = "button", A.className = "wm-zoom-btn", A.setAttribute("aria-label", "Reinzoomen"), A.innerHTML = r;
-			var j = document.createElement("button");
-			j.type = "button", j.className = "wm-zoom-btn", j.setAttribute("aria-label", "Rauszoomen"), j.innerHTML = i;
-			var M = document.createElement("button");
-			M.type = "button", M.className = "wm-zoom-btn wm-filter-btn", M.setAttribute("aria-label", "Legende"), M.setAttribute("aria-expanded", "false"), M.innerHTML = a, k.appendChild(A), k.appendChild(j), k.appendChild(M), l && l.parentElement === O ? O.insertBefore(k, l) : O.appendChild(k);
+		var v = document.querySelector(".top_bar_right");
+		if (v) {
+			var y = document.createElement("div");
+			y.className = "wm-zoom-controls";
+			var b = document.createElement("button");
+			b.type = "button", b.className = "wm-zoom-btn", b.setAttribute("aria-label", "Reinzoomen"), b.innerHTML = r;
+			var x = document.createElement("button");
+			x.type = "button", x.className = "wm-zoom-btn", x.setAttribute("aria-label", "Rauszoomen"), x.innerHTML = i;
+			var S = document.createElement("button");
+			S.type = "button", S.className = "wm-zoom-btn wm-filter-btn", S.setAttribute("aria-label", "Legende"), S.setAttribute("aria-expanded", "false"), S.innerHTML = a, y.appendChild(b), y.appendChild(x), y.appendChild(S), l && l.parentElement === v ? v.insertBefore(y, l) : v.appendChild(y);
 			function e() {
-				var e = y.cameraForBounds([[-12, 34], [36, 72]]);
+				var e = g.cameraForBounds([[-12, 34], [36, 72]]);
 				return e && Number.isFinite(e.zoom) ? Math.max(0, Math.min(18, e.zoom - .25)) : 3;
 			}
 			function t(t) {
-				C();
-				var n = b === null ? y.getZoom() : b, r = e(), i = t > 0 ? n + (n >= r ? 2 : 1) : n > r ? Math.max(r, n - 2) : n - 1;
-				i = Math.max(0, Math.min(18, i)), !(Math.abs(i - n) < .001) && (y.zoomTo(i), b = i);
+				var n = _ === null ? g.getZoom() : _, r = e(), i = t > 0 ? n + (n >= r ? 2 : 1) : n > r ? Math.max(r, n - 2) : n - 1;
+				i = Math.max(0, Math.min(18, i)), !(Math.abs(i - n) < .001) && (g.zoomTo(i), _ = i);
 			}
-			y.on("zoomend", function() {
-				b !== null && Math.abs(y.getZoom() - b) < .001 && (b = null);
-			}), A.addEventListener("click", function() {
+			g.on("zoomend", function() {
+				_ !== null && Math.abs(g.getZoom() - _) < .001 && (_ = null);
+			}), b.addEventListener("click", function() {
 				t(1);
-			}), j.addEventListener("click", function() {
+			}), x.addEventListener("click", function() {
 				t(-1);
 			});
-			var N = document.createElement("span");
-			N.className = "wm-filter-slot";
+			var C = document.createElement("span");
+			C.className = "wm-filter-slot";
 			function n() {
-				var e = N.getBoundingClientRect();
-				M.style.left = e.left + "px", M.style.top = e.top + "px";
+				var e = C.getBoundingClientRect();
+				S.style.left = e.left + "px", S.style.top = e.top + "px";
 			}
 			function o() {
-				var e = M.getBoundingClientRect();
-				N.style.width = e.width + "px", N.style.height = e.height + "px", k.replaceChild(N, M), document.body.appendChild(M), M.classList.add("is-floating"), n();
+				var e = S.getBoundingClientRect();
+				C.style.width = e.width + "px", C.style.height = e.height + "px", y.replaceChild(C, S), document.body.appendChild(S), S.classList.add("is-floating"), n();
 			}
 			function s() {
-				k.replaceChild(M, N), M.classList.remove("is-floating"), M.style.removeProperty("left"), M.style.removeProperty("top");
+				y.replaceChild(S, C), S.classList.remove("is-floating"), S.style.removeProperty("left"), S.style.removeProperty("top");
 			}
 			function c() {
 				if (l) {
-					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = M.classList.contains("is-floating") ? N.getBoundingClientRect() : M.getBoundingClientRect();
+					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = S.classList.contains("is-floating") ? C.getBoundingClientRect() : S.getBoundingClientRect();
 					l.style.right = Math.max(0, window.innerWidth - t.right - 1.5 * e) + "px";
 				}
 			}
-			M.addEventListener("click", function() {
+			S.addEventListener("click", function() {
 				if (l) {
 					var e = l.classList.toggle("is-open");
-					document.body.classList.toggle("wm-legend-open", e), M.setAttribute("aria-expanded", e ? "true" : "false"), e ? (c(), o()) : s();
+					document.body.classList.toggle("wm-legend-open", e), S.setAttribute("aria-expanded", e ? "true" : "false"), e ? (c(), o()) : s();
 				}
 			}), window.addEventListener("resize", function() {
 				l && l.classList.contains("is-open") && (c(), n());
 			}), document.addEventListener("click", function(e) {
-				!l || !l.classList.contains("is-open") || l.contains(e.target) || M.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), M.setAttribute("aria-expanded", "false"), s());
+				!l || !l.classList.contains("is-open") || l.contains(e.target) || S.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), S.setAttribute("aria-expanded", "false"), s());
 			});
-		} else y.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
-		var P = document.createElement("div");
-		P.className = "wm-map-fade", o.appendChild(P);
-		function F(e, t) {
-			if (Math.abs(t - y.getZoom()) <= 4) {
-				y.easeTo({
+		} else g.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
+		var w = document.createElement("div");
+		w.className = "wm-map-fade", o.appendChild(w);
+		function T(e, t) {
+			if (Math.abs(t - g.getZoom()) <= 4) {
+				g.easeTo({
 					center: e,
 					zoom: t
 				});
 				return;
 			}
-			P.classList.add("is-active"), setTimeout(function() {
-				y.jumpTo({
+			w.classList.add("is-active"), setTimeout(function() {
+				g.jumpTo({
 					center: e,
 					zoom: t
 				});
 				var n = !1;
 				function r() {
-					n || (n = !0, P.classList.remove("is-active"));
+					n || (n = !0, w.classList.remove("is-active"));
 				}
-				y.once("idle", r), setTimeout(r, 2500);
+				g.once("idle", r), setTimeout(r, 2500);
 			}, 280);
 		}
-		function I(e) {
+		function E(e) {
 			window.SiteInteractions && window.SiteInteractions.openContentModal({
 				id: "west-map-detail",
 				address: e.name && e.adresse ? e.name + " | " + e.adresse : e.name || e.adresse || "",
@@ -214,7 +164,7 @@
 		}), u.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), u.click());
 		}));
-		var L = [];
+		var D = [];
 		document.querySelectorAll(".wm-cms-item").forEach(function(e) {
 			var t = parseFloat((e.querySelector(".wm-f-lat") || {}).textContent || ""), n = parseFloat((e.querySelector(".wm-f-lng") || {}).textContent || "");
 			if (!(isNaN(t) || isNaN(n))) {
@@ -230,7 +180,7 @@
 						alt: n.getAttribute("alt") || "",
 						caption: (e.querySelector(".wm-f-bild-" + t + "-unterschrift") || {}).textContent || ""
 					});
-				}), L.push({
+				}), D.push({
 					lat: t,
 					lng: n,
 					name: (e.querySelector(".wm-f-name") || {}).textContent || "",
@@ -244,15 +194,15 @@
 				});
 			}
 		});
-		var R = !1, z = {
+		var O = !1, k = {
 			Ausstellungen: !0,
 			Werke: !0,
 			"Wichtige Orte": !0
 		};
-		function B() {
+		function A() {
 			var e = [];
-			return L.forEach(function(n, r) {
-				z[n.kategorie] === !1 || R && !n.aktuell || e.push({
+			return D.forEach(function(n, r) {
+				k[n.kategorie] === !1 || O && !n.aktuell || e.push({
 					type: "Feature",
 					id: r,
 					properties: {
@@ -266,43 +216,31 @@
 				});
 			}), e;
 		}
-		function V() {
-			for (var e in Y) clearTimeout(Y[e]), delete Y[e];
-			for (var t in q) q[t].remove(), q[t]._wmAdded = !1;
-			q = {}, J = {};
-			var n = y.getSource("wmOrte");
+		function j() {
+			for (var e in L) clearTimeout(L[e]), delete L[e];
+			for (var t in F) F[t].remove(), F[t]._wmAdded = !1;
+			F = {}, I = {};
+			var n = g.getSource("wmOrte");
 			n && n.setData({
 				type: "FeatureCollection",
-				features: B()
+				features: A()
 			});
 		}
 		d && (d.setAttribute("aria-checked", "false"), d.addEventListener("click", function() {
-			R = d.classList.toggle("is-on"), d.setAttribute("aria-checked", R ? "true" : "false"), f.classList.toggle("is-on", R), V();
+			O = d.classList.toggle("is-on"), d.setAttribute("aria-checked", O ? "true" : "false"), f.classList.toggle("is-on", O), j();
 		}), d.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), d.click());
-		}));
-		function H(e, t) {
-			e.classList.toggle("is-off", z[t] === !1);
-		}
-		function U() {
-			l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
-				var t = e.querySelector(".wm-dot"), r = null;
-				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-				r && H(e, r);
-			});
-		}
-		l && (l.querySelectorAll(".wm-legend-item").forEach(function(e) {
-			e.addEventListener("click", function() {
-				var t = e.querySelector(".wm-dot"), r = null;
-				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-				if (r) {
-					if (z[r] === !1) z[r] = !0;
-					else for (var a in z) z[a] = a === r;
-					U(), V();
-				}
-			});
-		}), U());
-		function W(e) {
+		})), l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
+			var t = e.querySelector(".wm-dot"), r = null;
+			if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
+			if (r) {
+				var a = r, o = document.createElement("button");
+				o.type = "button", o.className = "wm-switch is-on wm-category-switch", o.setAttribute("role", "switch"), o.setAttribute("aria-label", a), o.setAttribute("aria-checked", "true"), o.innerHTML = "<span class=\"wm-switch-track\"></span><span class=\"wm-switch-thumb\"></span>", e.appendChild(o), o.addEventListener("click", function() {
+					k[a] = !k[a], o.classList.toggle("is-on", k[a]), o.setAttribute("aria-checked", k[a] ? "true" : "false"), e.classList.toggle("is-off", !k[a]), j();
+				});
+			}
+		});
+		function M(e) {
 			var t = document.createElement("div");
 			t.className = "wm-marker " + e;
 			var n = document.createElement("div");
@@ -311,64 +249,64 @@
 				inner: n
 			};
 		}
-		function G(t) {
-			var n = W(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
+		function N(t) {
+			var n = M(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
 			if (r.className = "wm-marker-circle", t.bild && (r.style.backgroundImage = "url(" + t.bild + ")"), n.inner.appendChild(r), t.adresse) {
 				var i = document.createElement("div");
 				i.className = "wm-marker-tooltip", i.textContent = t.adresse, n.inner.appendChild(i);
 			}
 			var a = document.createElement("div");
 			return a.className = "wm-marker-label", a.textContent = t.name, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				I(t);
+				E(t);
 			}), n.el;
 		}
-		function K(e, t) {
-			var n = W("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
+		function P(e, t) {
+			var n = M("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
 			r.className = "wm-marker-circle";
-			var i = L[e.firstIdx];
+			var i = D[e.firstIdx];
 			i && i.bild && (r.style.backgroundImage = "url(" + i.bild + ")"), n.inner.appendChild(r);
 			var a = document.createElement("div");
 			return a.className = "wm-cluster-badge", a.textContent = e.point_count_abbreviated, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				y.getSource("wmOrte").getClusterExpansionZoom(e.cluster_id, function(e, n) {
-					e || F(t, n + .2);
+				g.getSource("wmOrte").getClusterExpansionZoom(e.cluster_id, function(e, n) {
+					e || T(t, n + .2);
 				});
 			}), n.el;
 		}
-		var q = {}, J = {}, Y = {};
-		function X(e, t) {
-			Y[e] && (clearTimeout(Y[e]), delete Y[e]), t._wmAdded || (t.addTo(y), t._wmAdded = !0);
+		var F = {}, I = {}, L = {};
+		function R(e, t) {
+			L[e] && (clearTimeout(L[e]), delete L[e]), t._wmAdded || (t.addTo(g), t._wmAdded = !0);
 			var n = t.getElement();
 			n.classList.contains("wm-visible") || (n.offsetWidth, n.classList.add("wm-visible"));
 		}
-		function Z(e, t) {
-			Y[e] || (t.getElement().classList.remove("wm-visible"), Y[e] = setTimeout(function() {
-				t.remove(), t._wmAdded = !1, delete Y[e];
+		function z(e, t) {
+			L[e] || (t.getElement().classList.remove("wm-visible"), L[e] = setTimeout(function() {
+				t.remove(), t._wmAdded = !1, delete L[e];
 			}, 200));
 		}
-		function Q() {
-			for (var e = {}, t = y.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
+		function B() {
+			for (var e = {}, t = g.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
 				var r = t[n], i = r.properties, a = r.geometry.coordinates, o = i.cluster ? "c" + i.cluster_id : "p" + i.idx;
 				if (!e[o]) {
-					var s = q[o];
+					var s = F[o];
 					if (!s) {
-						var c = i.cluster ? K(i, a) : G(L[i.idx]);
+						var c = i.cluster ? P(i, a) : N(D[i.idx]);
 						s = new mapboxgl.Marker({
 							element: c,
 							anchor: "center"
-						}).setLngLat(a), q[o] = s;
+						}).setLngLat(a), F[o] = s;
 					}
-					e[o] = s, X(o, s);
+					e[o] = s, R(o, s);
 				}
 			}
-			for (var l in J) e[l] || Z(l, J[l]);
-			J = e;
+			for (var l in I) e[l] || z(l, I[l]);
+			I = e;
 		}
-		y.on("load", function() {
-			y.addSource("wmOrte", {
+		g.on("load", function() {
+			g.addSource("wmOrte", {
 				type: "geojson",
 				data: {
 					type: "FeatureCollection",
-					features: B()
+					features: A()
 				},
 				cluster: !0,
 				clusterMaxZoom: 17,
@@ -396,7 +334,7 @@
 						0
 					]]
 				}
-			}), y.addLayer({
+			}), g.addLayer({
 				id: "wmOrteHidden",
 				type: "circle",
 				source: "wmOrte",
@@ -404,9 +342,9 @@
 					"circle-radius": 0,
 					"circle-opacity": 0
 				}
-			}), y.on("render", function() {
-				y.isSourceLoaded("wmOrte") && Q();
-			}), y.on("moveend", Q), y.on("moveend", T), T();
+			}), g.on("render", function() {
+				g.isSourceLoaded("wmOrte") && B();
+			}), g.on("moveend", B);
 		});
 	});
 })();

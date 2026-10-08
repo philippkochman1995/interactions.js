@@ -15,7 +15,13 @@
   <div id="wmMap" data-mapbox-token="test-token"></div>
   <div class="top_bar_section">
     <div class="top_bar_center"><div class="nav_logo"></div></div>
-    <div class="top_bar_right"><div id="wmLegend">Legende</div></div>
+    <div class="top_bar_right">
+      <div id="wmLegend">
+        <div class="wm-legend-item"><span class="wm-dot wm-dot-ausstellungen"></span><span>Ausstellungen</span></div>
+        <div class="wm-legend-item"><span class="wm-dot wm-dot-werke"></span><span>Werke</span></div>
+        <div class="wm-legend-item"><span class="wm-dot wm-dot-orte"></span><span>Wichtige Orte</span></div>
+      </div>
+    </div>
   </div>
   <div class="wm-cms-item" hidden>
     <span class="wm-f-lat">48.2</span>
@@ -23,14 +29,28 @@
     <span class="wm-f-name">Wien</span>
     <span class="wm-f-kategorie">Werke</span>
   </div>
+  <div class="wm-cms-item" hidden>
+    <span class="wm-f-lat">50.85</span>
+    <span class="wm-f-lng">4.35</span>
+    <span class="wm-f-name">Brüssel</span>
+    <span class="wm-f-kategorie">Ausstellungen</span>
+  </div>
+  <div class="wm-cms-item" hidden>
+    <span class="wm-f-lat">48.85</span>
+    <span class="wm-f-lng">2.35</span>
+    <span class="wm-f-name">Paris</span>
+    <span class="wm-f-kategorie">Wichtige Orte</span>
+  </div>
   <script>
     window.matchMedia = () => ({ matches: true });
     window.mapboxgl = {
       Map: class {
         constructor(options){
           this.zoom = options.zoom;
+          this.options = options;
           this.zoomCalls = [];
           this.handlers = {};
+          this.touchZoomRotate = { disableRotation: () => { this.touchRotationDisabled = true; } };
           window.westMapTest = this;
         }
         on(event, handler){
@@ -44,8 +64,10 @@
         getZoom(){ return this.zoom; }
         zoomTo(zoom){ this.zoomCalls.push(zoom); }
         easeTo(options){ this.lastEase = options; }
-        addSource(id){
+        addSource(id, options){
           this.source = {
+            data: options.data,
+            setData(data){ this.data = data; },
             getClusterExpansionZoom: (_id, callback) => callback(null, 8)
           };
         }

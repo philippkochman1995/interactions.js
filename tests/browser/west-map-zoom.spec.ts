@@ -1,5 +1,52 @@
 import { expect, test } from '@playwright/test';
 
+test('map opens over Europe without automatic or gesture rotation', async ({ page }) => {
+  await page.goto('/tests/fixtures/west-map-zoom.html');
+  await page.waitForFunction(() => Boolean((window as any).westMapTest));
+
+  expect(await page.evaluate(() => {
+    const map = (window as any).westMapTest;
+    map.fire('load');
+    return {
+      projection: map.options.projection,
+      bounds: map.options.bounds,
+      dragRotate: map.options.dragRotate,
+      touchRotationDisabled: map.touchRotationDisabled,
+      animated: Boolean(map.lastEase)
+    };
+  })).toEqual({
+    projection: 'mercator',
+    bounds: [[-12, 34], [37, 61]],
+    dragRotate: false,
+    touchRotationDisabled: true,
+    animated: false
+  });
+});
+
+test('all three categories start on and their switches filter independently', async ({ page }) => {
+  await page.goto('/tests/fixtures/west-map-zoom.html');
+  await page.waitForFunction(() => Boolean((window as any).westMapTest));
+  await page.evaluate(() => (window as any).westMapTest.fire('load'));
+  await page.getByRole('button', { name: 'Legende' }).click();
+
+  const exhibitions = page.getByRole('switch', { name: 'Ausstellungen' });
+  const works = page.getByRole('switch', { name: 'Werke' });
+  const places = page.getByRole('switch', { name: 'Wichtige Orte' });
+  await expect(exhibitions).toHaveAttribute('aria-checked', 'true');
+  await expect(works).toHaveAttribute('aria-checked', 'true');
+  await expect(places).toHaveAttribute('aria-checked', 'true');
+
+  await exhibitions.click();
+  await works.click();
+  await expect(exhibitions).toHaveAttribute('aria-checked', 'false');
+  await expect(works).toHaveAttribute('aria-checked', 'false');
+  await expect(places).toHaveAttribute('aria-checked', 'true');
+  expect(await page.evaluate(() => (window as any).westMapTest.source.data.features.map((f: any) => f.properties.kat))).toEqual(['o']);
+
+  await exhibitions.click();
+  expect(await page.evaluate(() => (window as any).westMapTest.source.data.features.map((f: any) => f.properties.kat))).toEqual(['a', 'o']);
+});
+
 test('open legend covers the logo while its filter icon stays clickable above it', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/tests/fixtures/west-map-zoom.html');

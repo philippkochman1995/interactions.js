@@ -77,91 +77,26 @@
     var src = document.getElementById('wmCmsSource');
     if(src) src.classList.add('wm-cms-source');
 
-    function globeZoom(){
-      // Leave the same generous whitespace as the reference, also on mobile.
-      var diameter = Math.min(mapEl.clientHeight * 0.68, mapEl.clientWidth * 0.88) * 0.97;
-      return Math.max(0, Math.min(3, Math.log2(Math.max(1, diameter) * Math.PI / 512)));
-    }
-
-    var logo = document.querySelector('.top_bar_center .nav_logo');
-    function globePadding(){
-      var top = logo ? logo.getBoundingClientRect().bottom - mapEl.getBoundingClientRect().top : 0;
-      // Center the globe in the space between the logo's lower edge and the viewport bottom.
-      return { top: Math.max(0, Math.min(mapEl.clientHeight - 1, top)), bottom: 0, left: 0, right: 0 };
-    }
-
     var map = new mapboxgl.Map({
       container: 'wmMap',
       style: 'mapbox://styles/mapbox/light-v11',
-      projection: 'globe',
-      // Vienna's meridian stays centered; the lower latitude frames Europe/Africa.
-      center: [16.3738, 10],
+      projection: 'mercator',
+      bounds: [[-12, 34], [37, 61]],
+      fitBoundsOptions: { padding: 24 },
       bearing: 0,
       pitch: 0,
-      zoom: globeZoom(),
+      dragRotate: false,
       minZoom: 0,
       maxZoom: 18
     });
-    map.setPadding(globePadding());
+    map.touchZoomRotate.disableRotation();
 
     var pendingControlZoom = null;
-    var rotationStopped = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var rotationFrame = 0;
-
-    function stopRotation(){
-      if(rotationStopped) return;
-      rotationStopped = true;
-      cancelAnimationFrame(rotationFrame);
-      rotationFrame = 0;
-      map.stop();
-    }
-
-    function rotateGlobe(){
-      rotationFrame = 0;
-      if(rotationStopped) return;
-      var center = map.getCenter();
-      // Native animation keeps markers in sync with the camera. Per-frame jumpTo
-      // emits moveend every frame, making Mapbox snap marker positions to pixels.
-      // Decreasing longitude moves the globe right: 3.6 degrees/s = 100s/turn.
-      map.easeTo({
-        center: [center.lng - 3.6, center.lat],
-        duration: 1000,
-        easing: function(t){ return t; }
-      });
-    }
-
-    function queueRotation(){
-      if(rotationStopped || rotationFrame) return;
-      rotationFrame = requestAnimationFrame(rotateGlobe);
-    }
-
-    // Capture input before Mapbox or a marker handles it, even before map load.
+    // Clear queued button zoom when the user or a marker takes over the map.
     ['pointerdown', 'mousedown', 'touchstart', 'wheel', 'keydown', 'click'].forEach(function(event){
       mapEl.addEventListener(event, function(){
         pendingControlZoom = null;
-        stopRotation();
       }, { capture: true, passive: true });
-    });
-    map.on('remove', stopRotation);
-    function updateGlobeFraming(){
-      pendingControlZoom = null;
-      map.setPadding(globePadding());
-      if(!rotationStopped) map.jumpTo({ zoom: globeZoom() });
-    }
-    map.on('resize', updateGlobeFraming);
-    if(logo){
-      var logoObserver = new ResizeObserver(updateGlobeFraming);
-      logoObserver.observe(logo);
-      map.on('remove', function(){ logoObserver.disconnect(); });
-    }
-    map.on('style.load', function(){
-      map.setFog({
-        color: '#ffffff',
-        'high-color': '#ffffff',
-        'space-color': '#ffffff',
-        'horizon-blend': 0.02,
-        'star-intensity': 0
-      });
     });
 
     var topBarRight = document.querySelector('.top_bar_right');
@@ -206,7 +141,6 @@
       }
 
       function zoomByControl(direction){
-        stopRotation();
         var current = pendingControlZoom === null ? map.getZoom() : pendingControlZoom;
         var overviewZoom = europeZoom();
         var target;
@@ -468,59 +402,35 @@ function openMapModal(data){
       });
     }
 
-    function setLegendItemState(item, cat){
-      item.classList.toggle('is-off', activeCats[cat] === false);
-    }
-
-    function syncLegendState(){
-      if(!legend) return;
-
+    if(legend){
       legend.querySelectorAll('.wm-legend-item').forEach(function(item){
         var dot = item.querySelector('.wm-dot');
         var cat = null;
-
         if(dot){
           for(var c in dotCatMap){
-            if(dot.classList.contains(c)){
-              cat = dotCatMap[c];
-            }
+            if(dot.classList.contains(c)) cat = dotCatMap[c];
           }
         }
+        if(!cat) return;
 
-        if(cat) setLegendItemState(item, cat);
-      });
-    }
+        var category = cat;
+        var toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'wm-switch is-on wm-category-switch';
+        toggle.setAttribute('role', 'switch');
+        toggle.setAttribute('aria-label', category);
+        toggle.setAttribute('aria-checked', 'true');
+        toggle.innerHTML = '<span class="wm-switch-track"></span><span class="wm-switch-thumb"></span>';
+        item.appendChild(toggle);
 
-    if(legend){
-      legend.querySelectorAll('.wm-legend-item').forEach(function(item){
-        item.addEventListener('click', function(){
-          var dot = item.querySelector('.wm-dot');
-          var cat = null;
-
-          if(dot){
-            for(var c in dotCatMap){
-              if(dot.classList.contains(c)){
-                cat = dotCatMap[c];
-              }
-            }
-          }
-
-          if(!cat) return;
-
-          if(activeCats[cat] === false){
-            activeCats[cat] = true;
-          } else {
-            for(var activeCat in activeCats){
-              activeCats[activeCat] = activeCat === cat;
-            }
-          }
-
-          syncLegendState();
+        toggle.addEventListener('click', function(){
+          activeCats[category] = !activeCats[category];
+          toggle.classList.toggle('is-on', activeCats[category]);
+          toggle.setAttribute('aria-checked', activeCats[category] ? 'true' : 'false');
+          item.classList.toggle('is-off', !activeCats[category]);
           applyFilter();
         });
       });
-
-      syncLegendState();
     }
 
     function buildMarkerShell(catClass){
@@ -703,8 +613,6 @@ function openMapModal(data){
       });
 
       map.on('moveend', updateMarkers);
-      map.on('moveend', queueRotation);
-      queueRotation();
     });
   });
 })();
