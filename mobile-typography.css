@@ -20,6 +20,10 @@
     line-height: var(--fw-mobile-h2-line-height);
   }
 
+  .bio_quote_mark.u-h2 {
+    line-height: 1;
+  }
+
   .u-p-small {
     line-height: var(--fw-mobile-small-line-height);
   }
