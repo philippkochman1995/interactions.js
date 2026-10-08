@@ -64,6 +64,8 @@ interface CanvasConfig {
   mobileBreakpoint: number;
   itemMarginMin: number;
   itemMarginMax: number;
+  mobileItemMarginMin: number;
+  mobileItemMarginMax: number;
   itemOffsetMin: number;
   itemOffsetMax: number;
   velocity: number;
@@ -308,10 +310,12 @@ function readConfig(root: HTMLElement): CanvasConfig {
 
   return {
     columnWidth: boundedNumberAttribute(root, 'data-canvas-column-width', 25, 8, 80),
-    mobileColumnWidth: boundedNumberAttribute(root, 'data-canvas-mobile-column-width', 50, 20, 100),
+    mobileColumnWidth: boundedNumberAttribute(root, 'data-canvas-mobile-column-width', 78, 20, 100),
     mobileBreakpoint: boundedNumberAttribute(root, 'data-canvas-mobile-breakpoint', 767, 320, 1400),
     itemMarginMin: boundedNumberAttribute(root, 'data-canvas-item-margin-min', 4, 0, 30),
     itemMarginMax: boundedNumberAttribute(root, 'data-canvas-item-margin-max', 6, 0, 40),
+    mobileItemMarginMin: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-min', 8, 0, 40),
+    mobileItemMarginMax: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-max', 12, 0, 40),
     itemOffsetMin: boundedNumberAttribute(root, 'data-canvas-item-offset-min', 3, 0, 30),
     itemOffsetMax: boundedNumberAttribute(root, 'data-canvas-item-offset-max', 6, 0, 40),
     velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
@@ -419,10 +423,11 @@ function placeTiles(
   }
 
   const columnCount = Math.max(1, Math.round(Math.sqrt(tiles.length)));
-  const columnWidthPercent = viewportWidth <= config.mobileBreakpoint ? config.mobileColumnWidth : config.columnWidth;
+  const isMobile = viewportWidth <= config.mobileBreakpoint;
+  const columnWidthPercent = isMobile ? config.mobileColumnWidth : config.columnWidth;
   const columnWidth = (viewportWidth * columnWidthPercent) / 100;
-  const marginMin = (viewportWidth * config.itemMarginMin) / 100;
-  const marginMax = (viewportWidth * config.itemMarginMax) / 100;
+  const marginMin = (viewportWidth * (isMobile ? config.mobileItemMarginMin : config.itemMarginMin)) / 100;
+  const marginMax = (viewportWidth * (isMobile ? config.mobileItemMarginMax : config.itemMarginMax)) / 100;
   const patternWidth = columnCount * columnWidth;
   const offsetMin = config.itemOffsetMin / 100;
   const offsetMax = config.itemOffsetMax / 100;
@@ -713,6 +718,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
     let pointerPreviousTime = 0;
     let positionStart: Point = { x: 0, y: 0 };
     let dragged = false;
+    let suppressClick = false;
     let pressedTile: HTMLElement | null = null;
     const itemByInstanceId = new Map(placed.map((tile) => [tile.tile.instanceId, tile.tile]));
 
@@ -777,6 +783,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       positionStart = { ...target };
       velocity = { x: 0, y: 0 };
       dragged = false;
+      suppressClick = false;
       pressedTile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
 
       if (event.pointerType !== 'touch') {
@@ -803,7 +810,9 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       if (!dragged) {
         dragged = true;
         root.classList.add('is-dragging');
-        gsap.to(stage, { scale: config.reducedMotion ? 1 : 0.985, duration: 0.32, ease: 'power2.out' });
+        if (event.pointerType !== 'touch' && !config.reducedMotion) {
+          gsap.to(stage, { scale: 0.985, duration: 0.32, ease: 'power2.out' });
+        }
       }
 
       target.x = positionStart.x + dx;
@@ -819,7 +828,7 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       pointerPreviousTime = now;
     };
 
-    const onPointerUp = (event: PointerEvent) => {
+    const finishPointer = (event: PointerEvent, cancelled = false) => {
       if (pointerId !== event.pointerId) {
         return;
       }
@@ -829,23 +838,48 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
         root.releasePointerCapture(event.pointerId);
       }
       root.classList.remove('is-dragging');
-      if (dragged) {
+      if (dragged && event.pointerType !== 'touch' && !config.reducedMotion) {
         gsap.to(stage, { scale: 1, duration: config.reducedMotion ? 0.01 : 0.45, ease: 'elastic.out(1, 0.72)' });
       }
 
       const releaseDistance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y);
       const tapThreshold = event.pointerType === 'touch' ? 14 : DRAG_THRESHOLD;
 
-      if (!dragged && releaseDistance <= tapThreshold && pressedTile) {
+      if (!cancelled && event.pointerType !== 'touch' && !dragged && releaseDistance <= tapThreshold && pressedTile) {
         const itemId = pressedTile.dataset.canvasItemId;
         const item = itemId ? itemByInstanceId.get(itemId) : undefined;
 
         if (item) {
+          suppressClick = true;
           openItemModal(item, pressedTile);
         }
       }
 
+      if (dragged || cancelled) {
+        suppressClick = true;
+      }
+
       pressedTile = null;
+    };
+
+    const onPointerCancel = (event: PointerEvent) => finishPointer(event, true);
+
+    const onClick = (event: MouseEvent) => {
+      if (suppressClick && event.detail !== 0) {
+        event.preventDefault();
+        suppressClick = false;
+        return;
+      }
+
+      suppressClick = false;
+
+      const tile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
+      const itemId = tile?.dataset.canvasItemId;
+      const item = itemId ? itemByInstanceId.get(itemId) : undefined;
+
+      if (tile && item) {
+        openItemModal(item, tile);
+      }
     };
 
     const onResize = () => {
@@ -866,40 +900,23 @@ function CmsCanvasApp({ root, items, source }: { root: HTMLElement; items: Canva
       };
     };
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Enter' && event.key !== ' ') {
-        return;
-      }
-
-      const tile = (event.target as Element).closest<HTMLElement>('.cms-canvas__item');
-      const itemId = tile?.dataset.canvasItemId;
-      const item = itemId ? itemByInstanceId.get(itemId) : undefined;
-
-      if (!tile || !item) {
-        return;
-      }
-
-      event.preventDefault();
-      openItemModal(item, tile);
-    };
-
     gsap.ticker.add(tick);
     root.addEventListener('pointerdown', onPointerDown);
     root.addEventListener('pointermove', onPointerMove);
-    root.addEventListener('pointerup', onPointerUp);
-    root.addEventListener('pointercancel', onPointerUp);
+    root.addEventListener('pointerup', finishPointer);
+    root.addEventListener('pointercancel', onPointerCancel);
+    root.addEventListener('click', onClick);
     root.addEventListener('wheel', onWheel, { passive: false });
-    root.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize);
 
     return () => {
       gsap.ticker.remove(tick);
       root.removeEventListener('pointerdown', onPointerDown);
       root.removeEventListener('pointermove', onPointerMove);
-      root.removeEventListener('pointerup', onPointerUp);
-      root.removeEventListener('pointercancel', onPointerUp);
+      root.removeEventListener('pointerup', finishPointer);
+      root.removeEventListener('pointercancel', onPointerCancel);
+      root.removeEventListener('click', onClick);
       root.removeEventListener('wheel', onWheel);
-      root.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
       root.classList.remove('is-ready', 'is-dragging');
     };
