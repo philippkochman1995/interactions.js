@@ -69,7 +69,9 @@ export function createSitePreloader(): void {
   signature.height = 642;
   signature.loading = 'eager';
   const script = document.currentScript as HTMLScriptElement | null;
-  signature.src = new URL('../assets/preloader-signature.svg', script?.src || new URL('dist/site-body.js', document.baseURI).href).href;
+  const scriptBase = script?.getAttribute('data-site-script-base') || script?.src
+    || new URL('dist/site-body.js', document.baseURI).href;
+  signature.src = new URL('../assets/preloader-signature.svg', scriptBase).href;
   overlay.appendChild(percent);
   overlay.appendChild(name);
   overlay.appendChild(signature);

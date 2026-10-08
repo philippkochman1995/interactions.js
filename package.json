@@ -8,7 +8,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build && vite build --config vite.boot.config.ts --mode head && vite build --config vite.boot.config.ts --mode body",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build && node --test tests/site-boot.test.mjs && npm run test:browser",
+    "check": "npm run typecheck && npm run build && node --test tests/*.test.mjs && npm run test:browser",
     "test:browser": "playwright test"
   },
   "devDependencies": {

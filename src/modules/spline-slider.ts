@@ -52,7 +52,13 @@ export function isInactiveHeroSplineScene(element: Element): boolean {
   return Boolean(slide && current && slide !== current);
 }
 
-function syncSlider(slider: HTMLElement): void {
+function intersectsViewport(element: HTMLElement): boolean {
+  const rect = element.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0
+    && rect.top < window.innerHeight && rect.left < window.innerWidth;
+}
+
+function syncSlider(slider: HTMLElement, inViewport: boolean): void {
   const track = slider.querySelector<HTMLElement>(TRACK_SELECTOR);
   const current = track && activeSlide(track);
   const spline = sliderModule();
@@ -66,7 +72,7 @@ function syncSlider(slider: HTMLElement): void {
     if (!slide || !app) continue;
 
     try {
-      if (slide === current) app.play?.();
+      if (slide === current && inViewport && !document.hidden) app.play?.();
       else app.stop?.();
     } catch {
       // A scene may be between Webflow initialization and disposal.
@@ -79,11 +85,34 @@ export function initHeroSplineSlides(): void {
 
   if (sliders.length === 0) return;
 
+  const syncBySlider = new Map<HTMLElement, () => void>();
+
   for (const slider of sliders) {
     const track = slider.querySelector<HTMLElement>(TRACK_SELECTOR);
     if (!track) continue;
 
-    const sync = (): void => syncSlider(slider);
+    // Establish visibility synchronously; observer delivery can follow scene loading.
+    let inViewport = intersectsViewport(slider);
+    const sync = (): void => syncSlider(slider, inViewport);
+    syncBySlider.set(slider, sync);
+    if (typeof IntersectionObserver !== 'undefined') {
+      const visibilityObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target !== slider) continue;
+          inViewport = entry.isIntersecting && entry.intersectionRect.width > 0
+            && entry.intersectionRect.height > 0;
+        }
+        sync();
+      }, { threshold: 0 });
+      visibilityObserver.observe(slider);
+    } else {
+      const refreshVisibility = (): void => {
+        inViewport = intersectsViewport(slider);
+        sync();
+      };
+      window.addEventListener('scroll', refreshVisibility, { passive: true });
+      window.addEventListener('resize', refreshVisibility);
+    }
     const observer = new MutationObserver(sync);
     observer.observe(track, {
       attributes: true,
@@ -94,11 +123,15 @@ export function initHeroSplineSlides(): void {
     sync();
   }
 
+  document.addEventListener('visibilitychange', () => {
+    syncBySlider.forEach((sync) => sync());
+  });
+
   document.addEventListener('w-spline-load', (event) => {
     const target = event.target;
     if (target instanceof Element && target.closest(SLIDER_SELECTOR)) {
       const slider = target.closest<HTMLElement>(SLIDER_SELECTOR);
-      if (slider) syncSlider(slider);
+      if (slider) syncBySlider.get(slider)?.();
     }
   }, true);
 }

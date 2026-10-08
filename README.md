@@ -31,6 +31,15 @@ For the complete site setup, use `snippets/site-head.html` and
 in every URL. These replace the former inline transition and logo code. See
 [External bootstrap scripts](#external-bootstrap-scripts) for the required load order.
 
+For deployment entirely through Webflow MCP, the classic `dist/site-body.js`
+bundle can replace its external script tag inline in the site footer. Set
+`data-site-script-base` on that inline script to the previous hosted `site-body.js`
+URL so the preloader's relative image assets still resolve against the CDN.
+Remove the bundle's source-map comment when inlining it. Keep only one body
+bootstrap, in the same position before the module scripts. Staging currently
+uses this inline route for the Spline visibility update; a future CDN deployment
+must include the updated local source before replacing the inline script.
+
 Host `dist/site-interactions.js` on your CDN or static host, then add it globally in Webflow before `</body>`:
 
 ```html
@@ -786,7 +795,10 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
   Szene vorgeladen und für den Preloader abgewartet. Inaktive Slides werden nach
   `w-spline-load` mit Webflows `stop()` pausiert und beim Aktivieren mit `play()`
-  fortgesetzt. Webflows eigene Szeneninitialisierung ist davon unabhängig;
+  fortgesetzt, sofern der Slider im Viewport und der Browser-Tab sichtbar ist.
+  Ein IntersectionObserver pausiert alle Szenen außerhalb des Viewports;
+  `visibilitychange` pausiert sie in Hintergrund-Tabs. Beim Zurückkehren läuft
+  ausschließlich die aktive sichtbare Szene weiter. Webflows eigene Szeneninitialisierung ist davon unabhängig;
   `stop()` pausiert die Wiedergabe, garantiert aber kein Freigeben des Szenenspeichers.
   Das gilt auf Desktop und Mobilgeräten.
 - Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
