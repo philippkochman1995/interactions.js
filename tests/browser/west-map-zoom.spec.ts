@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-test('open legend covers the top bar logo', async ({ page }) => {
+test('open legend covers the logo while its filter icon stays clickable above it', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/tests/fixtures/west-map-zoom.html');
   await page.waitForFunction(() => Boolean((window as any).westMapTest));
 
-  await page.getByRole('button', { name: 'Legende' }).click();
+  const filter = page.getByRole('button', { name: 'Legende' });
+  await filter.click();
 
   expect(await page.evaluate(() => {
     const legend = document.getElementById('wmLegend')!;
@@ -16,8 +17,16 @@ test('open legend covers the top bar logo', async ({ page }) => {
       width: `${rect.width}px`, height: '72px', zIndex: '9999', background: 'red'
     });
     const hit = document.elementFromPoint(rect.left + 20, rect.top + 20);
-    return legend.parentElement === document.body && legend.contains(hit);
+    const button = document.querySelector<HTMLElement>('.wm-filter-btn')!;
+    const buttonRect = button.getBoundingClientRect();
+    const buttonHit = document.elementFromPoint(buttonRect.left + buttonRect.width / 2, buttonRect.top + buttonRect.height / 2);
+    return legend.parentElement === document.body && legend.contains(hit)
+      && button.parentElement === document.body && button.contains(buttonHit);
   })).toBe(true);
+
+  await filter.click();
+  await expect(filter).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.evaluate(() => document.querySelector('.wm-filter-btn')?.parentElement?.classList.contains('wm-zoom-controls'))).toBe(true);
 });
 
 test('zoom buttons take two levels near Europe and stop at the overview before continuing out', async ({ page }) => {

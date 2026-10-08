@@ -145,27 +145,39 @@
 			}), j.addEventListener("click", function() {
 				t(-1);
 			});
+			var N = document.createElement("span");
+			N.className = "wm-filter-slot";
 			function n() {
+				var e = N.getBoundingClientRect();
+				M.style.left = e.left + "px", M.style.top = e.top + "px";
+			}
+			function o() {
+				var e = M.getBoundingClientRect();
+				N.style.width = e.width + "px", N.style.height = e.height + "px", k.replaceChild(N, M), document.body.appendChild(M), M.classList.add("is-floating"), n();
+			}
+			function s() {
+				k.replaceChild(M, N), M.classList.remove("is-floating"), M.style.removeProperty("left"), M.style.removeProperty("top");
+			}
+			function c() {
 				if (l) {
-					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = M.getBoundingClientRect();
+					var e = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, t = M.classList.contains("is-floating") ? N.getBoundingClientRect() : M.getBoundingClientRect();
 					l.style.right = Math.max(0, window.innerWidth - t.right - 1.5 * e) + "px";
 				}
 			}
 			M.addEventListener("click", function() {
 				if (l) {
-					n();
 					var e = l.classList.toggle("is-open");
-					document.body.classList.toggle("wm-legend-open", e), M.setAttribute("aria-expanded", e ? "true" : "false");
+					document.body.classList.toggle("wm-legend-open", e), M.setAttribute("aria-expanded", e ? "true" : "false"), e ? (c(), o()) : s();
 				}
 			}), window.addEventListener("resize", function() {
-				l && l.classList.contains("is-open") && n();
+				l && l.classList.contains("is-open") && (c(), n());
 			}), document.addEventListener("click", function(e) {
-				!l || !l.classList.contains("is-open") || l.contains(e.target) || M.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), M.setAttribute("aria-expanded", "false"));
+				!l || !l.classList.contains("is-open") || l.contains(e.target) || M.contains(e.target) || (l.classList.remove("is-open"), document.body.classList.remove("wm-legend-open"), M.setAttribute("aria-expanded", "false"), s());
 			});
 		} else y.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
-		var N = document.createElement("div");
-		N.className = "wm-map-fade", o.appendChild(N);
-		function P(e, t) {
+		var P = document.createElement("div");
+		P.className = "wm-map-fade", o.appendChild(P);
+		function F(e, t) {
 			if (Math.abs(t - y.getZoom()) <= 4) {
 				y.easeTo({
 					center: e,
@@ -173,19 +185,19 @@
 				});
 				return;
 			}
-			N.classList.add("is-active"), setTimeout(function() {
+			P.classList.add("is-active"), setTimeout(function() {
 				y.jumpTo({
 					center: e,
 					zoom: t
 				});
 				var n = !1;
 				function r() {
-					n || (n = !0, N.classList.remove("is-active"));
+					n || (n = !0, P.classList.remove("is-active"));
 				}
 				y.once("idle", r), setTimeout(r, 2500);
 			}, 280);
 		}
-		function F(e) {
+		function I(e) {
 			window.SiteInteractions && window.SiteInteractions.openContentModal({
 				id: "west-map-detail",
 				address: e.name && e.adresse ? e.name + " | " + e.adresse : e.name || e.adresse || "",
@@ -202,7 +214,7 @@
 		}), u.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), u.click());
 		}));
-		var I = [];
+		var L = [];
 		document.querySelectorAll(".wm-cms-item").forEach(function(e) {
 			var t = parseFloat((e.querySelector(".wm-f-lat") || {}).textContent || ""), n = parseFloat((e.querySelector(".wm-f-lng") || {}).textContent || "");
 			if (!(isNaN(t) || isNaN(n))) {
@@ -218,7 +230,7 @@
 						alt: n.getAttribute("alt") || "",
 						caption: (e.querySelector(".wm-f-bild-" + t + "-unterschrift") || {}).textContent || ""
 					});
-				}), I.push({
+				}), L.push({
 					lat: t,
 					lng: n,
 					name: (e.querySelector(".wm-f-name") || {}).textContent || "",
@@ -232,15 +244,15 @@
 				});
 			}
 		});
-		var L = !1, R = {
+		var R = !1, z = {
 			Ausstellungen: !0,
 			Werke: !0,
 			"Wichtige Orte": !0
 		};
-		function z() {
+		function B() {
 			var e = [];
-			return I.forEach(function(n, r) {
-				R[n.kategorie] === !1 || L && !n.aktuell || e.push({
+			return L.forEach(function(n, r) {
+				z[n.kategorie] === !1 || R && !n.aktuell || e.push({
 					type: "Feature",
 					id: r,
 					properties: {
@@ -254,29 +266,29 @@
 				});
 			}), e;
 		}
-		function B() {
-			for (var e in J) clearTimeout(J[e]), delete J[e];
-			for (var t in K) K[t].remove(), K[t]._wmAdded = !1;
-			K = {}, q = {};
+		function V() {
+			for (var e in Y) clearTimeout(Y[e]), delete Y[e];
+			for (var t in q) q[t].remove(), q[t]._wmAdded = !1;
+			q = {}, J = {};
 			var n = y.getSource("wmOrte");
 			n && n.setData({
 				type: "FeatureCollection",
-				features: z()
+				features: B()
 			});
 		}
 		d && (d.setAttribute("aria-checked", "false"), d.addEventListener("click", function() {
-			L = d.classList.toggle("is-on"), d.setAttribute("aria-checked", L ? "true" : "false"), f.classList.toggle("is-on", L), B();
+			R = d.classList.toggle("is-on"), d.setAttribute("aria-checked", R ? "true" : "false"), f.classList.toggle("is-on", R), V();
 		}), d.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), d.click());
 		}));
-		function V(e, t) {
-			e.classList.toggle("is-off", R[t] === !1);
+		function H(e, t) {
+			e.classList.toggle("is-off", z[t] === !1);
 		}
-		function H() {
+		function U() {
 			l && l.querySelectorAll(".wm-legend-item").forEach(function(e) {
 				var t = e.querySelector(".wm-dot"), r = null;
 				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-				r && V(e, r);
+				r && H(e, r);
 			});
 		}
 		l && (l.querySelectorAll(".wm-legend-item").forEach(function(e) {
@@ -284,13 +296,13 @@
 				var t = e.querySelector(".wm-dot"), r = null;
 				if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
 				if (r) {
-					if (R[r] === !1) R[r] = !0;
-					else for (var a in R) R[a] = a === r;
-					H(), B();
+					if (z[r] === !1) z[r] = !0;
+					else for (var a in z) z[a] = a === r;
+					U(), V();
 				}
 			});
-		}), H());
-		function U(e) {
+		}), U());
+		function W(e) {
 			var t = document.createElement("div");
 			t.className = "wm-marker " + e;
 			var n = document.createElement("div");
@@ -299,64 +311,64 @@
 				inner: n
 			};
 		}
-		function W(t) {
-			var n = U(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
+		function G(t) {
+			var n = W(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
 			if (r.className = "wm-marker-circle", t.bild && (r.style.backgroundImage = "url(" + t.bild + ")"), n.inner.appendChild(r), t.adresse) {
 				var i = document.createElement("div");
 				i.className = "wm-marker-tooltip", i.textContent = t.adresse, n.inner.appendChild(i);
 			}
 			var a = document.createElement("div");
 			return a.className = "wm-marker-label", a.textContent = t.name, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				F(t);
+				I(t);
 			}), n.el;
 		}
-		function G(e, t) {
-			var n = U("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
+		function K(e, t) {
+			var n = W("wm-cluster " + (e.hasW ? "wm-cat-werke" : e.hasA ? "wm-cat-ausstellungen" : "wm-cat-orte")), r = document.createElement("div");
 			r.className = "wm-marker-circle";
-			var i = I[e.firstIdx];
+			var i = L[e.firstIdx];
 			i && i.bild && (r.style.backgroundImage = "url(" + i.bild + ")"), n.inner.appendChild(r);
 			var a = document.createElement("div");
 			return a.className = "wm-cluster-badge", a.textContent = e.point_count_abbreviated, n.inner.appendChild(a), n.el.addEventListener("click", function() {
 				y.getSource("wmOrte").getClusterExpansionZoom(e.cluster_id, function(e, n) {
-					e || P(t, n + .2);
+					e || F(t, n + .2);
 				});
 			}), n.el;
 		}
-		var K = {}, q = {}, J = {};
-		function Y(e, t) {
-			J[e] && (clearTimeout(J[e]), delete J[e]), t._wmAdded || (t.addTo(y), t._wmAdded = !0);
+		var q = {}, J = {}, Y = {};
+		function X(e, t) {
+			Y[e] && (clearTimeout(Y[e]), delete Y[e]), t._wmAdded || (t.addTo(y), t._wmAdded = !0);
 			var n = t.getElement();
 			n.classList.contains("wm-visible") || (n.offsetWidth, n.classList.add("wm-visible"));
 		}
-		function X(e, t) {
-			J[e] || (t.getElement().classList.remove("wm-visible"), J[e] = setTimeout(function() {
-				t.remove(), t._wmAdded = !1, delete J[e];
+		function Z(e, t) {
+			Y[e] || (t.getElement().classList.remove("wm-visible"), Y[e] = setTimeout(function() {
+				t.remove(), t._wmAdded = !1, delete Y[e];
 			}, 200));
 		}
-		function Z() {
+		function Q() {
 			for (var e = {}, t = y.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
 				var r = t[n], i = r.properties, a = r.geometry.coordinates, o = i.cluster ? "c" + i.cluster_id : "p" + i.idx;
 				if (!e[o]) {
-					var s = K[o];
+					var s = q[o];
 					if (!s) {
-						var c = i.cluster ? G(i, a) : W(I[i.idx]);
+						var c = i.cluster ? K(i, a) : G(L[i.idx]);
 						s = new mapboxgl.Marker({
 							element: c,
 							anchor: "center"
-						}).setLngLat(a), K[o] = s;
+						}).setLngLat(a), q[o] = s;
 					}
-					e[o] = s, Y(o, s);
+					e[o] = s, X(o, s);
 				}
 			}
-			for (var l in q) e[l] || X(l, q[l]);
-			q = e;
+			for (var l in J) e[l] || Z(l, J[l]);
+			J = e;
 		}
 		y.on("load", function() {
 			y.addSource("wmOrte", {
 				type: "geojson",
 				data: {
 					type: "FeatureCollection",
-					features: z()
+					features: B()
 				},
 				cluster: !0,
 				clusterMaxZoom: 17,
@@ -393,8 +405,8 @@
 					"circle-opacity": 0
 				}
 			}), y.on("render", function() {
-				y.isSourceLoaded("wmOrte") && Z();
-			}), y.on("moveend", Z), y.on("moveend", T), T();
+				y.isSourceLoaded("wmOrte") && Q();
+			}), y.on("moveend", Q), y.on("moveend", T), T();
 		});
 	});
 })();

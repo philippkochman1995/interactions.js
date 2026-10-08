@@ -27,6 +27,8 @@ svg[viewBox="0 0 102 102"]{width:3rem;height:3rem;}
 .wm-zoom-btn svg path{transition:fill 0.18s ease;}
 .wm-zoom-btn:hover svg rect{fill:var(--fw_rosa);rx:0;}
 .wm-zoom-btn:hover svg path{fill:var(--fw_dark_purple);}
+.wm-filter-slot{display:inline-block;flex:0 0 auto;}
+.wm-filter-btn.is-floating{position:fixed;z-index:1001;pointer-events:auto;}
 body.wm-legend-open .wm-zoom-btn:not(.wm-filter-btn){opacity:0;pointer-events:none;}
 body.wm-legend-open .wm-filter-btn svg rect{opacity:0;}
 body.wm-legend-open .wm-filter-btn svg path{fill:var(--fw_dark_purple);}

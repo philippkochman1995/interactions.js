@@ -235,11 +235,38 @@
       zoomInBtn.addEventListener('click', function(){ zoomByControl(1); });
       zoomOutBtn.addEventListener('click', function(){ zoomByControl(-1); });
 
+      var filterSlot = document.createElement('span');
+      filterSlot.className = 'wm-filter-slot';
+
+      function positionFloatingFilter(){
+        var rect = filterSlot.getBoundingClientRect();
+        filterBtn.style.left = rect.left + 'px';
+        filterBtn.style.top = rect.top + 'px';
+      }
+
+      function floatFilter(){
+        var rect = filterBtn.getBoundingClientRect();
+        filterSlot.style.width = rect.width + 'px';
+        filterSlot.style.height = rect.height + 'px';
+        zoomWrap.replaceChild(filterSlot, filterBtn);
+        document.body.appendChild(filterBtn);
+        filterBtn.classList.add('is-floating');
+        positionFloatingFilter();
+      }
+
+      function dockFilter(){
+        zoomWrap.replaceChild(filterBtn, filterSlot);
+        filterBtn.classList.remove('is-floating');
+        filterBtn.style.removeProperty('left');
+        filterBtn.style.removeProperty('top');
+      }
+
       function positionLegend(){
         if(!legend) return;
 
         var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-        var btnRect = filterBtn.getBoundingClientRect();
+        var btnRect = filterBtn.classList.contains('is-floating')
+          ? filterSlot.getBoundingClientRect() : filterBtn.getBoundingClientRect();
 
         legend.style.right = Math.max(0, window.innerWidth - btnRect.right - 1.5 * rem) + 'px';
       }
@@ -247,16 +274,21 @@
       filterBtn.addEventListener('click', function(){
         if(!legend) return;
 
-        positionLegend();
-
         var open = legend.classList.toggle('is-open');
         document.body.classList.toggle('wm-legend-open', open);
         filterBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if(open){
+          positionLegend();
+          floatFilter();
+        } else {
+          dockFilter();
+        }
       });
 
       window.addEventListener('resize', function(){
         if(legend && legend.classList.contains('is-open')){
           positionLegend();
+          positionFloatingFilter();
         }
       });
 
@@ -267,6 +299,7 @@
         legend.classList.remove('is-open');
         document.body.classList.remove('wm-legend-open');
         filterBtn.setAttribute('aria-expanded', 'false');
+        dockFilter();
       });
     } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
