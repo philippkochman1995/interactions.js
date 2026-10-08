@@ -58,11 +58,28 @@
   padding: 0;
   border-color: var(--fw_dark_purple_50, #82808c);
   color: var(--fw_dark_purple_50, #82808c);
+  transition: border-color 450ms cubic-bezier(.33, 1, .68, 1), color 450ms cubic-bezier(.33, 1, .68, 1);
+}
+
+[data-insta-feed] [data-insta-follow] .button-mask {
+  background-color: var(--fw_dark_purple, #06021a);
 }
 
 [data-insta-feed] [data-insta-follow] .button-text {
   font-size: 16px;
   line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-insta-feed] .button-outlined[data-insta-follow]:hover {
+    border-color: var(--fw_dark_purple, #06021a);
+    color: #fff;
+  }
+}
+
+[data-insta-feed] .button-outlined[data-insta-follow]:focus-visible {
+  border-color: var(--fw_dark_purple, #06021a);
+  color: #fff;
 }
 
 [data-insta-feed] [data-insta-slider] { position: relative; }
