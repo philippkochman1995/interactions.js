@@ -524,7 +524,9 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
 
   .news_event .intro_img {
     order: -1;
+    aspect-ratio: 382 / 250;
     margin-bottom: 1.5rem;
+    object-position: center;
   }
 
   .news_event .intro_content_about > .text-link {
@@ -542,6 +544,16 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
 
   .news_event .intro_date_infos > .button-outlined {
     box-sizing: border-box;
+  }
+
+  /* Die Karte wird im Figma-Entwurf ab der unteren Haelfte abgedunkelt.
+     Der Verlauf sitzt nur auf dem Kartenbild, hinter der Infokarte. */
+  .map_section .map_bg::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 0;
+    background: linear-gradient(to bottom, transparent, rgb(6 2 26 / 30%));
+    pointer-events: none;
   }
 }
 
