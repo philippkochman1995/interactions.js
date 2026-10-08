@@ -1,7 +1,6 @@
 /* Homepage Instagram preview. Figma node 1358:9277. */
 [data-insta-feed] {
   width: 100%;
-  padding-inline: clamp(16px, 1.51vw, 26px);
   color: var(--fw_dark_purple, #06021a);
 }
 
@@ -183,6 +182,13 @@
 
 @media screen and (max-width: 767px) {
   [data-insta-feed] [data-insta-track] > div { flex-basis: 74%; }
+  [data-insta-feed] [data-insta-prev],
+  [data-insta-feed] [data-insta-next] {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  [data-insta-feed] [data-insta-prev] { left: -10px; }
+  [data-insta-feed] [data-insta-next] { right: -10px; }
 }
 
 @media screen and (max-width: 479px) {
