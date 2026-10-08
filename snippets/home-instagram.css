@@ -1,0 +1,191 @@
+/* Homepage Instagram preview. Figma node 1358:9277. */
+[data-insta-feed] {
+  width: 100%;
+  padding-inline: clamp(16px, 1.51vw, 26px);
+  color: var(--fw_dark_purple, #06021a);
+}
+
+[data-insta-feed] > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 55px;
+  margin-bottom: 16px;
+}
+
+[data-insta-feed] > div:first-child > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+[data-insta-feed] [data-insta-avatar] {
+  display: block;
+  flex: none;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+[data-insta-feed] [data-insta-profile-copy] {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: StyreneA, Arial, sans-serif;
+  font-weight: 500;
+}
+
+[data-insta-feed] [data-insta-account] {
+  font-size: 16px;
+  line-height: 22.4px;
+}
+
+[data-insta-feed] [data-insta-subtitle] {
+  color: var(--fw_dark_purple_50, #82808c);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: .3px;
+}
+
+[data-insta-feed] .button-outlined[data-insta-follow] {
+  flex: none;
+  min-width: 130px;
+  width: 130px;
+  height: 47px;
+  padding: 0;
+  border-color: var(--fw_dark_purple_50, #82808c);
+  color: var(--fw_dark_purple_50, #82808c);
+}
+
+[data-insta-feed] [data-insta-follow] .button-text {
+  font-size: 16px;
+  line-height: 1;
+}
+
+[data-insta-feed] [data-insta-slider] { position: relative; }
+[data-insta-feed] [data-insta-slider] > div:first-child { width: 100%; overflow: hidden; }
+
+[data-insta-feed] [data-insta-track] {
+  display: flex;
+  gap: 15px;
+  transition: transform 480ms cubic-bezier(.76, 0, .24, 1);
+  will-change: transform;
+}
+
+[data-insta-feed] [data-insta-track] > div {
+  position: relative;
+  flex: 0 0 calc((100% - 45px) / 4);
+  aspect-ratio: 406 / 508;
+  overflow: hidden;
+  box-shadow: 0 -5px 30px rgba(6, 2, 26, .08);
+}
+
+[data-insta-feed] [data-insta-track] > div img {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* These percentages reproduce the Figma crop for each source image. */
+[data-insta-feed] [data-insta-track] > div:nth-child(4n + 2) img {
+  width: 111.58%;
+  height: 118.44%;
+  left: -5.91%;
+  top: -13.64%;
+}
+
+[data-insta-feed] [data-insta-track] > div:nth-child(4n + 3) img {
+  width: 177.83%;
+  height: 142.28%;
+  left: -38.92%;
+  top: -21.14%;
+}
+
+[data-insta-feed] [data-insta-track] > div:nth-child(4n + 4) img {
+  width: 105.69%;
+  height: 104.81%;
+  left: -5.69%;
+  top: -.72%;
+}
+
+/* The arrows use the same SVG, sizing and hover motion as Editionen. */
+[data-insta-feed] [data-insta-prev],
+[data-insta-feed] [data-insta-next] {
+  z-index: 4;
+  cursor: pointer;
+  filter: drop-shadow(0 -5px 30px rgba(6, 2, 26, .08));
+}
+
+[data-insta-feed] [data-insta-prev] { left: -12px; }
+[data-insta-feed] [data-insta-next] { right: -12px; }
+[data-insta-feed] .editionen_nav_icon { display: block; width: 100%; height: 100%; overflow: visible; }
+
+[data-insta-feed] [data-arrow-circle] {
+  r: 20.625px;
+  fill: var(--fw_dark_purple_5, #f3f2f4);
+  stroke: var(--fw_dark_purple_75, #454250);
+  transition: r 260ms cubic-bezier(.76, 0, .24, 1), fill 260ms cubic-bezier(.76, 0, .24, 1);
+}
+
+[data-insta-feed] [data-arrow-dot],
+[data-insta-feed] [data-arrow-head] {
+  fill: var(--fw_dark_purple_75, #454250);
+  transform-box: fill-box;
+  transform-origin: right center;
+  transition: transform 380ms cubic-bezier(.76, 0, .24, 1);
+}
+
+[data-insta-feed] :is([data-insta-prev], [data-insta-next]):is(:hover, :focus-visible) [data-arrow-circle] {
+  r: 22.625px;
+  fill: var(--fw_rosa, #ffc7d1);
+}
+
+[data-insta-feed] :is([data-insta-prev], [data-insta-next]):is(:hover, :focus-visible) [data-arrow-dot] {
+  transform: translate(.1715px, .1599px) scale(7.8925, .8005);
+}
+
+[data-insta-feed] :is([data-insta-prev], [data-insta-next]):is(:hover, :focus-visible) [data-arrow-head] {
+  transform: translateX(1.4839px) scaleX(.8769);
+}
+
+[data-insta-feed] [data-insta-prev] svg { transform: scaleX(-1); }
+
+[data-insta-feed] :is([data-insta-prev], [data-insta-next]):focus-visible {
+  outline: 2px solid var(--fw_dark_purple, #06021a);
+  outline-offset: 2px;
+}
+
+@media screen and (max-width: 991px) {
+  [data-insta-feed] [data-insta-track] > div { flex-basis: calc((100% - 15px) / 2); }
+}
+
+@media screen and (max-width: 767px) {
+  [data-insta-feed] [data-insta-track] > div { flex-basis: 74%; }
+}
+
+@media screen and (max-width: 479px) {
+  [data-insta-feed] > div:first-child { flex-wrap: wrap; gap: 12px; }
+  [data-insta-feed] > div:first-child > div:first-child { gap: 10px; }
+  [data-insta-feed] [data-insta-avatar] { width: 42px; height: 42px; }
+  [data-insta-feed] [data-insta-account] { font-size: 13px; line-height: 18px; }
+  [data-insta-feed] .button-outlined[data-insta-follow] {
+    width: 100px;
+    min-width: 100px;
+    height: 40px;
+    margin-left: auto;
+  }
+  [data-insta-feed] [data-insta-follow] .button-text { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-insta-feed] [data-insta-track],
+  [data-insta-feed] [data-arrow-circle],
+  [data-insta-feed] [data-arrow-dot],
+  [data-insta-feed] [data-arrow-head] { transition-duration: 1ms !important; }
+}
