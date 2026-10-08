@@ -8154,6 +8154,8 @@ function ge(e) {
 		mobileItemMarginMax: T(e, "data-canvas-mobile-item-margin-max", 12, 0, 40),
 		itemOffsetMin: T(e, "data-canvas-item-offset-min", 3, 0, 30),
 		itemOffsetMax: T(e, "data-canvas-item-offset-max", 6, 0, 40),
+		mobileItemOffsetMin: T(e, "data-canvas-mobile-item-offset-min", 1, 0, 30),
+		mobileItemOffsetMax: T(e, "data-canvas-mobile-item-offset-max", 3, 0, 40),
 		velocity: t ? 0 : T(e, "data-canvas-velocity", .85, .1, 2),
 		friction: t ? 0 : T(e, "data-canvas-friction", .92, .5, .98),
 		ease: t ? 1 : T(e, "data-canvas-ease", .16, .04, 1),
@@ -8229,22 +8231,22 @@ function Te(e, t, n, r, i, a) {
 		patternWidth: r,
 		patternHeight: i
 	};
-	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r <= n.mobileBreakpoint, c = r * (s ? n.mobileColumnWidth : n.columnWidth) / 100, l = r * (s ? n.mobileItemMarginMin : n.itemMarginMin) / 100, u = r * (s ? n.mobileItemMarginMax : n.itemMarginMax) / 100, d = o * c, f = n.itemOffsetMin / 100, p = n.itemOffsetMax / 100, m = Math.max(n.itemOffsetMin, n.itemOffsetMax) * 1.5 / 100, h = document.createElement("button"), g = document.createElement("span");
+	let o = Math.max(1, Math.round(Math.sqrt(e.length))), s = r <= n.mobileBreakpoint, c = r * (s ? n.mobileColumnWidth : n.columnWidth) / 100, l = r * (s ? n.mobileItemMarginMin : n.itemMarginMin) / 100, u = r * (s ? n.mobileItemMarginMax : n.itemMarginMax) / 100, d = o * c, f = (s ? n.mobileItemOffsetMin : n.itemOffsetMin) / 100, p = (s ? n.mobileItemOffsetMax : n.itemOffsetMax) / 100, m = Math.max(f, p) * 1.5, h = document.createElement("button"), g = document.createElement("span");
 	h.className = "cms-canvas__item", h.style.cssText = "position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none", h.tabIndex = -1, h.setAttribute("aria-hidden", "true"), g.className = "cms-canvas__title", h.append(g), document.body.append(h);
 	let _ = ue(e, a).map((e) => {
 		var n, r;
-		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), s = l + a() * Math.max(u - l, 0), d = Math.max(c - s, c * .35) * ie[e.size] * Math.min(o, 1), m = d / Math.max(o, .2);
-		h.style.width = `${d}px`, h.dataset.canvasItemSize = e.size, g.textContent = e.title;
-		let _ = e.title ? g.offsetHeight : 0, v = f + a() * Math.max(p - f, 0), y = a() > .5 ? 1 : -1, b = a() > .5 ? 1 : -1;
+		let i = (n = (r = t.get(e.sourceId)) == null ? t.get(e.instanceId) : r) == null ? ye(e) : n, o = i.width / Math.max(i.height, 1), d = l + a() * Math.max(u - l, 0), m = Math.max(c - d, c * .35) * (s ? Math.min(ie[e.size], 1) : ie[e.size]) * Math.min(o, 1), _ = m / Math.max(o, .2);
+		h.style.width = `${m}px`, h.dataset.canvasItemSize = e.size, g.textContent = e.title;
+		let v = e.title ? g.offsetHeight : 0, y = f + a() * Math.max(p - f, 0), b = a() > .5 ? 1 : -1, x = a() > .5 ? 1 : -1;
 		return {
 			tile: e,
-			width: d,
-			height: m,
-			titleHeight: _,
-			margin: s,
-			offsetX: y * d * v,
-			offsetY: b * m * v,
-			totalHeight: m + Math.max(s, _ ? _ + 8 : 0)
+			width: m,
+			height: _,
+			titleHeight: v,
+			margin: d,
+			offsetX: b * m * y,
+			offsetY: x * _ * y,
+			totalHeight: _ + Math.max(d, v ? v + 8 : 0)
 		};
 	});
 	h.remove();

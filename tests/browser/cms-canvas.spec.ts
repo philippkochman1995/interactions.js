@@ -10,12 +10,34 @@ async function visibleTile(page: Page): Promise<number> {
   }));
 }
 
+async function maxVisibleImageOverlap(page: Page): Promise<number> {
+  return page.locator('.cms-canvas__image').evaluateAll((images) => {
+    const rectangles = images.map((image) => image.getBoundingClientRect()).filter((rect) =>
+      rect.right > 0 && rect.left < innerWidth && rect.bottom > 0 && rect.top < innerHeight,
+    );
+    let largest = 0;
+
+    for (let first = 0; first < rectangles.length; first += 1) {
+      for (let second = first + 1; second < rectangles.length; second += 1) {
+        const a = rectangles[first];
+        const b = rectangles[second];
+        const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+        const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+        largest = Math.max(largest, width * height);
+      }
+    }
+
+    return largest;
+  });
+}
+
 test('mobile canvas tiles open a modal that enters from below', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();
   await page.goto('/tests/fixtures/cms-canvas.html');
   await expect(page.locator('.cms-canvas.is-ready')).toBeVisible();
   await expect.poll(() => visibleTile(page)).toBeGreaterThanOrEqual(0);
+  expect(await maxVisibleImageOverlap(page)).toBeLessThan(1);
   const index = await visibleTile(page);
   expect(index).toBeGreaterThanOrEqual(0);
   const tile = page.locator('.cms-canvas__item').nth(index);

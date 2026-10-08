@@ -68,6 +68,8 @@ interface CanvasConfig {
   mobileItemMarginMax: number;
   itemOffsetMin: number;
   itemOffsetMax: number;
+  mobileItemOffsetMin: number;
+  mobileItemOffsetMax: number;
   velocity: number;
   friction: number;
   ease: number;
@@ -318,6 +320,8 @@ function readConfig(root: HTMLElement): CanvasConfig {
     mobileItemMarginMax: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-max', 12, 0, 40),
     itemOffsetMin: boundedNumberAttribute(root, 'data-canvas-item-offset-min', 3, 0, 30),
     itemOffsetMax: boundedNumberAttribute(root, 'data-canvas-item-offset-max', 6, 0, 40),
+    mobileItemOffsetMin: boundedNumberAttribute(root, 'data-canvas-mobile-item-offset-min', 1, 0, 30),
+    mobileItemOffsetMax: boundedNumberAttribute(root, 'data-canvas-mobile-item-offset-max', 3, 0, 40),
     velocity: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-velocity', 0.85, 0.1, 2),
     friction: reducedMotion ? 0 : boundedNumberAttribute(root, 'data-canvas-friction', 0.92, 0.5, 0.98),
     ease: reducedMotion ? 1 : boundedNumberAttribute(root, 'data-canvas-ease', 0.16, 0.04, 1),
@@ -429,9 +433,9 @@ function placeTiles(
   const marginMin = (viewportWidth * (isMobile ? config.mobileItemMarginMin : config.itemMarginMin)) / 100;
   const marginMax = (viewportWidth * (isMobile ? config.mobileItemMarginMax : config.itemMarginMax)) / 100;
   const patternWidth = columnCount * columnWidth;
-  const offsetMin = config.itemOffsetMin / 100;
-  const offsetMax = config.itemOffsetMax / 100;
-  const maxOffset = (Math.max(config.itemOffsetMin, config.itemOffsetMax) * 1.5) / 100;
+  const offsetMin = (isMobile ? config.mobileItemOffsetMin : config.itemOffsetMin) / 100;
+  const offsetMax = (isMobile ? config.mobileItemOffsetMax : config.itemOffsetMax) / 100;
+  const maxOffset = Math.max(offsetMin, offsetMax) * 1.5;
   const titleProbe = document.createElement('button');
   const titleLabel = document.createElement('span');
   titleProbe.className = 'cms-canvas__item';
@@ -446,7 +450,9 @@ function placeTiles(
     const aspectRatio = measure.width / Math.max(measure.height, 1);
     const margin = marginMin + random() * Math.max(marginMax - marginMin, 0);
     const availableWidth = Math.max(columnWidth - margin, columnWidth * 0.35);
-    const maxEdge = availableWidth * CANVAS_SIZE_SCALE[tile.size];
+    const maxEdge = availableWidth * (isMobile
+      ? Math.min(CANVAS_SIZE_SCALE[tile.size], 1)
+      : CANVAS_SIZE_SCALE[tile.size]);
     const width = maxEdge * Math.min(aspectRatio, 1);
     const height = width / Math.max(aspectRatio, 0.2);
     titleProbe.style.width = `${width}px`;
