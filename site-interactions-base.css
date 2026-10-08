@@ -492,13 +492,17 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
 }
 
 @media (max-width: 767px) {
-  /* Nur der Offset. Die Breite stand hier frueher auf calc(100vw - 1.5rem),
-     kam aber nie an: der Head-Block mit min(21rem, ...) lud spaeter und
-     ueberstimmte bei gleicher Spezifitaet auch diese Media Query. Die Regel
-     hier wieder scharf zu stellen wuerde das Menue auf Telefonen breiter
-     machen als bisher — darum bleibt sie draussen. */
-  [data-site-menu] {
-    --site-menu-offset: 0.75rem;
+  /* Der spaeter geladene Head-Style begrenzt .site-menu ebenfalls in der Breite.
+     Die kombinierte Klasse setzt das Menue auf Mobil bis an alle Seitenraender. */
+  .site-menu[data-site-menu] {
+    --site-menu-width: 100%;
+    --site-menu-offset: 0px;
+    --site-menu-open-height: 100dvh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: none;
+    box-sizing: border-box;
   }
 }
 
