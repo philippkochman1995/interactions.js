@@ -46,7 +46,11 @@
     });
 
     var legend = document.getElementById('wmLegend');
-    if(legend) legend.classList.add('wm-legend');
+    if(legend){
+      legend.classList.add('wm-legend');
+      // Keep the overlay outside the top bar's stacking contexts so it can cover the logo.
+      document.body.appendChild(legend);
+    }
 
     var sw = document.getElementById('wmLabelsSwitch');
     var currentSwitch;

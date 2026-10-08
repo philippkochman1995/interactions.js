@@ -2,18 +2,21 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <link rel="stylesheet" href="/west-map.css">
   <style>
     html, body { margin: 0; height: 100%; }
     #wmMap { position: fixed; inset: 0; }
     .top_bar_center { position: relative; height: 72px; }
     .nav_logo { height: 72px; }
-    .top_bar_right { position: relative; z-index: 1; }
+    .top_bar_right { position: absolute; top: 24px; right: 24px; z-index: 1; }
   </style>
 </head>
 <body>
   <div id="wmMap" data-mapbox-token="test-token"></div>
-  <div class="top_bar_center"><div class="nav_logo"></div></div>
-  <div class="top_bar_right"></div>
+  <div class="top_bar_section">
+    <div class="top_bar_center"><div class="nav_logo"></div></div>
+    <div class="top_bar_right"><div id="wmLegend">Legende</div></div>
+  </div>
   <div class="wm-cms-item" hidden>
     <span class="wm-f-lat">48.2</span>
     <span class="wm-f-lng">16.37</span>

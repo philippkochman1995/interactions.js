@@ -1,5 +1,25 @@
 import { expect, test } from '@playwright/test';
 
+test('open legend covers the top bar logo', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/tests/fixtures/west-map-zoom.html');
+  await page.waitForFunction(() => Boolean((window as any).westMapTest));
+
+  await page.getByRole('button', { name: 'Legende' }).click();
+
+  expect(await page.evaluate(() => {
+    const legend = document.getElementById('wmLegend')!;
+    const logo = document.querySelector<HTMLElement>('.top_bar_center')!;
+    const rect = legend.getBoundingClientRect();
+    Object.assign(logo.style, {
+      position: 'fixed', left: `${rect.left}px`, top: `${rect.top}px`,
+      width: `${rect.width}px`, height: '72px', zIndex: '9999', background: 'red'
+    });
+    const hit = document.elementFromPoint(rect.left + 20, rect.top + 20);
+    return legend.parentElement === document.body && legend.contains(hit);
+  })).toBe(true);
+});
+
 test('zoom buttons take two levels near Europe and stop at the overview before continuing out', async ({ page }) => {
   await page.goto('/tests/fixtures/west-map-zoom.html');
   await page.waitForFunction(() => Boolean((window as any).westMapTest));

@@ -30,7 +30,7 @@
 			e.tagName === "DIV" && !e.id && (e.querySelector("a") ? e.classList.add("wm-overview-slot") : e.querySelector("svg") && e.classList.add("wm-scrolldown-slot"));
 		});
 		var l = document.getElementById("wmLegend");
-		l && l.classList.add("wm-legend");
+		l && (l.classList.add("wm-legend"), document.body.appendChild(l));
 		var u = document.getElementById("wmLabelsSwitch"), d, f;
 		if (u) {
 			u.classList.add("wm-switch");

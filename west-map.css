@@ -43,7 +43,7 @@ body.wm-legend-open .wm-filter-btn svg path{fill:var(--fw_dark_purple);}
   position:fixed;
   top:1.5rem;
   right:1.5rem;
-  z-index:900;
+  z-index:1000;
   background:var(--fw_off_white);
   border:none;
   border-radius:0;
@@ -124,10 +124,6 @@ body.wm-labels-on .wm-marker-label{display:block;}
 .top_bar_right{
   position:relative;
   pointer-events:auto;
-}
-
-.top_bar_right .wm-legend{
-  position:fixed;
 }
 
 .top_bar_section a,
