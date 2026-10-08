@@ -1,0 +1,34 @@
+/* Mobile type scale from the 402px Figma frame (node 1553:8335).
+   Values meet the existing desktop scale at the 768px breakpoint. */
+@media (max-width: 767px) {
+  html:root {
+    --_sizes---h-large-font-size: clamp(37.967px, calc(22.229508px + 4.918033vw), 60px);
+    --_sizes---h1-font-size: clamp(25.311px, calc(14.819672px + 3.278689vw), 40px);
+    --_sizes---h2-font-size: clamp(20.953px, calc(16.868459px + 1.276503vw), 26.672px);
+    --_sizes---h3-font-size: clamp(15.477px, calc(13.434230px + 0.638251vw), 18.336px);
+    --_sizes---p-large-font-size: clamp(15.104px, calc(11.606557px + 1.092896vw), 20px);
+    --_sizes---p-font-size: clamp(13.552px, calc(11.803279px + 0.546448vw), 16px);
+    --_sizes---p-small-font-size: 14px;
+    --_sizes---footer-14: clamp(11.552px, calc(9.803279px + 0.546448vw), 14px);
+    --_sizes---footer-12: clamp(9.552px, calc(7.803279px + 0.546448vw), 12px);
+    --fw-mobile-label-font-size: var(--_sizes---footer-14);
+    --fw-mobile-h2-line-height: clamp(25.849px, calc(25.261902px + 0.183607vw), 26.672px);
+    --fw-mobile-small-line-height: clamp(17.72px, calc(16.627049px + 0.34153vw), 19.25px);
+  }
+
+  .u-h2 {
+    line-height: var(--fw-mobile-h2-line-height);
+  }
+
+  .u-p-small {
+    line-height: var(--fw-mobile-small-line-height);
+  }
+
+  .u-text-eyebrow,
+  .text-link,
+  .text-block,
+  .u-slide-info-text,
+  .news_detail_category.u-p {
+    font-size: var(--fw-mobile-label-font-size);
+  }
+}
