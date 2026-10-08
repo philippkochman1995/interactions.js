@@ -312,12 +312,12 @@ function readConfig(root: HTMLElement): CanvasConfig {
 
   return {
     columnWidth: boundedNumberAttribute(root, 'data-canvas-column-width', 25, 8, 80),
-    mobileColumnWidth: boundedNumberAttribute(root, 'data-canvas-mobile-column-width', 90, 20, 100),
+    mobileColumnWidth: boundedNumberAttribute(root, 'data-canvas-mobile-column-width', 100, 20, 100),
     mobileBreakpoint: boundedNumberAttribute(root, 'data-canvas-mobile-breakpoint', 767, 320, 1400),
     itemMarginMin: boundedNumberAttribute(root, 'data-canvas-item-margin-min', 4, 0, 30),
     itemMarginMax: boundedNumberAttribute(root, 'data-canvas-item-margin-max', 6, 0, 40),
-    mobileItemMarginMin: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-min', 16, 0, 40),
-    mobileItemMarginMax: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-max', 24, 0, 40),
+    mobileItemMarginMin: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-min', 24, 0, 40),
+    mobileItemMarginMax: boundedNumberAttribute(root, 'data-canvas-mobile-item-margin-max', 32, 0, 40),
     itemOffsetMin: boundedNumberAttribute(root, 'data-canvas-item-offset-min', 3, 0, 30),
     itemOffsetMax: boundedNumberAttribute(root, 'data-canvas-item-offset-max', 6, 0, 40),
     mobileItemOffsetMin: boundedNumberAttribute(root, 'data-canvas-mobile-item-offset-min', 1, 0, 30),
