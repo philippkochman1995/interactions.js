@@ -8146,12 +8146,12 @@ function ge(e) {
 	let t = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	return {
 		columnWidth: T(e, "data-canvas-column-width", 25, 8, 80),
-		mobileColumnWidth: T(e, "data-canvas-mobile-column-width", 78, 20, 100),
+		mobileColumnWidth: T(e, "data-canvas-mobile-column-width", 90, 20, 100),
 		mobileBreakpoint: T(e, "data-canvas-mobile-breakpoint", 767, 320, 1400),
 		itemMarginMin: T(e, "data-canvas-item-margin-min", 4, 0, 30),
 		itemMarginMax: T(e, "data-canvas-item-margin-max", 6, 0, 40),
-		mobileItemMarginMin: T(e, "data-canvas-mobile-item-margin-min", 8, 0, 40),
-		mobileItemMarginMax: T(e, "data-canvas-mobile-item-margin-max", 12, 0, 40),
+		mobileItemMarginMin: T(e, "data-canvas-mobile-item-margin-min", 16, 0, 40),
+		mobileItemMarginMax: T(e, "data-canvas-mobile-item-margin-max", 24, 0, 40),
 		itemOffsetMin: T(e, "data-canvas-item-offset-min", 3, 0, 30),
 		itemOffsetMax: T(e, "data-canvas-item-offset-max", 6, 0, 40),
 		mobileItemOffsetMin: T(e, "data-canvas-mobile-item-offset-min", 1, 0, 30),
