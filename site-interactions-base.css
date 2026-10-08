@@ -504,6 +504,45 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     max-width: none;
     box-sizing: border-box;
   }
+
+  /* Die Intro-Beschriftung steht mobil vor dem Bild, ohne den Inhalt im
+     Designer fuer Desktop umzubauen. */
+  .news_event .intro_layout {
+    row-gap: 0;
+  }
+
+  .news_event .intro_content_about {
+    display: contents;
+  }
+
+  .news_event .intro_content_about > .u-text-eyebrow {
+    order: -2;
+    justify-self: center;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .news_event .intro_img {
+    order: -1;
+    margin-bottom: 1.5rem;
+  }
+
+  .news_event .intro_content_about > .text-link {
+    margin-bottom: 1rem;
+  }
+
+  .news_event .intro_date_h2.u-h2 {
+    margin-bottom: 1rem;
+  }
+
+  .news_event .intro_date_infos,
+  .news_event .intro_date_infos > .button-outlined {
+    width: 100%;
+  }
+
+  .news_event .intro_date_infos > .button-outlined {
+    box-sizing: border-box;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
