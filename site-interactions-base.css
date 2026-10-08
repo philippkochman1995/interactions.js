@@ -515,6 +515,18 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     padding-bottom: 3.125rem;
   }
 
+  /* Biografie und Kontexte teilen sich eine Zeile, sobald beide Buttons
+     mit ihren Beschriftungen in den verfuegbaren Platz passen. */
+  .about_button_wrapper {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .about_button_wrapper > .button-outlined {
+    flex: 1 1 10rem;
+    min-width: 10rem;
+  }
+
   /* Die Intro-Beschriftung steht mobil vor dem Bild, ohne den Inhalt im
      Designer fuer Desktop umzubauen. */
   .news_event .intro_layout {
