@@ -509,6 +509,12 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     box-sizing: border-box;
   }
 
+  /* Platz fuer die fixierte Menueleiste am Seitenende: Die letzte Footer-Zeile
+     bleibt auch bei maximalem Scrollen oberhalb des 3.125rem hohen Menues. */
+  .footer .footer_container {
+    padding-bottom: 3.125rem;
+  }
+
   /* Die Intro-Beschriftung steht mobil vor dem Bild, ohne den Inhalt im
      Designer fuer Desktop umzubauen. */
   .news_event .intro_layout {
