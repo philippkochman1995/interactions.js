@@ -1,22 +1,31 @@
 import { expect, test } from '@playwright/test';
 
-test('map opens over Europe without automatic or gesture rotation', async ({ page }) => {
+test('map opens over Europe, becomes a globe when zoomed out, and does not rotate', async ({ page }) => {
   await page.goto('/tests/fixtures/west-map-zoom.html');
   await page.waitForFunction(() => Boolean((window as any).westMapTest));
 
   expect(await page.evaluate(() => {
     const map = (window as any).westMapTest;
+    map.fire('style.load');
     map.fire('load');
     return {
       projection: map.options.projection,
       bounds: map.options.bounds,
+      fog: map.fog,
       dragRotate: map.options.dragRotate,
       touchRotationDisabled: map.touchRotationDisabled,
       animated: Boolean(map.lastEase)
     };
   })).toEqual({
-    projection: 'mercator',
+    projection: 'globe',
     bounds: [[-12, 34], [37, 61]],
+    fog: {
+      color: '#ffffff',
+      'high-color': '#ffffff',
+      'space-color': '#ffffff',
+      'horizon-blend': 0.02,
+      'star-intensity': 0
+    },
     dragRotate: false,
     touchRotationDisabled: true,
     animated: false

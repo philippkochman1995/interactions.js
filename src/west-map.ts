@@ -80,7 +80,7 @@
     var map = new mapboxgl.Map({
       container: 'wmMap',
       style: 'mapbox://styles/mapbox/light-v11',
-      projection: 'mercator',
+      projection: 'globe',
       bounds: [[-12, 34], [37, 61]],
       fitBoundsOptions: { padding: 24 },
       bearing: 0,
@@ -90,6 +90,15 @@
       maxZoom: 18
     });
     map.touchZoomRotate.disableRotation();
+    map.on('style.load', function(){
+      map.setFog({
+        color: '#ffffff',
+        'high-color': '#ffffff',
+        'space-color': '#ffffff',
+        'horizon-blend': 0.02,
+        'star-intensity': 0
+      });
+    });
 
     var pendingControlZoom = null;
     // Clear queued button zoom when the user or a marker takes over the map.

@@ -44,7 +44,7 @@
 		var g = new mapboxgl.Map({
 			container: "wmMap",
 			style: "mapbox://styles/mapbox/light-v11",
-			projection: "mercator",
+			projection: "globe",
 			bounds: [[-12, 34], [37, 61]],
 			fitBoundsOptions: { padding: 24 },
 			bearing: 0,
@@ -53,7 +53,15 @@
 			minZoom: 0,
 			maxZoom: 18
 		});
-		g.touchZoomRotate.disableRotation();
+		g.touchZoomRotate.disableRotation(), g.on("style.load", function() {
+			g.setFog({
+				color: "#ffffff",
+				"high-color": "#ffffff",
+				"space-color": "#ffffff",
+				"horizon-blend": .02,
+				"star-intensity": 0
+			});
+		});
 		var _ = null;
 		[
 			"pointerdown",
