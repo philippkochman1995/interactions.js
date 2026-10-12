@@ -149,21 +149,28 @@ function T(t) {
 }
 function E(e) {
 	var t, n;
-	let r = e.querySelector(".cms-work-detail__figure"), i = e.querySelector(".cms-work-detail__image");
-	if (!r || !i) return;
-	let a = 0, o = () => {
-		if (a = 0, !i.complete || i.naturalWidth === 0) return;
-		let e = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, t = `max(0px, calc(${Math.max(0, Math.floor(e - r.getBoundingClientRect().top))}px - 1.5rem))`;
-		i.style.maxHeight !== t && (i.style.maxHeight = t);
-	}, s = () => {
-		a || (a = window.requestAnimationFrame(o));
+	let r = e.querySelector(".cms-work-detail__figure"), i = e.querySelector(".cms-work-detail__intro");
+	if (!r || !i) return () => {};
+	let a = 0, o = !1, s = () => {
+		if (a = 0, o) return;
+		let e = r.querySelector(".cms-work-detail__image");
+		if (!e || !e.complete || e.naturalWidth === 0) return;
+		let t = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, n = `max(0px, calc(${Math.max(0, Math.floor(t - r.getBoundingClientRect().top))}px - 1.5rem))`;
+		e.style.maxHeight !== n && (e.style.maxHeight = n), i.style.setProperty("--cms-work-detail-image-height", `${e.getBoundingClientRect().height}px`);
+	}, c = () => {
+		a || (a = window.requestAnimationFrame(s));
 	};
-	o(), i.addEventListener("load", s), window.addEventListener("resize", s, { passive: !0 }), (t = window.visualViewport) == null || t.addEventListener("resize", s, { passive: !0 }), (n = document.fonts) == null || n.ready.then(s), "ResizeObserver" in window && new ResizeObserver(s).observe(r);
+	s(), r.addEventListener("load", c, !0), window.addEventListener("resize", c, { passive: !0 }), (t = window.visualViewport) == null || t.addEventListener("resize", c, { passive: !0 }), (n = document.fonts) == null || n.ready.then(c);
+	let l = null;
+	return "ResizeObserver" in window && (l = new ResizeObserver(c), l.observe(r)), () => {
+		var e;
+		o = !0, a && window.cancelAnimationFrame(a), l == null || l.disconnect(), r.removeEventListener("load", c, !0), window.removeEventListener("resize", c), (e = window.visualViewport) == null || e.removeEventListener("resize", c);
+	};
 }
 a(() => {
 	Array.from(document.querySelectorAll("[data-cms-work-detail]")).forEach(T);
 });
 //#endregion
-export { S as createDetailSection, C as createRelatedSection, x as pickRelatedItems };
+export { S as createDetailSection, C as createRelatedSection, E as fitDetailImage, x as pickRelatedItems };
 
 //# sourceMappingURL=cms-work-detail.js.map

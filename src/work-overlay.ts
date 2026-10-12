@@ -5,6 +5,7 @@ import manifest from './work-manifest.json';
 import {
   createDetailSection,
   createRelatedSection,
+  fitDetailImage,
   pickRelatedItems,
   type WorkDetail,
   type WorkItem,
@@ -63,13 +64,35 @@ function placeHolderFor(image: HTMLImageElement): HTMLImageElement {
   return placeholder;
 }
 
+function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorElement } {
+  const source = document.querySelector<HTMLElement>('.top_bar_section');
+  const header = source?.cloneNode(true) as HTMLElement || document.createElement('nav');
+  header.classList.add('top_bar_section', 'u-section', 'is-relative', 'work-overlay__header');
+  header.removeAttribute('data-wf--top-bar--variant');
+  header.removeAttribute('inert');
+  header.removeAttribute('aria-hidden');
+  header.querySelectorAll<HTMLElement>('[id]').forEach((element) => element.removeAttribute('id'));
+  header.querySelectorAll<HTMLElement>('[data-logo-variant]').forEach((element) => element.remove());
+
+  const left = header.querySelector<HTMLElement>('.top_bar_left') || header;
+  const backLink = document.createElement('a');
+  backLink.className = 'text-link is-back w-inline-block work-overlay__back';
+  backLink.href = overviewUrl();
+  backLink.setAttribute('data-transition', 'false');
+  backLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 15" class="arrow is-rotate" aria-hidden="true"><path d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor" class="arrow-dot"/><path d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor" class="arrow-arrow"/></svg><div class="text-block">Zurück</div>';
+  left.replaceChildren(backLink);
+  return { header, backLink };
+}
+
 export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void {
   const overviewTitle = document.title;
   const overlay = document.createElement('div');
   const backdrop = document.createElement('div');
   const surface = document.createElement('div');
   const content = document.createElement('div');
-  const closeButton = document.createElement('button');
+  const { header, backLink } = createOverlayHeader();
+  let siteMenu: HTMLElement | null = null;
+  const menuMarker = document.createComment('site menu position');
   const previousInert = new Map<HTMLElement, boolean>();
   let phase: OverlayPhase = 'closed';
   let activeWork: ManifestWork | null = null;
@@ -85,6 +108,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   let previousHtmlOverflow = '';
   let previousBodyWidth = '';
   let previousScrollRestoration = history.scrollRestoration;
+  let detailLayoutCleanup: (() => void) | null = null;
 
   overlay.className = 'work-overlay';
   overlay.hidden = true;
@@ -97,12 +121,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   surface.className = 'work-overlay__surface';
   surface.setAttribute('data-lenis-prevent', '');
   content.className = 'work-overlay__content';
-  closeButton.className = 'work-overlay__close';
-  closeButton.type = 'button';
-  closeButton.setAttribute('aria-label', 'Werk schließen');
-  closeButton.innerHTML = '<span aria-hidden="true">×</span>';
-  surface.append(content);
-  overlay.append(backdrop, surface, closeButton);
+  surface.append(header, content);
+  overlay.append(backdrop, surface);
   overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
   document.body.append(overlay);
 
@@ -112,8 +132,14 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     return card?.querySelector<HTMLElement>('.cms-works__image-wrap') || null;
   };
 
+  const moveSiteMenuIntoOverlay = (): void => {
+    siteMenu ||= document.querySelector<HTMLElement>('[data-site-menu]');
+    if (!siteMenu || overlay.contains(siteMenu)) return;
+    if (!menuMarker.parentNode) siteMenu.parentNode?.insertBefore(menuMarker, siteMenu);
+    overlay.append(siteMenu);
+  };
+
   const visibleContent = (): HTMLElement[] => [
-    closeButton,
     ...Array.from(content.querySelectorAll<HTMLElement>(
       '.cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related',
     )),
@@ -191,6 +217,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   };
 
   const renderDetail = (work: ManifestWork): HTMLImageElement => {
+    detailLayoutCleanup?.();
+    detailLayoutCleanup = null;
     const hero = createDetailSection(work);
     const related = createRelatedSection(overlay, work, pickRelatedItems(relatedItems, work));
     const title = hero.querySelector<HTMLElement>('.cms-work-detail__title');
@@ -206,10 +234,11 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       });
     }
     const detailRoot = document.createElement('div');
-    detailRoot.className = 'cms-work-detail work-overlay__detail u-section';
+    detailRoot.className = 'work-detail_wrapper u-section cms-work-detail work-overlay__detail';
     detailRoot.append(hero);
     content.replaceChildren(detailRoot);
     if (related) content.append(related);
+    detailLayoutCleanup = fitDetailImage(detailRoot);
     surface.scrollTop = 0;
     document.title = `${work.title} – Franz West`;
     return image;
@@ -226,6 +255,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       }
       activeFlyer.remove();
       activeFlyer = null;
+      detailLayoutCleanup?.();
+      const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
+      detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     }
     phase = 'open';
     gsap.to(visibleContent(), {
@@ -233,7 +265,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       duration: prefersReducedMotion() ? 0 : 0.42,
       stagger: prefersReducedMotion() ? 0 : 0.055,
       ease: 'power2.out',
-      onComplete: () => closeButton.focus({ preventScroll: true }),
+      onComplete: () => overlay.focus({ preventScroll: true }),
     });
   };
 
@@ -272,6 +304,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
 
     overlay.hidden = false;
+    moveSiteMenuIntoOverlay();
     lockBackground();
     applyBackgroundInert();
     overlay.focus({ preventScroll: true });
@@ -299,6 +332,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   const finishClose = (token: number): void => {
     if (token !== revision) return;
     restoreImageToGrid();
+    detailLayoutCleanup?.();
+    detailLayoutCleanup = null;
+    if (siteMenu && menuMarker.parentNode) menuMarker.parentNode.insertBefore(siteMenu, menuMarker.nextSibling);
     overlay.hidden = true;
     content.replaceChildren();
     activeWork = null;
@@ -416,7 +452,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!(target instanceof Element) || hasModifierKey(event)) return;
     const link = target.closest<HTMLAnchorElement>('a[href]');
     if (!link || !overlay.contains(link)) return;
-    if (link.classList.contains('cms-work-detail__overview-link')) {
+    if (link === backLink || link.classList.contains('cms-work-detail__overview-link')) {
       event.preventDefault();
       requestClose();
       return;
@@ -435,7 +471,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     openWork(work, null);
   });
 
-  closeButton.addEventListener('click', requestClose);
   window.addEventListener('popstate', () => reconcileUrl());
   window.addEventListener('pageshow', (event) => { if (event.persisted) reconcileUrl(true); });
   window.addEventListener('site:lenis-ready', () => {
@@ -444,6 +479,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   document.addEventListener('keydown', (event) => {
     if (phase === 'closed') return;
     if (event.key === 'Escape') {
+      if (siteMenu?.classList.contains('is-open')) return;
       event.preventDefault();
       requestClose();
       return;

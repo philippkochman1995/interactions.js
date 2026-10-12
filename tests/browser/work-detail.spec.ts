@@ -47,3 +47,24 @@ test('detail image keeps a 1.5rem gap below a custom header', async ({ page }) =
     await expect(image).toBeVisible();
   }
 });
+
+test('long work metadata stays beside the image and the view ends at the image edge', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tests/fixtures/work-detail-layout.html');
+  await expect(page.locator('.cms-work-detail__image')).toBeVisible();
+
+  await expect.poll(() => page.evaluate(() => {
+    const title = document.querySelector('.cms-work-detail__title')!.getBoundingClientRect();
+    const image = document.querySelector('.cms-work-detail__image')!.getBoundingClientRect();
+    return {
+      separate: title.right < image.left,
+      horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth,
+    };
+  })).toEqual({ separate: true, horizontalOverflow: false });
+
+  await expect.poll(() => page.evaluate(() => {
+    const image = document.querySelector('.cms-work-detail__image')!.getBoundingClientRect();
+    const view = document.querySelector('.cms-work-detail__view')!.getBoundingClientRect();
+    return Math.abs(view.bottom - image.bottom);
+  })).toBeLessThan(1);
+});

@@ -455,20 +455,23 @@ function mount(root: HTMLElement): void {
   fitDetailImage(root);
 }
 
-function fitDetailImage(root: HTMLElement): void {
+export function fitDetailImage(root: HTMLElement): () => void {
   const figure = root.querySelector<HTMLElement>('.cms-work-detail__figure');
-  const image = root.querySelector<HTMLImageElement>('.cms-work-detail__image');
+  const intro = root.querySelector<HTMLElement>('.cms-work-detail__intro');
 
-  if (!figure || !image) {
-    return;
+  if (!figure || !intro) {
+    return () => {};
   }
 
   let frame = 0;
+  let disposed = false;
 
   const updateHeight = (): void => {
     frame = 0;
+    if (disposed) return;
+    const image = figure.querySelector<HTMLImageElement>('.cms-work-detail__image');
 
-    if (!image.complete || image.naturalWidth === 0) {
+    if (!image || !image.complete || image.naturalWidth === 0) {
       return;
     }
 
@@ -484,6 +487,7 @@ function fitDetailImage(root: HTMLElement): void {
     if (image.style.maxHeight !== maxHeight) {
       image.style.maxHeight = maxHeight;
     }
+    intro.style.setProperty('--cms-work-detail-image-height', `${image.getBoundingClientRect().height}px`);
   };
 
   const scheduleUpdate = (): void => {
@@ -493,15 +497,25 @@ function fitDetailImage(root: HTMLElement): void {
   };
 
   updateHeight();
-  image.addEventListener('load', scheduleUpdate);
+  figure.addEventListener('load', scheduleUpdate, true);
   window.addEventListener('resize', scheduleUpdate, { passive: true });
   window.visualViewport?.addEventListener('resize', scheduleUpdate, { passive: true });
   document.fonts?.ready.then(scheduleUpdate);
 
+  let observer: ResizeObserver | null = null;
   if ('ResizeObserver' in window) {
-    const observer = new ResizeObserver(scheduleUpdate);
+    observer = new ResizeObserver(scheduleUpdate);
     observer.observe(figure);
   }
+
+  return () => {
+    disposed = true;
+    if (frame) window.cancelAnimationFrame(frame);
+    observer?.disconnect();
+    figure.removeEventListener('load', scheduleUpdate, true);
+    window.removeEventListener('resize', scheduleUpdate);
+    window.visualViewport?.removeEventListener('resize', scheduleUpdate);
+  };
 }
 
 ready(() => {
