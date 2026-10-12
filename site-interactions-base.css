@@ -688,7 +688,8 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     height: auto;
   }
 
-  .atelier_location_txt.u-p {
+  .atelier_location_txt.u-p,
+  .atelier_location_icon {
     display: none;
   }
 
