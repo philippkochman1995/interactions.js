@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>sessionStorage.setItem('site-preloader-seen', '3');</script>
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <script src="/dist/site-head.js"></script>
+</head>
+<body>
+  <div class="werk_hero_slider">
+    <div class="werk_hero_track">
+      <div class="werk_hero_slide">
+        <div class="werk_hero_spline is-desktop-scene" data-animation-type="spline" data-spline-url="/desktop.splinecode"></div>
+        <div class="werk_hero_spline is-mobile-scene" data-animation-type="spline" data-spline-url="/mobile.splinecode"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.scenesAtWebflowInit = [...document.querySelectorAll('[data-animation-type="spline"]')]
+      .map((scene) => scene.className);
+  </script>
+</body>
+</html>

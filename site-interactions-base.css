@@ -1914,3 +1914,19 @@ html.is-site-preloading.is-site-preloader-exiting::after {
     display: none;
   }
 }
+
+/* Keep the selected phone scene visible after a phone rotates to landscape. */
+html.site-mobile-hero-spline .werk_hero_spline.is-mobile-scene {
+  display: block !important;
+  position: relative !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Stop the viewport-sized grain animation above the 3D hero on phones. */
+html.site-mobile-hero-spline #fw-hero-grained::before {
+  animation: none !important;
+}
