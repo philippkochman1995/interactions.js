@@ -225,6 +225,15 @@
           ? filterSlot.getBoundingClientRect() : filterBtn.getBoundingClientRect();
 
         legend.style.right = Math.max(0, window.innerWidth - btnRect.right - 1.5 * rem) + 'px';
+        legend.style.removeProperty('top');
+        var title = legend.querySelector('.wm-legend-header > span');
+        if(title){
+          var legendTop = legend.getBoundingClientRect().top;
+          var titleRect = title.getBoundingClientRect();
+          var buttonCenter = btnRect.top + btnRect.height / 2;
+          var titleCenter = titleRect.top + titleRect.height / 2;
+          legend.style.top = legendTop + buttonCenter - titleCenter + 'px';
+        }
       }
 
       filterBtn.addEventListener('click', function(){
