@@ -171,6 +171,7 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 			button.setAttribute("aria-pressed", active ? "true" : "false");
 			button.tabIndex = state.open ? 0 : -1;
 		});
+		panel.style.setProperty("--cms-works-filter-panel-height", `${panel.scrollHeight}px`);
 	}
 	function openFilter() {
 		if (state.open) return;
@@ -207,6 +208,9 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 	document.addEventListener("pointerdown", (event) => {
 		if (!state.open || section.contains(event.target)) return;
 		closeFilter(true);
+	});
+	window.addEventListener("resize", () => {
+		panel.style.setProperty("--cms-works-filter-panel-height", `${panel.scrollHeight}px`);
 	});
 	sync();
 	return {
