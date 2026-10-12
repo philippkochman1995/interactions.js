@@ -1871,3 +1871,56 @@ html.is-site-preloading.is-site-preloader-exiting::after {
     transform: translateY(-50%);
   }
 }
+
+.top_bar_right:has(> .contact-instagram-link) {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.contact-instagram-link {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--fw_dark_purple_50, #82808c);
+  transition: color 180ms ease;
+}
+
+.contact-instagram-link:hover,
+.contact-instagram-link:focus-visible {
+  color: var(--fw_dark_purple, #100d24);
+}
+
+.contact-instagram-link svg {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .contact_section {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .imprint_layout,
+  .data_layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .imprint_layout > *,
+  .data_layout > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .data_layout > div:empty {
+    display: none;
+  }
+}
