@@ -1899,6 +1899,10 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   height: 1.5rem;
 }
 
+.intro_date_h2.u-h2 {
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 767px) {
   .contact_section {
     padding-top: 1rem;
