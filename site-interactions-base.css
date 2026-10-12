@@ -1909,6 +1909,10 @@ html.is-site-preloading.is-site-preloader-exiting::after {
     padding-bottom: 1rem;
   }
 
+  .contact_section .contact_txt {
+    margin-bottom: 1.5rem;
+  }
+
   .imprint_layout,
   .data_layout {
     display: grid;
