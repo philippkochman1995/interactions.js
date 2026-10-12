@@ -555,6 +555,12 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     margin-bottom: 1rem;
   }
 
+  .news_event .intro_content_about > .u-h2,
+  .news_event .intro_date_h2.u-h2,
+  .news_highlight_section .news_date > .u-h2 {
+    margin-bottom: 0.8rem;
+  }
+
   .news_event .intro_date_h2.u-h2 {
     margin-bottom: 1rem;
   }
@@ -576,6 +582,53 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     inset: 50% 0 0;
     background: linear-gradient(to bottom, transparent, rgb(6 2 26 / 30%));
     pointer-events: none;
+  }
+}
+
+/* News links sit at the bottom of their text columns and date panels. */
+.news_event .intro_date > h3.u-h3,
+.news_highlight_section .news_date > h3.u-h3 {
+  display: block;
+  max-width: 100%;
+  margin-top: 0;
+  margin-bottom: clamp(1.67rem, calc(var(--fw-fluid-font-base, 1rem) * 1.67), 1.8rem);
+  font-size: var(--_sizes---h2-font-size, 1.667rem);
+  line-height: 1;
+  font-weight: 500;
+}
+
+.news_event .intro_content_about > .text-link,
+.news_highlight_section .news_content > .text-link {
+  margin-top: auto;
+}
+
+.news_event .intro_date_infos,
+.news_highlight_section .intro_date_infos {
+  flex: 1 1 auto;
+  width: 100%;
+  gap: 0;
+  justify-content: flex-start;
+}
+
+.news_event .intro_date_infos > .button-outlined,
+.news_highlight_section .intro_date_infos > .button-outlined {
+  margin-top: auto;
+}
+
+@media (max-width: 767px) {
+  .news_event .intro_date > h3.u-h3,
+  .news_highlight_section .news_date > h3.u-h3 {
+    margin-bottom: 0.8rem;
+  }
+
+  .news_event .intro_date_infos,
+  .news_highlight_section .intro_date_infos {
+    flex: 0 0 auto;
+  }
+
+  .news_event .intro_date_infos > .button-outlined,
+  .news_highlight_section .intro_date_infos > .button-outlined {
+    margin-top: 1.5rem;
   }
 }
 
