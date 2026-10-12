@@ -29,7 +29,6 @@ svg[viewBox="0 0 102 102"]{width:3rem;height:3rem;}
 .wm-zoom-btn:hover svg path{fill:var(--fw_dark_purple);}
 .wm-filter-slot{display:inline-block;flex:0 0 auto;}
 .wm-filter-btn.is-floating{position:fixed;z-index:1001;pointer-events:auto;}
-body.wm-legend-open .wm-zoom-btn:not(.wm-filter-btn){opacity:0;pointer-events:none;}
 body.wm-legend-open .wm-filter-btn svg rect{opacity:0;}
 body.wm-legend-open .wm-filter-btn svg path{fill:var(--fw_dark_purple);}
 
@@ -45,7 +44,7 @@ body.wm-legend-open .wm-filter-btn svg path{fill:var(--fw_dark_purple);}
   position:fixed;
   top:1.5rem;
   right:1.5rem;
-  z-index:1000;
+  z-index:998;
   background:var(--fw_off_white);
   border:none;
   border-radius:0;
@@ -108,7 +107,7 @@ body.wm-labels-on .wm-marker-label{display:block;}
 .wm-marker:hover .wm-marker-tooltip{opacity:1;}
 
 @media screen and (max-width: 767px) {
-  .wm-legend{top:9.4375rem;width:14rem;padding:1rem 1.125rem 1.25rem 1.125rem;}
+  .wm-legend{top:6.125rem;width:14rem;padding:1rem 1.125rem 1.25rem 1.125rem;}
   .wm-nav-arrow{display:none;}
   .wm-scrolldown-slot{display:none;}
   .wm-zoom-controls{flex-direction:column;align-items:center;gap:0.5rem;}
