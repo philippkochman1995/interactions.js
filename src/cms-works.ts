@@ -258,7 +258,7 @@ function createEyeIcon(): SVGSVGElement {
   return svg;
 }
 
-function createWorkCard(item: WorkItem): HTMLElement {
+function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
   const card = document.createElement(item.href ? 'a' : 'article');
   const imageWrap = document.createElement('span');
   const image = document.createElement('img');
@@ -278,6 +278,10 @@ function createWorkCard(item: WorkItem): HTMLElement {
   }
 
   imageWrap.className = 'cms-works__image-wrap';
+  if (revealIndex >= 0) {
+    imageWrap.classList.add('cms-works__image-wrap--revealing');
+    imageWrap.style.setProperty('--cms-works-reveal-delay', `${revealIndex * 100}ms`);
+  }
 
   image.className = 'cms-works__image';
   image.src = item.thumbnail;
@@ -348,9 +352,16 @@ function distributeItems(items: WorkItem[], measures: Map<string, ImageMeasure>,
   return columns;
 }
 
-function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, ImageMeasure>): void {
+function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, ImageMeasure>, revealedIds?: Set<string>): void {
   const grid = document.createElement('div');
   const columns = distributeItems(items, measures, getColumnCount(root));
+  const revealOrder = new Map<string, number>();
+
+  if (revealedIds) {
+    items.forEach((item) => {
+      if (revealedIds.has(item.id)) revealOrder.set(item.id, revealOrder.size);
+    });
+  }
 
   grid.className = 'cms-works__grid';
 
@@ -359,7 +370,7 @@ function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, 
 
     column.className = 'cms-works__column';
     columnItems.items.forEach((item) => {
-      column.append(createWorkCard(item));
+      column.append(createWorkCard(item, revealOrder.get(item.id) ?? -1));
     });
     grid.append(column);
   });
@@ -457,7 +468,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
   const getRenderedItems = () => sortItems(filterItems(items, state.appliedCategories), state.appliedSortMode, root);
 
-  const renderCurrentItems = (force = false) => {
+  const renderCurrentItems = (force = false, revealedIds?: Set<string>) => {
     const revision = ++renderRevision;
     const visibleItems = currentItems.slice(0, visibleCount);
 
@@ -487,7 +498,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
         previousColumnCount = nextColumnCount;
         previousWidth = nextWidth;
-        renderGrid(gridMount, visibleItems, measures);
+        renderGrid(gridMount, visibleItems, measures, revealedIds);
         if (loadMoreButton) {
           loadMoreButton.hidden = currentItems.length <= visibleCount;
         }
@@ -542,8 +553,10 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   collectionOverlay.addEventListener('click', () => controls.close(true));
   if (loadMoreButton) {
     const showMoreItems = () => {
-      visibleCount += LOAD_MORE_INCREMENT;
-      renderCurrentItems(true);
+      const previousCount = visibleCount;
+      visibleCount = Math.min(visibleCount + LOAD_MORE_INCREMENT, currentItems.length);
+      const revealedIds = new Set(currentItems.slice(previousCount, visibleCount).map((item) => item.id));
+      renderCurrentItems(true, revealedIds);
       persistView();
     };
     loadMoreButton.addEventListener('click', (event) => {
