@@ -14,16 +14,9 @@ const ARROW_ICON = `
 `;
 const SORT_LABELS = {
 	random: "zufällig",
-	year: "Entstehungsjahr",
-	alphabetical: "Alphabetisch",
-	curated: "Kuratiert"
+	year: "Entstehungsjahr"
 };
-const SORT_MODES = [
-	"year",
-	"alphabetical",
-	"curated",
-	"random"
-];
+const SORT_MODES = ["year", "random"];
 function getCategoryCounts(items) {
 	const counts = /* @__PURE__ */ new Map();
 	items.forEach((item) => {
@@ -51,14 +44,14 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 	const count = document.createElement("span");
 	const right = document.createElement("span");
 	const sortLabel = document.createElement("span");
-	const currentSort = document.createElement("span");
 	const panel = document.createElement("div");
 	const panelInner = document.createElement("div");
 	const categories = document.createElement("div");
-	const sortSection = document.createElement("div");
-	const sortHeading = document.createElement("div");
-	const panelSortLabel = document.createElement("span");
 	const sortControls = document.createElement("div");
+	const mobileSortSection = document.createElement("div");
+	const mobileSortHeading = document.createElement("div");
+	const mobileSortLabel = document.createElement("span");
+	const mobileSortControls = document.createElement("div");
 	const applyLink = document.createElement("a");
 	const categoryCounts = getCategoryCounts(items);
 	const categoryButtons = /* @__PURE__ */ new Map();
@@ -77,19 +70,19 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 	right.className = "cms-works-filter__bar-right";
 	sortLabel.className = "cms-works-filter__sort-label";
 	sortLabel.textContent = "SORTIERUNG";
-	currentSort.className = "cms-works-filter__current-sort";
 	sortControls.className = "cms-works-filter__sort-controls";
-	right.append(createIconMarkup(ARROW_ICON, "cms-works-filter__arrow-icon"), sortLabel, currentSort);
+	right.append(sortLabel, sortControls, createIconMarkup(ARROW_ICON, "cms-works-filter__arrow-icon"));
 	topbar.append(left, right);
 	panel.className = "cms-works-filter__panel u-section";
 	panelInner.className = "cms-works-filter__panel-inner u-container";
 	categories.className = "cms-works-filter__categories";
-	sortSection.className = "cms-works-filter__sort-section";
-	sortHeading.className = "cms-works-filter__sort-heading";
-	panelSortLabel.className = "cms-works-filter__sort-label";
-	panelSortLabel.textContent = "SORTIERUNG";
-	sortHeading.append(createIconMarkup(ARROW_ICON, "cms-works-filter__arrow-icon"), panelSortLabel);
-	sortSection.append(sortHeading, sortControls);
+	mobileSortSection.className = "cms-works-filter__mobile-sort-section";
+	mobileSortHeading.className = "cms-works-filter__mobile-sort-heading";
+	mobileSortLabel.className = "cms-works-filter__sort-label";
+	mobileSortLabel.textContent = "SORTIERUNG";
+	mobileSortControls.className = "cms-works-filter__mobile-sort-controls";
+	mobileSortHeading.append(createIconMarkup(ARROW_ICON, "cms-works-filter__arrow-icon"), mobileSortLabel);
+	mobileSortSection.append(mobileSortHeading, mobileSortControls);
 	categoryCounts.forEach((category) => {
 		const button = document.createElement("button");
 		const label = document.createElement("span");
@@ -123,6 +116,16 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 		});
 		sortButtons.set(mode, button);
 		sortControls.append(button);
+		const mobileButton = document.createElement("button");
+		mobileButton.className = "cms-works-filter__mobile-sort-option";
+		mobileButton.type = "button";
+		mobileButton.textContent = SORT_LABELS[mode];
+		mobileButton.setAttribute("aria-pressed", "false");
+		mobileButton.addEventListener("click", () => {
+			state.pendingSortMode = mode;
+			sync();
+		});
+		mobileSortControls.append(mobileButton);
 	});
 	applyLink.className = "cms-works-filter__apply";
 	applyLink.href = "#";
@@ -134,13 +137,12 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 		closeFilter(false);
 		onApply();
 	});
-	panelInner.append(sortSection, categories);
+	panelInner.append(categories, mobileSortSection);
 	panel.append(panelInner, applyLink);
 	container.append(topbar);
 	section.append(container, panel);
 	function sync() {
 		count.textContent = `[${state.appliedCategories.size}]`;
-		currentSort.textContent = SORT_LABELS[state.appliedSortMode];
 		section.classList.toggle("is-open", state.open);
 		topbar.setAttribute("aria-expanded", state.open ? "true" : "false");
 		categoryButtons.forEach((button, category) => {
@@ -157,11 +159,17 @@ function createWorksFilterInterface(items, state, onApply, options = {}) {
 		});
 		sortButtons.forEach((button, mode) => {
 			const active = (state.open ? state.pendingSortMode : state.appliedSortMode) === mode;
-			const visible = state.open;
+			const visible = state.open || active;
 			button.classList.toggle("is-active", active);
 			button.classList.toggle("is-collapsed", !visible);
 			button.setAttribute("aria-pressed", active ? "true" : "false");
 			button.setAttribute("tabindex", visible ? "0" : "-1");
+		});
+		mobileSortControls.querySelectorAll("button").forEach((button, index) => {
+			const active = SORT_MODES[index] === state.pendingSortMode;
+			button.classList.toggle("is-active", active);
+			button.setAttribute("aria-pressed", active ? "true" : "false");
+			button.tabIndex = state.open ? 0 : -1;
 		});
 	}
 	function openFilter() {
@@ -247,7 +255,7 @@ function readWorkFlipPayload() {
 function readWorksViewState() {
 	const state = readJson(WORKS_VIEW_STORAGE_KEY);
 	if (!state || !Array.isArray(state.categories) || typeof state.visibleCount !== "number") return null;
-	if (state.sort !== "year" && state.sort !== "random" && state.sort !== "alphabetical" && state.sort !== "curated") state.sort = "year";
+	if (state.sort !== "year" && state.sort !== "random") state.sort = "year";
 	return state;
 }
 function writeWorksViewState(state) {
@@ -354,7 +362,7 @@ function releaseSourceImages(source) {
 }
 function readSortMode(root) {
 	const value = root.getAttribute("data-works-sort")?.trim().toLowerCase();
-	if (value === "random" || value === "year" || value === "alphabetical" || value === "curated") return value;
+	if (value === "random" || value === "year") return value;
 	return "year";
 }
 function parseFirstYear(value) {
@@ -374,8 +382,6 @@ function sortItems(items, mode, root) {
 			sortValue: random()
 		})).sort((first, second) => first.sortValue - second.sortValue).map(({ item }) => item);
 	}
-	if (mode === "alphabetical") return nextItems.sort((first, second) => first.title.localeCompare(second.title, "de", { sensitivity: "base" }));
-	if (mode === "curated") return nextItems.sort((first, second) => first.index - second.index);
 	return nextItems.sort((first, second) => {
 		return (parseFirstYear(first.year) ?? Number.POSITIVE_INFINITY) - (parseFirstYear(second.year) ?? Number.POSITIVE_INFINITY) || first.title.localeCompare(second.title, "de", { sensitivity: "base" });
 	});
