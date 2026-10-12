@@ -1,4 +1,4 @@
-export type WorksSortMode = 'random' | 'year';
+export type WorksSortMode = 'random' | 'year' | 'alphabetical' | 'curated';
 
 export interface WorksFilterItem {
   categories: string[];
@@ -34,8 +34,10 @@ const ARROW_ICON = `
 const SORT_LABELS: Record<WorksSortMode, string> = {
   random: 'zufällig',
   year: 'Entstehungsjahr',
+  alphabetical: 'Alphabetisch',
+  curated: 'Kuratiert',
 };
-const SORT_MODES = ['year', 'random'] as const;
+const SORT_MODES = ['year', 'alphabetical', 'curated', 'random'] as const;
 
 interface WorksFilterOptions {
   onOpenChange?: (open: boolean) => void;
@@ -82,9 +84,13 @@ export function createWorksFilterInterface(
   const count = document.createElement('span');
   const right = document.createElement('span');
   const sortLabel = document.createElement('span');
+  const currentSort = document.createElement('span');
   const panel = document.createElement('div');
   const panelInner = document.createElement('div');
   const categories = document.createElement('div');
+  const sortSection = document.createElement('div');
+  const sortHeading = document.createElement('div');
+  const panelSortLabel = document.createElement('span');
   const sortControls = document.createElement('div');
   const applyLink = document.createElement('a');
   const categoryCounts = getCategoryCounts(items);
@@ -110,14 +116,21 @@ export function createWorksFilterInterface(
   right.className = 'cms-works-filter__bar-right';
   sortLabel.className = 'cms-works-filter__sort-label';
   sortLabel.textContent = 'SORTIERUNG';
+  currentSort.className = 'cms-works-filter__current-sort';
   sortControls.className = 'cms-works-filter__sort-controls';
-  right.append(sortLabel, sortControls, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
+  right.append(createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'), sortLabel, currentSort);
 
   topbar.append(left, right);
 
   panel.className = 'cms-works-filter__panel u-section';
   panelInner.className = 'cms-works-filter__panel-inner u-container';
   categories.className = 'cms-works-filter__categories';
+  sortSection.className = 'cms-works-filter__sort-section';
+  sortHeading.className = 'cms-works-filter__sort-heading';
+  panelSortLabel.className = 'cms-works-filter__sort-label';
+  panelSortLabel.textContent = 'SORTIERUNG';
+  sortHeading.append(createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'), panelSortLabel);
+  sortSection.append(sortHeading, sortControls);
 
   categoryCounts.forEach((category) => {
     const button = document.createElement('button');
@@ -178,13 +191,14 @@ export function createWorksFilterInterface(
     onApply();
   });
 
-  panelInner.append(categories);
+  panelInner.append(sortSection, categories);
   panel.append(panelInner, applyLink);
   container.append(topbar);
   section.append(container, panel);
 
   function sync(): void {
     count.textContent = `[${state.appliedCategories.size}]`;
+    currentSort.textContent = SORT_LABELS[state.appliedSortMode];
     section.classList.toggle('is-open', state.open);
     topbar.setAttribute('aria-expanded', state.open ? 'true' : 'false');
 
@@ -211,7 +225,7 @@ export function createWorksFilterInterface(
     sortButtons.forEach((button, mode) => {
       const activeMode = state.open ? state.pendingSortMode : state.appliedSortMode;
       const active = activeMode === mode;
-      const visible = state.open || active;
+      const visible = state.open;
 
       button.classList.toggle('is-active', active);
       button.classList.toggle('is-collapsed', !visible);
