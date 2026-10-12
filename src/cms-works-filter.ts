@@ -216,6 +216,7 @@ export function createWorksFilterInterface(
 
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      button.tabIndex = state.open ? 0 : -1;
 
       if (!buttonCount) {
         return;
@@ -245,9 +246,12 @@ export function createWorksFilterInterface(
       const active = SORT_MODES[index] === state.pendingSortMode;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
-      button.tabIndex = state.open ? 0 : -1;
+      button.tabIndex = state.open || active ? 0 : -1;
     });
 
+    applyLink.tabIndex = state.open ? 0 : -1;
+    panel.style.setProperty('--cms-works-filter-categories-height', `${categories.scrollHeight}px`);
+    panel.style.setProperty('--cms-works-filter-sort-height', `${mobileSortControls.scrollHeight}px`);
     panel.style.setProperty('--cms-works-filter-panel-height', `${panel.scrollHeight}px`);
   }
 
@@ -301,6 +305,9 @@ export function createWorksFilterInterface(
     } else {
       openFilter();
     }
+  });
+  mobileSortSection.addEventListener('click', () => {
+    if (!state.open) openFilter();
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && state.open) {
