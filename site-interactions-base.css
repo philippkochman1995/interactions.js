@@ -632,6 +632,87 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
   }
 }
 
+@media (max-width: 767px) {
+  /* The accordion icon keeps its motion; headings and panels stay aligned. */
+  .accordion_heading,
+  .accordion_body {
+    transform: none !important;
+  }
+
+  /* Promote the highlight label and image to the mobile grid. */
+  .news_hi_layout > div:first-child,
+  .news_hi_layout .news_content {
+    display: contents;
+  }
+
+  .news_hi_layout .news_content > .u-text-eyebrow {
+    order: -2;
+    justify-self: center;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .news_hi_layout .news_img {
+    order: -1;
+    grid-area: auto;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .news_hi_layout .news_date {
+    order: 1;
+  }
+
+  /* The fixed menu already reserves the last 50px of the viewport. */
+  .footer.u-section {
+    min-height: 0;
+    height: auto;
+  }
+
+  .atelier_location_txt.u-p {
+    display: none;
+  }
+
+  body:has(.atelier_about_section) .u-text-eyebrow {
+    margin-bottom: 0.7rem;
+  }
+
+  .atelier_about_section.u-section {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .atelier_about_p.u-p {
+    margin-left: 0;
+  }
+
+  .editionen_list {
+    gap: 4rem;
+  }
+
+  .editionen_section .editionen_title.u-h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  .editionen_media .editionen_nav,
+  .editionen_media .editionen_nav_icon {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+/* Match the available edition color variants to the supplied palette. */
+.editionen_swatches .editionen_swatch {
+  width: 12px;
+  height: 12px;
+  border: 0.5px solid #444153;
+}
+
+.editionen_swatches .editionen_swatch.is-rosa { background-color: #ffc7d1; }
+.editionen_swatches .editionen_swatch.is-yellow { background-color: #f2f291; }
+.editionen_swatches .editionen_swatch.is-red { background-color: #fa9189; }
+.editionen_swatches .editionen_swatch.is-green { background-color: #bae3a5; }
+
 @media (prefers-reduced-motion: reduce) {
   [data-site-menu-panel],
   [data-site-menu-link],
