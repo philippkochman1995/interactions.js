@@ -111,6 +111,8 @@ body.wm-labels-on .wm-marker-label{display:block;}
   .wm-legend{width:14rem;padding:1rem 1.125rem 1.25rem 1.125rem;}
   .wm-nav-arrow{display:none;}
   .wm-scrolldown-slot{display:none;}
+  .wm-zoom-controls{flex-direction:column;align-items:center;gap:0.5rem;}
+  .wm-zoom-btn svg{width:1.8125rem;height:1.8125rem;}
 }
 
 /* Keine Pfeile */
