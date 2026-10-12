@@ -247,6 +247,8 @@ export function createWorksFilterInterface(
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
       button.tabIndex = state.open ? 0 : -1;
     });
+
+    panel.style.setProperty('--cms-works-filter-panel-height', `${panel.scrollHeight}px`);
   }
 
   function openFilter(): void {
@@ -311,6 +313,9 @@ export function createWorksFilterInterface(
     }
 
     closeFilter(true);
+  });
+  window.addEventListener('resize', () => {
+    panel.style.setProperty('--cms-works-filter-panel-height', `${panel.scrollHeight}px`);
   });
 
   sync();
