@@ -182,6 +182,19 @@
       filterSlot.className = 'wm-filter-slot';
 
       function positionFloatingFilter(){
+        if(legend){
+          var header = legend.querySelector('.wm-legend-header');
+          var title = header && header.querySelector('span');
+          if(header && title){
+            var headerRect = header.getBoundingClientRect();
+            var titleRect = title.getBoundingClientRect();
+            var buttonRect = filterBtn.getBoundingClientRect();
+            filterBtn.style.left = headerRect.right - buttonRect.width + 'px';
+            filterBtn.style.top = titleRect.top + (titleRect.height - buttonRect.height) / 2 + 'px';
+            return;
+          }
+        }
+
         var rect = filterSlot.getBoundingClientRect();
         filterBtn.style.left = rect.left + 'px';
         filterBtn.style.top = rect.top + 'px';
