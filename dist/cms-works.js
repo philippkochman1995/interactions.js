@@ -411,7 +411,7 @@ function createEyeIcon() {
 	svg.append(pupil, outline);
 	return svg;
 }
-function createWorkCard(item) {
+function createWorkCard(item, revealIndex = -1) {
 	const card = document.createElement(item.href ? "a" : "article");
 	const imageWrap = document.createElement("span");
 	const image = document.createElement("img");
@@ -428,6 +428,10 @@ function createWorkCard(item) {
 		card.setAttribute("data-work-flip-id", item.id);
 	}
 	imageWrap.className = "cms-works__image-wrap";
+	if (revealIndex >= 0) {
+		imageWrap.classList.add("cms-works__image-wrap--revealing");
+		imageWrap.style.setProperty("--cms-works-reveal-delay", `${revealIndex * 100}ms`);
+	}
 	image.className = "cms-works__image";
 	image.src = item.thumbnail;
 	image.alt = item.thumbnailAlt;
@@ -486,15 +490,19 @@ function distributeItems(items, measures, columnCount) {
 	});
 	return columns;
 }
-function renderGrid(root, items, measures) {
+function renderGrid(root, items, measures, revealedIds) {
 	const grid = document.createElement("div");
 	const columns = distributeItems(items, measures, getColumnCount(root));
+	const revealOrder = /* @__PURE__ */ new Map();
+	if (revealedIds) items.forEach((item) => {
+		if (revealedIds.has(item.id)) revealOrder.set(item.id, revealOrder.size);
+	});
 	grid.className = "cms-works__grid";
 	columns.forEach((columnItems) => {
 		const column = document.createElement("div");
 		column.className = "cms-works__column";
 		columnItems.items.forEach((item) => {
-			column.append(createWorkCard(item));
+			column.append(createWorkCard(item, revealOrder.get(item.id) ?? -1));
 		});
 		grid.append(column);
 	});
@@ -562,7 +570,7 @@ function renderWorks(root, source) {
 	gridHost.append(gridMount);
 	if (loadMoreButton) gridHost.append(loadMoreButton);
 	const getRenderedItems = () => sortItems(filterItems(items, state.appliedCategories), state.appliedSortMode, root);
-	const renderCurrentItems = (force = false) => {
+	const renderCurrentItems = (force = false, revealedIds) => {
 		const revision = ++renderRevision;
 		const visibleItems = currentItems.slice(0, visibleCount);
 		Promise.all(visibleItems.map(async (item) => {
@@ -583,7 +591,7 @@ function renderWorks(root, source) {
 				if (!force && nextColumnCount === previousColumnCount && nextWidth === previousWidth) return;
 				previousColumnCount = nextColumnCount;
 				previousWidth = nextWidth;
-				renderGrid(gridMount, visibleItems, measures);
+				renderGrid(gridMount, visibleItems, measures, revealedIds);
 				if (loadMoreButton) loadMoreButton.hidden = currentItems.length <= visibleCount;
 				if (pendingScrollRestore !== null) {
 					window.scrollTo(0, pendingScrollRestore);
@@ -626,8 +634,10 @@ function renderWorks(root, source) {
 	collectionOverlay.addEventListener("click", () => controls.close(true));
 	if (loadMoreButton) {
 		const showMoreItems = () => {
-			visibleCount += LOAD_MORE_INCREMENT;
-			renderCurrentItems(true);
+			const previousCount = visibleCount;
+			visibleCount = Math.min(visibleCount + LOAD_MORE_INCREMENT, currentItems.length);
+			const revealedIds = new Set(currentItems.slice(previousCount, visibleCount).map((item) => item.id));
+			renderCurrentItems(true, revealedIds);
 			persistView();
 		};
 		loadMoreButton.addEventListener("click", (event) => {
