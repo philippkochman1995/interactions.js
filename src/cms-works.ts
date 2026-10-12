@@ -186,7 +186,7 @@ function releaseSourceImages(source: HTMLElement): void {
 function readSortMode(root: HTMLElement): WorksSortMode {
   const value = root.getAttribute('data-works-sort')?.trim().toLowerCase();
 
-  if (value === 'random' || value === 'year') {
+  if (value === 'random' || value === 'year' || value === 'alphabetical' || value === 'curated') {
     return value;
   }
 
@@ -215,6 +215,14 @@ function sortItems(items: WorkItem[], mode: WorksSortMode, root: HTMLElement): W
       .map((item) => ({ item, sortValue: random() }))
       .sort((first, second) => first.sortValue - second.sortValue)
       .map(({ item }) => item);
+  }
+
+  if (mode === 'alphabetical') {
+    return nextItems.sort((first, second) => first.title.localeCompare(second.title, 'de', { sensitivity: 'base' }));
+  }
+
+  if (mode === 'curated') {
+    return nextItems.sort((first, second) => first.index - second.index);
   }
 
   return nextItems.sort((first, second) => {
