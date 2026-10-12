@@ -626,8 +626,8 @@ html.is-work-flip-pending body > *:not([data-work-flip-ghost]):not([data-site-pr
     flex: 0 0 auto;
   }
 
-  .news_event .intro_date_infos > .button-outlined,
-  .news_highlight_section .intro_date_infos > .button-outlined {
+  .news_event .intro_date_infos > a.button-outlined,
+  .news_highlight_section .intro_date_infos > a.button-outlined {
     margin-top: 1.5rem !important;
   }
 }
