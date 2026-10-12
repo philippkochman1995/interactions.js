@@ -522,7 +522,19 @@
   }
 
   .cms-works-filter.is-open .cms-works-filter__bar-right {
-    display: none;
+    visibility: hidden;
+  }
+
+  .cms-works-filter__panel {
+    top: calc(100% - 3rem);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 1;
+    transition: max-height 420ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .cms-works-filter.is-open .cms-works-filter__panel {
+    max-height: var(--cms-works-filter-panel-height, 32rem);
   }
 
   .cms-works-filter__panel-inner {
@@ -582,5 +594,11 @@
   .cms-works-filter__mobile-sort-option:hover,
   .cms-works-filter__mobile-sort-option:focus-visible {
     color: var(--cms-works-dark);
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .cms-works-filter__panel {
+    transition-duration: 0.01ms;
   }
 }
