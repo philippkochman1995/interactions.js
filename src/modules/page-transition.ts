@@ -24,8 +24,7 @@ const IGNORED_LINK_SELECTOR = [
   '[data-modal-open]',
   '[data-modal-close]',
   '[data-back-button]',
-  '[data-work-flip]',
-  '[data-work-flip-back]',
+  '[data-work-overlay-trigger]',
   '[download]',
 ].join(',');
 

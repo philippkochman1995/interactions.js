@@ -1,4 +1,4 @@
-interface WorkItem {
+export interface WorkItem {
   id: string;
   title: string;
   thumbnail: string;
@@ -9,7 +9,7 @@ interface WorkItem {
   index: number;
 }
 
-interface WorkDetail {
+export interface WorkDetail {
   id: string;
   title: string;
   year: string;
@@ -300,7 +300,7 @@ function createWorkCard(item: WorkItem): HTMLElement {
   return card;
 }
 
-function pickRelatedItems(items: WorkItem[], detail: WorkDetail): WorkItem[] {
+export function pickRelatedItems(items: WorkItem[], detail: WorkDetail): WorkItem[] {
   const currentCategories = new Set(detail.categories);
 
   if (currentCategories.size === 0) {
@@ -312,7 +312,7 @@ function pickRelatedItems(items: WorkItem[], detail: WorkDetail): WorkItem[] {
     .slice(0, 4);
 }
 
-function createDetailSection(detail: WorkDetail): HTMLElement {
+export function createDetailSection(detail: WorkDetail): HTMLElement {
   const section = document.createElement('section');
   const intro = document.createElement('div');
   const content = document.createElement('div');
@@ -351,9 +351,6 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   image.src = detail.image;
   image.alt = detail.imageAlt;
   image.decoding = 'async';
-  // Ziel der Flip-Animation von der Uebersicht.
-  image.setAttribute('data-work-flip-target', '');
-  image.setAttribute('data-work-flip-id', detail.id);
   caption.textContent = detail.caption;
 
   content.append(title);
@@ -384,7 +381,7 @@ function createDetailSection(detail: WorkDetail): HTMLElement {
   return section;
 }
 
-function createRelatedSection(root: HTMLElement, detail: WorkDetail, relatedItems: WorkItem[]): HTMLElement | null {
+export function createRelatedSection(root: HTMLElement, detail: WorkDetail, relatedItems: WorkItem[]): HTMLElement | null {
   const overviewHref = root.getAttribute('data-work-detail-overview-href')?.trim() || '';
 
   if (relatedItems.length === 0 && !overviewHref) {
@@ -413,8 +410,6 @@ function createRelatedSection(root: HTMLElement, detail: WorkDetail, relatedItem
 
     overviewLink.className = 'cms-work-detail__overview-link';
     overviewLink.href = overviewHref;
-    overviewLink.setAttribute('data-work-flip-back', '');
-    overviewLink.setAttribute('data-work-flip-id', detail.id);
     overviewLink.textContent = root.getAttribute('data-work-detail-overview-label')?.trim() || 'Zur Übersicht';
     inner.append(overviewLink);
   }

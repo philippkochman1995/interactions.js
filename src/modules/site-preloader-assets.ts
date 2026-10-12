@@ -105,7 +105,7 @@ export function collectPreloadTasks(): PreloadTask[] {
   };
   for (const [index, image] of Array.from(document.images).entries()) {
     // Hidden Webflow CMS sources and transition copies are not displayed assets.
-    if (image.closest('[data-work-flip-ghost], [data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template')) continue;
+    if (image.closest('[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template')) continue;
     const priority = explicitPriority(image);
     if (!priority && (image.closest('[hidden]') || getComputedStyle(image).display === 'none')) continue;
     const url = absoluteUrl(image.currentSrc || image.getAttribute('src'));

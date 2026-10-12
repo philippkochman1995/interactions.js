@@ -1,0 +1,103 @@
+html.work-overlay-initial [data-cms-works] {
+  visibility: hidden;
+}
+
+html.work-overlay-active {
+  overscroll-behavior: none;
+}
+
+.work-overlay[hidden] {
+  display: none !important;
+}
+
+.work-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  isolation: isolate;
+  color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+}
+
+.work-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--FW_Off_White, var(--fw_off_white, #f7f7f8));
+  opacity: 0;
+}
+
+.work-overlay__surface {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.work-overlay__content {
+  min-height: 100%;
+}
+
+.work-overlay__detail.u-section {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding-inline: var(--fw-fluid-site-margin, clamp(1rem, 3vw, 3rem));
+}
+
+.work-overlay__detail .cms-work-detail__image {
+  max-height: calc(100svh - 5rem);
+}
+
+.work-overlay__close {
+  position: absolute;
+  top: 1rem;
+  right: var(--fw-fluid-site-margin, clamp(1rem, 3vw, 3rem));
+  z-index: 3;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--FW_Dark_Purple_50, var(--fw_dark_purple_50, #82808c));
+  border-radius: 0;
+  background: var(--FW_Off_White, var(--fw_off_white, #f7f7f8));
+  color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+  cursor: pointer;
+  font: 2rem/1 "StyreneA", sans-serif;
+}
+
+.work-overlay__close:hover,
+.work-overlay__close:focus-visible {
+  border-color: currentColor;
+}
+
+.work-overlay__flyer {
+  position: fixed;
+  z-index: 2200;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+.work-overlay__flyer > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: none !important;
+  transition: none !important;
+}
+
+@media (max-width: 767px) {
+  .work-overlay__detail .cms-work-detail__image {
+    max-height: calc(100svh - 4rem);
+  }
+
+  .work-overlay__close {
+    top: 0.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}

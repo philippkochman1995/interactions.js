@@ -1,10 +1,10 @@
 import { createWorksFilterInterface, type WorksFilterState, type WorksSortMode } from './cms-works-filter';
 import {
   isBackForwardNavigation,
-  readWorkFlipPayload,
   readWorksViewState,
   writeWorksViewState,
-} from './modules/work-flip-state';
+} from './modules/works-view-state';
+import { initWorkOverlay } from './work-overlay';
 
 interface WorkItem {
   id: string;
@@ -149,10 +149,18 @@ function readItem(element: HTMLElement, index: number): WorkItem | null {
     element.getAttribute('data-canvas-title')?.trim() ||
     thumbnailElement?.alt.trim() ||
     '';
+  const href = readHref(element);
+  let hrefSlug = '';
+  try {
+    hrefSlug = new URL(href, document.baseURI).pathname.split('/').filter(Boolean).pop() || '';
+  } catch {
+    // A sheet URL may not be a valid work detail URL.
+  }
   const id =
     element.getAttribute('data-works-id')?.trim() ||
     element.getAttribute('data-canvas-id')?.trim() ||
     element.getAttribute('data-cms-item-id')?.trim() ||
+    hrefSlug ||
     `work-${index + 1}-${hashString(`${title}-${thumbnail}`)}`;
 
   return {
@@ -160,7 +168,7 @@ function readItem(element: HTMLElement, index: number): WorkItem | null {
     title,
     thumbnail,
     thumbnailAlt: thumbnailElement?.alt || title,
-    href: readHref(element),
+    href,
     year: textFrom(element, YEAR_SELECTOR) || element.getAttribute('data-works-year')?.trim() || '',
     categories: readCategories(element),
     index,
@@ -273,8 +281,8 @@ function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
   if (item.href) {
     card.classList.add('cms-works__item--clickable');
     card.setAttribute('href', item.href);
-    card.setAttribute('data-work-flip', '');
-    card.setAttribute('data-work-flip-id', item.id);
+    card.setAttribute('data-work-overlay-trigger', item.id);
+    card.setAttribute('data-transition', 'false');
   }
 
   imageWrap.className = 'cms-works__image-wrap';
@@ -423,7 +431,7 @@ function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement 
  * Werkseite zurueckkommt. Ueber das Menue aufgerufen startet die Uebersicht frisch.
  */
 function shouldRestoreView(): boolean {
-  return isBackForwardNavigation() || readWorkFlipPayload()?.direction === 'back';
+  return isBackForwardNavigation();
 }
 
 function renderWorks(root: HTMLElement, source: HTMLElement): void {
@@ -575,6 +583,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
   currentItems = getRenderedItems();
   root.replaceChildren(controls.element, collectionOverlay, gridHost);
+  initWorkOverlay(root, gridMount);
 
   const resizeObserver = new ResizeObserver(() => renderCurrentItems());
 

@@ -120,7 +120,7 @@ function S(e) {
 		let t = document.createElement("span");
 		t.className = "cms-work-detail__year", t.textContent = g(e.year), i.append(document.createTextNode(" "), t);
 	}
-	return a.innerHTML = e.properties, o.innerHTML = e.html, s.innerHTML = e.view, l.src = e.image, l.alt = e.imageAlt, l.decoding = "async", l.setAttribute("data-work-flip-target", ""), l.setAttribute("data-work-flip-id", e.id), u.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.view && r.append(s), e.image && (c.append(l), e.caption && c.append(u)), n.append(r, c), t.append(n), t;
+	return a.innerHTML = e.properties, o.innerHTML = e.html, s.innerHTML = e.view, l.src = e.image, l.alt = e.imageAlt, l.decoding = "async", u.textContent = e.caption, r.append(i), e.properties && r.append(a), e.html && r.append(o), e.view && r.append(s), e.image && (c.append(l), e.caption && c.append(u)), n.append(r, c), t.append(n), t;
 }
 function C(e, t, n) {
 	var r, i;
@@ -131,8 +131,8 @@ function C(e, t, n) {
 		l.append(b(e));
 	}), s.append(c, l), a) {
 		var u;
-		let n = document.createElement("a");
-		n.className = "cms-work-detail__overview-link", n.href = a, n.setAttribute("data-work-flip-back", ""), n.setAttribute("data-work-flip-id", t.id), n.textContent = ((u = e.getAttribute("data-work-detail-overview-label")) == null ? void 0 : u.trim()) || "Zur Übersicht", s.append(n);
+		let t = document.createElement("a");
+		t.className = "cms-work-detail__overview-link", t.href = a, t.textContent = ((u = e.getAttribute("data-work-detail-overview-label")) == null ? void 0 : u.trim()) || "Zur Übersicht", s.append(t);
 	}
 	return o.append(s), o;
 }
@@ -164,5 +164,6 @@ a(() => {
 	Array.from(document.querySelectorAll("[data-cms-work-detail]")).forEach(T);
 });
 //#endregion
+export { S as createDetailSection, C as createRelatedSection, x as pickRelatedItems };
 
 //# sourceMappingURL=cms-work-detail.js.map

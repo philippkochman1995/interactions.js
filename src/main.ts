@@ -6,7 +6,6 @@ import { closeModal, initModals, openContentModal, openModal } from './modules/m
 import { initPageTransitions } from './modules/page-transition';
 import { initParallax } from './modules/parallax';
 import { initSiteMenu } from './modules/site-menu';
-import { initWorkFlip } from './modules/work-flip';
 import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
 import { initSitePreloader } from './modules/site-preloader';
@@ -15,9 +14,8 @@ import { initSmoothScrollSync } from './modules/smooth-scroll';
 let booted = false;
 initSitePreloader();
 
-// Muss vor den Seitenuebergaengen laufen: Werk-Links werden vom Flip uebernommen,
-// das rosa Overlay bleibt fuer alle anderen Links zustaendig.
-initWorkFlip();
+// Werk-Links bleiben in der Uebersicht und oeffnen dort das SPA-Overlay.
+// Fuer andere Seitenlinks bleibt die rosa Seitentransition zustaendig.
 initPageTransitions();
 
 // Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.

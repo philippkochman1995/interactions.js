@@ -271,15 +271,14 @@ test('critical lazy image is started without scrolling; duplicate URL counts onc
   expect(await page.locator('img[src="/lazy.svg"]').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 
-test('preloader is excluded from work-flip hiding and background cannot receive focus', async ({ page }) => {
+test('preloader keeps background unfocusable until release', async ({ page }) => {
   await page.route('**/dist/site-interactions.js', route => route.abort());
   await page.goto(fixture);
-  await page.evaluate(() => document.documentElement.classList.add('is-work-flip-pending'));
   await expect(page.locator(loader)).toBeVisible();
   await page.keyboard.press('Tab');
   expect(await page.locator('#content a').evaluate(a => a === document.activeElement)).toBe(false);
   await page.evaluate(() => window.__sitePreloader!.release());
-  await expect(page.locator('html')).toHaveClass(/is-work-flip-pending/);
+  await expect(page.locator(loader)).toHaveCount(0);
 });
 
 test('srcset-only lazy pictures are critical even before currentSrc exists', async ({ page }) => {

@@ -582,62 +582,34 @@ and modifier-clicks. To opt out a specific internal link:
 <a href="/example" data-transition="false">No transition</a>
 ```
 
-## Work flip transition
+## Werk-Overlay
 
-Werk-Uebersicht und Werk-Detailseite teilen sich ein Bild: beim Klick auf eine Karte
-blendet die Uebersicht ihre Inhalte aus, das Bild bleibt stehen und waechst auf der
-Detailseite per GSAP Flip an seine neue Position, danach faden Titel, Masse und Text ein.
-Der Rueckweg laeuft spiegelverkehrt und gilt auch fuer den Browser-Zurueck-Button.
+Die Werk-Uebersicht bleibt im DOM. Ein Klick auf eine Karte oeffnet eine einzige
+Fullscreen-Detailansicht; GSAP Flip bewegt das angeklickte Bild in die Detailposition.
+Schliessen und Browser-Zurueck bringen es zur Karte zurueck, auch nach Scrollen im Overlay.
+Der Browser speichert das aktive Werk als `?work=<slug>`. Direktlinks und Vorwaerts-/
+Zurueck-Navigation funktionieren ohne Neuladen. Verwandte Werke oeffnen sich im selben
+Overlay. Fuer andere Seitenlinks bleibt die normale rosa Seitentransition erhalten.
 
-Weil dazwischen ein echter Seitenwechsel liegt, wandern Geometrie und Bildquelle ueber
-`sessionStorage` (`site-work-flip`), und ein `position: fixed` Klon des Bildes ueberlebt
-den Wechsel optisch. Fuer alle uebrigen Links bleibt das rosa Overlay zustaendig.
+`src/work-overlay.ts` steuert Dialog, History, Fokus und Animation. Die Detailstruktur
+kommt aus `src/cms-work-detail.ts`; Layout und Farben aus `cms-work-detail.css` und
+`work-overlay.css`. `src/work-manifest.json` enthaelt die vorab gelesenen CMS-Details,
+damit beim Oeffnen keine weiteren HTML-Seiten geladen werden. Nach CMS-Aenderungen das
+Manifest mit `node scripts/build-work-manifest.mjs` neu erzeugen, den Build ausfuehren und
+neu ausliefern. Das Skript liest die veroeffentlichte Webflow-Seite; bei Bedarf
+`FW_SITE_URL` und `CHROME_PATH` setzen.
 
-### External bootstrap scripts
+Die Werk-Uebersichtsseite benoetigt im Head `cms-work-detail.css`, `work-overlay.css`
+und vor dem ersten Paint fuer Direktlinks diese kleine Klasse:
 
-`dist/site-interactions.js` laeuft als `type="module"` und damit deferred - zu spaet fuer
-den ersten Paint der Zielseite. Die Imports aus `snippets/site-head.html` und
-`snippets/site-footer.html` gehoeren darum in "Site settings -> Custom code".
-`COMMIT` in allen sechs URLs durch denselben veroeffentlichten Git-Commit ersetzen.
-Die bisherigen Inline-Scripts, Inline-Styles und das Overlay-Div werden damit ersetzt:
-
-- **Inside `<head>` tag:** CSS zuerst, dann `dist/site-head.js` setzt die Startklassen
-  fuer Seitenuebergang und Work-Flip vor dem ersten Paint.
-- **Before `</body>` tag:** `dist/site-body.js` erzeugt Ghost und Page-Transition-Overlay,
-  danach folgen die beiden Module. Kein zusaetzliches Overlay-Markup noetig.
-
-Die beiden Boot-Scripts brauchen klassische Script-Tags **ohne** `type="module"`,
-`defer` oder `async`. Der Build erzeugt eigenstaendige IIFEs ohne weitere Imports.
-Die Logo-Hover-Animation liegt in `src/modules/logo-variants.ts` und startet ueber
-`site-interactions.js`; ihre Styles und die Erst-Paint-Abdeckung liegen in der Basis-CSS.
-Webflow enthaelt damit nur externe Imports, keine eigene Logik mehr.
-
-Ohne die Snippets funktioniert der Uebergang weiterhin, die Zielseite blitzt aber kurz auf,
-bevor die Animation startet.
-
-### Attribute
-
-Uebersicht und Detailseite werden vom Skript gerendert, die Attribute entstehen also von
-selbst:
-
-```text
-a.cms-works__item[data-work-flip][data-work-flip-id="cms-slug"]   Karte in der Uebersicht
-img[data-work-flip-target][data-work-flip-id="cms-slug"]          Bild auf der Detailseite
-a.cms-work-detail__overview-link[data-work-flip-back]             Rueckweg zur Uebersicht
+```html
+<script>if(new URL(location.href).searchParams.has('work'))document.documentElement.classList.add('work-overlay-initial')</script>
 ```
 
-Damit Hin- und Rueckweg zusammenfinden, muessen `data-works-id` in der Collection List und
-`data-work-detail-id` auf der Detailseite an denselben CMS-Slug gebunden sein. Fehlt der
-Treffer, laedt die Seite ohne Animation.
-
-Die Uebersicht merkt sich Filter, Sortierung, Anzahl geladener Werke und Scrollposition
-unter `site-works-view`. Wiederhergestellt wird der Stand nur, wenn der Nutzer von einer
-Werkseite zurueckkommt; ueber das Menue aufgerufen startet die Uebersicht frisch.
-
-Bei `prefers-reduced-motion: reduce` entfaellt der Uebergang komplett. Findet das Skript
-das Zielbild nicht, blendet ein Wachhund die Seite nach 2,6 s regulaer ein; friert der
-Browser die Animation ein (Hintergrund-Tab), wird der Uebergang per Timer ohne Animation
-abgeschlossen. Die Navigation selbst wird nie blockiert.
+Der Footer laedt `dist/cms-works.js`. Karten erhalten automatisch
+`data-work-overlay-trigger`; weitere Designer-Attribute sind nicht noetig. Der alte
+Reload-Flip mit Ghost und `sessionStorage` wurde entfernt. Einzelne `/werke/<slug>`-Seiten
+bleiben als normale, indexierbare Seiten und als Fallback verfuegbar.
 
 ## Line reveal
 
@@ -763,15 +735,13 @@ window.SiteInteractions.closeLightbox();
 - If a collection list duplicates the same group name across multiple hidden modals, grouped lightbox navigation may include all matching triggers on the page.
 - Webflow builders should keep buttons as actual `<button>` elements where possible, especially for close controls.
 - The primary integration surface is `data-*` attributes. Avoid binding behavior to class names.
-- Der Werk-Flip braucht die synchronen Imports aus `snippets/site-head.html` und
-  `snippets/site-footer.html`. Ohne sie kann die Zielseite beim Seitenwechsel aufblitzen.
-- CSS hooks des Werk-Flips: `html.is-work-flip-pending`, `.work-flip-ghost`,
-  `[data-work-flip-ghost]`.
+- Das Werk-Manifest wird bei CMS-Aenderungen neu erzeugt und zusammen mit dem
+  Overlay-Bundle veroeffentlicht.
 
 ## Session-Preloader (Figma 1358:10234)
 
 Der globale Preloader ist Teil derselben synchronen Head/Body-Boot-Kette wie
-Page-Transition und Work-Flip. Ein zusätzliches Webflow-Element ist nicht nötig.
+Page-Transition. Ein zusätzliches Webflow-Element ist nicht nötig.
 Alle eingebundenen Dateien müssen denselben Commit verwenden, einschließlich
 `site-interactions-base.css`, `dist/` und `assets/`. Die beiden originalen
 Figma-SVGs liegen in `assets/preloader-signature.svg` und

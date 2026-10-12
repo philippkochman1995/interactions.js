@@ -33,7 +33,7 @@ export function primeSitePreloader(): void {
   } catch { /* No storage: one attempt for this document, still bounded by the watchdog. */ }
 
   // An incoming navigation already has its own visual handover.
-  if (root.classList.contains('is-work-flip-pending') || root.classList.contains('is-page-transition-pending')) return;
+  if (root.classList.contains('is-page-transition-pending')) return;
 
   let resolveReady!: () => void;
   const ready = new Promise<void>((resolve) => { resolveReady = resolve; });

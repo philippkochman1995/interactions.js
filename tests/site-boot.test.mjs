@@ -36,8 +36,7 @@ function fixture(values = {}, reduced = false, blocked = false) {
     } },
     createElement: element,
     querySelector(selector) {
-      const attr = selector.includes('data-work-flip-ghost') ? 'data-work-flip-ghost' : 'data-page-transition-overlay';
-      return rootBody.children.find((node) => attr in node.attrs) ?? null;
+      return rootBody.children.find((node) => 'data-page-transition-overlay' in node.attrs) ?? null;
     },
     querySelectorAll: () => [],
     addEventListener: (name, handler) => { events[name] = handler; },
@@ -55,8 +54,6 @@ function fixture(values = {}, reduced = false, blocked = false) {
   const context = { document, window, Date, exports: {}, Image: class {}, getComputedStyle: () => ({ position: 'static', color: 'rgb(6, 2, 26)' }) };
   return { context, classes, storage, events, timers, intervals, element, run: (source) => runInNewContext(source, context) };
 }
-
-const payload = () => JSON.stringify({ src: 'https://example.test/work.jpg', rect: { top: 10, left: 20, width: 300, height: 400 }, ts: Date.now() });
 
 test('classic boot bundles execute without module syntax and create one overlay', () => {
   const f = fixture();
@@ -82,33 +79,6 @@ test('failsafe leaves an overlay already controlled by GSAP alone', () => {
   f.context.document.body.children[0].style.transform = 'translate(0,0)';
   f.timers.forEach((fn) => fn());
   assert.ok(f.classes.has('is-page-transition-pending'));
-});
-
-test('work flip ghost retains image and geometry, without duplicates', () => {
-  const f = fixture({ 'site-work-flip': payload() });
-  f.run(head); f.run(body); f.run(body);
-  assert.ok(f.classes.has('is-work-flip-pending'));
-  const ghost = f.context.document.body.children[0];
-  assert.equal(ghost.style.width, '300px');
-  assert.equal(ghost.style.top, '10px');
-  assert.equal(ghost.children[0].src, 'https://example.test/work.jpg');
-  assert.equal(f.context.document.body.children.length, 2);
-});
-
-test('invalid, expired and reduced motion work flips do not hide the page', () => {
-  const stale = JSON.parse(payload()); stale.ts -= 9000;
-  const invalid = JSON.parse(payload()); invalid.rect.width = 0;
-  for (const f of [fixture({ 'site-work-flip': '{bad' }), fixture({ 'site-work-flip': JSON.stringify(stale) }),
-    fixture({ 'site-work-flip': JSON.stringify(invalid) }), fixture({ 'site-work-flip': payload() }, true)]) {
-    f.run(head); f.run(body);
-    assert.equal(f.classes.size, 0);
-  }
-});
-
-test('payload removed between head and body releases work flip visibility', () => {
-  const f = fixture({ 'site-work-flip': payload() });
-  f.run(head); f.storage.clear(); f.run(body);
-  assert.equal(f.classes.size, 0);
 });
 
 for (const tag of ['svg', 'img']) {
