@@ -598,6 +598,7 @@
 
   .cms-works-filter__panel-inner {
     flex-direction: column;
+    border-top: 0;
   }
 
   .cms-works-filter__categories {
