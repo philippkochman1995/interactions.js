@@ -298,7 +298,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
     if (related) {
       related.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
-        link.setAttribute('data-transition', 'false');
+        if (!link.classList.contains('cms-work-detail__overview-link')) {
+          link.setAttribute('data-transition', 'false');
+        }
       });
       const overviewLink = related.querySelector<HTMLAnchorElement>('.cms-work-detail__overview-link');
       if (overviewLink) animateOverviewLink(overviewLink);
@@ -535,8 +537,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       return;
     }
     if (link.classList.contains('cms-work-detail__overview-link')) {
-      event.preventDefault();
-      requestClose();
       return;
     }
     const work = worksById.get(slugFromHref(link.href));

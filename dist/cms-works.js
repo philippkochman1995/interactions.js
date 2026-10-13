@@ -790,7 +790,7 @@ function ft(u, d) {
 		if (!i) throw Error(`Missing detail image for ${e.id}`);
 		if (r && (r.id = "work-overlay-title", p.setAttribute("aria-labelledby", r.id)), n) {
 			n.querySelectorAll("a[href]").forEach((e) => {
-				e.setAttribute("data-transition", "false");
+				e.classList.contains("cms-work-detail__overview-link") || e.setAttribute("data-transition", "false");
 			});
 			let e = n.querySelector(".cms-work-detail__overview-link");
 			e && dt(e);
@@ -940,10 +940,7 @@ function ft(u, d) {
 			t.preventDefault(), ae();
 			return;
 		}
-		if (r.classList.contains("cms-work-detail__overview-link")) {
-			t.preventDefault(), ie();
-			return;
-		}
+		if (r.classList.contains("cms-work-detail__overview-link")) return;
 		let i = nt.get(st(r.href));
 		if (!i) return;
 		t.preventDefault();

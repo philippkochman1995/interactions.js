@@ -18,6 +18,11 @@ html.work-overlay-active {
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
 }
 
+html.work-overlay-active [data-page-transition-overlay],
+html.work-overlay-active .page-transition-overlay {
+  z-index: 2300;
+}
+
 .work-overlay__backdrop {
   position: absolute;
   inset: 0;
