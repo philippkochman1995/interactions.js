@@ -800,7 +800,7 @@ function pt(u, d) {
 			e && ft(e);
 		}
 		let a = document.createElement("div");
-		return a.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", a.append(t), _.replaceChildren(a), n && _.append(n), h.scrollTop = 0, I == null || I.resize(), document.title = `${e.title} – Franz West`, i;
+		return a.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", a.append(t), _.replaceChildren(a), n && _.append(n), h.scrollTop = 0, I == null || I.resize(), I == null || I.scrollTo(0, { immediate: true, force: true }), document.title = `${e.title} – Franz West`, i;
 	}, X = (e) => {
 		if (!(e !== j || !w)) {
 			if (E && T) {
