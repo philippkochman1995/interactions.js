@@ -11,6 +11,7 @@ import {
   type WorkItem,
 } from './cms-work-detail';
 import { afterSitePreloader } from './modules/site-preloader-state';
+import { initLogoVariants } from './modules/logo-variants';
 import { getFocusableElements, hasModifierKey, prefersReducedMotion } from './modules/utils';
 
 gsap.registerPlugin(Flip);
@@ -74,6 +75,8 @@ function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorEleme
   header.removeAttribute('aria-hidden');
   header.querySelectorAll<HTMLElement>('[id]').forEach((element) => element.removeAttribute('id'));
   header.querySelectorAll<HTMLElement>('[data-logo-variant]').forEach((element) => element.remove());
+  header.querySelectorAll<HTMLElement>('.top_bar_center .nav_logo_link svg, .top_bar_center .nav_logo_image_link img.nav_logo')
+    .forEach((element) => element.style.removeProperty('visibility'));
 
   const left = header.querySelector<HTMLElement>('.top_bar_left') || header;
   const backLink = document.createElement('a');
@@ -83,6 +86,24 @@ function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorEleme
   backLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 15" class="arrow is-rotate" aria-hidden="true"><path d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor" class="arrow-dot"/><path d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor" class="arrow-arrow"/></svg><div class="text-block">Zurück</div>';
   left.replaceChildren(backLink);
   return { header, backLink };
+}
+
+function animateOverviewLink(link: HTMLAnchorElement): void {
+  const label = link.textContent?.trim() || 'Zur Übersicht';
+  const mask = document.createElement('span');
+  const text = document.createElement('span');
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  link.classList.add('button-outlined');
+  mask.className = 'button-mask';
+  mask.setAttribute('aria-hidden', 'true');
+  text.className = 'button-text';
+  text.textContent = label;
+  arrow.classList.add('arrow');
+  arrow.setAttribute('viewBox', '0 0 17 15');
+  arrow.setAttribute('aria-hidden', 'true');
+  arrow.innerHTML = '<path class="arrow-dot" d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor"/><path class="arrow-arrow" d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor"/>';
+  link.replaceChildren(mask, text, arrow);
 }
 
 export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void {
@@ -126,6 +147,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   overlay.append(backdrop, surface);
   overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
   document.body.append(overlay);
+  initLogoVariants();
 
   const findSlot = (id: string): HTMLElement | null => {
     const card = Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
@@ -238,6 +260,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       related.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
         link.setAttribute('data-transition', 'false');
       });
+      const overviewLink = related.querySelector<HTMLAnchorElement>('.cms-work-detail__overview-link');
+      if (overviewLink) animateOverviewLink(overviewLink);
     }
     const detailRoot = document.createElement('div');
     detailRoot.className = 'work-detail_wrapper u-section cms-work-detail work-overlay__detail';
