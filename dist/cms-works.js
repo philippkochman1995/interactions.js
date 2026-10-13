@@ -687,7 +687,7 @@ r.registerPlugin($e);
 var tt = et, nt = new Map(tt.map((e) => [e.id, e])), rt = tt.map((e, t) => ({
 	...e,
 	index: t
-})), it = .82, at = .65;
+})), it = .82, at = it;
 function ot() {
 	let e = new URL(window.location.href);
 	return e.searchParams.delete("work"), `${e.pathname}${e.search}${e.hash}`;
@@ -742,7 +742,6 @@ function ft(u, d) {
 	], R = () => {
 		j == null || j.kill(), j = null, M == null || M.kill(), M = null, r.killTweensOf([
 			m,
-			u,
 			h,
 			...L()
 		]);
@@ -801,29 +800,25 @@ function ft(u, d) {
 			let e = n.querySelector(".cms-works__image-wrap"), t = e == null ? void 0 : e.querySelector("img");
 			e && t && t.complete && t.naturalWidth > 0 && (s = t, l = e.getBoundingClientRect(), H(e));
 		}
-		let d = G(e);
-		s && l && (w = s, s.naturalWidth && s.naturalHeight && (d.width = s.naturalWidth, d.height = s.naturalHeight), d.style.visibility = "hidden", T = ct(s, l)), p.hidden = !1, te(), B(), z();
-		let f = g.querySelector(".work-overlay__detail");
-		if (F = f ? c(f) : null, p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !T) {
-			r.set(m, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a);
+		let u = G(e);
+		s && l && (w = s, s.naturalWidth && s.naturalHeight && (u.width = s.naturalWidth, u.height = s.naturalHeight), u.style.visibility = "hidden", T = ct(s, l)), p.hidden = !1, te(), B(), z();
+		let d = g.querySelector(".work-overlay__detail");
+		if (F = d ? c(d) : null, p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !T) {
+			r.set(m, { opacity: 1 }), K(a);
 			return;
 		}
 		r.set(m, { opacity: +!!o }), M = r.timeline(), M.to(m, {
 			opacity: 1,
 			duration: at,
-			ease: "power2.inOut"
-		}, 0), M.to(u, {
-			opacity: 0,
-			duration: at,
-			ease: "power2.inOut"
-		}, 0), j = $e.fit(T, d, {
+			ease: "power1.inOut"
+		}, 0), j = $e.fit(T, u, {
 			duration: it,
 			ease: "power3.inOut",
 			onComplete: () => K(a)
 		});
 	}, J = (e) => {
 		if (e !== A) return;
-		W(), F == null || F(), F = null, y && b.parentNode && b.parentNode.insertBefore(y, b.nextSibling), p.hidden = !0, g.replaceChildren(), C = null, S = "closed", document.title = f, r.set(u, { clearProps: "opacity" }), r.set(m, { clearProps: "opacity" }), V();
+		W(), F == null || F(), F = null, y && b.parentNode && b.parentNode.insertBefore(y, b.nextSibling), p.hidden = !0, g.replaceChildren(), C = null, S = "closed", document.title = f, r.set(m, { clearProps: "opacity" }), V();
 		let t = O != null && O.isConnected ? O : null;
 		t == null || t.focus({ preventScroll: !0 }), O = null;
 	}, Y = () => {
@@ -836,9 +831,6 @@ function ft(u, d) {
 			if (!(n != null && n.isConnected) || !i || t()) {
 				r.to(m, {
 					opacity: 0,
-					duration: t() ? 0 : at
-				}), r.to(u, {
-					opacity: 1,
 					duration: t() ? 0 : at,
 					onComplete: () => J(e)
 				});
@@ -851,11 +843,7 @@ function ft(u, d) {
 			r.to(m, {
 				opacity: 0,
 				duration: at,
-				ease: "power2.inOut"
-			}), r.to(u, {
-				opacity: 1,
-				duration: at,
-				ease: "power2.inOut"
+				ease: "power1.inOut"
 			}), j = $e.fit(T, n, {
 				duration: it,
 				ease: "power3.inOut",
