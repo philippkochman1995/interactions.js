@@ -730,7 +730,11 @@ function lt(l, u) {
 	}, I = () => {
 		var e;
 		v || (v = document.querySelector("[data-site-menu]")), !(!v || f.contains(v)) && (y.parentNode || (e = v.parentNode) == null || e.insertBefore(y, v), f.append(v));
-	}, L = () => [...Array.from(h.querySelectorAll(".cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related"))], R = () => {
+	}, L = () => [
+		_,
+		...Array.from(g.querySelectorAll(".nav_logo_link")),
+		...Array.from(h.querySelectorAll(".cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related"))
+	], R = () => {
 		A == null || A.kill(), A = null, j == null || j.kill(), j = null, r.killTweensOf([
 			p,
 			u,

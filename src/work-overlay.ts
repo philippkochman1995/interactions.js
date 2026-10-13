@@ -140,6 +140,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   };
 
   const visibleContent = (): HTMLElement[] => [
+    backLink,
+    ...Array.from(header.querySelectorAll<HTMLElement>('.nav_logo_link')),
     ...Array.from(content.querySelectorAll<HTMLElement>(
       '.cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related',
     )),
