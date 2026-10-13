@@ -348,6 +348,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const token = ++revision;
     const oldWork = activeWork;
     cancelMotion();
+    // A related-work switch must discard Lenis's previous scroll target.
+    if (oldWork) stopOverlayLenis();
     if (oldWork) restoreImageToGrid();
     phase = 'opening';
     activeWork = work;
@@ -390,6 +392,16 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
     detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     startOverlayLenis();
+    if (oldWork) {
+      overlayLenis?.scrollTo(0, { immediate: true, force: true });
+      surface.scrollTop = 0;
+      requestAnimationFrame(() => {
+        if (token !== revision) return;
+        overlayLenis?.resize();
+        overlayLenis?.scrollTo(0, { immediate: true, force: true });
+        surface.scrollTop = 0;
+      });
+    }
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });
