@@ -143,14 +143,19 @@ html.work-overlay-active .page-transition-overlay {
   overflow: visible;
 }
 
-.work-overlay [data-site-menu]:not(.is-open) [data-site-menu-toggle-label-text] {
+.work-overlay [data-site-menu] [data-site-menu-toggle-label-text],
+.work-overlay [data-site-menu] [data-site-menu-toggle-label-ghost] {
   visibility: hidden;
 }
 
-.work-overlay [data-site-menu]:not(.is-open) [data-site-menu-toggle-label]::after {
+.work-overlay [data-site-menu] [data-site-menu-toggle-label]::after {
   position: absolute;
   inset: 0 auto auto 0;
-  content: 'Menu';
+  content: 'MENU';
+}
+
+.work-overlay [data-site-menu].is-open [data-site-menu-toggle-label]::after {
+  content: 'CLOSE';
 }
 
 .work-overlay__flyer {
