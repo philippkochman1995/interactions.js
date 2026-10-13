@@ -818,7 +818,7 @@ function pt(u, d) {
 	}, Z = (e, n, i = !1) => {
 		var a;
 		let o = ++j, s = w;
-		B(), s && J(), C = "opening", w = e;
+		B(), s && U(), s && J(), C = "opening", w = e;
 		let l = (a = history.state) == null ? void 0 : a.previousWorkId, u = new URL(ot(), window.location.href);
 		l && nt.has(l) && u.searchParams.set("work", l), y.href = `${u.pathname}${u.search}${u.hash}`, !p.hidden && s && r.set(m, { opacity: 1 });
 		let d = null, f = null;
@@ -829,7 +829,7 @@ function pt(u, d) {
 		let h = Y(e);
 		d && f && (T = d, d.naturalWidth && d.naturalHeight && (h.width = d.naturalWidth, h.height = d.naturalHeight), h.style.visibility = "hidden", E = lt(d, f)), p.hidden = !1, R(), W(), V();
 		let g = _.querySelector(".work-overlay__detail");
-		if (F = g ? c(g) : null, H(), p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(z(), { autoAlpha: 0 }), i || t() || !E) {
+		if (F = g ? c(g) : null, H(), s && (I == null || I.scrollTo(0, { immediate: !0, force: !0 }), h.scrollTop = 0, requestAnimationFrame(() => { o === j && (I == null || I.resize(), I == null || I.scrollTo(0, { immediate: !0, force: !0 }), h.scrollTop = 0); })), p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(z(), { autoAlpha: 0 }), i || t() || !E) {
 			r.set(m, { opacity: 1 }), X(o);
 			return;
 		}
