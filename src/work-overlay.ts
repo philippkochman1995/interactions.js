@@ -18,7 +18,11 @@ gsap.registerPlugin(Flip);
 
 type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing';
 type ManifestWork = WorkDetail & WorkItem;
-type OverlayLenis = { destroy(): void; resize(): void };
+type OverlayLenis = {
+  destroy(): void;
+  resize(): void;
+  scrollTo(target: number, options: { immediate: boolean; force: boolean }): void;
+};
 type OverlayLenisConstructor = new (options: {
   wrapper: HTMLElement;
   content: HTMLElement;
@@ -318,6 +322,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (related) content.append(related);
     surface.scrollTop = 0;
     overlayLenis?.resize();
+    overlayLenis?.scrollTo(0, { immediate: true, force: true });
     document.title = `${work.title} – Franz West`;
     return image;
   };
