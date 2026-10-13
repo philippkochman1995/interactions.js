@@ -18,6 +18,17 @@ gsap.registerPlugin(Flip);
 
 type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing';
 type ManifestWork = WorkDetail & WorkItem;
+type OverlayLenis = { destroy(): void; resize(): void };
+type OverlayLenisConstructor = new (options: {
+  wrapper: HTMLElement;
+  content: HTMLElement;
+  lerp: number;
+  smoothWheel: boolean;
+  wheelMultiplier: number;
+  touchMultiplier: number;
+  syncTouch: boolean;
+  autoRaf: boolean;
+}) => OverlayLenis;
 
 const works = manifest as ManifestWork[];
 const worksById = new Map(works.map((work) => [work.id, work]));
@@ -111,6 +122,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   const overlay = document.createElement('div');
   const backdrop = document.createElement('div');
   const surface = document.createElement('div');
+  const scrollContent = document.createElement('div');
   const content = document.createElement('div');
   const { header, backLink } = createOverlayHeader();
   let siteMenu: HTMLElement | null = null;
@@ -131,6 +143,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   let previousBodyWidth = '';
   let previousScrollRestoration = history.scrollRestoration;
   let detailLayoutCleanup: (() => void) | null = null;
+  let overlayLenis: OverlayLenis | null = null;
 
   overlay.className = 'work-overlay';
   overlay.hidden = true;
@@ -142,8 +155,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   backdrop.className = 'work-overlay__backdrop';
   surface.className = 'work-overlay__surface';
   surface.setAttribute('data-lenis-prevent', '');
+  scrollContent.className = 'work-overlay__scroll-content';
   content.className = 'work-overlay__content';
-  surface.append(header, content);
+  scrollContent.append(header, content);
+  surface.append(scrollContent);
   overlay.append(backdrop, surface);
   overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
   document.body.append(overlay);
@@ -184,6 +199,31 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       if (!previousInert.has(child)) previousInert.set(child, child.inert);
       child.inert = true;
     }
+  };
+
+  const startOverlayLenis = (): void => {
+    if (overlayLenis) {
+      overlayLenis.resize();
+      return;
+    }
+    if (!window.lenis || prefersReducedMotion() || window.matchMedia('(max-width: 767px)').matches) return;
+    const LenisConstructor = (window as Window & { Lenis?: OverlayLenisConstructor }).Lenis;
+    if (!LenisConstructor) return;
+    overlayLenis = new LenisConstructor({
+      wrapper: surface,
+      content: scrollContent,
+      lerp: 0.0822,
+      smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2.5,
+      syncTouch: true,
+      autoRaf: true,
+    });
+  };
+
+  const stopOverlayLenis = (): void => {
+    overlayLenis?.destroy();
+    overlayLenis = null;
   };
 
   const lockBackground = (): void => {
@@ -269,6 +309,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     content.replaceChildren(detailRoot);
     if (related) content.append(related);
     surface.scrollTop = 0;
+    overlayLenis?.resize();
     document.title = `${work.title} – Franz West`;
     return image;
   };
@@ -331,6 +372,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     // Size the visible destination before Flip captures its bounds.
     const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
     detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
+    startOverlayLenis();
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });
@@ -374,6 +416,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const token = ++revision;
     cancelMotion();
     phase = 'closing';
+    stopOverlayLenis();
     const returnImage = (): void => {
       if (token !== revision) return;
       const slot = activeWork ? findSlot(activeWork.id) || sourceSlot : null;
@@ -493,7 +536,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   window.addEventListener('popstate', () => reconcileUrl());
   window.addEventListener('pageshow', (event) => { if (event.persisted) reconcileUrl(true); });
   window.addEventListener('site:lenis-ready', () => {
-    if (phase !== 'closed') window.lenis?.stop();
+    if (phase !== 'closed') {
+      window.lenis?.stop();
+      if (phase !== 'closing') startOverlayLenis();
+    }
   });
   document.addEventListener('keydown', (event) => {
     if (phase === 'closed') return;
