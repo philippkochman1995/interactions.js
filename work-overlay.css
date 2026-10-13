@@ -100,17 +100,19 @@ html.work-overlay-active {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  justify-content: space-between;
+  width: min(100%, 14rem);
+  justify-content: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-bottom-color: var(--cms-work-detail-dark-50);
-  color: var(--cms-work-detail-dark);
-  text-align: left;
+  color: var(--cms-work-detail-dark-50);
+  text-align: center;
 }
 
 .work-overlay .cms-work-detail__overview-link.button-outlined:hover,
 .work-overlay .cms-work-detail__overview-link.button-outlined:focus-visible {
   border-bottom-color: var(--cms-work-detail-dark);
+  color: var(--cms-work-detail-dark);
 }
 
 .work-overlay .cms-work-detail__overview-link .button-mask {
