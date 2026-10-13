@@ -812,28 +812,31 @@ function ft(u, d) {
 			});
 		}
 	}, Z = (e, n, i = !1) => {
-		let a = ++j, o = w;
-		B(), o && J(), C = "opening", w = e, !p.hidden && o && r.set(m, { opacity: 1 });
-		let s = null, l = null;
+		var a;
+		let o = ++j, s = w;
+		B(), s && J(), C = "opening", w = e;
+		let l = (a = history.state) == null ? void 0 : a.previousWorkId, u = new URL(ot(), window.location.href);
+		l && nt.has(l) && u.searchParams.set("work", l), y.href = `${u.pathname}${u.search}${u.hash}`, !p.hidden && s && r.set(m, { opacity: 1 });
+		let d = null, f = null;
 		if (!i && n) {
 			let e = n.querySelector(".cms-works__image-wrap"), t = e == null ? void 0 : e.querySelector("img");
-			e && t && t.complete && t.naturalWidth > 0 && (s = t, l = e.getBoundingClientRect(), K(e));
+			e && t && t.complete && t.naturalWidth > 0 && (d = t, f = e.getBoundingClientRect(), K(e));
 		}
-		let u = Y(e);
-		s && l && (T = s, s.naturalWidth && s.naturalHeight && (u.width = s.naturalWidth, u.height = s.naturalHeight), u.style.visibility = "hidden", E = ct(s, l)), p.hidden = !1, R(), W(), V();
-		let d = _.querySelector(".work-overlay__detail");
-		if (F = d ? c(d) : null, H(), p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(z(), { autoAlpha: 0 }), i || t() || !E) {
-			r.set(m, { opacity: 1 }), X(a);
+		let h = Y(e);
+		d && f && (T = d, d.naturalWidth && d.naturalHeight && (h.width = d.naturalWidth, h.height = d.naturalHeight), h.style.visibility = "hidden", E = ct(d, f)), p.hidden = !1, R(), W(), V();
+		let g = _.querySelector(".work-overlay__detail");
+		if (F = g ? c(g) : null, H(), p.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(z(), { autoAlpha: 0 }), i || t() || !E) {
+			r.set(m, { opacity: 1 }), X(o);
 			return;
 		}
-		r.set(m, { opacity: +!!o }), N = r.timeline(), N.to(m, {
+		r.set(m, { opacity: +!!s }), N = r.timeline(), N.to(m, {
 			opacity: 1,
 			duration: at,
 			ease: "power1.inOut"
-		}, 0), M = $e.fit(E, u, {
+		}, 0), M = $e.fit(E, h, {
 			duration: it,
 			ease: "power3.inOut",
-			onComplete: () => X(a)
+			onComplete: () => X(o)
 		});
 	}, Q = (e) => {
 		if (e !== j) return;
@@ -894,7 +897,7 @@ function ft(u, d) {
 			return;
 		}
 		if ((w == null ? void 0 : w.id) === r.id && (C === "open" || C === "opening")) return;
-		let i = Array.from(d.querySelectorAll("[data-works-rendered-item]")).find((e) => e.getAttribute("data-works-rendered-item") === r.id) || null;
+		let i = C === "closed" && Array.from(d.querySelectorAll("[data-works-rendered-item]")).find((e) => e.getAttribute("data-works-rendered-item") === r.id) || null;
 		Z(r, i, e);
 	}, ie = () => {
 		let e = history.state;
@@ -903,6 +906,13 @@ function ft(u, d) {
 			return;
 		}
 		history.replaceState({ fwWorkOverlay: !1 }, "", ot()), re();
+	}, ae = () => {
+		let e = history.state;
+		if (e != null && e.fwWorkOverlay && e.depth && (e.depth > 1 || !e.fromOverview)) {
+			history.back();
+			return;
+		}
+		ie();
 	};
 	u.addEventListener("click", (t) => {
 		let n = t.target;
@@ -926,7 +936,11 @@ function ft(u, d) {
 		if (!(n instanceof Element) || e(t)) return;
 		let r = n.closest("a[href]");
 		if (!r || !p.contains(r)) return;
-		if (r === y || r.classList.contains("cms-work-detail__overview-link")) {
+		if (r === y) {
+			t.preventDefault(), ae();
+			return;
+		}
+		if (r.classList.contains("cms-work-detail__overview-link")) {
 			t.preventDefault(), ie();
 			return;
 		}
@@ -937,7 +951,8 @@ function ft(u, d) {
 		o.searchParams.set("work", i.id), history.pushState({
 			fwWorkOverlay: !0,
 			fromOverview: !!(a != null && a.fromOverview),
-			depth: ((a == null ? void 0 : a.depth) || 0) + 1
+			depth: ((a == null ? void 0 : a.depth) || 0) + 1,
+			previousWorkId: w == null ? void 0 : w.id
 		}, "", o), Z(i, null);
 	}), window.addEventListener("popstate", () => re()), window.addEventListener("pageshow", (e) => {
 		e.persisted && re(!0);

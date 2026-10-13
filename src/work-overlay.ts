@@ -338,6 +338,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (oldWork) restoreImageToGrid();
     phase = 'opening';
     activeWork = work;
+    const previousWorkId = (history.state as { previousWorkId?: string } | null)?.previousWorkId;
+    const backUrl = new URL(overviewUrl(), window.location.href);
+    if (previousWorkId && worksById.has(previousWorkId)) backUrl.searchParams.set('work', previousWorkId);
+    backLink.href = `${backUrl.pathname}${backUrl.search}${backUrl.hash}`;
     if (!overlay.hidden && oldWork) {
       gsap.set(backdrop, { opacity: 1 });
     }
@@ -477,8 +481,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       return;
     }
     if (activeWork?.id === target.id && (phase === 'open' || phase === 'opening')) return;
-    const card = Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
-      .find((element) => element.getAttribute('data-works-rendered-item') === target.id) || null;
+    const card = phase === 'closed'
+      ? Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
+        .find((element) => element.getAttribute('data-works-rendered-item') === target.id) || null
+      : null;
     openWork(target, card, instant);
   };
 
@@ -490,6 +496,15 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
     history.replaceState({ fwWorkOverlay: false }, '', overviewUrl());
     reconcileUrl();
+  };
+
+  const requestBack = (): void => {
+    const state = history.state as { fwWorkOverlay?: boolean; fromOverview?: boolean; depth?: number } | null;
+    if (state?.fwWorkOverlay && state.depth && (state.depth > 1 || !state.fromOverview)) {
+      history.back();
+      return;
+    }
+    requestClose();
   };
 
   root.addEventListener('click', (event) => {
@@ -514,7 +529,12 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!(target instanceof Element) || hasModifierKey(event)) return;
     const link = target.closest<HTMLAnchorElement>('a[href]');
     if (!link || !overlay.contains(link)) return;
-    if (link === backLink || link.classList.contains('cms-work-detail__overview-link')) {
+    if (link === backLink) {
+      event.preventDefault();
+      requestBack();
+      return;
+    }
+    if (link.classList.contains('cms-work-detail__overview-link')) {
       event.preventDefault();
       requestClose();
       return;
@@ -529,6 +549,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       fwWorkOverlay: true,
       fromOverview: Boolean(state?.fromOverview),
       depth: (state?.depth || 0) + 1,
+      previousWorkId: activeWork?.id,
     }, '', url);
     openWork(work, null);
   });
