@@ -206,9 +206,12 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!activeImage || !activeWork) return;
     const slot = findSlot(activeWork.id) || sourceSlot;
     if (slot?.isConnected) {
-      slot.querySelector('img')?.remove();
-      activeImage.className = 'cms-works__image';
-      slot.append(activeImage);
+      // The original thumbnail is already back after opening. Keep it when
+      // the detail image returns from the closing animation.
+      if (!slot.querySelector('img')) {
+        activeImage.className = 'cms-works__image';
+        slot.append(activeImage);
+      }
     }
     activeFlyer?.remove();
     activeFlyer = null;
@@ -238,7 +241,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     detailRoot.append(hero);
     content.replaceChildren(detailRoot);
     if (related) content.append(related);
-    detailLayoutCleanup = fitDetailImage(detailRoot);
     surface.scrollTop = 0;
     document.title = `${work.title} – Franz West`;
     return image;
@@ -247,17 +249,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   const finishOpen = (token: number): void => {
     if (token !== revision || !activeWork) return;
     if (activeFlyer && activeImage) {
-      const placeholder = content.querySelector<HTMLImageElement>('.cms-work-detail__image');
-      if (placeholder) {
-        activeImage.className = 'cms-work-detail__image';
-        activeImage.removeAttribute('aria-hidden');
-        placeholder.replaceWith(activeImage);
-      }
-      activeFlyer.remove();
-      activeFlyer = null;
-      detailLayoutCleanup?.();
-      const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
-      detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
+      const detailImage = content.querySelector<HTMLImageElement>('.cms-work-detail__image');
+      if (detailImage) detailImage.style.removeProperty('visibility');
+      restoreImageToGrid();
     }
     phase = 'open';
     gsap.to(visibleContent(), {
@@ -307,6 +301,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     moveSiteMenuIntoOverlay();
     lockBackground();
     applyBackgroundInert();
+    // Size the visible destination before Flip captures its bounds.
+    const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
+    detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });

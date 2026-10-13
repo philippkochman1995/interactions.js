@@ -471,7 +471,7 @@ export function fitDetailImage(root: HTMLElement): () => void {
     if (disposed) return;
     const image = figure.querySelector<HTMLImageElement>('.cms-work-detail__image');
 
-    if (!image || !image.complete || image.naturalWidth === 0) {
+    if (!image || (image.naturalWidth === 0 && !(image.hasAttribute('width') && image.hasAttribute('height')))) {
       return;
     }
 

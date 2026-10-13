@@ -756,11 +756,7 @@ function lt(l, u) {
 	}, W = () => {
 		if (!C || !S) return;
 		let e = F(S.id) || T;
-		if (e != null && e.isConnected) {
-			var t;
-			(t = e.querySelector("img")) == null || t.remove(), C.className = "cms-works__image", e.append(C);
-		}
-		w == null || w.remove(), w = null, C = null, U();
+		e != null && e.isConnected && (e.querySelector("img") || (C.className = "cms-works__image", e.append(C))), w == null || w.remove(), w = null, C = null, U();
 	}, G = (e) => {
 		P == null || P(), P = null;
 		let t = a(e), n = o(f, e, c(nt, e)), r = t.querySelector(".cms-work-detail__title"), i = t.querySelector(".cms-work-detail__image");
@@ -768,15 +764,13 @@ function lt(l, u) {
 		r && (r.id = "work-overlay-title", f.setAttribute("aria-labelledby", r.id)), n && n.querySelectorAll("a[href]").forEach((e) => {
 			e.setAttribute("data-transition", "false");
 		});
-		let l = document.createElement("div");
-		return l.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", l.append(t), h.replaceChildren(l), n && h.append(n), P = s(l), m.scrollTop = 0, document.title = `${e.title} – Franz West`, i;
+		let s = document.createElement("div");
+		return s.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", s.append(t), h.replaceChildren(s), n && h.append(n), m.scrollTop = 0, document.title = `${e.title} – Franz West`, i;
 	}, K = (e) => {
 		if (!(e !== k || !S)) {
 			if (w && C) {
 				let e = h.querySelector(".cms-work-detail__image");
-				e && (C.className = "cms-work-detail__image", C.removeAttribute("aria-hidden"), e.replaceWith(C)), w.remove(), w = null, P == null || P();
-				let t = h.querySelector(".work-overlay__detail");
-				P = t ? s(t) : null;
+				e && e.style.removeProperty("visibility"), W();
 			}
 			x = "open", r.to(L(), {
 				autoAlpha: 1,
@@ -789,13 +783,15 @@ function lt(l, u) {
 	}, q = (e, n, i = !1) => {
 		let a = ++k, o = S;
 		R(), o && W(), x = "opening", S = e, !f.hidden && o && r.set(p, { opacity: 1 });
-		let s = null, c = null;
+		let c = null, l = null;
 		if (!i && n) {
 			let e = n.querySelector(".cms-works__image-wrap"), t = e == null ? void 0 : e.querySelector("img");
-			e && t && t.complete && t.naturalWidth > 0 && (s = t, c = e.getBoundingClientRect(), H(e));
+			e && t && t.complete && t.naturalWidth > 0 && (c = t, l = e.getBoundingClientRect(), H(e));
 		}
-		let l = G(e);
-		if (s && c && (C = s, s.naturalWidth && s.naturalHeight && (l.width = s.naturalWidth, l.height = s.naturalHeight), l.style.visibility = "hidden", w = ot(s, c)), f.hidden = !1, I(), B(), z(), f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
+		let d = G(e);
+		c && l && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = ot(c, l)), f.hidden = !1, I(), B(), z();
+		let m = h.querySelector(".work-overlay__detail");
+		if (P = m ? s(m) : null, f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
 			r.set(p, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a);
 			return;
 		}
@@ -807,7 +803,7 @@ function lt(l, u) {
 			opacity: 0,
 			duration: .26,
 			ease: "power2.out"
-		}, 0), A = Qe.fit(w, l, {
+		}, 0), A = Qe.fit(w, d, {
 			duration: rt,
 			ease: "power3.inOut",
 			onComplete: () => K(a)
