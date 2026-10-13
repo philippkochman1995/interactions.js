@@ -737,7 +737,7 @@ function lt(l, u) {
 	], R = () => {
 		A == null || A.kill(), A = null, j == null || j.kill(), j = null, r.killTweensOf([
 			p,
-			u,
+			l,
 			m,
 			...L()
 		]);
@@ -787,23 +787,23 @@ function lt(l, u) {
 	}, q = (e, n, i = !1) => {
 		let a = ++k, o = S;
 		R(), o && W(), x = "opening", S = e, !f.hidden && o && r.set(p, { opacity: 1 });
-		let c = null, l = null;
+		let c = null, u = null;
 		if (!i && n) {
 			let e = n.querySelector(".cms-works__image-wrap"), t = e == null ? void 0 : e.querySelector("img");
-			e && t && t.complete && t.naturalWidth > 0 && (c = t, l = e.getBoundingClientRect(), H(e));
+			e && t && t.complete && t.naturalWidth > 0 && (c = t, u = e.getBoundingClientRect(), H(e));
 		}
 		let d = G(e);
-		c && l && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = ot(c, l)), f.hidden = !1, I(), B(), z();
+		c && u && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = ot(c, u)), f.hidden = !1, I(), B(), z();
 		let m = h.querySelector(".work-overlay__detail");
 		if (P = m ? s(m) : null, f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
-			r.set(p, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a);
+			r.set(p, { opacity: 1 }), r.set(l, { opacity: 0 }), K(a);
 			return;
 		}
 		r.set(p, { opacity: +!!o }), j = r.timeline(), j.to(p, {
 			opacity: 1,
 			duration: .32,
 			ease: "power2.out"
-		}, 0), j.to(u, {
+		}, 0), j.to(l, {
 			opacity: 0,
 			duration: .26,
 			ease: "power2.out"
@@ -814,7 +814,7 @@ function lt(l, u) {
 		});
 	}, J = (e) => {
 		if (e !== k) return;
-		W(), P == null || P(), P = null, v && y.parentNode && y.parentNode.insertBefore(v, y.nextSibling), f.hidden = !0, h.replaceChildren(), S = null, x = "closed", document.title = d, r.set(u, { clearProps: "opacity" }), r.set(p, { clearProps: "opacity" }), V();
+		W(), P == null || P(), P = null, v && y.parentNode && y.parentNode.insertBefore(v, y.nextSibling), f.hidden = !0, h.replaceChildren(), S = null, x = "closed", document.title = d, r.set(l, { clearProps: "opacity" }), r.set(p, { clearProps: "opacity" }), V();
 		let t = D != null && D.isConnected ? D : null;
 		t == null || t.focus({ preventScroll: !0 }), D = null;
 	}, Y = () => {
@@ -828,7 +828,7 @@ function lt(l, u) {
 				r.to(p, {
 					opacity: 0,
 					duration: t() ? 0 : .25
-				}), r.to(u, {
+				}), r.to(l, {
 					opacity: 1,
 					duration: t() ? 0 : .25,
 					onComplete: () => J(e)
@@ -843,7 +843,7 @@ function lt(l, u) {
 				opacity: 0,
 				duration: rt * .75,
 				ease: "power2.inOut"
-			}), r.to(u, {
+			}), r.to(l, {
 				opacity: 1,
 				duration: rt * .75,
 				ease: "power2.inOut"

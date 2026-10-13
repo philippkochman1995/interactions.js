@@ -152,7 +152,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     flipTween = null;
     motion?.kill();
     motion = null;
-    gsap.killTweensOf([backdrop, gridMount, surface, ...visibleContent()]);
+    gsap.killTweensOf([backdrop, root, surface, ...visibleContent()]);
   };
 
   const applyBackgroundInert = (): void => {
@@ -312,7 +312,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
 
     if (instant || prefersReducedMotion() || !activeFlyer) {
       gsap.set(backdrop, { opacity: 1 });
-      gsap.set(gridMount, { opacity: 0 });
+      gsap.set(root, { opacity: 0 });
       finishOpen(token);
       return;
     }
@@ -320,7 +320,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     gsap.set(backdrop, { opacity: oldWork ? 1 : 0 });
     motion = gsap.timeline();
     motion.to(backdrop, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 0);
-    motion.to(gridMount, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
+    motion.to(root, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
     flipTween = Flip.fit(activeFlyer, placeholder, {
       duration: FLIP_DURATION,
       ease: 'power3.inOut',
@@ -339,7 +339,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     activeWork = null;
     phase = 'closed';
     document.title = overviewTitle;
-    gsap.set(gridMount, { clearProps: 'opacity' });
+    gsap.set(root, { clearProps: 'opacity' });
     gsap.set(backdrop, { clearProps: 'opacity' });
     unlockBackground();
     const focusTarget = originFocus?.isConnected ? originFocus : null;
@@ -358,7 +358,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       const detailImage = activeImage || content.querySelector<HTMLImageElement>('.cms-work-detail__image');
       if (!slot?.isConnected || !detailImage || prefersReducedMotion()) {
         gsap.to(backdrop, { opacity: 0, duration: prefersReducedMotion() ? 0 : 0.25 });
-        gsap.to(gridMount, { opacity: 1, duration: prefersReducedMotion() ? 0 : 0.25,
+        gsap.to(root, { opacity: 1, duration: prefersReducedMotion() ? 0 : 0.25,
           onComplete: () => finishClose(token) });
         return;
       }
@@ -371,7 +371,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
         activeFlyer = createFlyer(detailImage, bounds);
       }
       gsap.to(backdrop, { opacity: 0, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
-      gsap.to(gridMount, { opacity: 1, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
+      gsap.to(root, { opacity: 1, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
       flipTween = Flip.fit(activeFlyer, slot, {
         duration: FLIP_DURATION,
         ease: 'power3.inOut',
