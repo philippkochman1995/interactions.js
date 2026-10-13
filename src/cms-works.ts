@@ -453,7 +453,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   let previousColumnCount = 0;
   let previousWidth = 0;
   let visibleCount = storedView?.visibleCount ?? INITIAL_VISIBLE_COUNT;
-  let pendingScrollRestore = storedView?.scrollY ?? null;
+  let pendingScrollRestore = window.location.hash === '#werke' ? null : storedView?.scrollY ?? null;
   let currentItems: WorkItem[] = [];
   let measures = new Map<string, ImageMeasure>();
   const pendingMeasures = new Map<string, Promise<ImageMeasure>>();

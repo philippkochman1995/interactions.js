@@ -42,6 +42,12 @@ function overviewUrl(): string {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+function worksOverviewUrl(): string {
+  const url = new URL(overviewUrl(), window.location.href);
+  url.hash = 'werke';
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 function slugFromHref(href: string): string {
   try {
     return new URL(href, document.baseURI).pathname.split('/').filter(Boolean).pop() || '';
@@ -160,7 +166,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   scrollContent.append(header, content);
   surface.append(scrollContent);
   overlay.append(backdrop, surface);
-  overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
+  overlay.setAttribute('data-work-detail-overview-href', worksOverviewUrl());
   document.body.append(overlay);
   initLogoVariants();
 
