@@ -687,19 +687,19 @@ r.registerPlugin(Qe);
 var et = $e, tt = new Map(et.map((e) => [e.id, e])), nt = et.map((e, t) => ({
 	...e,
 	index: t
-})), rt = .82;
-function it() {
+})), rt = .82, it = .65;
+function at() {
 	let e = new URL(window.location.href);
 	return e.searchParams.delete("work"), `${e.pathname}${e.search}${e.hash}`;
 }
-function at(e) {
+function ot(e) {
 	try {
 		return new URL(e, document.baseURI).pathname.split("/").filter(Boolean).pop() || "";
 	} catch (e) {
 		return "";
 	}
 }
-function ot(e, t) {
+function st(e, t) {
 	let n = document.createElement("div");
 	return n.className = "work-overlay__flyer", n.setAttribute("aria-hidden", "true"), Object.assign(n.style, {
 		top: `${t.top}px`,
@@ -708,22 +708,22 @@ function ot(e, t) {
 		height: `${t.height}px`
 	}), n.append(e), document.body.append(n), n;
 }
-function st(e) {
+function ct(e) {
 	let t = e.cloneNode(!1);
 	return t.removeAttribute("id"), t.setAttribute("aria-hidden", "true"), t.style.visibility = "hidden", e.naturalWidth && e.naturalHeight && (t.width = e.naturalWidth, t.height = e.naturalHeight), t;
 }
-function ct() {
+function lt() {
 	let e = document.querySelector(".top_bar_section"), t = (e == null ? void 0 : e.cloneNode(!0)) || document.createElement("nav");
 	t.classList.add("top_bar_section", "u-section", "is-relative", "work-overlay__header"), t.removeAttribute("data-wf--top-bar--variant"), t.removeAttribute("inert"), t.removeAttribute("aria-hidden"), t.querySelectorAll("[id]").forEach((e) => e.removeAttribute("id")), t.querySelectorAll("[data-logo-variant]").forEach((e) => e.remove());
 	let n = t.querySelector(".top_bar_left") || t, r = document.createElement("a");
-	return r.className = "text-link is-back w-inline-block work-overlay__back", r.href = it(), r.setAttribute("data-transition", "false"), r.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 17 15\" class=\"arrow is-rotate\" aria-hidden=\"true\"><path d=\"M3.60046 5.7002H0V9.3002H3.60046V5.7002Z\" fill=\"currentColor\" class=\"arrow-dot\"/><path d=\"M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z\" fill=\"currentColor\" class=\"arrow-arrow\"/></svg><div class=\"text-block\">Zurück</div>", n.replaceChildren(r), {
+	return r.className = "text-link is-back w-inline-block work-overlay__back", r.href = at(), r.setAttribute("data-transition", "false"), r.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 17 15\" class=\"arrow is-rotate\" aria-hidden=\"true\"><path d=\"M3.60046 5.7002H0V9.3002H3.60046V5.7002Z\" fill=\"currentColor\" class=\"arrow-dot\"/><path d=\"M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z\" fill=\"currentColor\" class=\"arrow-arrow\"/></svg><div class=\"text-block\">Zurück</div>", n.replaceChildren(r), {
 		header: t,
 		backLink: r
 	};
 }
-function lt(l, u) {
-	let d = document.title, f = document.createElement("div"), p = document.createElement("div"), m = document.createElement("div"), h = document.createElement("div"), { header: g, backLink: _ } = ct(), v = null, y = document.createComment("site menu position"), b = /* @__PURE__ */ new Map(), x = "closed", S = null, C = null, w = null, T = null, E = "", D = null, O = window.scrollY, k = 0, A = null, j = null, M = "", ee = "", N = history.scrollRestoration, P = null;
-	f.className = "work-overlay", f.hidden = !0, f.setAttribute("role", "dialog"), f.setAttribute("aria-modal", "true"), f.setAttribute("aria-label", "Werkdetails"), f.setAttribute("data-work-overlay", ""), f.tabIndex = -1, p.className = "work-overlay__backdrop", m.className = "work-overlay__surface", m.setAttribute("data-lenis-prevent", ""), h.className = "work-overlay__content", m.append(g, h), f.append(p, m), f.setAttribute("data-work-detail-overview-href", it()), document.body.append(f);
+function ut(l, u) {
+	let d = document.title, f = document.createElement("div"), p = document.createElement("div"), m = document.createElement("div"), h = document.createElement("div"), { header: g, backLink: _ } = lt(), v = null, y = document.createComment("site menu position"), b = /* @__PURE__ */ new Map(), x = "closed", S = null, C = null, w = null, T = null, E = "", D = null, O = window.scrollY, k = 0, A = null, j = null, M = "", ee = "", N = history.scrollRestoration, P = null;
+	f.className = "work-overlay", f.hidden = !0, f.setAttribute("role", "dialog"), f.setAttribute("aria-modal", "true"), f.setAttribute("aria-label", "Werkdetails"), f.setAttribute("data-work-overlay", ""), f.tabIndex = -1, p.className = "work-overlay__backdrop", m.className = "work-overlay__surface", m.setAttribute("data-lenis-prevent", ""), h.className = "work-overlay__content", m.append(g, h), f.append(p, m), f.setAttribute("data-work-detail-overview-href", at()), document.body.append(f);
 	let F = (e) => {
 		let t = Array.from(u.querySelectorAll("[data-works-rendered-item]")).find((t) => t.getAttribute("data-works-rendered-item") === e);
 		return (t == null ? void 0 : t.querySelector(".cms-works__image-wrap")) || null;
@@ -793,7 +793,7 @@ function lt(l, u) {
 			e && t && t.complete && t.naturalWidth > 0 && (c = t, u = e.getBoundingClientRect(), H(e));
 		}
 		let d = G(e);
-		c && u && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = ot(c, u)), f.hidden = !1, I(), B(), z();
+		c && u && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = st(c, u)), f.hidden = !1, I(), B(), z();
 		let m = h.querySelector(".work-overlay__detail");
 		if (P = m ? s(m) : null, f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
 			r.set(p, { opacity: 1 }), r.set(l, { opacity: 0 }), K(a);
@@ -801,12 +801,12 @@ function lt(l, u) {
 		}
 		r.set(p, { opacity: +!!o }), j = r.timeline(), j.to(p, {
 			opacity: 1,
-			duration: .32,
-			ease: "power2.out"
+			duration: it,
+			ease: "power2.inOut"
 		}, 0), j.to(l, {
 			opacity: 0,
-			duration: .26,
-			ease: "power2.out"
+			duration: it,
+			ease: "power2.inOut"
 		}, 0), A = Qe.fit(w, d, {
 			duration: rt,
 			ease: "power3.inOut",
@@ -827,25 +827,25 @@ function lt(l, u) {
 			if (!(n != null && n.isConnected) || !i || t()) {
 				r.to(p, {
 					opacity: 0,
-					duration: t() ? 0 : .25
+					duration: t() ? 0 : it
 				}), r.to(l, {
 					opacity: 1,
-					duration: t() ? 0 : .25,
+					duration: t() ? 0 : it,
 					onComplete: () => J(e)
 				});
 				return;
 			}
 			if (!w) {
-				let e = i.getBoundingClientRect(), t = st(i);
-				i.replaceWith(t), C = i, w = ot(i, e);
+				let e = i.getBoundingClientRect(), t = ct(i);
+				i.replaceWith(t), C = i, w = st(i, e);
 			}
 			r.to(p, {
 				opacity: 0,
-				duration: rt * .75,
+				duration: it,
 				ease: "power2.inOut"
 			}), r.to(l, {
 				opacity: 1,
-				duration: rt * .75,
+				duration: it,
 				ease: "power2.inOut"
 			}), A = Qe.fit(w, n, {
 				duration: rt,
@@ -870,7 +870,7 @@ function lt(l, u) {
 		var t;
 		let n = ((t = new URL(window.location.href).searchParams.get("work")) == null ? void 0 : t.trim()) || "", r = tt.get(n);
 		if (n && !r) {
-			history.replaceState({}, "", it()), Y();
+			history.replaceState({}, "", at()), Y();
 			return;
 		}
 		if (!r) {
@@ -886,21 +886,21 @@ function lt(l, u) {
 			history.go(-e.depth);
 			return;
 		}
-		history.replaceState({ fwWorkOverlay: !1 }, "", it()), X();
+		history.replaceState({ fwWorkOverlay: !1 }, "", at()), X();
 	};
 	l.addEventListener("click", (t) => {
 		let n = t.target;
 		if (!(n instanceof Element) || t.defaultPrevented || e(t)) return;
 		let r = n.closest("a[data-work-overlay-trigger]");
 		if (!r || !l.contains(r)) return;
-		let i = r.getAttribute("data-work-overlay-trigger") || at(r.href), a = tt.get(i);
+		let i = r.getAttribute("data-work-overlay-trigger") || ot(r.href), a = tt.get(i);
 		if (!a) return;
 		t.preventDefault(), D = r;
 		let o = new URL(window.location.href);
 		o.searchParams.set("work", a.id), history.replaceState({
 			...history.state || {},
 			fwWorkOverlayBase: !0
-		}, "", it()), history.pushState({
+		}, "", at()), history.pushState({
 			fwWorkOverlay: !0,
 			fromOverview: !0,
 			depth: 1
@@ -914,7 +914,7 @@ function lt(l, u) {
 			t.preventDefault(), Z();
 			return;
 		}
-		let i = tt.get(at(r.href));
+		let i = tt.get(ot(r.href));
 		if (!i) return;
 		t.preventDefault();
 		let a = history.state, o = new URL(window.location.href);
@@ -949,7 +949,7 @@ function lt(l, u) {
 }
 //#endregion
 //#region src/cms-works.ts
-var ut = "[data-cms-works]", dt = "[data-cms-works-source]", ft = "[data-cms-works-item], [data-cms-canvas-item]", pt = "[data-works-thumbnail], [data-canvas-thumbnail]", mt = "[data-works-title], [data-canvas-title]", ht = "[data-works-year], [data-canvas-year]", gt = "[data-works-category], [data-works-categories]", _t = "http://www.w3.org/2000/svg", vt = [
+var dt = "[data-cms-works]", ft = "[data-cms-works-source]", pt = "[data-cms-works-item], [data-cms-canvas-item]", mt = "[data-works-thumbnail], [data-canvas-thumbnail]", ht = "[data-works-title], [data-canvas-title]", gt = "[data-works-year], [data-canvas-year]", _t = "[data-works-category], [data-works-categories]", vt = "http://www.w3.org/2000/svg", yt = [
 	"[data-works-link]",
 	"[data-sheet-calendar-link]",
 	"[data-sheet-calender-link]",
@@ -959,28 +959,28 @@ var ut = "[data-cms-works]", dt = "[data-cms-works-source]", ft = "[data-cms-wor
 	"[data-claender-link]",
 	"[data-sheet-link]",
 	"a[href]"
-].join(", "), yt = 16, bt = 16, xt = "[data-cms-works-load-more-template]", St = "site:works-ready";
-function Ct(e) {
+].join(", "), bt = 16, xt = 16, St = "[data-cms-works-load-more-template]", Ct = "site:works-ready";
+function wt(e) {
 	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-function wt(e, t) {
+function Tt(e, t) {
 	var n, r;
 	return (n = (r = e.querySelector(t)) == null || (r = r.textContent) == null ? void 0 : r.trim()) == null ? "" : n;
 }
-function Tt(e) {
+function Et(e) {
 	var t;
 	return (t = Array.from(e.children).find((e) => e instanceof HTMLImageElement)) == null ? null : t;
 }
-function Et(e) {
-	let t = e.querySelector(pt);
-	return t ? t instanceof HTMLImageElement ? t : null : Tt(e);
-}
 function Dt(e) {
+	let t = e.querySelector(mt);
+	return t ? t instanceof HTMLImageElement ? t : null : Et(e);
+}
+function Ot(e) {
 	let t = 2166136261;
 	for (let n = 0; n < e.length; n += 1) t ^= e.charCodeAt(n), t = Math.imul(t, 16777619);
 	return t >>> 0;
 }
-function Ot(e) {
+function kt(e) {
 	let t = e >>> 0;
 	return () => {
 		t += 1831565813;
@@ -988,59 +988,59 @@ function Ot(e) {
 		return e = Math.imul(e ^ e >>> 15, e | 1), e ^= e + Math.imul(e ^ e >>> 7, e | 61), ((e ^ e >>> 14) >>> 0) / 4294967296;
 	};
 }
-function kt(e) {
-	var t, n;
-	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? wt(e, gt) : t).split(",").map((e) => e.trim()).filter(Boolean);
-}
 function At(e) {
-	var t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _, v;
-	return (t = (n = (r = (i = (a = (o = (s = (c = (l = (u = (d = (f = (p = (m = (h = (g = (_ = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : _) == null ? e.getAttribute("data-sheet-calendar-href") : g) == null ? e.getAttribute("data-sheet-calendar-url") : h) == null ? e.getAttribute("data-sheet-calender-href") : m) == null ? e.getAttribute("data-sheet-calender-url") : p) == null ? e.getAttribute("data-sheet-claender-href") : f) == null ? e.getAttribute("data-sheet-claender-url") : d) == null ? e.getAttribute("data-calendar-href") : u) == null ? e.getAttribute("data-calendar-url") : l) == null ? e.getAttribute("data-calender-href") : c) == null ? e.getAttribute("data-calender-url") : s) == null ? e.getAttribute("data-claender-href") : o) == null ? e.getAttribute("data-claender-url") : a) == null ? e.getAttribute("data-sheet-href") : i) == null ? e.getAttribute("data-sheet-url") : r) == null ? (v = e.querySelector(vt)) == null ? void 0 : v.href : n) == null ? "" : t;
+	var t, n;
+	return ((t = (n = e.getAttribute("data-works-categories")) == null ? e.getAttribute("data-works-category") : n) == null ? Tt(e, _t) : t).split(",").map((e) => e.trim()).filter(Boolean);
 }
-function jt(e, t) {
+function jt(e) {
+	var t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _, v;
+	return (t = (n = (r = (i = (a = (o = (s = (c = (l = (u = (d = (f = (p = (m = (h = (g = (_ = e.getAttribute("data-works-href")) == null ? e.getAttribute("data-works-url") : _) == null ? e.getAttribute("data-sheet-calendar-href") : g) == null ? e.getAttribute("data-sheet-calendar-url") : h) == null ? e.getAttribute("data-sheet-calender-href") : m) == null ? e.getAttribute("data-sheet-calender-url") : p) == null ? e.getAttribute("data-sheet-claender-href") : f) == null ? e.getAttribute("data-sheet-claender-url") : d) == null ? e.getAttribute("data-calendar-href") : u) == null ? e.getAttribute("data-calendar-url") : l) == null ? e.getAttribute("data-calender-href") : c) == null ? e.getAttribute("data-calender-url") : s) == null ? e.getAttribute("data-claender-href") : o) == null ? e.getAttribute("data-claender-url") : a) == null ? e.getAttribute("data-sheet-href") : i) == null ? e.getAttribute("data-sheet-url") : r) == null ? (v = e.querySelector(yt)) == null ? void 0 : v.href : n) == null ? "" : t;
+}
+function Mt(e, t) {
 	var n, r, i, a, o, s;
-	let c = Et(e), l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
+	let c = Dt(e), l = (c == null ? void 0 : c.currentSrc) || (c == null ? void 0 : c.src) || "";
 	if (!l) return null;
-	let u = wt(e, mt) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = At(e), f = "";
+	let u = Tt(e, ht) || ((n = e.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || ((r = e.getAttribute("data-canvas-title")) == null ? void 0 : r.trim()) || (c == null ? void 0 : c.alt.trim()) || "", d = jt(e), f = "";
 	try {
 		f = new URL(d, document.baseURI).pathname.split("/").filter(Boolean).pop() || "";
 	} catch (e) {}
 	return {
-		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || f || `work-${t + 1}-${Dt(`${u}-${l}`)}`,
+		id: ((i = e.getAttribute("data-works-id")) == null ? void 0 : i.trim()) || ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || f || `work-${t + 1}-${Ot(`${u}-${l}`)}`,
 		title: u,
 		thumbnail: l,
 		thumbnailAlt: (c == null ? void 0 : c.alt) || u,
 		href: d,
-		year: wt(e, ht) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
-		categories: kt(e),
+		year: Tt(e, gt) || ((s = e.getAttribute("data-works-year")) == null ? void 0 : s.trim()) || "",
+		categories: At(e),
 		index: t
 	};
 }
-function Mt(e) {
-	return Array.from(e.querySelectorAll(ft)).map(jt).filter((e) => e !== null);
-}
 function Nt(e) {
-	for (let t of Array.from(e.querySelectorAll(ft))) {
-		let e = Et(t);
+	return Array.from(e.querySelectorAll(pt)).map(Mt).filter((e) => e !== null);
+}
+function Pt(e) {
+	for (let t of Array.from(e.querySelectorAll(pt))) {
+		let e = Dt(t);
 		e && (e.removeAttribute("srcset"), e.removeAttribute("sizes"), e.removeAttribute("src"));
 	}
 }
-function Pt(e) {
+function Ft(e) {
 	var t;
 	let n = (t = e.getAttribute("data-works-sort")) == null ? void 0 : t.trim().toLowerCase();
 	return n === "random" || n === "year" ? n : "year";
 }
-function Ft(e) {
+function It(e) {
 	let t = e.match(/\b(?:18|19|20)\d{2}\b/);
 	return t ? Number.parseInt(t[0], 10) : null;
 }
-function It(e) {
+function Lt(e) {
 	let t = e.trim();
 	return t.startsWith("[") && t.endsWith("]") ? t : `[${t}]`;
 }
-function Lt(e, t, n) {
+function Rt(e, t, n) {
 	let r = [...e];
 	if (t === "random") {
-		let t = Ot(Dt(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
+		let t = kt(Ot(n.getAttribute("data-works-random-seed") || e.map((e) => e.id).join("|")));
 		return r.map((e) => ({
 			item: e,
 			sortValue: t()
@@ -1048,25 +1048,25 @@ function Lt(e, t, n) {
 	}
 	return r.sort((e, t) => {
 		var n, r;
-		return ((n = Ft(e.year)) == null ? Infinity : n) - ((r = Ft(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
+		return ((n = It(e.year)) == null ? Infinity : n) - ((r = It(t.year)) == null ? Infinity : r) || e.title.localeCompare(t.title, "de", { sensitivity: "base" });
 	});
 }
-function Rt(e, t) {
+function zt(e, t) {
 	return t.size === 0 ? e : e.filter((e) => e.categories.some((e) => t.has(e)));
 }
-function zt() {
-	let e = document.createElementNS(_t, "svg"), t = document.createElementNS(_t, "path"), n = document.createElementNS(_t, "path");
+function Bt() {
+	let e = document.createElementNS(vt, "svg"), t = document.createElementNS(vt, "path"), n = document.createElementNS(vt, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function Bt(e, t = -1) {
+function Vt(e, t = -1) {
 	let n = document.createElement(e.href ? "a" : "article"), r = document.createElement("span"), i = document.createElement("img"), a = document.createElement("span"), o = document.createElement("span"), s = document.createElement("span");
 	if (n.className = "cms-works__item", n.setAttribute("data-works-rendered-item", e.id), n.setAttribute("data-works-categories", e.categories.join(",")), e.href && (n.classList.add("cms-works__item--clickable"), n.setAttribute("href", e.href), n.setAttribute("data-work-overlay-trigger", e.id), n.setAttribute("data-transition", "false")), r.className = "cms-works__image-wrap", t >= 0 && (r.classList.add("cms-works__image-wrap--revealing"), r.style.setProperty("--cms-works-reveal-delay", `${t * 100}ms`)), i.className = "cms-works__image", i.src = e.thumbnail, i.alt = e.thumbnailAlt, i.loading = "lazy", i.decoding = "async", r.append(i), a.className = "cms-works__meta", o.className = "cms-works__label", s.className = "cms-works__title", s.textContent = e.title, o.append(s), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = It(e.year), o.append(t);
+		t.className = "cms-works__year", t.textContent = Lt(e.year), o.append(t);
 	}
-	return a.append(o, zt()), n.append(r, a), n;
+	return a.append(o, Bt()), n.append(r, a), n;
 }
-function Vt(e) {
+function Ht(e) {
 	return new Promise((t) => {
 		let n = new Image();
 		n.onload = () => {
@@ -1080,11 +1080,11 @@ function Vt(e) {
 		}), n.src = e;
 	});
 }
-function Ht(e) {
+function Ut(e) {
 	let t = window.getComputedStyle(e).getPropertyValue("--cms-works-active-columns").trim(), n = Number.parseInt(t, 10);
 	return Number.isFinite(n) && n > 0 ? n : 4;
 }
-function Ut(e, t, n) {
+function Wt(e, t, n) {
 	let r = Array.from({ length: n }, () => ({
 		items: [],
 		height: 0
@@ -1098,52 +1098,52 @@ function Ut(e, t, n) {
 		s.items.push(e), s.height += o.height / Math.max(o.width, 1);
 	}), r;
 }
-function Wt(e, t, n, r) {
-	let i = document.createElement("div"), a = Ut(t, n, Ht(e)), o = /* @__PURE__ */ new Map();
+function Gt(e, t, n, r) {
+	let i = document.createElement("div"), a = Wt(t, n, Ut(e)), o = /* @__PURE__ */ new Map();
 	r && t.forEach((e) => {
 		r.has(e.id) && o.set(e.id, o.size);
 	}), i.className = "cms-works__grid", a.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
 			var n;
-			t.append(Bt(e, (n = o.get(e.id)) == null ? -1 : n));
+			t.append(Vt(e, (n = o.get(e.id)) == null ? -1 : n));
 		}), i.append(t);
 	}), e.replaceChildren(i), e.classList.add("is-ready");
 }
-function Gt(e, t) {
+function Kt(e, t) {
 	var n, r, i;
 	let a = (n = (r = (i = e.querySelector("[data-cms-works-load-more-text]")) == null ? e.querySelector("[data-button-text]") : i) == null ? e.querySelector(".button-text") : r) == null ? e : n;
 	a.textContent = t;
 }
-function Kt(e, t) {
+function qt(e, t) {
 	var n, r;
-	let i = (n = (r = e.querySelector(xt)) == null ? t.querySelector(xt) : r) == null ? document.querySelector(xt) : n;
-	return i ? (i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), Gt(i, "MEHR ANZEIGEN"), i) : null;
+	let i = (n = (r = e.querySelector(St)) == null ? t.querySelector(St) : r) == null ? document.querySelector(St) : n;
+	return i ? (i instanceof HTMLButtonElement && (i.type = "button"), i instanceof HTMLAnchorElement && (i.href = "#"), i.setAttribute("role", "button"), i.setAttribute("tabindex", "0"), i.removeAttribute("hidden"), i.removeAttribute("aria-hidden"), i.removeAttribute("data-cms-works-load-more-template"), i.setAttribute("data-cms-works-load-more", ""), Kt(i, "MEHR ANZEIGEN"), i) : null;
 }
-function qt() {
+function Jt() {
 	return y();
 }
-function Jt(e, t) {
+function Yt(e, t) {
 	var n, r, i, a, o;
-	let s = Mt(t), c = qt() ? _() : null, l = (n = c == null ? void 0 : c.categories) == null ? [] : n, u = {
+	let s = Nt(t), c = Jt() ? _() : null, l = (n = c == null ? void 0 : c.categories) == null ? [] : n, u = {
 		appliedCategories: new Set(l),
 		pendingCategories: new Set(l),
-		appliedSortMode: (r = c == null ? void 0 : c.sort) == null ? Pt(e) : r,
-		pendingSortMode: (i = c == null ? void 0 : c.sort) == null ? Pt(e) : i,
+		appliedSortMode: (r = c == null ? void 0 : c.sort) == null ? Ft(e) : r,
+		pendingSortMode: (i = c == null ? void 0 : c.sort) == null ? Ft(e) : i,
 		open: !1
-	}, d = document.createElement("div"), f = document.createElement("button"), p = document.createElement("div"), m = Kt(e, t), g = 0, y = 0, b = 0, x = (a = c == null ? void 0 : c.visibleCount) == null ? yt : a, S = (o = c == null ? void 0 : c.scrollY) == null ? null : o, C = [], w = /* @__PURE__ */ new Map(), T = /* @__PURE__ */ new Map(), E = 0;
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), Nt(t), e.classList.add("cms-works"), d.className = "cms-works__grid-host u-section", f.className = "cms-works__collection-overlay", f.type = "button", f.setAttribute("aria-label", "Filter schliessen"), p.className = "cms-works__grid-mount", d.append(p), m && d.append(m);
-	let D = () => Lt(Rt(s, u.appliedCategories), u.appliedSortMode, e), O = (t = !1, n) => {
+	}, d = document.createElement("div"), f = document.createElement("button"), p = document.createElement("div"), m = qt(e, t), g = 0, y = 0, b = 0, x = (a = c == null ? void 0 : c.visibleCount) == null ? bt : a, S = (o = c == null ? void 0 : c.scrollY) == null ? null : o, C = [], w = /* @__PURE__ */ new Map(), T = /* @__PURE__ */ new Map(), E = 0;
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), Pt(t), e.classList.add("cms-works"), d.className = "cms-works__grid-host u-section", f.className = "cms-works__collection-overlay", f.type = "button", f.setAttribute("aria-label", "Filter schliessen"), p.className = "cms-works__grid-mount", d.append(p), m && d.append(m);
+	let D = () => Rt(zt(s, u.appliedCategories), u.appliedSortMode, e), O = (t = !1, n) => {
 		let r = ++E, i = C.slice(0, x);
 		Promise.all(i.map(async (e) => {
 			if (w.has(e.id)) return;
 			let t = T.get(e.thumbnail);
-			t || (t = Vt(e.thumbnail), T.set(e.thumbnail, t)), w.set(e.id, await t);
+			t || (t = Ht(e.thumbnail), T.set(e.thumbnail, t)), w.set(e.id, await t);
 		})).then(() => {
 			r === E && (window.cancelAnimationFrame(g), g = window.requestAnimationFrame(() => {
 				if (r !== E) return;
-				let a = Ht(e), o = Math.round(e.getBoundingClientRect().width);
-				!t && a === y && o === b || (y = a, b = o, Wt(p, i, w, n), m && (m.hidden = C.length <= x), S !== null && (window.scrollTo(0, S), S = null), e.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(St, {
+				let a = Ut(e), o = Math.round(e.getBoundingClientRect().width);
+				!t && a === y && o === b || (y = a, b = o, Gt(p, i, w, n), m && (m.hidden = C.length <= x), S !== null && (window.scrollTo(0, S), S = null), e.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(Ct, {
 					bubbles: !0,
 					detail: {
 						count: i.length,
@@ -1165,14 +1165,14 @@ function Jt(e, t) {
 		let t = j.element.querySelector(".cms-works-filter__panel"), n = (e = t == null ? void 0 : t.getBoundingClientRect().bottom) == null ? j.element.getBoundingClientRect().bottom : e;
 		f.style.setProperty("--cms-works-overlay-top", `${Math.max(0, n)}px`);
 	}, j = h(s, u, () => {
-		C = D(), x = yt, O(!0), j.sync(), k();
+		C = D(), x = bt, O(!0), j.sync(), k();
 	}, { onOpenChange: (t) => {
 		e.classList.toggle("is-filter-open", t), t && A();
 	} });
 	if (f.addEventListener("click", () => j.close(!0)), m) {
 		let e = () => {
 			let e = x;
-			x = Math.min(x + bt, C.length);
+			x = Math.min(x + xt, C.length);
 			let t = new Set(C.slice(e, x).map((e) => e.id));
 			O(!0, t), k();
 		};
@@ -1182,21 +1182,21 @@ function Jt(e, t) {
 			t.key !== "Enter" && t.key !== " " || (t.preventDefault(), e());
 		});
 	}
-	C = D(), e.replaceChildren(j.element, f, d), lt(e, p);
+	C = D(), e.replaceChildren(j.element, f, d), ut(e, p);
 	let M = new ResizeObserver(() => O());
 	O(!0), j.sync(), M.observe(e), window.addEventListener("orientationchange", () => O(!0)), window.addEventListener("resize", A), window.addEventListener("scroll", A, { passive: !0 }), window.addEventListener("pagehide", k);
 }
-function Yt(e) {
+function Xt(e) {
 	var t;
-	let n = (t = e.querySelector(dt)) == null ? document.querySelector(dt) : t;
+	let n = (t = e.querySelector(ft)) == null ? document.querySelector(ft) : t;
 	if (!n) {
 		console.error("CMS Works: Element mit data-cms-works-source wurde nicht gefunden.");
 		return;
 	}
-	Jt(e, n);
+	Yt(e, n);
 }
-Ct(() => {
-	Array.from(document.querySelectorAll(ut)).forEach(Yt);
+wt(() => {
+	Array.from(document.querySelectorAll(dt)).forEach(Xt);
 });
 //#endregion
 

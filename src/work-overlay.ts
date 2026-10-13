@@ -22,6 +22,7 @@ const works = manifest as ManifestWork[];
 const worksById = new Map(works.map((work) => [work.id, work]));
 const relatedItems: WorkItem[] = works.map((work, index) => ({ ...work, index }));
 const FLIP_DURATION = 0.82;
+const OVERVIEW_FADE_DURATION = 0.65;
 
 function overviewUrl(): string {
   const url = new URL(window.location.href);
@@ -319,8 +320,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
 
     gsap.set(backdrop, { opacity: oldWork ? 1 : 0 });
     motion = gsap.timeline();
-    motion.to(backdrop, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 0);
-    motion.to(root, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
+    motion.to(backdrop, { opacity: 1, duration: OVERVIEW_FADE_DURATION, ease: 'power2.inOut' }, 0);
+    motion.to(root, { opacity: 0, duration: OVERVIEW_FADE_DURATION, ease: 'power2.inOut' }, 0);
     flipTween = Flip.fit(activeFlyer, placeholder, {
       duration: FLIP_DURATION,
       ease: 'power3.inOut',
@@ -357,8 +358,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       const slot = activeWork ? findSlot(activeWork.id) || sourceSlot : null;
       const detailImage = activeImage || content.querySelector<HTMLImageElement>('.cms-work-detail__image');
       if (!slot?.isConnected || !detailImage || prefersReducedMotion()) {
-        gsap.to(backdrop, { opacity: 0, duration: prefersReducedMotion() ? 0 : 0.25 });
-        gsap.to(root, { opacity: 1, duration: prefersReducedMotion() ? 0 : 0.25,
+        gsap.to(backdrop, { opacity: 0, duration: prefersReducedMotion() ? 0 : OVERVIEW_FADE_DURATION });
+        gsap.to(root, { opacity: 1, duration: prefersReducedMotion() ? 0 : OVERVIEW_FADE_DURATION,
           onComplete: () => finishClose(token) });
         return;
       }
@@ -370,8 +371,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
         activeImage = detailImage;
         activeFlyer = createFlyer(detailImage, bounds);
       }
-      gsap.to(backdrop, { opacity: 0, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
-      gsap.to(root, { opacity: 1, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
+      gsap.to(backdrop, { opacity: 0, duration: OVERVIEW_FADE_DURATION, ease: 'power2.inOut' });
+      gsap.to(root, { opacity: 1, duration: OVERVIEW_FADE_DURATION, ease: 'power2.inOut' });
       flipTween = Flip.fit(activeFlyer, slot, {
         duration: FLIP_DURATION,
         ease: 'power3.inOut',
