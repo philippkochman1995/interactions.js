@@ -31,11 +31,11 @@ function s(e) {
 }
 function c(e) {
 	return e ? {
-		center: [11, 47],
-		zoom: 2.25
+		center: [10, 50],
+		zoom: 2.7
 	} : {
-		center: [4, 38],
-		zoom: 1.65
+		center: [10, 50],
+		zoom: 3
 	};
 }
 function l(e) {
