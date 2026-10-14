@@ -764,8 +764,8 @@ function lt(l, u) {
 		r && (r.id = "work-overlay-title", f.setAttribute("aria-labelledby", r.id)), n && n.querySelectorAll("a[href]").forEach((e) => {
 			e.setAttribute("data-transition", "false");
 		});
-		let l = document.createElement("div");
-		return l.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", l.append(t), h.replaceChildren(l), n && h.append(n), P = s(l), m.scrollTop = 0, document.title = `${e.title} – Franz West`, i;
+		let s = document.createElement("div");
+		return s.className = "work-detail_wrapper u-section cms-work-detail work-overlay__detail", s.append(t), h.replaceChildren(s), n && h.append(n), m.scrollTop = 0, document.title = `${e.title} – Franz West`, i;
 	}, K = (e) => {
 		if (!(e !== k || !S)) {
 			if (w && C) {
@@ -783,29 +783,43 @@ function lt(l, u) {
 	}, q = (e, n, i = !1) => {
 		let a = ++k, o = S;
 		R(), o && W(), x = "opening", S = e, !f.hidden && o && r.set(p, { opacity: 1 });
-		let s = null, c = null;
+		let c = null, l = null;
 		if (!i && n) {
 			let e = n.querySelector(".cms-works__image-wrap"), t = e == null ? void 0 : e.querySelector("img");
-			e && t && t.complete && t.naturalWidth > 0 && (s = t, c = e.getBoundingClientRect(), H(e));
+			e && t && t.complete && t.naturalWidth > 0 && (c = t, l = e.getBoundingClientRect(), H(e));
 		}
-		let l = G(e);
-		if (s && c && (C = s, s.naturalWidth && s.naturalHeight && (l.width = s.naturalWidth, l.height = s.naturalHeight), l.style.visibility = "hidden", w = ot(s, c)), f.hidden = !1, I(), B(), z(), f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
+		let d = G(e);
+		c && l && (C = c, c.naturalWidth && c.naturalHeight && (d.width = c.naturalWidth, d.height = c.naturalHeight), d.style.visibility = "hidden", w = ot(c, l)), f.hidden = !1, I(), B(), z();
+		let m = h.querySelector(".work-overlay__detail");
+		if (P = m ? s(m) : null, f.focus({ preventScroll: !0 }), document.documentElement.classList.remove("work-overlay-initial"), r.set(L(), { autoAlpha: 0 }), i || t() || !w) {
 			r.set(p, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a);
 			return;
 		}
-		r.set(p, { opacity: +!!o }), j = r.timeline(), j.to(p, {
-			opacity: 1,
-			duration: .32,
-			ease: "power2.out"
-		}, 0), j.to(u, {
-			opacity: 0,
-			duration: .26,
-			ease: "power2.out"
-		}, 0), A = Qe.fit(w, l, {
-			duration: rt,
-			ease: "power3.inOut",
-			onComplete: () => K(a)
-		});
+		r.set(p, { opacity: +!!o });
+		let g = () => {
+			if (a !== k || !w) return;
+			let e = d.getBoundingClientRect();
+			if (e.width <= 0 || e.height <= 0) {
+				r.set(p, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a);
+				return;
+			}
+			j = r.timeline(), j.to(p, {
+				opacity: 1,
+				duration: .32,
+				ease: "power2.out"
+			}, 0), j.to(u, {
+				opacity: 0,
+				duration: .26,
+				ease: "power2.out"
+			}, 0), A = Qe.fit(w, d, {
+				duration: rt,
+				ease: "power3.inOut",
+				onComplete: () => K(a)
+			});
+		};
+		d.complete && d.naturalWidth > 0 ? g() : (d.addEventListener("load", () => requestAnimationFrame(g), { once: !0 }), d.addEventListener("error", () => {
+			a === k && (r.set(p, { opacity: 1 }), r.set(u, { opacity: 0 }), K(a));
+		}, { once: !0 }));
 	}, J = (e) => {
 		if (e !== k) return;
 		W(), P == null || P(), P = null, v && y.parentNode && y.parentNode.insertBefore(v, y.nextSibling), f.hidden = !0, h.replaceChildren(), S = null, x = "closed", document.title = d, r.set(u, { clearProps: "opacity" }), r.set(p, { clearProps: "opacity" }), V();

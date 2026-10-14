@@ -239,7 +239,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     detailRoot.append(hero);
     content.replaceChildren(detailRoot);
     if (related) content.append(related);
-    detailLayoutCleanup = fitDetailImage(detailRoot);
     surface.scrollTop = 0;
     document.title = `${work.title} – Franz West`;
     return image;
@@ -300,6 +299,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     moveSiteMenuIntoOverlay();
     lockBackground();
     applyBackgroundInert();
+    const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
+    detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });
@@ -312,14 +313,36 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
 
     gsap.set(backdrop, { opacity: oldWork ? 1 : 0 });
-    motion = gsap.timeline();
-    motion.to(backdrop, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 0);
-    motion.to(gridMount, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
-    flipTween = Flip.fit(activeFlyer, placeholder, {
-      duration: FLIP_DURATION,
-      ease: 'power3.inOut',
-      onComplete: () => finishOpen(token),
-    }) as gsap.core.Animation;
+    const startFlip = (): void => {
+      if (token !== revision || !activeFlyer) return;
+      const target = placeholder.getBoundingClientRect();
+      if (target.width <= 0 || target.height <= 0) {
+        gsap.set(backdrop, { opacity: 1 });
+        gsap.set(gridMount, { opacity: 0 });
+        finishOpen(token);
+        return;
+      }
+      motion = gsap.timeline();
+      motion.to(backdrop, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 0);
+      motion.to(gridMount, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
+      flipTween = Flip.fit(activeFlyer, placeholder, {
+        duration: FLIP_DURATION,
+        ease: 'power3.inOut',
+        onComplete: () => finishOpen(token),
+      }) as gsap.core.Animation;
+    };
+
+    if (placeholder.complete && placeholder.naturalWidth > 0) {
+      startFlip();
+    } else {
+      placeholder.addEventListener('load', () => requestAnimationFrame(startFlip), { once: true });
+      placeholder.addEventListener('error', () => {
+        if (token !== revision) return;
+        gsap.set(backdrop, { opacity: 1 });
+        gsap.set(gridMount, { opacity: 0 });
+        finishOpen(token);
+      }, { once: true });
+    }
   };
 
   const finishClose = (token: number): void => {
