@@ -1,0 +1,56 @@
+<style id="fw-biography-timeline-adjustments">
+.bio_photo[data-bio-image="1977-einladung"] img { aspect-ratio: 2000 / 1385; }
+.bio_photo[data-bio-image="1983-signaturalismen"] img { aspect-ratio: 1940 / 2000; }
+.bio_photo[data-bio-image="1995-otium"] img { aspect-ratio: 1458 / 2000; }
+.bio_photo[data-bio-image="1996-proforma"] img { aspect-ratio: 2000 / 1936; }
+.bio_photo[data-bio-image="rId51"] img { aspect-ratio: 1946 / 1527; }
+.bio_photo[data-bio-image="rId54"] img { aspect-ratio: 1950 / 1993; }
+.bio_photo[data-bio-image="rId57"] img { aspect-ratio: 2000 / 1319; }
+
+/* Idiosyngramm sits above Redundanz; the prize photograph stays beside it. */
+.bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId31"] {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+/* The atelier pair shares one caption. */
+.bio_year_row[data-bio-year="1997"] .bio_photo[data-bio-image="rId53"] .bio_caption {
+  display: none;
+}
+
+.bio_video .bio_caption {
+  display: block;
+  margin: .75rem 0 0;
+  max-width: 40ch;
+  padding: 0;
+  text-align: left;
+  line-height: 1.45;
+}
+.bio_year_row[data-bio-year="1998"] .bio_year_copy .bio_video {
+  margin: 2rem 0 2.5rem;
+}
+@media screen and (max-width: 767px) {
+  .bio_year_row[data-bio-year="1998"] .bio_year_copy .bio_video {
+    margin: 1.5rem 0 2rem;
+  }
+}
+</style>
+<script id="fw-biography-updated-lightbox-sources">
+(() => {
+  const assetBase = 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/';
+  const images = {
+    '1977-einladung': '6acf47c71bfe50a6b97a75d6_025340_1977.jpg',
+    '1983-signaturalismen': '6acf474073f6a75f57416308_002116_1983.jpg',
+    '1995-otium': '6acf47c77e74197326606e45_029346_1995.jpg',
+    '1996-proforma': '6acf47c673000d4255e889e4_000715_1996.jpg',
+    rId51: '6acf47c673000d4255e88a00_002379.jpg',
+    rId54: '6acf47c75f1b13664d2352c0_Peter-H%C3%B6ll_002516.jpg',
+    rId57: '6acf47c6554f28a149096ee4_003950_1998.jpg',
+  };
+  for (const [key, file] of Object.entries(images)) {
+    const image = [...document.querySelectorAll('.bio_photo[data-bio-image]')]
+      .find((photo) => photo.dataset.bioImage === key)?.querySelector('img.js-lightbox');
+    image?.setAttribute('data-lightbox-src', assetBase + file);
+  }
+})();
+</script>
