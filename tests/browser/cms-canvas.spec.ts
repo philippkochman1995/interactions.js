@@ -67,6 +67,16 @@ test('desktop canvas tiles still open their modal', async ({ page }) => {
   await expect(page.locator('[data-site-modal]')).toHaveClass(/is-visible/);
 });
 
+test('context CMS work links open the matching work overlay URL', async ({ page }) => {
+  await page.goto('/tests/fixtures/cms-canvas.html');
+  await expect(page.locator('.cms-canvas.is-ready')).toBeVisible();
+  await page.locator('[data-canvas-source-item-id="one"]').first().evaluate((tile: HTMLElement) => tile.click());
+
+  const workLink = page.locator('[data-site-modal-work] a.fwm-modal__work-card');
+  await expect(workLink).toHaveAttribute('href', '/werk-ueberblick?work=echolalie#werke');
+  await expect(workLink).toContainText('Echolalie');
+});
+
 test('touch dragging keeps the canvas at full scale', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();

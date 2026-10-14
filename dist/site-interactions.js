@@ -1558,9 +1558,19 @@ function Xi(e) {
 	return a && zi.set(n, a), (t = a == null ? zi.get(n) : a) == null ? null : t;
 }
 function Zi(e) {
+	try {
+		let t = new URL(e, document.baseURI).pathname.match(/^\/werke\/([^/]+)\/?$/);
+		if (!t) return e;
+		let n = new URL("/werk-ueberblick", document.baseURI);
+		return n.searchParams.set("work", decodeURIComponent(t[1])), n.hash = "werke", `${n.pathname}${n.search}${n.hash}`;
+	} catch (t) {
+		return e;
+	}
+}
+function Qi(e) {
 	var t;
 	let n = (t = e.href) == null ? void 0 : t.trim(), r = !!(n && !n.startsWith("#")), i = document.createElement(r ? "a" : "article"), a = document.createElement("span"), o = document.createElement("span"), s = document.createElement("span"), c = document.createElement("span");
-	if (i.className = "fwm-modal__work-card", r && i.setAttribute("href", n), e.thumbnail) {
+	if (i.className = "fwm-modal__work-card", r && i.setAttribute("href", Zi(n)), e.thumbnail) {
 		let t = document.createElement("img");
 		t.className = "fwm-modal__work-image", t.src = e.thumbnail, t.alt = e.thumbnailAlt, t.loading = "lazy", t.decoding = "async", a.className = "fwm-modal__work-image-wrap", a.append(t), i.append(a);
 	}
@@ -1574,26 +1584,26 @@ function Zi(e) {
 	}
 	return i.append(o), i;
 }
-function Qi(e, t) {
+function $i(e, t) {
 	let n = document.createElement("a"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span");
 	return n.className = "fwm-modal__image-link", n.href = e.src, n.setAttribute("data-lightbox-src", e.src), n.setAttribute("data-lightbox-caption", e.caption), n.setAttribute("data-lightbox-alt", e.alt), n.classList.toggle("has-caption", e.caption.length > 0), r.className = "fwm-modal__image", r.src = e.src, r.alt = e.alt, r.loading = t === 0 ? "eager" : "lazy", r.decoding = "async", i.className = "fwm-modal__lightbox-icon", i.setAttribute("aria-hidden", "true"), i.innerHTML = Ai, a.className = "fwm-modal__caption", a.textContent = e.caption, a.hidden = e.caption.length === 0, n.append(r, i, a), n;
 }
-function $i(e) {
+function ea(e) {
 	e.headline.textContent = "", e.headline.hidden = !0, e.work.replaceChildren(), e.work.hidden = !0, e.gallery.replaceChildren(), e.gallery.hidden = !0;
 }
-function ea(e, t) {
+function ta(e, t) {
 	e.innerHTML = t, e.querySelectorAll("[data-reveal-pending], [data-reveal-ready], [data-splitline], .split-line, .bio_fade").forEach((e) => {
 		e.removeAttribute("data-reveal-pending"), e.removeAttribute("data-reveal-ready"), e.removeAttribute("data-splitline"), e.classList.remove("split-line", "bio_fade"), e.style.removeProperty("opacity"), e.style.removeProperty("transform"), e.style.removeProperty("clip-path"), e.style.removeProperty("visibility");
 	});
 }
-function ta(e, t) {
+function na(e, t) {
 	var n, r;
 	let i = t.image.trim().length > 0;
-	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !i, e.imageLink.href = i ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", i ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = i ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, ea(e.text, t.html), $i(e);
+	e.root.dataset.modalVariant = "default", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !i, e.imageLink.href = i ? t.image : "#", e.imageLink.setAttribute("data-lightbox-src", i ? t.image : ""), e.imageLink.setAttribute("data-lightbox-caption", t.caption), e.imageLink.setAttribute("data-lightbox-group", `modal-${t.id}`), e.image.src = i ? t.image : "", e.image.alt = t.imageAlt, e.caption.textContent = t.caption, ta(e.text, t.html), ea(e);
 	let a = (n = (r = t.gallery) == null ? void 0 : r.slice(1).filter((e) => e.src)) == null ? [] : n;
-	e.gallery.hidden = a.length === 0, a.forEach((t, n) => e.gallery.append(Qi(t, n)));
+	e.gallery.hidden = a.length === 0, a.forEach((t, n) => e.gallery.append($i(t, n)));
 }
-function na(e, t) {
+function ra(e, t) {
 	var n, r;
 	let i = ((n = t.gallery) != null && n.length ? t.gallery : t.image.trim() ? [{
 		src: t.image,
@@ -1603,27 +1613,27 @@ function na(e, t) {
 		var n;
 		return e.src && e.src !== ((n = t.work) == null ? void 0 : n.thumbnail);
 	});
-	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, ea(e.text, t.html), e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Zi(t.work)), i.forEach((t, n) => {
-		e.gallery.append(Qi(t, n));
+	e.root.dataset.modalVariant = "context", e.root.dataset.modalId = t.id, e.address.textContent = t.address, e.imageLink.hidden = !0, e.imageLink.href = "#", e.imageLink.setAttribute("data-lightbox-src", ""), e.imageLink.setAttribute("data-lightbox-caption", ""), e.imageLink.setAttribute("data-lightbox-alt", ""), e.imageLink.setAttribute("data-lightbox-group", ""), e.image.removeAttribute("src"), e.image.alt = "", e.caption.textContent = "", e.headline.textContent = (r = t.headline) == null ? "" : r, e.headline.hidden = !t.headline, ta(e.text, t.html), e.work.replaceChildren(), e.work.hidden = !t.work, e.gallery.replaceChildren(), e.gallery.hidden = i.length === 0, t.work && e.work.append(Qi(t.work)), i.forEach((t, n) => {
+		e.gallery.append($i(t, n));
 	});
 }
-function ra(e) {
-	let t = Hi();
-	return e.layout === "context" ? na(t, e) : ta(t, e), t;
-}
 function ia(e) {
+	let t = Hi();
+	return e.layout === "context" ? ra(t, e) : na(t, e), t;
+}
+function aa(e) {
 	let t = f(e.panel)[0];
 	m(t == null ? e.panel : t);
 }
-function aa(e) {
+function oa(e) {
 	Ri !== null && (window.clearTimeout(Ri), Ri = null), e.root.hidden = !1, e.root.setAttribute("aria-hidden", "false"), e.root.classList.add("is-active"), e.root.offsetWidth, e.root.classList.add("is-visible"), document.documentElement.classList.add("is-modal-open"), document.body.classList.add("is-modal-open");
 }
-function oa(e) {
+function sa(e) {
 	e.root.setAttribute("aria-hidden", "true"), e.root.classList.remove("is-visible"), Ri = window.setTimeout(() => {
 		e.root.hidden = !0, e.root.classList.remove("is-active"), Ri = null;
 	}, u() ? 0 : Oi), document.documentElement.classList.remove("is-modal-open"), document.body.classList.remove("is-modal-open");
 }
-function sa(e, t) {
+function ca(e, t) {
 	var n, r, i, a, o, s, l, u, f, m, h;
 	let g = {
 		id: e.id.trim(),
@@ -1642,90 +1652,90 @@ function sa(e, t) {
 		}] : []
 	};
 	if (!g.id) return;
-	Ii && la(), zi.set(g.id, g), Li = t == null ? c() : t, Ii = g.id;
-	let _ = ra(g);
-	aa(_), p(), ia(_), d(_.root, "site:modal-open", {
+	Ii && ua(), zi.set(g.id, g), Li = t == null ? c() : t, Ii = g.id;
+	let _ = ia(g);
+	oa(_), p(), aa(_), d(_.root, "site:modal-open", {
 		id: Ii,
 		modal: _.root,
 		content: g,
 		trigger: t == null ? null : t
 	});
 }
-function ca(e, t) {
+function la(e, t) {
 	let n = Xi(e);
-	n && sa(n, t);
+	n && ca(n, t);
 }
-function la() {
+function ua() {
 	if (!Ii || !Fi) return;
 	let t = Ii, r = Li;
-	oa(Fi), n(), Ii = "", Li = null, d(Fi.root, "site:modal-close", {
+	sa(Fi), n(), Ii = "", Li = null, d(Fi.root, "site:modal-close", {
 		id: t,
 		modal: Fi.root
 	}), e(r);
 }
-function ua(e) {
+function da(e) {
 	if (!(!Ii || !Fi) && !document.body.classList.contains("is-lightbox-open")) {
 		if (e.key === "Escape") {
-			e.preventDefault(), la();
+			e.preventDefault(), ua();
 			return;
 		}
 		y(Fi.panel, e);
 	}
 }
-function da(e) {
+function fa(e) {
 	if (!Ni || !Ii || !Fi) return;
 	let t = e.target;
-	!i(t) || t !== Fi.root || la();
+	!i(t) || t !== Fi.root || ua();
 }
-function fa(e) {
+function pa(e) {
 	var n;
 	return Ni = (n = e.closeOnBackdrop) == null || n, Pi = e.i18n, Yi(), Hi(), Mi || (g(document, "click", wi, (e, n) => {
-		e.preventDefault(), ca(t(n, "data-modal-open"), n);
+		e.preventDefault(), la(t(n, "data-modal-open"), n);
 	}), g(document, "click", Ei, (e, t) => {
-		e.preventDefault(), ca(Bi(t), t);
+		e.preventDefault(), la(Bi(t), t);
 	}), g(document, "click", Ti, (e, t) => {
-		Fi != null && Fi.root.contains(t) && (e.preventDefault(), la());
-	}), document.addEventListener("click", da), document.addEventListener("keydown", ua), Mi = !0), {
-		openModal: ca,
-		openContentModal: sa,
-		closeModal: la
+		Fi != null && Fi.root.contains(t) && (e.preventDefault(), ua());
+	}), document.addEventListener("click", fa), document.addEventListener("keydown", da), Mi = !0), {
+		openModal: la,
+		openContentModal: ca,
+		closeModal: ua
 	};
 }
 //#endregion
 //#region src/modules/site-menu.ts
-var pa = "[data-site-menu]", ma = "[data-site-menu-panel]", ha = "[data-site-menu-toggle]", ga = "[data-site-menu-toggle-label]", _a = "[data-site-menu-toggle-label-text]", va = "[data-site-menu-toggle-label-ghost]", ya = "data-site-menu-toggle-label-text", ba = "data-site-menu-toggle-label-ghost", xa = "[data-site-menu-link]", Sa = "[data-site-menu-indicator]", Ca = "is-active", wa = "is-open", Ta = "is-ready", Ea = "data-site-menu-open-label", Da = "data-site-menu-closed-label", Oa = "data-site-menu-current-key", ka = "data-site-menu-label", Aa = "data-site-menu-key", ja = "data-site-menu-original-tabindex", Ma = "CLOSE", Na = "MENU", Pa = .42, Fa = [], Ia = !1;
-function La(e) {
+var ma = "[data-site-menu]", ha = "[data-site-menu-panel]", ga = "[data-site-menu-toggle]", _a = "[data-site-menu-toggle-label]", va = "[data-site-menu-toggle-label-text]", ya = "[data-site-menu-toggle-label-ghost]", ba = "data-site-menu-toggle-label-text", xa = "data-site-menu-toggle-label-ghost", Sa = "[data-site-menu-link]", Ca = "[data-site-menu-indicator]", wa = "is-active", Ta = "is-open", Ea = "is-ready", Da = "data-site-menu-open-label", Oa = "data-site-menu-closed-label", ka = "data-site-menu-current-key", Aa = "data-site-menu-label", ja = "data-site-menu-key", Ma = "data-site-menu-original-tabindex", Na = "CLOSE", Pa = "MENU", Fa = .42, Ia = [], La = !1;
+function Ra(e) {
 	return e.split("#")[0].split("?")[0].replace(/\/index\.html?$/i, "/").replace(/\/+$/g, "") || "/";
 }
-function Ra(e) {
+function za(e) {
 	if (!(e instanceof HTMLAnchorElement)) return "";
 	let t = r(e, "href");
 	if (!t || t.startsWith("#") || t.startsWith("mailto:") || t.startsWith("tel:")) return "";
 	try {
-		return La(new URL(e.href, window.location.href).pathname);
+		return Ra(new URL(e.href, window.location.href).pathname);
 	} catch (e) {
 		return "";
 	}
 }
-function za(e, t) {
-	return t ? r(e, Aa) === t : !1;
-}
 function Ba(e, t) {
-	var n, i;
-	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || za(e, r(t, Oa) || ((n = document.documentElement.getAttribute(Oa)) == null ? void 0 : n.trim()) || ((i = document.body.getAttribute(Oa)) == null ? void 0 : i.trim()) || "")) return !0;
-	let a = Ra(e);
-	return a ? a === La(window.location.pathname) : !1;
+	return t ? r(e, ja) === t : !1;
 }
-function Va(e) {
-	var t, n;
-	return r(e, ka) || ((t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t);
+function Va(e, t) {
+	var n, i;
+	if (e.classList.contains("w--current") || e.getAttribute("aria-current") === "page" || Ba(e, r(t, ka) || ((n = document.documentElement.getAttribute(ka)) == null ? void 0 : n.trim()) || ((i = document.body.getAttribute(ka)) == null ? void 0 : i.trim()) || "")) return !0;
+	let a = za(e);
+	return a ? a === Ra(window.location.pathname) : !1;
 }
 function Ha(e) {
-	var t;
-	let n = (t = e.links.find((e) => e.classList.contains(Ca) || e.classList.contains("w--current"))) == null ? e.links.find((t) => Ba(t, e.root)) : t;
-	return n ? Va(n) : "";
+	var t, n;
+	return r(e, Aa) || ((t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t);
 }
 function Ua(e) {
+	var t;
+	let n = (t = e.links.find((e) => e.classList.contains(wa) || e.classList.contains("w--current"))) == null ? e.links.find((t) => Va(t, e.root)) : t;
+	return n ? Ha(n) : "";
+}
+function Wa(e) {
 	var t, n;
 	let i = (t = e.toggleLabel) == null ? e.toggle : t, a = i.style.width, o = !0, s = 0, c = document.createElement("span");
 	c.setAttribute("aria-hidden", "true"), c.style.cssText = [
@@ -1746,9 +1756,9 @@ function Ua(e) {
 	let l = () => {
 		if (!o) return;
 		let t = [
-			Ha(e),
-			r(e.root, Da) || Na,
-			r(e.root, Ea) || Ma
+			Ua(e),
+			r(e.root, Oa) || Pa,
+			r(e.root, Da) || Na
 		];
 		c.textContent = "";
 		let n = t.reduce((e, t) => (c.textContent = t, Math.max(e, c.getBoundingClientRect().width)), 0);
@@ -1762,21 +1772,21 @@ function Ua(e) {
 		o = !1, window.removeEventListener("resize", u), s && cancelAnimationFrame(s), c.remove(), i.style.width = a;
 	};
 }
-function Wa(e) {
+function Ga(e) {
 	var t, n;
-	let r = s(_a, e);
+	let r = s(va, e);
 	if (r) return r;
 	let i = document.createElement("span");
-	return i.setAttribute(ya, ""), i.textContent = (t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t, e.textContent = "", e.appendChild(i), i;
+	return i.setAttribute(ba, ""), i.textContent = (t = (n = e.textContent) == null ? void 0 : n.replace(/\s+/g, " ").trim()) == null ? "" : t, e.textContent = "", e.appendChild(i), i;
 }
-function Ga(e) {
-	o(va, e).forEach((e) => {
+function Ka(e) {
+	o(ya, e).forEach((e) => {
 		b.killTweensOf(e), e.remove();
 	});
 }
-function Ka(e, t = !0) {
+function qa(e, t = !0) {
 	var n, i;
-	let a = r(e.root, Ea) || Ma, o = r(e.root, Da) || Na, s = Ha(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = Wa(l), f = (i = d.textContent) == null ? "" : i, p = e.labelTransition;
+	let a = r(e.root, Da) || Na, o = r(e.root, Oa) || Pa, s = Ua(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = Ga(l), f = (i = d.textContent) == null ? "" : i, p = e.labelTransition;
 	if (p && t && !u()) {
 		if (c === p.from) {
 			p.timeline.reverse();
@@ -1789,15 +1799,15 @@ function Ka(e, t = !0) {
 	}
 	if (f === c && !p) return;
 	let m = p && p.timeline.progress() < .5 ? p.from : f;
-	if (p == null || p.timeline.kill(), e.labelTransition = void 0, b.killTweensOf(d), Ga(l), b.set(d, { clearProps: "transform,opacity" }), d.removeAttribute("aria-hidden"), u() || !t || !m || m === c) {
+	if (p == null || p.timeline.kill(), e.labelTransition = void 0, b.killTweensOf(d), Ka(l), b.set(d, { clearProps: "transform,opacity" }), d.removeAttribute("aria-hidden"), u() || !t || !m || m === c) {
 		d.textContent = c;
 		return;
 	}
 	let h = document.createElement("span");
-	h.setAttribute(ba, ""), h.setAttribute("aria-hidden", "true"), h.textContent = m, l.appendChild(h), d.textContent = c;
+	h.setAttribute(xa, ""), h.setAttribute("aria-hidden", "true"), h.textContent = m, l.appendChild(h), d.textContent = c;
 	let g = b.timeline({
 		defaults: {
-			duration: Pa,
+			duration: Fa,
 			ease: "power2.inOut"
 		},
 		onUpdate: () => {
@@ -1811,20 +1821,20 @@ function Ka(e, t = !0) {
 		to: c
 	};
 }
-function qa(e, t) {
+function Ja(e, t) {
 	e.links.forEach((e) => {
 		if (t) {
-			let t = r(e, ja);
+			let t = r(e, Ma);
 			t ? e.setAttribute("tabindex", t) : e.removeAttribute("tabindex");
 			return;
 		}
-		!e.hasAttribute(ja) && e.hasAttribute("tabindex") && e.setAttribute(ja, String(e.tabIndex)), e.setAttribute("tabindex", "-1");
+		!e.hasAttribute(Ma) && e.hasAttribute("tabindex") && e.setAttribute(Ma, String(e.tabIndex)), e.setAttribute("tabindex", "-1");
 	});
 }
-function Ja(e, t, n = !0) {
-	e.isOpen = t, e.root.classList.toggle(wa, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), qa(e, t), Ka(e, n);
+function Ya(e, t, n = !0) {
+	e.isOpen = t, e.root.classList.toggle(Ta, t), e.toggle.setAttribute("aria-expanded", String(t)), e.panel.setAttribute("aria-hidden", String(!t)), Ja(e, t), qa(e, n);
 }
-function Ya(e, t, n) {
+function Xa(e, t, n) {
 	b.killTweensOf(e.panel), b.set(e.panel, { clearProps: "height" });
 	let r = e.panel.getBoundingClientRect().height;
 	if (!u()) return b.fromTo(e.panel, { height: n }, {
@@ -1836,85 +1846,85 @@ function Ya(e, t, n) {
 		}
 	});
 }
-function Xa(e) {
+function Za(e) {
 	if (e.isOpen) return;
 	let t = e.panel.getBoundingClientRect().height;
-	Ja(e, !0), Ya(e, !0, t);
-}
-function Za(e) {
-	if (!e.isOpen) return;
-	let t = e.panel.getBoundingClientRect().height;
-	return Ja(e, !1), Ya(e, !1, t);
+	Ya(e, !0), Xa(e, !0, t);
 }
 function Qa(e) {
-	let t = s(ma, e);
+	if (!e.isOpen) return;
+	let t = e.panel.getBoundingClientRect().height;
+	return Ya(e, !1), Xa(e, !1, t);
+}
+function $a(e) {
+	let t = s(ha, e);
 	if (t) return b.killTweensOf(t), b.to(t, {
 		height: 0,
 		duration: .4,
 		ease: "power2.inOut"
 	});
 }
-function $a(e) {
-	e.isOpen ? Za(e) : Xa(e);
-}
 function eo(e) {
-	e.links.forEach((t) => {
-		let n = Ba(t, e.root), r = s(Sa, t);
-		t.classList.toggle(Ca, n), n ? t.setAttribute("aria-current", "page") : t.getAttribute("aria-current") === "page" && t.removeAttribute("aria-current"), r && r.setAttribute("aria-hidden", "true");
-	});
+	e.isOpen ? Qa(e) : Za(e);
 }
 function to(e) {
+	e.links.forEach((t) => {
+		let n = Va(t, e.root), r = s(Ca, t);
+		t.classList.toggle(wa, n), n ? t.setAttribute("aria-current", "page") : t.getAttribute("aria-current") === "page" && t.removeAttribute("aria-current"), r && r.setAttribute("aria-hidden", "true");
+	});
+}
+function no(e) {
 	var t;
-	let n = s(ma, e), r = s(ha, e);
+	let n = s(ha, e), r = s(ga, e);
 	if (!n || !r) return null;
 	let i = {
 		root: e,
 		panel: n,
 		toggle: r,
-		toggleLabel: (t = s(ga, r)) == null ? s(ga, e) : t,
-		links: o(xa, e),
-		isOpen: e.classList.contains(wa),
+		toggleLabel: (t = s(_a, r)) == null ? s(_a, e) : t,
+		links: o(Sa, e),
+		isOpen: e.classList.contains(Ta),
 		isHovered: !1,
 		cleanup: []
 	};
-	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Fa.length + 1}`), r.setAttribute("aria-controls", n.id), eo(i), Ja(i, i.isOpen, !1), i.cleanup.push(Ua(i)), e.classList.add(Ta);
+	r.type || (r.type = "button"), n.id || (n.id = `site-menu-panel-${Ia.length + 1}`), r.setAttribute("aria-controls", n.id), to(i), Ya(i, i.isOpen, !1), i.cleanup.push(Wa(i)), e.classList.add(Ea);
 	let a = (e) => {
-		e.preventDefault(), $a(i);
+		e.preventDefault(), eo(i);
 	}, c = (t) => {
-		!i.isOpen || !(t.target instanceof Node) || e.contains(t.target) || Za(i);
+		!i.isOpen || !(t.target instanceof Node) || e.contains(t.target) || Qa(i);
 	}, l = (e) => {
-		e.key !== "Escape" || !i.isOpen || (Za(i), i.toggle.focus({ preventScroll: !0 }));
+		e.key !== "Escape" || !i.isOpen || (Qa(i), i.toggle.focus({ preventScroll: !0 }));
 	}, u = (e) => {
 		let t = e.target;
-		e.defaultPrevented || !(t instanceof Element) || !t.closest(xa) || Za(i);
+		e.defaultPrevented || !(t instanceof Element) || !t.closest(Sa) || Qa(i);
 	}, d = () => {
-		i.isHovered = !0, Ka(i);
+		i.isHovered = !0, qa(i);
 	}, f = () => {
-		i.isHovered = !1, Ka(i);
+		i.isHovered = !1, qa(i);
 	};
 	return r.addEventListener("click", a), e.addEventListener("pointerenter", d), e.addEventListener("pointerleave", f), document.addEventListener("click", c), document.addEventListener("keydown", l), e.addEventListener("click", u), i.cleanup.push(() => r.removeEventListener("click", a), () => e.removeEventListener("pointerenter", d), () => e.removeEventListener("pointerleave", f), () => document.removeEventListener("click", c), () => document.removeEventListener("keydown", l), () => e.removeEventListener("click", u)), i;
 }
-function no(e = document) {
-	if (Ia && e === document) return () => void 0;
-	e === document && (Ia = !0);
-	let t = o(pa, e).map(to).filter((e) => !!e);
-	return Fa.push(...t), () => {
+function ro(e = document) {
+	if (La && e === document) return () => void 0;
+	e === document && (La = !0);
+	let t = o(ma, e).map(no).filter((e) => !!e);
+	return Ia.push(...t), () => {
 		t.forEach((e) => {
 			var t, n;
-			e.cleanup.forEach((e) => e()), e.root.classList.remove(Ta, wa);
-			let r = (t = e.toggleLabel) == null ? e.toggle : t, i = s(_a, r);
-			(n = e.labelTransition) == null || n.timeline.kill(), b.killTweensOf(e.panel), b.killTweensOf(r), Ga(r), i && (b.killTweensOf(i), r.textContent = i.textContent), b.set(e.panel, { clearProps: "height" }), b.set(r, { clearProps: "transform,overflow" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), qa(e, !0);
+			e.cleanup.forEach((e) => e()), e.root.classList.remove(Ea, Ta);
+			let r = (t = e.toggleLabel) == null ? e.toggle : t, i = s(va, r);
+			(n = e.labelTransition) == null || n.timeline.kill(), b.killTweensOf(e.panel), b.killTweensOf(r), Ka(r), i && (b.killTweensOf(i), r.textContent = i.textContent), b.set(e.panel, { clearProps: "height" }), b.set(r, { clearProps: "transform,overflow" }), e.panel.removeAttribute("aria-hidden"), e.toggle.removeAttribute("aria-expanded"), Ja(e, !0);
 		});
 	};
 }
 //#endregion
 //#region src/modules/page-transition.ts
-var ro = {
+var io = {
 	coverDuration: .82,
 	holdDuration: .1,
 	revealDuration: .92,
 	ease: "power4.inOut"
-}, io = "page-transition-overlay", ao = "[data-page-transition-overlay], .page-transition-overlay", oo = "site-page-transition", so = "pending", co = "is-page-transition-pending", lo = "[data-site-menu]", uo = [
+}, ao = "page-transition-overlay", oo = "[data-page-transition-overlay], .page-transition-overlay", so = "site-page-transition", co = "pending", lo = "is-page-transition-pending", uo = "[data-site-menu]", fo = [
 	"[data-transition=\"false\"]",
 	"[data-lightbox-src]",
 	".js-lightbox",
@@ -1923,45 +1933,45 @@ var ro = {
 	"[data-back-button]",
 	"[data-work-overlay-trigger]",
 	"[download]"
-].join(","), fo = !1, po = !1;
-function mo(e) {
-	document.documentElement.classList.toggle(co, e);
-}
-function ho() {
-	try {
-		mo(window.sessionStorage.getItem(oo) === so);
-	} catch (e) {
-		mo(!1);
-	}
+].join(","), po = !1, mo = !1;
+function ho(e) {
+	document.documentElement.classList.toggle(lo, e);
 }
 function go() {
-	let e = document.querySelector(ao);
-	if (e) return e.classList.add(io), e.setAttribute("data-page-transition-overlay", ""), e.setAttribute("aria-hidden", "true"), e;
-	let t = document.createElement("div");
-	return t.className = io, t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), document.body.append(t), t;
-}
-function _o(e) {
-	var t;
-	return !!(e.closest(uo) || e.getAttribute("data-transition") === "false" || e.target && e.target !== "_self" || e.hasAttribute("download") || (t = e.getAttribute("href")) != null && t.trim().startsWith("#"));
-}
-function vo(e, t) {
-	return !po && !e.defaultPrevented && !l(e) && !_o(t);
-}
-function yo() {
 	try {
-		window.sessionStorage.setItem(oo, so), mo(!0);
-	} catch (e) {}
+		ho(window.sessionStorage.getItem(so) === co);
+	} catch (e) {
+		ho(!1);
+	}
+}
+function _o() {
+	let e = document.querySelector(oo);
+	if (e) return e.classList.add(ao), e.setAttribute("data-page-transition-overlay", ""), e.setAttribute("aria-hidden", "true"), e;
+	let t = document.createElement("div");
+	return t.className = ao, t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), document.body.append(t), t;
+}
+function vo(e) {
+	var t;
+	return !!(e.closest(fo) || e.getAttribute("data-transition") === "false" || e.target && e.target !== "_self" || e.hasAttribute("download") || (t = e.getAttribute("href")) != null && t.trim().startsWith("#"));
+}
+function yo(e, t) {
+	return !mo && !e.defaultPrevented && !l(e) && !vo(t);
 }
 function bo() {
 	try {
-		let e = window.sessionStorage.getItem(oo) === so;
-		return window.sessionStorage.removeItem(oo), mo(!1), e;
+		window.sessionStorage.setItem(so, co), ho(!0);
+	} catch (e) {}
+}
+function xo() {
+	try {
+		let e = window.sessionStorage.getItem(so) === co;
+		return window.sessionStorage.removeItem(so), ho(!1), e;
 	} catch (e) {
-		return mo(!1), !1;
+		return ho(!1), !1;
 	}
 }
-function xo(e) {
-	let t = bo(), n = Array.from(document.querySelectorAll(lo)), r = () => {
+function So(e) {
+	let t = xo(), n = Array.from(document.querySelectorAll(uo)), r = () => {
 		n.forEach((e) => {
 			b.fromTo(e, {
 				y: Math.max(0, window.innerHeight - e.getBoundingClientRect().top) + 8,
@@ -1993,9 +2003,9 @@ function xo(e) {
 		y: 0
 	}, {
 		yPercent: 100,
-		delay: ro.holdDuration,
-		duration: ro.revealDuration,
-		ease: ro.ease,
+		delay: io.holdDuration,
+		duration: io.revealDuration,
+		ease: io.ease,
 		onComplete: () => {
 			b.set(e, {
 				yPercent: -100,
@@ -2004,73 +2014,73 @@ function xo(e) {
 		}
 	});
 }
-function So(e, t, n) {
-	po = !0, b.killTweensOf(t);
+function Co(e, t, n) {
+	mo = !0, b.killTweensOf(t);
 	let r = b.timeline();
 	if (n) {
 		b.killTweensOf(n);
-		let e = Qa(n);
+		let e = $a(n);
 		e && r.add(e);
 	}
-	r.call(yo, [], 0), r.fromTo(t, {
+	r.call(bo, [], 0), r.fromTo(t, {
 		yPercent: -100,
 		y: 0
 	}, {
 		yPercent: 0,
-		duration: ro.coverDuration,
-		ease: ro.ease,
+		duration: io.coverDuration,
+		ease: io.ease,
 		onComplete: () => {
 			window.location.href = e.href;
 		}
 	}, 0);
 }
-function Co(e, t) {
+function wo(e, t) {
 	if (!e.persisted) return;
-	po = !1, bo(), b.killTweensOf(t), b.set(t, {
+	mo = !1, xo(), b.killTweensOf(t), b.set(t, {
 		yPercent: -100,
 		y: 0
 	});
-	let n = document.querySelectorAll(lo);
+	let n = document.querySelectorAll(uo);
 	b.killTweensOf(n), b.set(n, { clearProps: "transform,opacity,visibility" });
 	let r = document.querySelectorAll("[data-site-menu-panel]");
 	b.killTweensOf(r), b.set(r, { clearProps: "height" });
 }
-function wo() {
-	if (fo) return;
+function To() {
+	if (po) return;
 	if (!document.body) {
-		document.addEventListener("DOMContentLoaded", wo, { once: !0 });
+		document.addEventListener("DOMContentLoaded", To, { once: !0 });
 		return;
 	}
-	fo = !0;
-	let e = go();
-	S(() => xo(e)), document.addEventListener("click", (t) => {
+	po = !0;
+	let e = _o();
+	S(() => So(e)), document.addEventListener("click", (t) => {
 		let n = t.target;
 		if (!(n instanceof Element)) return;
 		let r = n.closest("a[href]");
 		if (!r) return;
-		if (po) {
+		if (mo) {
 			t.preventDefault();
 			return;
 		}
-		if (!vo(t, r)) return;
+		if (!yo(t, r)) return;
 		let i = h(r);
-		!i || u() || (t.preventDefault(), So(i, e, r.closest(lo)));
-	}, !0), window.addEventListener("pageshow", (t) => Co(t, e));
+		!i || u() || (t.preventDefault(), Co(i, e, r.closest(uo)));
+	}, !0), window.addEventListener("pageshow", (t) => wo(t, e));
 }
-ho();
+go();
 //#endregion
 //#region src/modules/parallax.ts
-var To = "[data-parallax]", Eo = "data-parallax", Do = "data-parallax-ready", Oo = "fw-parallax-window", ko = "fw-parallax-window--self-sized", Ao = "fw-parallax-inner", jo = 60, Mo = 160, No = ".site-lightbox-trigger", Po = 1, Fo = !1;
-function Io() {
-	Fo || (Fo = !0, b.registerPlugin($));
-}
-function Lo(e) {
-	let t = e.getAttribute(Eo);
-	if (t === null || t.trim() === "") return jo;
-	let n = Number.parseFloat(t);
-	return Number.isFinite(n) ? Math.min(Math.abs(n), Mo) : jo;
+var Eo = "[data-parallax]", Do = "data-parallax", Oo = "data-parallax-ready", ko = "fw-parallax-window", Ao = "fw-parallax-window--self-sized", jo = "fw-parallax-inner", Mo = 60, No = 160, Po = ".site-lightbox-trigger", Fo = 1, Io = !1;
+function Lo() {
+	Io || (Io = !0, b.registerPlugin($));
 }
 function Ro(e) {
+	let t = e.getAttribute(Do);
+	if (t === null || t.trim() === "") return Mo;
+	let n = Number.parseFloat(t);
+	return Number.isFinite(n) ? Math.min(Math.abs(n), No) : Mo;
+}
+function zo(e) {
 	return e.complete && e.naturalWidth > 0 ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			e.removeEventListener("load", n), e.removeEventListener("error", n), t();
@@ -2078,44 +2088,44 @@ function Ro(e) {
 		e.addEventListener("load", n, { once: !0 }), e.addEventListener("error", n, { once: !0 });
 	});
 }
-function zo(e, t) {
+function Bo(e, t) {
 	var n;
-	let r = (n = e.closest(No)) == null ? e.parentElement : n;
-	if (!r || r.classList.contains(Oo)) return null;
+	let r = (n = e.closest(Po)) == null ? e.parentElement : n;
+	if (!r || r.classList.contains(ko)) return null;
 	let i = r.getBoundingClientRect().height;
 	if (i <= 0) return null;
-	r.classList.add(Oo);
-	let a = document.createElement("span"), o = t / 2 + Po;
-	if (a.className = Ao, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
+	r.classList.add(ko);
+	let a = document.createElement("span"), o = t / 2 + Fo;
+	if (a.className = jo, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
 		let t = e.naturalWidth / e.naturalHeight;
-		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Oo), null;
-		r.classList.add(ko), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
+		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(ko), null;
+		r.classList.add(Ao), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
 	}
 	return a;
 }
-function Bo(e, t) {
+function Vo(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
 		b.fromTo(e, { y: t / 2 }, {
 			y: -t / 2,
 			ease: "none",
-			scrollTrigger: Vo(e)
+			scrollTrigger: Ho(e)
 		});
 		return;
 	}
 	n.forEach((n) => {
-		Ro(n).then(() => {
+		zo(n).then(() => {
 			if (!n.isConnected) return;
-			let r = zo(n, t);
+			let r = Bo(n, t);
 			r && (b.fromTo(r, { y: t / 2 }, {
 				y: -t / 2,
 				ease: "none",
-				scrollTrigger: Vo(e)
+				scrollTrigger: Ho(e)
 			}), $.refresh());
 		});
 	});
 }
-function Vo(e) {
+function Ho(e) {
 	return {
 		trigger: e,
 		start: "top bottom",
@@ -2124,24 +2134,24 @@ function Vo(e) {
 		invalidateOnRefresh: !0
 	};
 }
-function Ho(e = document) {
-	let t = o(To, e).filter((e) => !e.hasAttribute(Do));
-	t.length === 0 || u() || (Io(), t.forEach((e) => {
-		let t = Lo(e);
-		t !== 0 && (e.setAttribute(Do, ""), Bo(e, t));
+function Uo(e = document) {
+	let t = o(Eo, e).filter((e) => !e.hasAttribute(Oo));
+	t.length === 0 || u() || (Lo(), t.forEach((e) => {
+		let t = Ro(e);
+		t !== 0 && (e.setAttribute(Oo, ""), Vo(e, t));
 	}));
 }
 //#endregion
 //#region src/modules/logo-variants.ts
-var Uo = "https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/", Wo = [
+var Wo = "https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/", Go = [
 	"6ab93c11c0209913a6f4ab46_West-Signatur-Variant2.svg",
 	"6ab93c11630b54996257245a_West-Signatur-Variant3.svg",
 	"6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg",
 	"6ab93c127b1c73994a56f043_West-Signatur-Variant5.svg",
 	"6ab93c12f66f79789e902fc4_West-Signatur-Variant7.svg",
 	"6ab93c1232f656f444927b94_West-Signatur-Variant8.svg"
-].map((e) => Uo + e);
-function Go() {
+].map((e) => Wo + e);
+function Ko() {
 	let e = window.matchMedia("(prefers-reduced-motion: reduce)");
 	document.querySelectorAll(".top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link").forEach((t) => {
 		let n = t.querySelector("svg, img.nav_logo");
@@ -2153,43 +2163,43 @@ function Go() {
 			a !== null && window.clearInterval(a), a = null, r.style.display = "none", n.style.visibility = i;
 		}
 		function c() {
-			if (o >= Wo.length) {
+			if (o >= Go.length) {
 				s();
 				return;
 			}
-			let e = o++, t = `url("${Wo[e]}")`;
+			let e = o++, t = `url("${Go[e]}")`;
 			r.style.height = e === 4 ? "240%" : "100%", r.style.maskImage = t, r.style.setProperty("-webkit-mask-image", t), r.style.color = getComputedStyle(n).color, r.style.display = "block", n.style.visibility = "hidden";
 		}
 		t.addEventListener("pointerenter", () => {
 			e.matches || (s(), o = 0, c(), a = window.setInterval(c, 250));
 		}), t.addEventListener("pointerleave", s), t.addEventListener("blur", s);
-	}), Wo.forEach((e) => {
+	}), Go.forEach((e) => {
 		let t = new Image();
 		t.src = e;
 	});
 }
 //#endregion
 //#region src/modules/spline-slider.ts
-var Ko = ".werk_hero_slider", qo = ".werk_hero_track";
-function Jo(e, t) {
+var qo = ".werk_hero_slider", Jo = ".werk_hero_track";
+function Yo(e, t) {
 	let n = e.parentElement;
 	for (; n && n.parentElement !== t;) n = n.parentElement;
 	return (n == null ? void 0 : n.parentElement) === t ? n : null;
 }
-function Yo(e) {
+function Xo(e) {
 	var t, n;
 	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
 	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
 }
-function Xo(e) {
-	let t = e.closest(Ko), n = t == null ? void 0 : t.querySelector(qo);
+function Zo(e) {
+	let t = e.closest(qo), n = t == null ? void 0 : t.querySelector(Jo);
 	if (!n) return !1;
-	let r = Jo(e, n), i = Yo(n);
+	let r = Yo(e, n), i = Xo(n);
 	return !!(r && i && r !== i);
 }
 //#endregion
 //#region src/modules/site-preloader-assets.ts
-function Zo(e, t) {
+function Qo(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -2198,7 +2208,7 @@ function Zo(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function Qo(e, t) {
+function $o(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -2209,7 +2219,7 @@ function Qo(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function $o(e, t) {
+function es(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -2218,7 +2228,7 @@ function $o(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function es(e) {
+function ts(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -2227,16 +2237,16 @@ function es(e) {
 		return null;
 	}
 }
-function ts(e) {
+function ns(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function ns(e) {
+function rs(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function rs(e, t) {
+function is(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -2255,7 +2265,7 @@ function rs(e, t) {
 		}
 	});
 }
-function is() {
+function as() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -2264,40 +2274,40 @@ function is() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return $o(e, t);
+				if (n === "spline") return es(e, t);
 				let r = new Image();
-				return r.src = e, Qo(r, t);
+				return r.src = e, $o(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template")) continue;
-		let i = ts(n);
+		let i = ns(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
-		let a = es(n.currentSrc || n.getAttribute("src")), o = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let a = ts(n.currentSrc || n.getAttribute("src")), o = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!a && !o || t({
 			key: a ? `image:${a}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || ns(n) ? "critical" : "warm" : i,
-			load: (e) => Qo(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || rs(n) ? "critical" : "warm" : i,
+			load: (e) => $o(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		if (r.matches("[data-animation-type=\"spline\"]") && Xo(r)) continue;
-		let i = r instanceof HTMLIFrameElement, o = es(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && Zo(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = ts(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = ts(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = ns(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => rs(r, e)
+			load: (e) => is(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", rs(r, e))
+			load: (e) => (r.loading = "eager", is(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -2311,17 +2321,17 @@ function is() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = es(e.url);
+			let t = ts(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => Zo(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => Qo(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function as(e) {
+function os(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -2338,13 +2348,13 @@ function as(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function os(e) {
+async function ss(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await Zo(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await Qo(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -2358,8 +2368,8 @@ async function os(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var ss = !1;
-function cs(e) {
+var cs = !1;
+function ls(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -2371,7 +2381,7 @@ function cs(e) {
 		});
 	});
 }
-function ls(e, t) {
+function us(e, t) {
 	if (!Number.isFinite(t)) return;
 	let n = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.floor(t))));
 	e.setAttribute("aria-valuenow", String(n));
@@ -2402,12 +2412,12 @@ function ls(e, t) {
 		}
 	});
 }
-function us(e, t) {
+function ds(e, t) {
 	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = 0, d = performance.now(), f = 0, p, m = new Promise((e) => {
 		p = e;
 	}), h = (t) => {
 		let n = Math.max(o, Math.min(100, Math.floor(t)));
-		n === o && n !== 100 || (o = n, ls(e, o));
+		n === o && n !== 100 || (o = n, us(e, o));
 	}, g = (e) => {
 		if (c) return;
 		let n = Math.min(64, Math.max(0, e - d));
@@ -2425,7 +2435,7 @@ function us(e, t) {
 		}
 	};
 }
-function ds(e, t) {
+function fs(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -2433,7 +2443,7 @@ function ds(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function fs(e, t) {
+function ps(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(T);
 	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature");
@@ -2454,9 +2464,9 @@ function fs(e, t) {
 		}, { once: !0 });
 	});
 }
-function ps() {
-	if (ss) return;
-	ss = !0;
+function ms() {
+	if (cs) return;
+	cs = !0;
 	let e = window.__sitePreloader;
 	if (!(e != null && e.active)) return;
 	let t = document.querySelector(w);
@@ -2464,16 +2474,16 @@ function ps() {
 		e.release();
 		return;
 	}
-	let n = new AbortController(), r = us(t, e.startedAt);
+	let n = new AbortController(), r = ds(t, e.startedAt);
 	e.cleanup.push(() => {
 		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature"));
 	});
 	let i = async () => {
-		if (await as(n.signal), !e.active) return;
-		let i = is(), a = i.filter((e) => e.priority === "critical"), o = 0;
+		if (await os(n.signal), !e.active) return;
+		let i = as(), a = i.filter((e) => e.priority === "critical"), o = 0;
 		r.setTasks(0, a.length), await Promise.all(a.map(async (t) => {
-			await Zo(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
-		})), e.active && (await cs(n.signal), e.active && (await ds(Math.max(0, C - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await fs(t, n.signal), e.active && (e.release(), os(i))))));
+			await Qo(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
+		})), e.active && (await ls(n.signal), e.active && (await fs(Math.max(0, C - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await ps(t, n.signal), e.active && (e.release(), ss(i))))));
 	}, a = () => {
 		i().catch(e.release);
 	};
@@ -2481,37 +2491,37 @@ function ps() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var ms = !1;
-function hs() {
-	if (ms || u() || /(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
+var hs = !1;
+function gs() {
+	if (hs || u() || /(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
 	let e = () => {
 		let e = window.lenis;
-		if (ms || !window.__siteLenisManaged || !e) return;
-		ms = !0, b.registerPlugin($), e.on("scroll", $.update);
+		if (hs || !window.__siteLenisManaged || !e) return;
+		hs = !0, b.registerPlugin($), e.on("scroll", $.update);
 		let t = (t) => e.raf(t * 1e3);
 		b.ticker.add(t), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), $.refresh(), window.addEventListener("pagehide", () => {
 			b.ticker.remove(t), e.off("scroll", $.update);
 		}, { once: !0 });
 	};
-	e(), ms || window.addEventListener("site:lenis-ready", e, { once: !0 });
+	e(), hs || window.addEventListener("site:lenis-ready", e, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var gs = !1;
-ps(), wo(), kr(), hs();
-function _s() {
-	if (gs) return;
-	gs = !0;
+var _s = !1;
+ms(), To(), kr(), gs();
+function vs() {
+	if (_s) return;
+	_s = !0;
 	let e = O();
-	fa({ i18n: e }), xi({ i18n: e }), Ho(), no(), ie(), _(), Go(), window.SiteInteractions = {
-		openModal: ca,
-		openContentModal: sa,
-		closeModal: la,
+	pa({ i18n: e }), xi({ i18n: e }), Uo(), ro(), ie(), _(), Ko(), window.SiteInteractions = {
+		openModal: la,
+		openContentModal: ca,
+		closeModal: ua,
 		openLightbox: _i,
 		closeLightbox: vi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", _s, { once: !0 }) : _s();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", vs, { once: !0 }) : vs();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

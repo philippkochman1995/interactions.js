@@ -346,6 +346,21 @@ function resolveContent(id: string): ContentModalData | null {
   return liveContent ?? contentRegistry.get(normalizedId) ?? null;
 }
 
+function workPopupHref(href: string): string {
+  try {
+    const source = new URL(href, document.baseURI);
+    const match = source.pathname.match(/^\/werke\/([^/]+)\/?$/);
+    if (!match) return href;
+
+    const target = new URL('/werk-ueberblick', document.baseURI);
+    target.searchParams.set('work', decodeURIComponent(match[1]));
+    target.hash = 'werke';
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return href;
+  }
+}
+
 function renderWork(work: ContentModalWork): HTMLElement {
   const href = work.href?.trim();
   const hasLink = Boolean(href && !href.startsWith('#'));
@@ -358,7 +373,7 @@ function renderWork(work: ContentModalWork): HTMLElement {
   card.className = 'fwm-modal__work-card';
 
   if (hasLink) {
-    card.setAttribute('href', href!);
+    card.setAttribute('href', workPopupHref(href!));
   }
 
   if (work.thumbnail) {
