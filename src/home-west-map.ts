@@ -16,6 +16,8 @@ const MAP_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-g
 const MAP_CSS_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-gl.css`;
 const MAP_DESTINATION = '/west-map';
 const MOBILE_QUERY = '(max-width: 767px)';
+const EUROPE_BOUNDS: [[number, number], [number, number]] = [[-12, 34], [37, 61]];
+const EUROPE_PADDING = 24;
 
 let mapboxPromise: Promise<any> | undefined;
 
@@ -65,12 +67,6 @@ function readPlaces(source: Element): HomePlace[] {
       };
     })
     .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng));
-}
-
-function camera(mobile: boolean): { center: [number, number]; zoom: number } {
-  return mobile
-    ? { center: [10, 50], zoom: 2.7 }
-    : { center: [10, 50], zoom: 3 };
 }
 
 function categoryClass(category: string): string {
@@ -131,7 +127,8 @@ function initHomeMap(root: HTMLElement): void {
         container: mount,
         style: 'mapbox://styles/mapbox/light-v11',
         projection: 'globe',
-        ...camera(mobileQuery.matches),
+        bounds: EUROPE_BOUNDS,
+        fitBoundsOptions: { padding: EUROPE_PADDING },
         bearing: 0,
         pitch: 0,
         interactive: false,
@@ -261,7 +258,10 @@ function initHomeMap(root: HTMLElement): void {
       });
 
       mobileQuery.addEventListener('change', () => {
-        map.jumpTo(camera(mobileQuery.matches));
+        window.requestAnimationFrame(() => {
+          map.resize();
+          map.fitBounds(EUROPE_BOUNDS, { padding: EUROPE_PADDING, duration: 0 });
+        });
       });
     } catch {
       mount.remove();
