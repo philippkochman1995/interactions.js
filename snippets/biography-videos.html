@@ -19,19 +19,23 @@
 .bio_video_trigger:focus-visible .bio_video_play { transform: translate(-50%, -50%) scale(1.1); background: #ffc6d2; }
 .bio_video_trigger:focus-visible { outline: 2px solid #06021a; outline-offset: 3px; }
 .bio_video .bio_caption { margin-top: .5rem; }
-.bio_video_dialog { width: min(92vw, 70rem); max-width: none; max-height: 90vh; padding: 0; border: 0; background: transparent; overflow: visible; }
+.bio_video_dialog { position: fixed; inset: 0; width: 100%; max-width: none; height: 100vh; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(6 2 26 / 90%); overflow: hidden; }
+.bio_video_dialog[open] { display: grid; place-items: center; }
 .bio_video_dialog::backdrop { background: rgb(6 2 26 / 90%); }
-.bio_video_dialog iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; }
-.bio_video_dialog .bio_video_close { position: fixed; }
+.bio_video_frame { width: min(92vw, 70rem); aspect-ratio: 16 / 9; max-height: calc(100dvh - 6rem); background: #000; }
+.bio_video_frame video-skin, .bio_video_frame video { display: block; width: 100%; height: 100%; }
+.bio_video_dialog .bio_video_close { position: fixed; top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); }
+.bio_video_error { position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%); color: #fff; font: 500 .875rem/1.4 'StyreneA', sans-serif; }
 html.bio_video_open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .bio_video_play { transition: none; } }
 </style>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/cdn@10.1.0/video.js"></script>
 <script id="fw-bio-videos">
 (() => {
   const videos = [
-    { year: '1982–84', id: '1-6ffmUcIyWdewtJgRlrgJSLzSnMXxeH_', title: 'Studien zu ernster Musik' },
-    { year: '1992/93', id: '1c5Dwf5AFq-BUnZEW3obKYlmR4PGwDvCy', title: 'Investigations of American Art' },
-    { year: '1998', id: '1v0L8chnNrXEQucDi1XewfcNbTNxIg6bg', title: 'Der Ast am Kasten' },
+    { year: '1982–84', id: '1-6ffmUcIyWdewtJgRlrgJSLzSnMXxeH_', src: 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/6acf41c2b66a4c88b765a90c_fw-biografie-1982.mp4', title: 'Studien zu ernster Musik' },
+    { year: '1992/93', id: '1c5Dwf5AFq-BUnZEW3obKYlmR4PGwDvCy', src: 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/6acf42041bfe50a6b9794903_fw-biografie-1992.mp4', title: 'Investigations of American Art' },
+    { year: '1998', id: '1v0L8chnNrXEQucDi1XewfcNbTNxIg6bg', src: 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/6acf4207dd05ddb1ea150f56_fw-biografie-1998.mp4', title: 'Der Ast am Kasten' },
   ];
   const rows = [...document.querySelectorAll('.bio_year_row[data-bio-year]')];
   for (const video of videos) {
@@ -87,26 +91,44 @@ html.bio_video_open { overflow: hidden; }
   </button><div class="bio_video_frame"></div>`;
   document.body.append(dialog);
   let trigger = null;
+  let activeVideo = null;
   document.addEventListener('click', (event) => {
     const button = event.target.closest?.('[data-bio-video]');
     if (!button) return;
     trigger = button;
     const video = videos.find((item) => item.id === button.dataset.bioVideo);
     if (!video) return;
-    const frame = document.createElement('iframe');
-    frame.src = 'https://drive.google.com/file/d/' + video.id + '/preview';
-    frame.title = video.title;
-    frame.allow = 'autoplay; fullscreen; picture-in-picture';
-    frame.allowFullscreen = true;
-    dialog.querySelector('.bio_video_frame').replaceChildren(frame);
+    const player = document.createElement('video-player');
+    const skin = document.createElement('video-skin');
+    const media = document.createElement('video');
+    media.src = video.src;
+    media.title = video.title;
+    media.playsInline = true;
+    media.preload = 'metadata';
+    media.addEventListener('error', () => {
+      const link = document.createElement('a');
+      link.className = 'bio_video_error';
+      link.href = 'https://drive.google.com/file/d/' + video.id + '/view';
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Video direkt öffnen';
+      dialog.querySelector('.bio_video_frame').append(link);
+    }, { once: true });
+    skin.append(media);
+    player.append(skin);
+    dialog.querySelector('.bio_video_frame').replaceChildren(player);
+    activeVideo = media;
     dialog.showModal();
     document.documentElement.classList.add('bio_video_open');
     window.lenis?.stop();
+    media.play().catch(() => {});
   });
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog || event.target.closest?.('.bio_video_close')) dialog.close();
   });
   dialog.addEventListener('close', () => {
+    activeVideo?.pause();
+    activeVideo = null;
     dialog.querySelector('.bio_video_frame').replaceChildren();
     document.documentElement.classList.remove('bio_video_open');
     window.lenis?.start();
