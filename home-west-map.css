@@ -1,4 +1,7 @@
 [data-wm-home] .map_bg{overflow:hidden;isolation:isolate;}
+[data-wm-home] .map_container{pointer-events:none;}
+[data-wm-home] .map_container a,
+[data-wm-home] .map_container button{pointer-events:auto;}
 [data-wm-home] .map_bg>.map_section_img{z-index:0;transition:opacity .2s ease;}
 [data-wm-home].wm-home-ready .map_bg>.map_section_img{opacity:0;}
 [data-wm-home] .wm-home-map{position:absolute;inset:0;z-index:2;pointer-events:none;}
