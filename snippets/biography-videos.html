@@ -1,0 +1,111 @@
+<style id="fw-bio-videos">
+.bio_video { margin: 0; width: 100%; }
+.bio_video_trigger {
+  position: relative; display: block; width: 100%; aspect-ratio: 16 / 9;
+  padding: 0; border: 0; background: #d9d9dc; cursor: pointer; overflow: hidden;
+}
+.bio_video_trigger img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bio_video_play {
+  position: absolute; top: 50%; left: 50%; display: grid; place-items: center;
+  width: clamp(3.25rem, 6vw, 4.5rem); aspect-ratio: 1; border-radius: 50%;
+  background: #f7f7f8; color: #06021a; transform: translate(-50%, -50%);
+  transition: transform .25s ease, background-color .25s ease;
+}
+.bio_video_play::after {
+  content: ''; width: 28%; height: 32%; margin-left: 5%;
+  background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.bio_video_trigger:hover .bio_video_play,
+.bio_video_trigger:focus-visible .bio_video_play { transform: translate(-50%, -50%) scale(1.1); background: #ffc6d2; }
+.bio_video_trigger:focus-visible { outline: 2px solid #06021a; outline-offset: 3px; }
+.bio_video .bio_caption { margin-top: .5rem; }
+.bio_video_dialog { width: min(92vw, 70rem); max-width: none; max-height: 90vh; padding: 0; border: 0; background: transparent; overflow: visible; }
+.bio_video_dialog::backdrop { background: rgb(6 2 26 / 90%); }
+.bio_video_dialog iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; }
+.bio_video_close { position: absolute; right: 0; bottom: calc(100% + .5rem); border: 0; padding: .25rem .5rem; color: #fff; background: transparent; font: inherit; cursor: pointer; }
+html.bio_video_open { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .bio_video_play { transition: none; } }
+</style>
+<script id="fw-bio-videos">
+(() => {
+  const videos = [
+    { year: '1982–84', id: '1-6ffmUcIyWdewtJgRlrgJSLzSnMXxeH_', title: 'Studien zu ernster Musik' },
+    { year: '1992/93', id: '1c5Dwf5AFq-BUnZEW3obKYlmR4PGwDvCy', title: 'Investigations of American Art' },
+    { year: '1998', id: '1v0L8chnNrXEQucDi1XewfcNbTNxIg6bg', title: 'Der Ast am Kasten' },
+  ];
+  const rows = [...document.querySelectorAll('.bio_year_row[data-bio-year]')];
+  for (const video of videos) {
+    const row = rows.find((item) => item.getAttribute('data-bio-year') === video.year);
+    if (!row || row.querySelector('[data-bio-video]')) continue;
+
+    const card = document.createElement('figure');
+    card.className = 'bio_photo bio_video';
+    const button = document.createElement('button');
+    button.className = 'bio_video_trigger';
+    button.type = 'button';
+    button.dataset.bioVideo = video.id;
+    button.setAttribute('aria-label', video.title + ' abspielen');
+    const image = document.createElement('img');
+    image.src = 'https://drive.google.com/thumbnail?id=' + video.id + '&sz=w1200';
+    image.alt = '';
+    image.loading = 'lazy';
+    image.onerror = () => image.remove();
+    const play = document.createElement('span');
+    play.className = 'bio_video_play';
+    play.setAttribute('aria-hidden', 'true');
+    button.append(image, play);
+    const caption = document.createElement('figcaption');
+    caption.className = 'bio_caption';
+    caption.textContent = video.title;
+    card.append(button, caption);
+
+    if (video.year === '1998') {
+      row.querySelectorAll('.bio_year_copy .bio_entry_text')[1]?.after(card);
+    } else {
+      let gallery = row.querySelector('.bio_year_images .bio_gallery');
+      if (!gallery) {
+        const column = document.createElement('div');
+        column.className = 'bio_col bio_year_images';
+        gallery = document.createElement('div');
+        gallery.className = 'bio_gallery';
+        column.append(gallery);
+        row.append(column);
+      }
+      card.classList.add('bio_size_l');
+      video.year === '1992/93' ? gallery.prepend(card) : gallery.append(card);
+    }
+  }
+
+  const dialog = document.createElement('dialog');
+  dialog.className = 'bio_video_dialog';
+  dialog.setAttribute('aria-label', 'Videoplayer');
+  dialog.innerHTML = '<button class="bio_video_close" type="button" aria-label="Video schließen">SCHLIESSEN ✕</button><div class="bio_video_frame"></div>';
+  document.body.append(dialog);
+  let trigger = null;
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest?.('[data-bio-video]');
+    if (!button) return;
+    trigger = button;
+    const video = videos.find((item) => item.id === button.dataset.bioVideo);
+    if (!video) return;
+    const frame = document.createElement('iframe');
+    frame.src = 'https://drive.google.com/file/d/' + video.id + '/preview';
+    frame.title = video.title;
+    frame.allow = 'autoplay; fullscreen; picture-in-picture';
+    frame.allowFullscreen = true;
+    dialog.querySelector('.bio_video_frame').replaceChildren(frame);
+    dialog.showModal();
+    document.documentElement.classList.add('bio_video_open');
+    window.lenis?.stop();
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog || event.target.closest?.('.bio_video_close')) dialog.close();
+  });
+  dialog.addEventListener('close', () => {
+    dialog.querySelector('.bio_video_frame').replaceChildren();
+    document.documentElement.classList.remove('bio_video_open');
+    window.lenis?.start();
+    trigger?.focus({ preventScroll: true });
+  });
+})();
+</script>
