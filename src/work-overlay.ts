@@ -17,6 +17,21 @@ gsap.registerPlugin(Flip);
 
 type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing';
 type ManifestWork = WorkDetail & WorkItem;
+type OverlayLenis = {
+  destroy(): void;
+  resize(): void;
+  scrollTo(target: number, options: { immediate: boolean; force: boolean }): void;
+};
+type OverlayLenisConstructor = new (options: {
+  wrapper: HTMLElement;
+  content: HTMLElement;
+  lerp: number;
+  smoothWheel: boolean;
+  wheelMultiplier: number;
+  touchMultiplier: number;
+  syncTouch: boolean;
+  autoRaf: boolean;
+}) => OverlayLenis;
 
 const works = manifest as ManifestWork[];
 const worksById = new Map(works.map((work) => [work.id, work]));
@@ -73,6 +88,8 @@ function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorEleme
   header.removeAttribute('aria-hidden');
   header.querySelectorAll<HTMLElement>('[id]').forEach((element) => element.removeAttribute('id'));
   header.querySelectorAll<HTMLElement>('[data-logo-variant]').forEach((element) => element.remove());
+  header.querySelectorAll<HTMLElement>('.top_bar_center .nav_logo_link svg, .top_bar_center .nav_logo_image_link img.nav_logo')
+    .forEach((element) => element.style.removeProperty('visibility'));
 
   const left = header.querySelector<HTMLElement>('.top_bar_left') || header;
   const backLink = document.createElement('a');
@@ -89,6 +106,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   const overlay = document.createElement('div');
   const backdrop = document.createElement('div');
   const surface = document.createElement('div');
+  const scrollContent = document.createElement('div');
   const content = document.createElement('div');
   const { header, backLink } = createOverlayHeader();
   let siteMenu: HTMLElement | null = null;
@@ -109,6 +127,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   let previousBodyWidth = '';
   let previousScrollRestoration = history.scrollRestoration;
   let detailLayoutCleanup: (() => void) | null = null;
+  let overlayLenis: OverlayLenis | null = null;
 
   overlay.className = 'work-overlay';
   overlay.hidden = true;
@@ -116,12 +135,14 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Werkdetails');
   overlay.setAttribute('data-work-overlay', '');
+  overlay.setAttribute('data-lenis-prevent', '');
   overlay.tabIndex = -1;
   backdrop.className = 'work-overlay__backdrop';
   surface.className = 'work-overlay__surface';
-  surface.setAttribute('data-lenis-prevent', '');
+  scrollContent.className = 'work-overlay__scroll-content';
   content.className = 'work-overlay__content';
-  surface.append(header, content);
+  scrollContent.append(header, content);
+  surface.append(scrollContent);
   overlay.append(backdrop, surface);
   overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
   document.body.append(overlay);
@@ -140,6 +161,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   };
 
   const visibleContent = (): HTMLElement[] => [
+    backLink,
+    ...Array.from(header.querySelectorAll<HTMLElement>('.top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link')),
     ...Array.from(content.querySelectorAll<HTMLElement>(
       '.cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related',
     )),
@@ -159,6 +182,31 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       if (!previousInert.has(child)) previousInert.set(child, child.inert);
       child.inert = true;
     }
+  };
+
+  const startOverlayLenis = (): void => {
+    if (overlayLenis) {
+      overlayLenis.resize();
+      return;
+    }
+    if (!window.lenis || prefersReducedMotion() || window.matchMedia('(max-width: 767px)').matches) return;
+    const LenisConstructor = (window as Window & { Lenis?: OverlayLenisConstructor }).Lenis;
+    if (!LenisConstructor) return;
+    overlayLenis = new LenisConstructor({
+      wrapper: surface,
+      content: scrollContent,
+      lerp: 0.0822,
+      smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 2.5,
+      syncTouch: true,
+      autoRaf: true,
+    });
+  };
+
+  const stopOverlayLenis = (): void => {
+    overlayLenis?.destroy();
+    overlayLenis = null;
   };
 
   const lockBackground = (): void => {
@@ -240,6 +288,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     content.replaceChildren(detailRoot);
     if (related) content.append(related);
     surface.scrollTop = 0;
+    overlayLenis?.resize();
+    overlayLenis?.scrollTo(0, { immediate: true, force: true });
     document.title = `${work.title} – Franz West`;
     return image;
   };
@@ -265,9 +315,14 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const token = ++revision;
     const oldWork = activeWork;
     cancelMotion();
+    if (oldWork) stopOverlayLenis();
     if (oldWork) restoreImageToGrid();
     phase = 'opening';
     activeWork = work;
+    const previousWorkId = (history.state as { previousWorkId?: string } | null)?.previousWorkId;
+    const backUrl = new URL(overviewUrl(), window.location.href);
+    if (previousWorkId && worksById.has(previousWorkId)) backUrl.searchParams.set('work', previousWorkId);
+    backLink.href = `${backUrl.pathname}${backUrl.search}${backUrl.hash}`;
     if (!overlay.hidden && oldWork) {
       gsap.set(backdrop, { opacity: 1 });
     }
@@ -301,6 +356,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     applyBackgroundInert();
     const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
     detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
+    startOverlayLenis();
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });
@@ -369,6 +425,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const token = ++revision;
     cancelMotion();
     phase = 'closing';
+    stopOverlayLenis();
     const returnImage = (): void => {
       if (token !== revision) return;
       const slot = activeWork ? findSlot(activeWork.id) || sourceSlot : null;
@@ -431,8 +488,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       return;
     }
     if (activeWork?.id === target.id && (phase === 'open' || phase === 'opening')) return;
-    const card = Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
-      .find((element) => element.getAttribute('data-works-rendered-item') === target.id) || null;
+    const card = phase === 'closed'
+      ? Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
+        .find((element) => element.getAttribute('data-works-rendered-item') === target.id) || null
+      : null;
     openWork(target, card, instant);
   };
 
@@ -444,6 +503,15 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
     history.replaceState({ fwWorkOverlay: false }, '', overviewUrl());
     reconcileUrl();
+  };
+
+  const requestBack = (): void => {
+    const state = history.state as { fwWorkOverlay?: boolean; depth?: number } | null;
+    if (state?.fwWorkOverlay && (state.depth || 0) > 1) {
+      history.back();
+      return;
+    }
+    requestClose();
   };
 
   root.addEventListener('click', (event) => {
@@ -468,7 +536,12 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!(target instanceof Element) || hasModifierKey(event)) return;
     const link = target.closest<HTMLAnchorElement>('a[href]');
     if (!link || !overlay.contains(link)) return;
-    if (link === backLink || link.classList.contains('cms-work-detail__overview-link')) {
+    if (link === backLink) {
+      event.preventDefault();
+      requestBack();
+      return;
+    }
+    if (link.classList.contains('cms-work-detail__overview-link')) {
       event.preventDefault();
       requestClose();
       return;
@@ -483,6 +556,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       fwWorkOverlay: true,
       fromOverview: Boolean(state?.fromOverview),
       depth: (state?.depth || 0) + 1,
+      previousWorkId: activeWork?.id,
     }, '', url);
     openWork(work, null);
   });
@@ -490,7 +564,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   window.addEventListener('popstate', () => reconcileUrl());
   window.addEventListener('pageshow', (event) => { if (event.persisted) reconcileUrl(true); });
   window.addEventListener('site:lenis-ready', () => {
-    if (phase !== 'closed') window.lenis?.stop();
+    if (phase !== 'closed') {
+      window.lenis?.stop();
+      if (phase !== 'closing') startOverlayLenis();
+    }
   });
   document.addEventListener('keydown', (event) => {
     if (phase === 'closed') return;
