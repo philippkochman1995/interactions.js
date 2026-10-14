@@ -756,11 +756,7 @@ function lt(l, u) {
 	}, W = () => {
 		if (!C || !S) return;
 		let e = F(S.id) || T;
-		if (e != null && e.isConnected) {
-			var t;
-			(t = e.querySelector("img")) == null || t.remove(), C.className = "cms-works__image", e.append(C);
-		}
-		w == null || w.remove(), w = null, C = null, U();
+		e != null && e.isConnected && (e.querySelector("img") || (C.className = "cms-works__image", e.append(C))), w == null || w.remove(), w = null, C = null, U();
 	}, G = (e) => {
 		P == null || P(), P = null;
 		let t = a(e), n = o(f, e, c(nt, e)), r = t.querySelector(".cms-work-detail__title"), i = t.querySelector(".cms-work-detail__image");
@@ -774,9 +770,7 @@ function lt(l, u) {
 		if (!(e !== k || !S)) {
 			if (w && C) {
 				let e = h.querySelector(".cms-work-detail__image");
-				e && (C.className = "cms-work-detail__image", C.removeAttribute("aria-hidden"), e.replaceWith(C)), w.remove(), w = null, P == null || P();
-				let t = h.querySelector(".work-overlay__detail");
-				P = t ? s(t) : null;
+				e && e.style.removeProperty("visibility"), W();
 			}
 			x = "open", r.to(L(), {
 				autoAlpha: 1,
@@ -1058,13 +1052,13 @@ function zt() {
 	let e = document.createElementNS(_t, "svg"), t = document.createElementNS(_t, "path"), n = document.createElementNS(_t, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function Bt(e, t = -1) {
-	let n = document.createElement(e.href ? "a" : "article"), r = document.createElement("span"), i = document.createElement("img"), a = document.createElement("span"), o = document.createElement("span"), s = document.createElement("span");
-	if (n.className = "cms-works__item", n.setAttribute("data-works-rendered-item", e.id), n.setAttribute("data-works-categories", e.categories.join(",")), e.href && (n.classList.add("cms-works__item--clickable"), n.setAttribute("href", e.href), n.setAttribute("data-work-overlay-trigger", e.id), n.setAttribute("data-transition", "false")), r.className = "cms-works__image-wrap", t >= 0 && (r.classList.add("cms-works__image-wrap--revealing"), r.style.setProperty("--cms-works-reveal-delay", `${t * 100}ms`)), i.className = "cms-works__image", i.src = e.thumbnail, i.alt = e.thumbnailAlt, i.loading = "lazy", i.decoding = "async", r.append(i), a.className = "cms-works__meta", o.className = "cms-works__label", s.className = "cms-works__title", s.textContent = e.title, o.append(s), e.year) {
+function Bt(e, t, n = -1) {
+	let r = document.createElement(e.href ? "a" : "article"), i = document.createElement("span"), a = document.createElement("img"), o = document.createElement("span"), s = document.createElement("span"), c = document.createElement("span");
+	if (r.className = "cms-works__item", r.setAttribute("data-works-rendered-item", e.id), r.setAttribute("data-works-categories", e.categories.join(",")), e.href && (r.classList.add("cms-works__item--clickable"), r.setAttribute("href", e.href), r.setAttribute("data-work-overlay-trigger", e.id), r.setAttribute("data-transition", "false")), i.className = "cms-works__image-wrap", n >= 0 && (i.classList.add("cms-works__image-wrap--revealing"), i.style.setProperty("--cms-works-reveal-delay", `${n * 100}ms`)), a.className = "cms-works__image", a.src = e.thumbnail, a.alt = e.thumbnailAlt, a.width = t.width, a.height = t.height, a.loading = "lazy", a.decoding = "async", i.append(a), o.className = "cms-works__meta", s.className = "cms-works__label", c.className = "cms-works__title", c.textContent = e.title, s.append(c), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = It(e.year), o.append(t);
+		t.className = "cms-works__year", t.textContent = It(e.year), s.append(t);
 	}
-	return a.append(o, zt()), n.append(r, a), n;
+	return o.append(s, zt()), r.append(i, o), r;
 }
 function Vt(e) {
 	return new Promise((t) => {
@@ -1105,8 +1099,11 @@ function Wt(e, t, n, r) {
 	}), i.className = "cms-works__grid", a.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
-			var n;
-			t.append(Bt(e, (n = o.get(e.id)) == null ? -1 : n));
+			var r, i;
+			t.append(Bt(e, (r = n.get(e.id)) == null ? {
+				width: 1,
+				height: 1
+			} : r, (i = o.get(e.id)) == null ? -1 : i));
 		}), i.append(t);
 	}), e.replaceChildren(i), e.classList.add("is-ready");
 }

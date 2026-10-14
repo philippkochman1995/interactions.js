@@ -266,7 +266,7 @@ function createEyeIcon(): SVGSVGElement {
   return svg;
 }
 
-function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
+function createWorkCard(item: WorkItem, measure: ImageMeasure, revealIndex = -1): HTMLElement {
   const card = document.createElement(item.href ? 'a' : 'article');
   const imageWrap = document.createElement('span');
   const image = document.createElement('img');
@@ -294,6 +294,8 @@ function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
   image.className = 'cms-works__image';
   image.src = item.thumbnail;
   image.alt = item.thumbnailAlt;
+  image.width = measure.width;
+  image.height = measure.height;
   image.loading = 'lazy';
   image.decoding = 'async';
   imageWrap.append(image);
@@ -379,7 +381,7 @@ function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, 
 
     column.className = 'cms-works__column';
     columnItems.items.forEach((item) => {
-      column.append(createWorkCard(item, revealOrder.get(item.id) ?? -1));
+      column.append(createWorkCard(item, measures.get(item.id) ?? { width: 1, height: 1 }, revealOrder.get(item.id) ?? -1));
     });
     grid.append(column);
   });

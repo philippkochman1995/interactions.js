@@ -206,9 +206,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!activeImage || !activeWork) return;
     const slot = findSlot(activeWork.id) || sourceSlot;
     if (slot?.isConnected) {
-      slot.querySelector('img')?.remove();
-      activeImage.className = 'cms-works__image';
-      slot.append(activeImage);
+      if (!slot.querySelector('img')) {
+        activeImage.className = 'cms-works__image';
+        slot.append(activeImage);
+      }
     }
     activeFlyer?.remove();
     activeFlyer = null;
@@ -247,17 +248,9 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   const finishOpen = (token: number): void => {
     if (token !== revision || !activeWork) return;
     if (activeFlyer && activeImage) {
-      const placeholder = content.querySelector<HTMLImageElement>('.cms-work-detail__image');
-      if (placeholder) {
-        activeImage.className = 'cms-work-detail__image';
-        activeImage.removeAttribute('aria-hidden');
-        placeholder.replaceWith(activeImage);
-      }
-      activeFlyer.remove();
-      activeFlyer = null;
-      detailLayoutCleanup?.();
-      const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
-      detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
+      const detailImage = content.querySelector<HTMLImageElement>('.cms-work-detail__image');
+      if (detailImage) detailImage.style.removeProperty('visibility');
+      restoreImageToGrid();
     }
     phase = 'open';
     gsap.to(visibleContent(), {
