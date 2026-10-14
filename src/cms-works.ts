@@ -349,12 +349,13 @@ function distributeItems(items: WorkItem[], measures: Map<string, ImageMeasure>,
     height: 0,
   }));
 
-  items.forEach((item, index) => {
+  items.forEach((item) => {
     const measure = measures.get(item.id) ?? { width: 1, height: 1 };
-    const column = columns[index % columnCount];
+    const column = columns.reduce((shortest, candidate) =>
+      candidate.height < shortest.height ? candidate : shortest);
 
     column.items.push(item);
-    column.height += measure.height / Math.max(measure.width, 1);
+    column.height += measure.height / Math.max(measure.width, 1) + 0.18;
   });
 
   return columns;
