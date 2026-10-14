@@ -83,6 +83,8 @@
       projection: 'globe',
       bounds: [[-12, 34], [37, 61]],
       fitBoundsOptions: { padding: 24 },
+      // Keep the globe's center clear of both poles, even when fully zoomed out.
+      maxBounds: [[-180, -75], [180, 75]],
       bearing: 0,
       pitch: 0,
       dragRotate: false,
