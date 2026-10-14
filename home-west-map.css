@@ -1,0 +1,34 @@
+[data-wm-home] .map_bg{overflow:hidden;isolation:isolate;}
+[data-wm-home] .map_bg>.map_section_img{z-index:0;transition:opacity .2s ease;}
+[data-wm-home].wm-home-ready .map_bg>.map_section_img{opacity:0;}
+[data-wm-home] .wm-home-map{position:absolute;inset:0;z-index:2;pointer-events:none;}
+[data-wm-home] .wm-home-map .mapboxgl-canvas{pointer-events:none;}
+[data-wm-home] .wm-home-map-link{position:absolute;inset:0;z-index:1;cursor:pointer;}
+[data-wm-home] .wm-home-map .mapboxgl-marker,
+[data-wm-home] .wm-home-map .mapboxgl-ctrl-attrib{pointer-events:auto;}
+[data-wm-home] .wm-home-map .mapboxgl-ctrl-attrib{font-size:10px;}
+[data-wm-home] .wm-home-marker{width:3.5rem;height:3.5rem;text-decoration:none;cursor:pointer;z-index:3;}
+[data-wm-home] .wm-home-marker:hover,
+[data-wm-home] .wm-home-marker:focus-visible{z-index:4;}
+[data-wm-home] .wm-home-marker__inner{display:block;position:relative;width:100%;height:100%;opacity:0;transform:scale(.5);transition:opacity .28s ease,transform .38s cubic-bezier(.2,1.5,.45,1);}
+[data-wm-home] .wm-home-marker.is-visible .wm-home-marker__inner{opacity:1;transform:scale(1);}
+[data-wm-home] .wm-home-marker__circle{display:block;width:100%;height:100%;overflow:hidden;border:3px solid var(--blue,#a5d8ef);border-radius:50%;background:var(--fw_off_white,#fff);box-shadow:0 .125rem .5rem rgb(6 2 26 / 18%);box-sizing:border-box;transition:transform .18s ease;}
+[data-wm-home] .wm-home-marker__circle img{display:block;width:100%;height:100%;object-fit:cover;}
+[data-wm-home] .wm-home-marker:hover .wm-home-marker__circle,
+[data-wm-home] .wm-home-marker:focus-visible .wm-home-marker__circle{transform:scale(1.12);}
+[data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__circle{border-color:var(--green,#9bdc8a);}
+[data-wm-home] .wm-home-marker--werke .wm-home-marker__circle{border-color:var(--fw_rosa,#f7b6cd);}
+[data-wm-home] .wm-home-marker__badge{position:absolute;top:-.375rem;right:-.375rem;display:grid;place-items:center;min-width:1.375rem;height:1.375rem;padding:0 .3125rem;border-radius:999px;background:var(--blue,#a5d8ef);color:var(--fw_dark_purple,#06021a);box-sizing:border-box;font:500 .75rem/1 'StyreneA',sans-serif;}
+[data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__badge{background:var(--green,#9bdc8a);}
+[data-wm-home] .wm-home-marker--werke .wm-home-marker__badge{background:var(--fw_rosa,#f7b6cd);}
+[data-wm-home] .wm-home-marker__tooltip{position:absolute;top:calc(100% + .625rem);left:50%;transform:translateX(-50%);padding:.75rem 1rem;border-radius:.375rem;background:var(--blue,#a5d8ef);color:var(--fw_dark_purple,#06021a);font:500 var(--_sizes---p-small-font-size,.875rem)/1.3 'StyreneA',sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease;}
+[data-wm-home] .wm-home-marker__tooltip::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:.5rem solid transparent;border-bottom-color:var(--blue,#a5d8ef);border-top:0;}
+[data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__tooltip{background:var(--green,#9bdc8a);}
+[data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__tooltip::before{border-bottom-color:var(--green,#9bdc8a);}
+[data-wm-home] .wm-home-marker--werke .wm-home-marker__tooltip{background:var(--fw_rosa,#f7b6cd);}
+[data-wm-home] .wm-home-marker--werke .wm-home-marker__tooltip::before{border-bottom-color:var(--fw_rosa,#f7b6cd);}
+[data-wm-home] .wm-home-marker:hover .wm-home-marker__tooltip,
+[data-wm-home] .wm-home-marker:focus-visible .wm-home-marker__tooltip{opacity:1;}
+@media (prefers-reduced-motion:reduce){
+  [data-wm-home] .wm-home-marker__inner,[data-wm-home] .wm-home-marker__circle,[data-wm-home] .map_bg>.map_section_img{transition:none;}
+}

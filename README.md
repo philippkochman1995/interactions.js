@@ -187,6 +187,17 @@ window.SiteInteractions.openContentModal({
 
 The West Map is delivered by `west-map.css` and `dist/west-map.js`. Webflow keeps only the Mapbox dependencies and these pinned GitHub imports; map behavior and styling must not be copied into Page Custom Code.
 
+### Home preview
+
+The Home page uses `src/home-west-map.ts` and `home-west-map.css` as a separate,
+fixed-camera preview. Its Mapbox library and stylesheet load only when the map
+section approaches the viewport. The existing `.map_section_img` stays as the
+poster and fallback. Home's hidden `.hm_cms` Collection List supplies
+`.hm_lat`, `.hm_lng`, `.hm_kat`, `.hm_bild`, and `.hm_adresse` from *West Map Orte*.
+The `.map_section` has `data-wm-home` and the same public `data-mapbox-token`
+as `#wmMap` on the full map page. The built CSS and JavaScript are currently
+embedded in the Home page's Webflow custom code.
+
 Page head:
 
 ```html
@@ -634,6 +645,11 @@ Teil dieses Moduls.
 Bei Breiten- oder Schriftwechsel werden Timelines und ScrollTrigger entfernt und
 neu aufgebaut. Bereits gestartete Reveals bleiben sichtbar. Bei
 `prefers-reduced-motion: reduce` wird keine Reveal-Animation gestartet.
+
+Der Biografie-Hero verwendet `src/biography-intro.ts` separat: erst erscheint
+`.bio_hero_eyebrow`, danach `.bio_hero_heading`. Die Headline hat in Webflow
+`data-reveal="off"`, damit die globale Reveal-Timeline sie nicht gleichzeitig
+animiert. Das kleine gebaute Script ist im Biografie-Footer eingebettet.
 
 ### Smooth scroll
 

@@ -17,6 +17,8 @@ export default defineConfig({
       entry: {
         'site-interactions': resolve(currentDir, 'src/main.ts'),
         'west-map': resolve(currentDir, 'src/west-map.ts'),
+        'home-west-map': resolve(currentDir, 'src/home-west-map.ts'),
+        'biography-intro': resolve(currentDir, 'src/biography-intro.ts'),
         'cms-canvas': resolve(currentDir, 'src/cms-canvas.tsx'),
         'cms-works': resolve(currentDir, 'src/cms-works.ts'),
         'cms-work-detail': resolve(currentDir, 'src/cms-work-detail.ts'),
