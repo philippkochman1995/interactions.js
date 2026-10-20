@@ -58,6 +58,9 @@
       var dotsWrap = root.querySelector('[data-edition-dots]');
       var prev = root.querySelector('[data-edition-prev]');
       var next = root.querySelector('[data-edition-next]');
+      [prev, next].forEach(function (control) {
+        if (control && !control.querySelector('svg')) control.innerHTML = ARROW_SVG;
+      });
       var item = root.closest('.editionen_item') || root.parentElement;
 
       var swatches = item
@@ -118,6 +121,14 @@
 
       if (prev) prev.addEventListener('click', function () { show(index - 1); });
       if (next) next.addEventListener('click', function () { show(index + 1); });
+      [[prev, -1], [next, 1]].forEach(function (pair) {
+        if (!pair[0]) return;
+        pair[0].addEventListener('keydown', function (event) {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          show(index + pair[1]);
+        });
+      });
 
       dots.forEach(function (dot, n) {
         dot.addEventListener('click', function () { show(n); });
