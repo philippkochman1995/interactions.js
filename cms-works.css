@@ -574,7 +574,6 @@
     margin-inline: 1rem;
     overflow: hidden;
     padding: 0;
-    border-bottom: 0 solid var(--cms-works-dark-50);
     transition:
       max-height 420ms cubic-bezier(0.65, 0, 0.35, 1),
       padding 420ms cubic-bezier(0.65, 0, 0.35, 1);
@@ -583,13 +582,16 @@
   .cms-works-filter.is-open .cms-works-filter__categories {
     max-height: var(--cms-works-filter-categories-height, 20rem);
     padding-block: 1.5rem;
-    border-bottom-width: 1px;
   }
 
   .cms-works-filter__reset {
-    align-self: flex-start;
-    margin: 0.875rem 1rem 1.125rem;
-    letter-spacing: normal;
+    box-sizing: border-box;
+    width: calc(100% - 2rem);
+    align-self: stretch;
+    margin: 0 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--cms-works-dark-50);
+    letter-spacing: inherit;
   }
 
   .cms-works-filter__mobile-sort-section {
