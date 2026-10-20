@@ -31,7 +31,7 @@
   opacity: 1;
   pointer-events: auto;
 }
-[data-atelier-slideshow-root] .site-lightbox-trigger { cursor: zoom-in; }
+[data-atelier-slideshow-root] :is(.site-lightbox-trigger, .editionen_img) { cursor: pointer; }
 [data-atelier-slideshow-root] .editionen_img { max-width: none; object-fit: cover; }
 [data-atelier-slideshow-root] [data-edition-slide]:nth-child(1) .editionen_img { object-position: 35% center; }
 [data-atelier-slideshow-root] [data-edition-slide]:nth-child(2) .editionen_img { object-position: 50% center; }
