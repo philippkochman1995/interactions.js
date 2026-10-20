@@ -1,0 +1,19 @@
+/* The site's StyreneA has no bold cut; use its regular weight on both legal pages. */
+:is(.imprint_layout .imprint_p, .data_layout .data_p),
+:is(.imprint_layout .imprint_p, .data_layout .data_p) :is(p, strong, b, a, em) {
+  font-weight: 500 !important;
+}
+
+/* Keep intentional line breaks inside a passage and separate the paragraphs. */
+:is(.imprint_layout .imprint_p, .data_layout .data_p) p {
+  margin: 0;
+}
+:is(.imprint_layout .imprint_p, .data_layout .data_p) p + p {
+  margin-top: 1.25rem;
+}
+:is(.imprint_layout .imprint_p, .data_layout .data_p) p:has(> strong) {
+  margin-top: 2rem;
+}
+:is(.imprint_layout .imprint_p, .data_layout .data_p) p:first-child {
+  margin-top: 0;
+}
