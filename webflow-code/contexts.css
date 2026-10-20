@@ -1,0 +1,15 @@
+/* head: Webflow style */
+.fwm-modal__rights {
+  margin-top: 2rem;
+  color: var(--fw_dark_purple_50, #82808c);
+  font-family: 'StyreneA', sans-serif;
+  font-size: .75rem;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+.fwm-modal__rights[hidden] { display: none !important; }
+
+.fwm-modal[data-modal-variant="context"] .fwm-modal__text em,
+.fwm-modal[data-modal-variant="context"] .fwm-modal__text i {
+  font-size: var(--_sizes---footer-14);
+}

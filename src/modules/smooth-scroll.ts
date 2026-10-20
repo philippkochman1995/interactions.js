@@ -4,9 +4,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './utils';
 
 let connected = false;
+let initialized = false;
 
 export function initSmoothScrollSync(): void {
-  if (connected || prefersReducedMotion() || /(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
+  if (initialized || prefersReducedMotion()) return;
+  initialized = true;
+  let disconnect: (() => void) | undefined;
 
   const connect = (): void => {
     const lenis = window.lenis;
@@ -21,12 +24,21 @@ export function initSmoothScrollSync(): void {
     window.dispatchEvent(new Event('site:lenis-ticker-connected'));
     ScrollTrigger.refresh();
 
-    window.addEventListener('pagehide', () => {
+    disconnect = () => {
       gsap.ticker.remove(tick);
       lenis.off('scroll', ScrollTrigger.update);
-    }, { once: true });
+      connected = false;
+      window.__siteLenisTickerConnected = false;
+      disconnect = undefined;
+    };
   };
 
+  window.addEventListener('pagehide', () => disconnect?.());
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    connect();
+    window.lenis?.resize();
+  });
   connect();
   if (!connected) window.addEventListener('site:lenis-ready', connect, { once: true });
 }

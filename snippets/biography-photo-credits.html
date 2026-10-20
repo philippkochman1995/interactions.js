@@ -1,0 +1,83 @@
+<style>
+.site-lightbox__credit {
+  display: block;
+  margin-top: .3rem;
+  color: var(--fw_dark_purple_50, #82808c);
+  font-family: 'StyreneA', sans-serif;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.site-lightbox__credit[hidden] { display: none !important; }
+[data-site-lightbox] .site-lightbox__previous,
+[data-site-lightbox] .site-lightbox__next { display: none !important; }
+</style>
+<script>
+(() => {
+  const credits = new Map();
+  let observedImage = null;
+  const observer = new MutationObserver(() => { void updateCredit(); });
+
+  function imageKey(src) {
+    try {
+      return new URL(src, location.href).pathname.match(/(?:^|[_/])(fw-biografie-\d+)(?:-p-\d+)?\.webp$/i)?.[1]?.toLowerCase() || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function output(root) {
+    let element = root.querySelector('[data-lightbox-credit-output]');
+    if (!element) {
+      element = document.createElement('span');
+      element.className = 'site-lightbox__credit';
+      element.setAttribute('data-lightbox-credit-output', '');
+      element.hidden = true;
+      root.querySelector('.site-lightbox__figure')?.append(element);
+    }
+    return element;
+  }
+
+  async function creditFor(key) {
+    if (!credits.has(key)) {
+      credits.set(key, fetch(`/biografie-bildnachweise/${encodeURIComponent(key)}`, {
+        credentials: 'same-origin',
+      }).then(async (response) => {
+        if (!response.ok) return '';
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const field = page.querySelector('[data-bio-credit-key]');
+        return field?.getAttribute('data-bio-credit-key')?.toLowerCase() === key
+          ? field.getAttribute('data-bio-credit-value')?.trim() || ''
+          : '';
+      }).catch(() => ''));
+    }
+    return credits.get(key);
+  }
+
+  async function updateCredit() {
+    const root = document.querySelector('[data-site-lightbox]');
+    const image = root?.querySelector('[data-lightbox-image]');
+    if (!root || !image) return;
+    const element = output(root);
+    if (!element) return;
+    const src = image.getAttribute('src') || '';
+    const key = imageKey(src);
+    element.textContent = '';
+    element.hidden = true;
+    if (!key || root.hidden) return;
+    const credit = await creditFor(key);
+    if (root.hidden || image.getAttribute('src') !== src) return;
+    element.textContent = credit;
+    element.hidden = !credit;
+  }
+
+  document.addEventListener('site:lightbox-open', () => {
+    const image = document.querySelector('[data-site-lightbox] [data-lightbox-image]');
+    if (image && image !== observedImage) {
+      observer.disconnect();
+      observer.observe(image, { attributes: true, attributeFilter: ['src'] });
+      observedImage = image;
+    }
+    void updateCredit();
+  });
+})();
+</script>

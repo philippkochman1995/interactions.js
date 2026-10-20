@@ -46,6 +46,13 @@ export function isInactiveHeroSplineScene(element: Element): boolean {
 
   if (!track) return false;
 
+  // A responsive slide can contain separate desktop and mobile scenes.
+  // An invisible scene retains its canvas dimensions for WebGPU, but must not preload or play.
+  if (typeof getComputedStyle === 'function') {
+    const style = getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') return true;
+  }
+
   const slide = directSlideFor(element, track);
   const current = activeSlide(track);
 
@@ -72,7 +79,7 @@ function syncSlider(slider: HTMLElement, inViewport: boolean): void {
     if (!slide || !app) continue;
 
     try {
-      if (slide === current && inViewport && !document.hidden) app.play?.();
+      if (slide === current && !isInactiveHeroSplineScene(scene) && inViewport && !document.hidden) app.play?.();
       else app.stop?.();
     } catch {
       // A scene may be between Webflow initialization and disposal.

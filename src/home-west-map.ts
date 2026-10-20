@@ -16,8 +16,8 @@ const MAP_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-g
 const MAP_CSS_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-gl.css`;
 const MAP_DESTINATION = '/west-map';
 const MOBILE_QUERY = '(max-width: 767px)';
-const EUROPE_BOUNDS: [[number, number], [number, number]] = [[-12, 34], [37, 61]];
-const EUROPE_PADDING = 24;
+const EUROPE_BOUNDS: [[number, number], [number, number]] = [[-7, 37], [32, 59]];
+const EUROPE_PADDING = 18;
 
 let mapboxPromise: Promise<any> | undefined;
 

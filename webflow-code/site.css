@@ -1,0 +1,167 @@
+/* head: Webflow style */
+/* Hide the pointer over the animated header signature. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .top_bar_center .nav_logo_link:hover,
+  .top_bar_center .nav_logo_link:hover *,
+  .top_bar_center .nav_logo_image_link:hover,
+  .top_bar_center .nav_logo_image_link:hover * {
+    cursor: none;
+  }
+}
+
+/* head: fw-fluid-typography */
+/* One shared size preserves the 1440px type ratios. Root rem stays unchanged.
+   16px through 1440px, 20px at 2560px; all type stops growing there.
+   Keep native Webflow variable names so existing bindings continue to work. */
+html { font-size: 100%; }
+html:root {
+  --fw-fluid-font-base: clamp(1rem, calc(0.678571429rem + 0.357142857vw), 1.25rem);
+  --_sizes---h-large-font-size: calc(var(--fw-fluid-font-base) * 3.75);
+  --_sizes---h1-font-size: calc(var(--fw-fluid-font-base) * 2.5);
+  --_sizes---h2-font-size: calc(var(--fw-fluid-font-base) * 1.667);
+  --_sizes---h3-font-size: calc(var(--fw-fluid-font-base) * 1.146);
+  --_sizes---p-large-font-size: calc(var(--fw-fluid-font-base) * 1.25);
+  --_sizes---p-font-size: var(--fw-fluid-font-base);
+  --_sizes---p-small-font-size: calc(var(--fw-fluid-font-base) * 0.875);
+  --_sizes---footer-14: calc(var(--fw-fluid-font-base) * 0.875);
+  --_sizes---footer-12: calc(var(--fw-fluid-font-base) * 0.75);
+  --fw-fluid-site-margin: clamp(1rem, calc(0.257142857rem + 3.047619048vw), 3rem);
+  --fw-fluid-site-gutter: clamp(1rem, calc(0.814285714rem + 0.761904762vw), 1.5rem);
+  --fw-fluid-container-inset: max(var(--fw-fluid-site-margin), calc((100vw - 2560px) / 2));
+  --accordion-item-padding-y: calc(var(--fw-fluid-font-base) * 1.5);
+  --h-large-font-size: var(--_sizes---h-large-font-size);
+  --h1-font-size: var(--_sizes---h1-font-size);
+  --h1-font-size-mobile: var(--_sizes---h1-font-size);
+  --h2-font-size: var(--_sizes---h2-font-size);
+  --h3-font-size: var(--_sizes---h3-font-size);
+  --p-large-font-size: var(--_sizes---p-large-font-size);
+  --p-font-size: var(--_sizes---p-font-size);
+  --p-font-size-mobile: var(--_sizes---p-font-size);
+  --p-small-font-size: var(--_sizes---p-small-font-size);
+  --cms-work-detail-gap: var(--fw-fluid-site-gutter);
+  --cms-work-detail-related-gap: var(--fw-fluid-site-gutter);
+  --cms-works-gap: var(--fw-fluid-site-gutter);
+  --cms-works-row-gap: calc(var(--fw-fluid-site-gutter) * 1.5);
+  --cms-work-detail-page-padding: var(--fw-fluid-site-margin);
+}
+@media (min-width: 90rem) {
+  html:root {
+    --fw-fluid-site-margin: clamp(3rem, calc(0.428571429rem + 2.857142857vw), 5rem);
+    --fw-fluid-site-gutter: clamp(1.5rem, calc(0.214285714rem + 1.428571429vw), 2.5rem);
+  }
+}
+body { font-size: var(--_sizes---p-font-size); line-height: 1.4; }
+/* Mirror native layout corrections and cover the runtime-generated CMS grid. */
+.u-h1, .u-h2, .work_about_heading.u-h1 { max-width: 100%; }
+.u-h1 { margin-bottom: clamp(2.75rem, calc(var(--fw-fluid-font-base) * 2.75), 3rem); }
+.u-h2 { margin-bottom: clamp(1.67rem, calc(var(--fw-fluid-font-base) * 1.67), 1.8rem); }
+.eyebrow_section.u-section {
+  padding-top: calc(var(--fw-fluid-font-base) * 3.75);
+  padding-bottom: calc(var(--fw-fluid-font-base) * 0.875);
+}
+.bio_hero_section { padding-inline: var(--fw-fluid-site-margin); }
+.bio_meta_section, .bio_timeline_section { padding-inline: var(--fw-fluid-site-margin); }
+.bio_hero_content { width: 58.333333%; max-width: none; }
+.bio_hero_sub { max-width: 100%; }
+.cms-works__grid-mount, .accordion_section > .accordion_item {
+  width: 100%; max-width: 2560px; margin-inline: auto;
+}
+.accordion_header { gap: var(--fw-fluid-site-gutter); }
+.accordion_heading.u-h1 { max-width: calc(100% - 1.7rem - var(--fw-fluid-site-gutter)); }
+.accordion_content { margin-top: calc(var(--fw-fluid-font-base) * 2.5); }
+.accordion_p.u-p { max-width: 60ch; }
+.cms-work-detail__intro {
+  width: 100%; max-width: 2560px; margin-inline: auto;
+}
+/* This wrapper includes its own horizontal padding; its content gets 2560px. */
+.cms-work-detail__related-inner, .style-guide.u-section {
+  width: 100%;
+  max-width: calc(2560px + 2 * var(--fw-fluid-site-margin));
+  margin-inline: auto;
+}
+.werk_hero_slider .werk_hero_dots { right: var(--fw-fluid-container-inset); }
+.werk_hero_slide .u-slide-info.u-p-small.is-static:where(.w-variant-96d919e9-66d4-0c3d-15f4-2bb0c9d71dff) {
+  margin-left: var(--fw-fluid-container-inset);
+}
+.map_info.u-pd-30 {
+  width: 100%;
+  max-width: calc(var(--fw-fluid-font-base) * 24);
+  padding: calc(var(--fw-fluid-font-base) * 1.5625);
+  gap: var(--fw-fluid-font-base);
+}
+@media (max-width: 479px) {
+  .map_info.u-pd-30 { max-width: none; padding-inline: 1rem; }
+}
+.site-menu { right: var(--fw-fluid-container-inset); max-width: calc(100vw - 2 * var(--fw-fluid-container-inset)); }
+@media (max-width: 991px) {
+  .bio_hero_content { width: 100%; }
+  /* Let the hero grow with long lines and zoom instead of cropping the text. */
+  .bio_hero_section { height: auto; min-height: 80svh; }
+  .bio_hero_container { height: auto; min-height: calc(80svh - 4.896rem); padding-top: 8rem; }
+}
+.cms-work-detail__text,
+.cms-work-detail__properties,
+[data-site-modal-text] { max-width: 60ch; }
+:where(.u-h1, .u-h2, .u-h3, .bio_hero_sub, .cms-work-detail__title) {
+  overflow-wrap: anywhere;
+}
+:where(.intro_layout, .about_layout, .news_detail_content_layout,
+  .atelier_about_layout, .news_hi_layout, .contact_layout, .data_layout,
+  .imprint_layout, .news_detail_title_layout, .footer_layout) > * {
+  min-width: 0;
+}
+
+/* head: fw-news-link-spacing */
+.news_event .intro_date_infos > a.button-outlined,
+.news_highlight_section .intro_date_infos > a.button-outlined {
+  margin-top: auto !important;
+}
+@media (max-width: 767px) {
+  .news_event .intro_date_infos > a.button-outlined,
+  .news_highlight_section .intro_date_infos > a.button-outlined {
+    margin-top: 1.5rem !important;
+  }
+}
+
+/* head: fw-richtext-spacing */
+@media (min-width: 992px) {
+  .u-p-small.w-richtext {
+    margin-bottom: 1.5rem;
+  }
+}
+@media (max-width: 767px) {
+  .u-p.w-richtext {
+    margin-bottom: 0;
+  }
+}
+
+/* head: fw-content-modal-mobile-sheet */
+@media (max-width: 767px) {
+  .fwm-modal:not([data-modal-id="west-map-detail"]).is-active {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .fwm-modal:not([data-modal-id="west-map-detail"]) .fwm-modal__panel {
+    box-sizing: border-box;
+    height: auto;
+    min-height: 78dvh;
+    max-height: none;
+    margin-top: 22dvh;
+    overflow: visible;
+    transform: translateY(100dvh);
+  }
+  .fwm-modal:not([data-modal-id="west-map-detail"]).is-visible .fwm-modal__panel {
+    transform: translateY(0);
+  }
+  .fwm-modal:not([data-modal-id="west-map-detail"]) .fwm-modal__top {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: -0.75rem -1.5rem 0;
+    padding: 0.75rem 1.5rem 1.125rem;
+    background: var(--fw_off_white);
+  }
+}

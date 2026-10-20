@@ -1,0 +1,15 @@
+{
+  "name": "franz-west-instagram-feed",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-15",
+  "workers_dev": true,
+  "triggers": {
+    "crons": ["0 */6 * * *"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "INSTAGRAM_KV",
+      "id": "71e23db9136d42c88608f76b979bd96d"
+    }
+  ]
+}

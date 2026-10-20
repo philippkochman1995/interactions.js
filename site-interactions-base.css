@@ -573,13 +573,22 @@ html.is-page-transition-pending .page-transition-overlay {
   margin-top: auto;
 }
 
+.news_event .intro_date_infos > a.button-outlined,
+.news_highlight_section .intro_date_infos > a.button-outlined {
+  margin-top: auto !important;
+}
+
 @media (min-width: 992px) {
   .u-p-small.w-richtext {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
   }
 }
 
 @media (max-width: 767px) {
+  .u-p.w-richtext {
+    margin-bottom: 0;
+  }
+
   .news_event .intro_date > h3.u-h3,
   .news_highlight_section .news_date > h3.u-h3 {
     margin-bottom: 0.8rem !important;
@@ -772,6 +781,19 @@ html.is-page-transition-pending .page-transition-overlay {
 }
 
 .site-lightbox__caption[hidden] {
+  display: none !important;
+}
+
+.site-lightbox__credit {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--fw_dark_purple_50, #82808c);
+  font-family: 'StyreneA', sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.site-lightbox__credit[hidden] {
   display: none !important;
 }
 
@@ -1220,6 +1242,19 @@ footer a.w--current:focus-visible::after,
 .fwm-modal__work[hidden],
 .fwm-modal__gallery[hidden] {
   display: none !important;
+}
+
+.fwm-modal__rights[hidden] {
+  display: none !important;
+}
+
+.fwm-modal__rights {
+  margin-top: 2rem;
+  color: var(--fw_dark_purple_50, #82808c);
+  font-family: 'StyreneA', sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: pre-line;
 }
 
 .fwm-modal__gallery {
@@ -1914,7 +1949,6 @@ html.is-site-preloading.is-site-preloader-exiting::after {
     display: none;
   }
 }
-
 /* Keep the selected phone scene visible after a phone rotates to landscape. */
 html.site-mobile-hero-spline .werk_hero_spline.is-mobile-scene {
   display: block !important;

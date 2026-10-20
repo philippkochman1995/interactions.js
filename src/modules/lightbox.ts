@@ -22,6 +22,7 @@ interface LightboxElements {
   root: HTMLElement;
   image: HTMLImageElement;
   caption: HTMLElement;
+  credit: HTMLElement;
   closeButton: HTMLButtonElement;
   previousButton: HTMLButtonElement;
   nextButton: HTMLButtonElement;
@@ -122,6 +123,7 @@ function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
   return {
     src,
     caption: getStringAttr(trigger, 'data-lightbox-caption'),
+    credit: getStringAttr(trigger, 'data-lightbox-credit'),
     alt: getTriggerAlt(trigger),
     group: getStringAttr(trigger, 'data-lightbox-group'),
     trigger,
@@ -210,6 +212,7 @@ function decorateImageTrigger(image: HTMLImageElement): void {
   for (const attrName of [
     'data-lightbox-src',
     'data-lightbox-caption',
+    'data-lightbox-credit',
     'data-lightbox-alt',
     'data-lightbox-group',
     // Sagt dem Wrapper, dass er die Box des Rahmens durchreichen soll. Muss
@@ -326,15 +329,31 @@ function ensureLightboxDom(): LightboxElements {
     caption.setAttribute('data-lightbox-caption-output', '');
     caption.hidden = true;
 
-    figure.append(image, caption);
+    const credit = document.createElement('span');
+    credit.className = 'site-lightbox__credit';
+    credit.setAttribute('data-lightbox-credit-output', '');
+    credit.hidden = true;
+
+    figure.append(image, caption, credit);
     root.append(closeButton, previousButton, figure, nextButton);
     document.body.append(root);
+  }
+
+  let creditOutput = qs<HTMLElement>('[data-lightbox-credit-output]', root);
+
+  if (!creditOutput) {
+    creditOutput = document.createElement('span');
+    creditOutput.className = 'site-lightbox__credit';
+    creditOutput.setAttribute('data-lightbox-credit-output', '');
+    creditOutput.hidden = true;
+    (qs<HTMLElement>('.site-lightbox__figure', root) ?? root).append(creditOutput);
   }
 
   const foundElements: LightboxElements = {
     root,
     image: qs<HTMLImageElement>('[data-lightbox-image]', root) ?? document.createElement('img'),
     caption: qs<HTMLElement>('[data-lightbox-caption-output]', root) ?? document.createElement('figcaption'),
+    credit: creditOutput,
     closeButton: qs<HTMLButtonElement>(LIGHTBOX_CLOSE_SELECTOR, root) ?? document.createElement('button'),
     previousButton: qs<HTMLButtonElement>(LIGHTBOX_PREVIOUS_SELECTOR, root) ?? document.createElement('button'),
     nextButton: qs<HTMLButtonElement>(LIGHTBOX_NEXT_SELECTOR, root) ?? document.createElement('button'),
@@ -377,6 +396,8 @@ function renderItem(): void {
   lightboxElements.image.alt = item.alt;
   lightboxElements.caption.textContent = item.caption;
   lightboxElements.caption.hidden = item.caption.length === 0;
+  lightboxElements.credit.textContent = item.credit;
+  lightboxElements.credit.hidden = item.credit.length === 0;
 
   const hasMultipleItems = items.length > 1;
   lightboxElements.previousButton.hidden = !hasMultipleItems;

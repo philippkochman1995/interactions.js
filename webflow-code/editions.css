@@ -1,0 +1,123 @@
+/* head: Webflow style */
+/* Editionen — Bild fuellt den Slide, auch nachdem der Lightbox-Trigger
+     das <img> in einen Wrapper-Span verpackt hat. */
+  .editionen_slide .site-lightbox-trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 0;
+  }
+
+  .editionen_slide .site-lightbox-trigger__image {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+
+  /* Nur der aktive Slide ist klickbar. */
+  .editionen_slide:not(.is-active) {
+    pointer-events: none;
+  }
+
+  /* Ausgewaehlte Farbe im Color-Picker. */
+  .editionen_swatch.is-selected {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 1px var(--fw_dark_purple);
+  }
+
+  /* Pfeile und Dots werden vom Skript versteckt, wenn es nur ein Bild gibt. */
+  .editionen_media .is-hidden {
+    display: none !important;
+  }
+
+  /* ---------------------------------------------------------------
+     Pfeil-Button, 1:1 aus der Figma-Komponente "NEXT".
+     Zeichenflaeche 50x50, Kreis-Mittelpunkt (51|56) in SVG-Einheiten.
+
+     default   Kreis 42px, Fuellung FW_Dark_Purple_5, der Schaft steckt
+               als 1,73 breiter Rest in der Chevron-Spitze  ->  liest sich als ›
+     hover     Kreis 46px, Fuellung FW_Rosa, Schaft faehrt auf 13,68 aus,
+               Chevron rueckt leicht nach rechts             ->  liest sich als →
+
+     Rahmen und Icon bleiben in beiden Zustaenden FW_Dark_Purple_75,
+     es wechselt nur die Kreisfuellung.
+     --------------------------------------------------------------- */
+  :is([data-edition-prev], [data-edition-next], [data-lightbox-prev], [data-lightbox-next]) {
+    filter: drop-shadow(0 -5px 30px rgba(6, 2, 26, 0.08));
+  }
+
+  [data-arrow-circle] {
+    r: 20.625px;
+    fill: var(--fw_dark_purple_5);
+    stroke: var(--fw_dark_purple_75);
+    transition:
+      r 260ms cubic-bezier(0.76, 0, 0.24, 1),
+      fill 260ms cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  [data-arrow-dot],
+  [data-arrow-head] {
+    fill: var(--fw_dark_purple_75);
+    transform-box: fill-box;
+    transform-origin: right center;
+    transition: transform 380ms cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  /* Kreis 42px -> 46px, gleicher Mittelpunkt. */
+  :is([data-edition-prev], [data-edition-next], [data-lightbox-prev], [data-lightbox-next]):is(:hover, :focus-visible) [data-arrow-circle] {
+    r: 22.625px;
+    fill: var(--fw_rosa);
+  }
+
+  /* Schaft: x 53,54–55,27 -> x 41,76–55,44 und minimal duenner. */
+  :is([data-edition-prev], [data-edition-next], [data-lightbox-prev], [data-lightbox-next]):is(:hover, :focus-visible) [data-arrow-dot] {
+    transform: translate(0.1715px, 0.1599px) scale(7.8925, 0.8005);
+  }
+
+  /* Chevron: x 47,37–56,996 -> x 50,04–58,48. */
+  :is([data-edition-prev], [data-edition-next], [data-lightbox-prev], [data-lightbox-next]):is(:hover, :focus-visible) [data-arrow-head] {
+    transform: translateX(1.4839px) scaleX(0.8769);
+  }
+
+  /* Zurueck ist der gespiegelte Vorwaerts-Pfeil. */
+  :is([data-edition-prev], [data-lightbox-prev]) svg {
+    transform: scaleX(-1);
+  }
+
+  /* Lightbox-Buttons: der Kreis steckt jetzt in der Grafik, deshalb
+     den runden Hintergrund aus site-interactions-base.css abraeumen. */
+  .site-lightbox__previous,
+  .site-lightbox__next {
+    width: 3.125rem;
+    height: 3.125rem;
+    border-radius: 0;
+    background: transparent;
+    font-size: 0;
+    line-height: 0;
+    overflow: visible;
+  }
+
+  .site-lightbox__previous svg,
+  .site-lightbox__next svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .site-lightbox__previous:focus-visible,
+  .site-lightbox__next:focus-visible {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .editionen_slide,
+    .editionen_swatch,
+    .editionen_dot,
+    [data-arrow-circle],
+    [data-arrow-dot],
+    [data-arrow-head] {
+      transition-duration: 1ms !important;
+    }
+  }

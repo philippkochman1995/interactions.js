@@ -154,7 +154,7 @@ function E(e) {
 	let a = 0, o = !1, s = () => {
 		if (a = 0, o) return;
 		let e = r.querySelector(".cms-work-detail__image");
-		if (!e || !e.complete || e.naturalWidth === 0) return;
+		if (!e || e.naturalWidth === 0 && !(e.hasAttribute("width") && e.hasAttribute("height"))) return;
 		let t = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight, n = `max(0px, calc(${Math.max(0, Math.floor(t - r.getBoundingClientRect().top))}px - 1.5rem))`;
 		e.style.maxHeight !== n && (e.style.maxHeight = n), i.style.setProperty("--cms-work-detail-image-height", `${e.getBoundingClientRect().height}px`);
 	}, c = () => {

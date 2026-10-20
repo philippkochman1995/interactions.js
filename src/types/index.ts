@@ -20,6 +20,7 @@ export interface ContentModalData {
   imageAlt: string;
   caption: string;
   html: string;
+  rights?: string;
   work?: ContentModalWork | null;
   gallery?: ContentModalGalleryItem[];
 }
@@ -46,6 +47,7 @@ export interface LightboxApi {
 export interface LightboxItem {
   src: string;
   caption: string;
+  credit: string;
   alt: string;
   group: string;
   trigger: HTMLElement;

@@ -1,0 +1,428 @@
+/* head: Webflow style */
+/* Kapiteltext und Kugel werden von der Timeline-Linie eingefaerbt:
+   background-color = ungefuellt (FW_Dark_Purple_50),
+   background-image  = gefuellt   (FW_Dark_Purple).
+   Die Fuellhoehe setzt das Footer-Script ueber background-size. */
+.bio_era_years,
+.bio_era_title {
+  background-color: var(--fw_dark_purple_50, #82808c);
+  background-image: linear-gradient(var(--fw_dark_purple, #06021a), var(--fw_dark_purple, #06021a));
+  background-repeat: no-repeat;
+  background-size: 100% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Kugel: gleiche Mechanik, nur ohne Beschnitt auf die Glyphen */
+.bio_era_dot {
+  background-color: var(--fw_dark_purple_50, #82808c);
+  background-image: linear-gradient(var(--fw_dark_purple, #06021a), var(--fw_dark_purple, #06021a));
+  background-repeat: no-repeat;
+  background-size: 100% 0%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio_era_years,
+  .bio_era_title,
+  .bio_era_dot {
+    background-size: 100% 100%;
+  }
+  .bio_fade {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* head: fw-biography-layout */
+/* Three image widths, measured against the existing biography column. */
+.bio_gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 1rem; row-gap: 2.8rem; width: 100%; align-items: start; }
+.bio_photo { min-width: 0; width: 100%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; }
+.bio_size_s { grid-column-end: span 2; }
+.bio_size_m { grid-column-end: span 3; }
+.bio_size_l { grid-column-end: span 4; }
+.bio_photo_right { grid-column-start: 2; }
+.bio_photo_small_right { grid-column-start: 3; }
+.bio_gallery_bottom { align-items: end; }
+.bio_gallery_stagger { align-items: end; }
+.bio_stagger_first { grid-column-start: 1; grid-row-start: 1; }
+.bio_stagger_second { grid-column-start: 1; grid-row-start: 2; }
+.bio_stagger_third { grid-column-start: 3; grid-row-start: 2; }
+.bio_year_copy { grid-column-start: 1; grid-row-start: 1; width: 100%; min-width: 0; }
+.bio_year_images { grid-column-start: 2; grid-row-start: 1; width: 100%; min-width: 0; }
+.bio_copy_right { grid-column-start: 2; }
+.bio_images_left { grid-column-start: 1; }
+.bio_image_reveal { width: 100%; }
+.bio_year_row { align-items: start; }
+.bio_year_continuation { margin-top: 4rem; }
+.bio_chapter_label { width: 33.3333%; }
+.bio_chapter_head { padding-right: 1.5rem; padding-left: 1.5rem; }
+.bio_chapter_title { max-width: 34ch; }
+.bio_quote_spacing { margin-top: 2.5rem; margin-bottom: 2.5rem; }
+.bio_quote_content { min-width: 0; }
+.bio_photo .bio_caption { text-align: left; }
+@media screen and (max-width: 767px) {
+  .bio_timeline_track { padding-left: 1.25rem; }
+  .bio_timeline_rail, .bio_timeline_fill { left: 0; }
+  .bio_era_dot { position: absolute; left: -1.525rem; top: 2.35rem; }
+  .bio_chapter_label, .bio_chapter_head, .bio_chapter_title, .bio_chapter_label .bio_era_years { text-align: left; }
+  .bio_chapter_head { padding-left: 0; padding-right: 0; }
+  .bio_chapter_title { margin-left: 0; }
+}
+@media screen and (max-width: 767px) {
+  .bio_year_row { row-gap: 2.5rem; margin-top: 3rem; }
+  .bio_year_copy { grid-column-start: 1; grid-row-start: 1; }
+  .bio_year_images { grid-column-start: 1; grid-row-start: 2; }
+  .bio_gallery { row-gap: 2rem; column-gap: 1rem; }
+  .bio_chapter_label { width: 100%; }
+  .bio_chapter_head { padding-right: 1rem; padding-left: 1rem; }
+}
+
+.bio_photo[data-bio-image="rId4"] img { aspect-ratio: 390 / 277; }
+.bio_photo[data-bio-image="rId5"] img { aspect-ratio: 2000 / 1187; }
+.bio_photo[data-bio-image="rId6"] img { aspect-ratio: 1170 / 1781; }
+.bio_photo[data-bio-image="rId7"] img { aspect-ratio: 376 / 347; }
+.bio_photo[data-bio-image="rId8"] img { aspect-ratio: 2000 / 1299; }
+.bio_photo[data-bio-image="rId9"] img { aspect-ratio: 1800 / 1800; }
+.bio_photo[data-bio-image="rId10"] img { aspect-ratio: 2000 / 1410; }
+.bio_photo[data-bio-image="rId11"] img { aspect-ratio: 1210 / 1210; }
+.bio_photo[data-bio-image="rId12"] img { aspect-ratio: 563 / 470; }
+.bio_photo[data-bio-image="rId13"] img { aspect-ratio: 1200 / 908; }
+.bio_photo[data-bio-image="rId14"] img { aspect-ratio: 1445 / 2000; }
+.bio_photo[data-bio-image="rId15"] img { aspect-ratio: 2000 / 1424; }
+.bio_photo[data-bio-image="rId16"] img { aspect-ratio: 2000 / 1330; }
+.bio_photo[data-bio-image="rId17"] img { aspect-ratio: 1444 / 2000; }
+.bio_photo[data-bio-image="rId18"] img { aspect-ratio: 661 / 496; }
+.bio_photo[data-bio-image="rId19"] img { aspect-ratio: 2000 / 1500; }
+.bio_photo[data-bio-image="rId20"] img { aspect-ratio: 2000 / 1994; }
+.bio_photo[data-bio-image="rId21"] img { aspect-ratio: 1530 / 2000; }
+.bio_photo[data-bio-image="rId22"] img { aspect-ratio: 1000 / 1498; }
+.bio_photo[data-bio-image="rId23"] img { aspect-ratio: 592 / 444; }
+.bio_photo[data-bio-image="rId24"] img { aspect-ratio: 2000 / 1329; }
+.bio_photo[data-bio-image="rId25"] img { aspect-ratio: 1800 / 1398; }
+.bio_photo[data-bio-image="rId26"] img { aspect-ratio: 1665 / 1147; }
+.bio_photo[data-bio-image="rId27"] img { aspect-ratio: 683 / 467; }
+.bio_photo[data-bio-image="rId29"] img { aspect-ratio: 1800 / 1191; }
+.bio_photo[data-bio-image="rId30"] img { aspect-ratio: 2000 / 1593; }
+.bio_photo[data-bio-image="rId31"] img { aspect-ratio: 532 / 399; }
+.bio_photo[data-bio-image="rId32"] img { aspect-ratio: 1799 / 1693; }
+.bio_photo[data-bio-image="rId33"] img { aspect-ratio: 1184 / 1788; }
+.bio_photo[data-bio-image="rId34"] img { aspect-ratio: 1884 / 2000; }
+.bio_photo[data-bio-image="rId35"] img { aspect-ratio: 2000 / 1474; }
+.bio_photo[data-bio-image="rId36"] img { aspect-ratio: 1800 / 1174; }
+.bio_photo[data-bio-image="rId37"] img { aspect-ratio: 1996 / 2000; }
+.bio_photo[data-bio-image="rId38"] img { aspect-ratio: 1946 / 2000; }
+.bio_photo[data-bio-image="rId39"] img { aspect-ratio: 1800 / 1783; }
+.bio_photo[data-bio-image="rId40"] img { aspect-ratio: 1334 / 2000; }
+.bio_photo[data-bio-image="rId41"] img { aspect-ratio: 693 / 517; }
+.bio_photo[data-bio-image="rId42"] img { aspect-ratio: 1674 / 1079; }
+.bio_photo[data-bio-image="rId43"] img { aspect-ratio: 873 / 1237; }
+.bio_photo[data-bio-image="rId45"] img { aspect-ratio: 761 / 472; }
+.bio_photo[data-bio-image="rId46"] img { aspect-ratio: 1386 / 2000; }
+.bio_photo[data-bio-image="rId47"] img { aspect-ratio: 279 / 353; }
+.bio_photo[data-bio-image="rId48"] img { aspect-ratio: 2000 / 1337; }
+.bio_photo[data-bio-image="rId49"] img { aspect-ratio: 1233 / 1466; }
+.bio_photo[data-bio-image="rId50"] img { aspect-ratio: 1181 / 1239; }
+.bio_photo[data-bio-image="rId51"] img { aspect-ratio: 2000 / 1570; }
+.bio_photo[data-bio-image="rId52"] img { aspect-ratio: 600 / 450; }
+.bio_photo[data-bio-image="rId53"] img { aspect-ratio: 641 / 428; }
+.bio_photo[data-bio-image="rId54"] img { aspect-ratio: 533 / 545; }
+.bio_photo[data-bio-image="rId55"] img { aspect-ratio: 2000 / 1521; }
+.bio_photo[data-bio-image="rId56"] img { aspect-ratio: 2000 / 1334; }
+.bio_photo[data-bio-image="rId57"] img { aspect-ratio: 2000 / 1471; }
+.bio_photo[data-bio-image="rId58"] img { aspect-ratio: 1772 / 997; }
+.bio_photo[data-bio-image="rId59"] img { aspect-ratio: 1607 / 2000; }
+.bio_photo[data-bio-image="rId60"] img { aspect-ratio: 1653 / 2000; }
+.bio_photo[data-bio-image="rId61"] img { aspect-ratio: 1642 / 2000; }
+.bio_photo[data-bio-image="rId62"] img { aspect-ratio: 1851 / 2000; }
+.bio_photo[data-bio-image="rId63"] img { aspect-ratio: 1443 / 1177; }
+.bio_photo[data-bio-image="rId64"] img { aspect-ratio: 1500 / 2000; }
+.bio_photo[data-bio-image="rId65"] img { aspect-ratio: 1528 / 1200; }
+.bio_photo[data-bio-image="rId66"] img { aspect-ratio: 2000 / 1423; }
+.bio_photo[data-bio-image="rId67"] img { aspect-ratio: 2000 / 1607; }
+.bio_photo[data-bio-image="rId68"] img { aspect-ratio: 2000 / 1500; }
+.bio_photo[data-bio-image="rId69"] img { aspect-ratio: 2000 / 1329; }
+.bio_photo[data-bio-image="rId70"] img { aspect-ratio: 1872 / 1080; }
+.bio_photo[data-bio-image="rId71"] img { aspect-ratio: 2000 / 1334; }
+.bio_photo[data-bio-image="rId72"] img { aspect-ratio: 2000 / 1333; }
+.bio_photo[data-bio-image="rId73"] img { aspect-ratio: 2000 / 1492; }
+.bio_photo[data-bio-image="rId74"] img { aspect-ratio: 1331 / 2000; }
+.bio_photo[data-bio-image="rId75"] img { aspect-ratio: 2000 / 1500; }
+.bio_photo[data-bio-image="rId76"] img { aspect-ratio: 1747 / 2000; }
+
+/* head: Webflow style */
+.site-lightbox__credit {
+  display: block;
+  margin-top: .3rem;
+  color: var(--fw_dark_purple_50, #82808c);
+  font-family: 'StyreneA', sans-serif;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.site-lightbox__credit[hidden] { display: none !important; }
+[data-site-lightbox] .site-lightbox__previous,
+[data-site-lightbox] .site-lightbox__next { display: none !important; }
+
+/* head: fw-biography-layout-rules */
+@media screen and (min-width: 768px) {
+  /* An image above the final pair makes the shorter photo align at the top. */
+  .bio_gallery:has(> .bio_photo:first-child:is(.bio_size_m, .bio_size_l) + .bio_size_s + .bio_size_s:last-child) {
+    align-items: start;
+  }
+
+  /* A tall image stays left; the two smaller images stack on its right. */
+  .bio_gallery_stagger {
+    align-items: start;
+  }
+  .bio_gallery_stagger > .bio_stagger_first {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+  .bio_gallery_stagger > .bio_stagger_second {
+    grid-column: 3 / span 2;
+    grid-row: 1;
+    align-self: start;
+  }
+  .bio_gallery_stagger > .bio_stagger_third {
+    grid-column: 3 / span 2;
+    grid-row: 2;
+    align-self: start;
+  }
+}
+
+/* head: fw-biography-targeted-refinements */
+/* Quotes sit inside the text column with a shorter measure. */
+.bio_quote {
+  box-sizing: border-box;
+  width: calc(100% - 2.5rem);
+  margin-left: 1.5rem;
+}
+@media screen and (max-width: 767px) {
+  .bio_quote { width: calc(100% - 1.5rem); margin-left: 1rem; }
+}
+@media screen and (min-width: 768px) {
+  /* 1974: two small works stacked left of the portrait. */
+  .bio_year_row[data-bio-year="1974"] .bio_gallery { align-items: start; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId17"] { grid-column: 3 / span 2; grid-row: 1 / span 2; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId18"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId19"] { grid-column: 1 / span 2; grid-row: 2; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId20"] { grid-column: 1 / -1; grid-row: 3; }
+
+  /* 1986: Redundanz and the prize photograph share one row. */
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId32"] { grid-column: 1 / span 2; grid-row: 3; }
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId33"] { grid-column: 3 / span 2; grid-row: 3; }
+
+  /* 1987: smaller catalogue cover beside the installation view. */
+  .bio_year_row[data-bio-year="1987"] .bio_photo[data-bio-image="rId34"] { grid-column: 1 / span 1; grid-row: 1; }
+  .bio_year_row[data-bio-year="1987"] .bio_photo[data-bio-image="rId35"] { grid-column: 2 / span 3; grid-row: 1; }
+
+  /* 2003: the magazine cover sits beside the first image. */
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId59"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId61"] { grid-column: 3 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId60"] { grid-column: 1 / -1; grid-row: 2; }
+
+  /* 2004: newspaper and installation view side by side. */
+  .bio_year_row[data-bio-year="2004"] .bio_photo[data-bio-image="rId62"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2004"] .bio_photo[data-bio-image="rId63"] { grid-column: 3 / span 2; grid-row: 1; }
+
+  /* 2007: switch image and text columns. */
+  .bio_year_row[data-bio-year="2007"] > .bio_year_copy { grid-column-start: 2; }
+  .bio_year_row[data-bio-year="2007"] > .bio_year_images { grid-column-start: 1; }
+
+  /* 2011: La Stampa below the image on the right. */
+  .bio_year_row[data-bio-year="2011"] .bio_gallery { align-items: start; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId73"] { grid-column: 1 / -1; grid-row: 1; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId74"] { grid-column: 1 / span 2; grid-row: 2 / span 2; align-self: start; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId75"] { grid-column: 3 / span 2; grid-row: 2; align-self: start; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId76"] { grid-column: 3 / span 2; grid-row: 3; align-self: start; }
+}
+
+/* head: fw-biography-1987-bottom-align */
+@media screen and (min-width: 768px) {
+  .bio_year_row[data-bio-year="1987"] .bio_gallery { align-items: end; }
+  .bio_year_row[data-bio-year="1987"] .bio_photo .bio_caption { min-height: 3lh; }
+}
+
+/* head: fw-biography-1986-wide-idiosyngramm */
+@media screen and (min-width: 768px) {
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId31"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* head: fw-biography-1970-bottom-align */
+@media screen and (min-width: 768px) {
+  .bio_gallery_stagger > .bio_stagger_first {
+    align-self: end;
+  }
+}
+
+/* head: fw-biography-final-chapter-text */
+.bio_era_final .bio_era_years,
+.bio_era_final .bio_era_title { background-size: 100% 100% !important; }
+
+/* head: fw-biography-mobile-layout-rules */
+@media screen and (max-width: 767px) {
+  /* Keep the same relative alignment when a gallery follows a larger image. */
+  .bio_gallery:has(> .bio_photo:first-child:is(.bio_size_m, .bio_size_l) + .bio_size_s + .bio_size_s:last-child) {
+    align-items: start;
+  }
+
+  /* 1970/72: tall image left, two smaller images stacked right, bottom aligned. */
+  .bio_gallery_stagger { align-items: start; column-gap: .75rem; }
+  .bio_gallery_stagger > .bio_stagger_first {
+    grid-column: 1 / span 2; grid-row: 1 / span 2; align-self: end;
+  }
+  .bio_gallery_stagger > .bio_stagger_second {
+    grid-column: 3 / span 2; grid-row: 1; align-self: start;
+  }
+  .bio_gallery_stagger > .bio_stagger_third {
+    grid-column: 3 / span 2; grid-row: 2; align-self: start;
+  }
+
+  /* 1974: two small works stacked left of the portrait. */
+  .bio_year_row[data-bio-year="1974"] .bio_gallery { align-items: start; column-gap: .75rem; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId17"] { grid-column: 3 / span 2; grid-row: 1 / span 2; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId18"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId19"] { grid-column: 1 / span 2; grid-row: 2; }
+  .bio_year_row[data-bio-year="1974"] .bio_photo[data-bio-image="rId20"] { grid-column: 1 / -1; grid-row: 3; }
+
+  /* 1986: the first pair, wide Idiosyngramm, then the final pair. */
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId29"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId30"] { grid-column: 3 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId31"] { grid-column: 1 / -1; grid-row: 2; }
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId32"] { grid-column: 1 / span 2; grid-row: 3; }
+  .bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId33"] { grid-column: 3 / span 2; grid-row: 3; }
+
+  /* 1987: smaller catalogue cover beside the view, image bottoms aligned. */
+  .bio_year_row[data-bio-year="1987"] .bio_gallery {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: end; column-gap: .75rem;
+  }
+  .bio_year_row[data-bio-year="1987"] .bio_photo[data-bio-image="rId34"] { grid-column: 1 / 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="1987"] .bio_photo[data-bio-image="rId35"] { grid-column: 2 / 3; grid-row: 1; }
+  .bio_year_row[data-bio-year="1987"] .bio_photo .bio_caption { min-height: 4lh; }
+
+  /* 2003/04: retain the intended image pairs. */
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId59"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId61"] { grid-column: 3 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2003"] .bio_photo[data-bio-image="rId60"] { grid-column: 1 / -1; grid-row: 2; }
+  .bio_year_row[data-bio-year="2004"] .bio_photo[data-bio-image="rId62"] { grid-column: 1 / span 2; grid-row: 1; }
+  .bio_year_row[data-bio-year="2004"] .bio_photo[data-bio-image="rId63"] { grid-column: 3 / span 2; grid-row: 1; }
+
+  /* The 2007 side switch becomes image first in the single-column layout. */
+  .bio_year_row[data-bio-year="2007"] > .bio_year_images { grid-column: 1; grid-row: 1; }
+  .bio_year_row[data-bio-year="2007"] > .bio_year_copy { grid-column: 1; grid-row: 2; }
+
+  /* 2011: La Stampa under the right-hand photograph. */
+  .bio_year_row[data-bio-year="2011"] .bio_gallery { align-items: start; column-gap: .75rem; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId73"] { grid-column: 1 / -1; grid-row: 1; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId74"] { grid-column: 1 / span 2; grid-row: 2 / span 2; align-self: start; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId75"] { grid-column: 3 / span 2; grid-row: 2; align-self: start; }
+  .bio_year_row[data-bio-year="2011"] .bio_photo[data-bio-image="rId76"] { grid-column: 3 / span 2; grid-row: 3; align-self: start; }
+}
+
+/* head: fw-biography-mobile-chapter-centering */
+@media screen and (max-width: 767px) {
+  .bio_era_label.bio_chapter_label {
+    width: 100%;
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+  .bio_era_head.bio_chapter_head {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    text-align: center;
+  }
+  .bio_chapter_label .bio_era_years,
+  .bio_chapter_label .bio_chapter_title {
+    width: 100%;
+    margin-inline: auto;
+    text-align: center;
+  }
+}
+
+/* footer: fw-bio-videos */
+.bio_video { margin: 0; width: 100%; }
+.bio_video_trigger {
+  position: relative; display: block; width: 100%; aspect-ratio: 16 / 9;
+  padding: 0; border: 0; background: #d9d9dc; cursor: pointer; overflow: hidden;
+}
+.bio_video_trigger img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bio_video_play {
+  position: absolute; top: 50%; left: 50%; display: grid; place-items: center;
+  width: clamp(3.25rem, 6vw, 4.5rem); aspect-ratio: 1; border-radius: 50%;
+  background: #f7f7f8; color: #06021a; transform: translate(-50%, -50%);
+  transition: transform .25s ease, background-color .25s ease;
+}
+.bio_video_play::after {
+  content: ''; width: 28%; height: 32%; margin-left: 5%;
+  background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.bio_video_trigger:hover .bio_video_play,
+.bio_video_trigger:focus-visible .bio_video_play { transform: translate(-50%, -50%) scale(1.1); background: #ffc6d2; }
+.bio_video_trigger:focus-visible { outline: 2px solid #06021a; outline-offset: 3px; }
+.bio_video .bio_caption { margin-top: .5rem; }
+.bio_video_dialog { position: fixed; inset: 0; width: 100%; max-width: none; height: 100vh; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(6 2 26 / 90%); overflow: hidden; }
+.bio_video_dialog[open] { display: grid; place-items: center; }
+.bio_video_dialog::backdrop { background: rgb(6 2 26 / 90%); }
+.bio_video_frame { width: min(92vw, 70rem); aspect-ratio: 16 / 9; max-height: calc(100dvh - 6rem); background: #000; }
+.bio_video_frame video-skin, .bio_video_frame video { display: block; width: 100%; height: 100%; }
+.bio_video_dialog .bio_video_close { position: fixed; top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); }
+.bio_video_error { position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%); color: #fff; font: 500 .875rem/1.4 'StyreneA', sans-serif; }
+html.bio_video_open { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .bio_video_play { transition: none; } }
+
+/* footer: fw-biography-timeline-adjustments */
+.bio_photo[data-bio-image="1977-einladung"] img { aspect-ratio: 2000 / 1385; }
+.bio_photo[data-bio-image="1983-signaturalismen"] img { aspect-ratio: 1940 / 2000; }
+.bio_photo[data-bio-image="1995-otium"] img { aspect-ratio: 1458 / 2000; }
+.bio_photo[data-bio-image="1996-proforma"] img { aspect-ratio: 2000 / 1936; }
+.bio_photo[data-bio-image="rId51"] img { aspect-ratio: 1946 / 1527; }
+.bio_photo[data-bio-image="rId54"] img { aspect-ratio: 1950 / 1993; }
+.bio_photo[data-bio-image="rId57"] img { aspect-ratio: 2000 / 1319; }
+
+/* Idiosyngramm sits above Redundanz; the prize photograph stays beside it. */
+.bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId31"] {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+.bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId32"] {
+  align-self: start;
+}
+.bio_year_row[data-bio-year="1986"] .bio_photo[data-bio-image="rId33"] {
+  grid-column: 3 / span 2;
+  grid-row: 2 / span 2;
+  align-self: start;
+}
+
+/* The atelier pair shares one caption. */
+.bio_year_row[data-bio-year="1997"] .bio_photo[data-bio-image="rId53"] .bio_caption {
+  display: none;
+}
+
+.bio_video .bio_caption {
+  display: block;
+  margin: .75rem 0 0;
+  max-width: 40ch;
+  padding: 0;
+  text-align: left;
+  line-height: 1.45;
+}
+.bio_year_row[data-bio-year="1998"] .bio_year_copy .bio_video {
+  margin: 2rem 0 2.5rem;
+}
+@media screen and (max-width: 767px) {
+  .bio_year_row[data-bio-year="1998"] .bio_year_copy .bio_video {
+    margin: 1.5rem 0 2rem;
+  }
+}

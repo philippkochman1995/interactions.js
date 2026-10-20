@@ -1,0 +1,7 @@
+/* head: Webflow style */
+@media screen and (min-width: 768px) {
+    .wm-legend { z-index: 1000; }
+  }
+
+/* head: fw-light-map-background */
+#wmMap, .wm-map { background-color: var(--fw_dark_purple_5, #f3f2f4); }

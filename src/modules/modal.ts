@@ -35,6 +35,7 @@ interface SingletonElements {
   text: HTMLElement;
   work: HTMLElement;
   gallery: HTMLElement;
+  rights: HTMLElement;
 }
 
 const LEGACY_MODAL_SELECTOR = '[data-modal]';
@@ -108,6 +109,7 @@ function createSingleton(): SingletonElements {
       <div class="fwm-modal__text" data-site-modal-text></div>
       <div class="fwm-modal__work" data-site-modal-work></div>
       <div class="fwm-modal__gallery" data-site-modal-gallery></div>
+      <div class="fwm-modal__rights" data-site-modal-rights hidden></div>
     </div>
   `;
 
@@ -126,6 +128,7 @@ function createSingleton(): SingletonElements {
     text: root.querySelector<HTMLElement>('[data-site-modal-text]')!,
     work: root.querySelector<HTMLElement>('[data-site-modal-work]')!,
     gallery: root.querySelector<HTMLElement>('[data-site-modal-gallery]')!,
+    rights: root.querySelector<HTMLElement>('[data-site-modal-rights]')!,
   };
 
   result.closeButton.innerHTML = MODAL_CLOSE_ICON_SVG;
@@ -256,6 +259,7 @@ function readContentElement(element: HTMLElement): ContentModalData | null {
     imageAlt: firstGalleryItem?.alt ?? '',
     caption: firstGalleryItem?.caption ?? '',
     html: bodyElement?.innerHTML ?? '',
+    rights: element.getAttribute('data-canvas-modal-rights')?.trim() ?? '',
     work: readWorkElement(element),
     gallery,
   };
@@ -456,6 +460,8 @@ function clearContextContent(singleton: SingletonElements): void {
   singleton.work.hidden = true;
   singleton.gallery.replaceChildren();
   singleton.gallery.hidden = true;
+  singleton.rights.textContent = '';
+  singleton.rights.hidden = true;
 }
 
 function renderModalText(target: HTMLElement, html: string): void {
@@ -522,6 +528,8 @@ function renderContextContent(singleton: SingletonElements, content: ContentModa
   singleton.work.hidden = !content.work;
   singleton.gallery.replaceChildren();
   singleton.gallery.hidden = gallery.length === 0;
+  singleton.rights.textContent = content.rights?.trim() ?? '';
+  singleton.rights.hidden = !singleton.rights.textContent;
 
   if (content.work) {
     singleton.work.append(renderWork(content.work));
@@ -588,6 +596,7 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
     imageAlt: content.imageAlt ?? '',
     caption: content.caption ?? '',
     html: content.html ?? '',
+    rights: content.rights ?? '',
     work: content.work ?? null,
     gallery: content.gallery?.length
       ? content.gallery

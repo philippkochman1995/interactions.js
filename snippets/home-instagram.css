@@ -87,7 +87,7 @@
   will-change: transform;
 }
 
-[data-insta-feed] [data-insta-track] > div {
+[data-insta-feed] [data-insta-track] > :is(div, a) {
   position: relative;
   flex: 0 0 calc((100% - 45px) / 4);
   aspect-ratio: 406 / 508;
@@ -95,7 +95,7 @@
   box-shadow: 0 -5px 30px rgba(6, 2, 26, .08);
 }
 
-[data-insta-feed] [data-insta-track] > div img {
+[data-insta-feed] [data-insta-track] > :is(div, a) img {
   display: block;
   position: absolute;
   width: 100%;
@@ -177,11 +177,11 @@
 }
 
 @media screen and (max-width: 991px) {
-  [data-insta-feed] [data-insta-track] > div { flex-basis: calc((100% - 15px) / 2); }
+  [data-insta-feed] [data-insta-track] > :is(div, a) { flex-basis: calc((100% - 15px) / 2); }
 }
 
 @media screen and (max-width: 767px) {
-  [data-insta-feed] [data-insta-track] > div { flex-basis: 74%; }
+  [data-insta-feed] [data-insta-track] > :is(div, a) { flex-basis: 74%; }
   [data-insta-feed] [data-insta-prev],
   [data-insta-feed] [data-insta-next] {
     width: 2.5rem;

@@ -1,0 +1,50 @@
+/* head: werkgruppen-click-cursor */
+.accordion_section .accordion_header { cursor: pointer; }
+
+/* head: quote-sub-styrene */
+.quote-sub { font-family: StyreneA, Arial, sans-serif; }
+
+/* head: fw-work-overlay-menu-and-overview-fix */
+[data-work-overlay] > .work-overlay__flyer { z-index: 2 !important; }
+[data-work-overlay] > [data-site-menu] { z-index: 3 !important; }
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--cms-work-detail-rosa);
+  pointer-events: none;
+  transform: translate3d(0, 100%, 0) !important;
+  transition: transform var(--fw-button-hover-duration, 0.45s)
+    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1)) !important;
+}
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined:is(:hover, :focus-visible) .button-mask {
+  transform: translate3d(0, 0, 0) !important;
+}
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-text,
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined .arrow {
+  position: relative;
+  z-index: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-mask {
+    transition: none !important;
+  }
+}
+
+/* head: fw-works-overview-fade */
+html.fw-works-fade-in body { opacity: 1 !important; transition: opacity 320ms ease !important; }
+html.fw-works-fade-entry body { opacity: 0 !important; }
+html.fw-works-fade-out body { opacity: 0 !important; transition: opacity 320ms ease !important; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  html.fw-works-fade-in body, html.fw-works-fade-out body { transition: none !important; }
+}
+
+/* head: fw-works-reset-style */
+.cms-works-filter__reset { border: 0; padding: .25rem 0; background: none; color: var(--cms-works-dark-75); font: inherit; font-size: var(--_sizes---footer-14, .875rem); line-height: 1.2; letter-spacing: .04em; text-transform: uppercase; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; white-space: nowrap; }
+.cms-works-filter__reset:hover, .cms-works-filter__reset:focus-visible { color: var(--cms-works-dark); }
+@media (max-width: 479px) { .cms-works-filter__reset { font-size: .6875rem; letter-spacing: 0; } }

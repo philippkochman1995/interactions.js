@@ -192,11 +192,16 @@ The West Map is delivered by `west-map.css` and `dist/west-map.js`. Webflow keep
 The Home page uses `src/home-west-map.ts` and `home-west-map.css` as a separate,
 fixed-camera preview. Its Mapbox library and stylesheet load only when the map
 section approaches the viewport. The existing `.map_section_img` stays as the
-poster and fallback. Home's hidden `.hm_cms` Collection List supplies
-`.hm_lat`, `.hm_lng`, `.hm_kat`, `.hm_bild`, and `.hm_adresse` from *West Map Orte*.
-The `.map_section` has `data-wm-home` and the same public `data-mapbox-token`
-as `#wmMap` on the full map page. The built CSS and JavaScript are currently
-embedded in the Home page's Webflow custom code.
+poster and fallback. Home's existing hidden `.hm_cms` Collection List supplies
+`.hm_lat`, `.hm_lng`, `.hm_kat`, `.hm_bild`, and `.hm_adresse` from the *West Map
+Orte* collection. The `.map_section` has `data-wm-home` and the same public
+`data-mapbox-token` as `#wmMap` on the full map page. Keep `.map_bg` behind
+`.map_info`; the module inserts the map and a full-area link inside `.map_bg`.
+
+The Home page currently stores the built preview CSS and JavaScript in its
+page-level Webflow custom code. After editing the module, rebuild and update
+those page-level blocks together. The source map comment from
+`dist/home-west-map.js` must be removed when the bundle is inlined.
 
 Page head:
 
@@ -307,6 +312,8 @@ small grey top text in the modal. `data-canvas-modal-headline`,
 missing, the hover text is used. Older `data-canvas-modal-address`,
 `data-canvas-modal-image`, and `data-canvas-modal-caption` fields remain
 supported as a context-only fallback. Other modals keep the default image-before-text layout.
+The work card keeps its CMS Works selection; a `/werke/<slug>` link opens
+`/werk-ueberblick?work=<slug>#werke` instead of the individual work page.
 
 Bind a CMS text element containing the `Größe` option to `data-canvas-size`.
 The accepted values are `Klein`, `Mittel`, and `Groß`; a missing or unrecognized
@@ -318,10 +325,12 @@ All root configuration attributes are optional:
 
 ```text
 data-canvas-column-width        Column width in vw (default: 25)
-data-canvas-mobile-column-width Column width in vw up to the mobile breakpoint (default: 50)
+data-canvas-mobile-column-width Column width in vw up to the mobile breakpoint (default: 78)
 data-canvas-mobile-breakpoint   Mobile layout breakpoint in px (default: 767)
 data-canvas-item-margin-min     Minimum item spacing in vw, used vertically and horizontally (default: 4)
 data-canvas-item-margin-max     Maximum item spacing in vw, used vertically and horizontally (default: 6)
+data-canvas-mobile-item-margin-min Minimum mobile item spacing in vw (default: 8)
+data-canvas-mobile-item-margin-max Maximum mobile item spacing in vw (default: 12)
 data-canvas-item-offset-min     Minimum per-item transform offset in % (default: 3)
 data-canvas-item-offset-max     Maximum per-item transform offset in % (default: 6)
 data-canvas-inertia             Enable release momentum unless set to false (default: true)
@@ -334,8 +343,8 @@ The background uses the existing `--fw_off_white` CSS variable. The canvas now u
 an infinite-feeling repeated column pattern. The number of columns is calculated
 from the real CMS item count with `Math.round(Math.sqrt(count))`, so 15 items
 become 4 columns. Columns are 25vw by default, so about four columns can be
-visible horizontally. On screens up to 767px, columns are 50vw by default, so
-about two columns are visible. Items are measured first and then assigned to the
+visible horizontally. On screens up to 767px, columns are 78vw by default, with
+8–12vw item spacing so the images are larger and easier to tap. Items are measured first and then assigned to the
 currently shortest column, so the distribution balances actual rendered height
 instead of only item count. If a column would still be much shorter than the
 tallest column, the remaining height is distributed as spacing instead of adding
@@ -659,8 +668,13 @@ ist dessen neuer Inhalt: eine Instanz mit `lerp: 0.0822`, `wheelMultiplier: 0.8`
 haengt diese Instanz an den GSAP-Ticker und aktualisiert ScrollTrigger bei jedem
 Lenis-Scroll. Es startet keinen zweiten RAF-Loop. Das CSS von Lenis 1.3.26 wird
 im Site-Head eingebunden; `scroll-behavior: smooth` und Scroll-Snap sind am
-Fenster-Scroller deaktiviert. News-Seiten und Reduced Motion starten Lenis nicht.
+Fenster-Scroller deaktiviert. Lenis laeuft auch auf `/news` und dessen
+Unterseiten; bei Reduced Motion startet es nicht.
 Modal und Lightbox stoppen die Instanz waehrend ihrer Scroll-Sperre.
+Beim Verlassen wird die GSAP-Verbindung geloest und beim Wiederherstellen aus
+dem Back/Forward-Cache erneut verbunden. Der Webflow-Initializer stellt bei
+alten Hauptbundles ohne Wiederverbindung seinen RAF-Fallback wieder her; sobald
+GSAP uebernimmt, wird dieser gestoppt. Das gilt auch fuer wiederholtes Zurueck/Vor.
 
 ## CSS hooks
 
@@ -779,7 +793,13 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
 - Native Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
   vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
-  Szene vorgeladen und für den Preloader abgewartet. Inaktive Slides werden nach
+  sichtbare Szene vorgeladen und für den Preloader abgewartet. Auf Home hat die
+  erste Folie separate Szenen für Desktop und Mobile (bis 767 px). Das Head-Skript
+  entfernt auf Telefonen die Desktop-Szene während des HTML-Parsens, bevor Webflow
+  einen zweiten GPU-Renderer anlegt. Die Mobile-Szene bleibt auch im Querformat
+  sichtbar. Das Home-CSS in `snippets/home-responsive-spline.html` hält auf anderen
+  Geräten die inaktive Szene mit `visibility: hidden` auf voller Größe, damit WebGPU kein
+  0×0-Canvas initialisiert; der Preloader überspringt sie. Inaktive Slides werden nach
   `w-spline-load` mit Webflows `stop()` pausiert und beim Aktivieren mit `play()`
   fortgesetzt, sofern der Slider im Viewport und der Browser-Tab sichtbar ist.
   Ein IntersectionObserver pausiert alle Szenen außerhalb des Viewports;

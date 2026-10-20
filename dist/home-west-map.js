@@ -1,5 +1,5 @@
 //#region src/home-west-map.ts
-var e = "2.15.0", t = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.js`, n = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.css`, r = "/west-map", i = "(max-width: 767px)", a = [[-12, 34], [37, 61]], o = 24, s;
+var e = "2.15.0", t = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.js`, n = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.css`, r = "/west-map", i = "(max-width: 767px)", a = [[-7, 37], [32, 59]], o = 18, s;
 function c() {
 	if (s) return s;
 	let e = document.createElement("link");

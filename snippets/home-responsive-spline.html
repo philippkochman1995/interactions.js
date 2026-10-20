@@ -1,0 +1,29 @@
+<style>
+/* Keep both Webflow Spline canvases sized so WebGPU never starts at 0 × 0. */
+.werk_hero_spline.is-mobile-scene {
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .werk_hero_spline.is-mobile-scene {
+    position: relative;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .werk_hero_spline.is-desktop-scene {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+</style>

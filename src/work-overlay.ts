@@ -11,6 +11,7 @@ import {
   type WorkItem,
 } from './cms-work-detail';
 import { afterSitePreloader } from './modules/site-preloader-state';
+import { initLogoVariants } from './modules/logo-variants';
 import { getFocusableElements, hasModifierKey, prefersReducedMotion } from './modules/utils';
 
 gsap.registerPlugin(Flip);
@@ -37,10 +38,17 @@ const works = manifest as ManifestWork[];
 const worksById = new Map(works.map((work) => [work.id, work]));
 const relatedItems: WorkItem[] = works.map((work, index) => ({ ...work, index }));
 const FLIP_DURATION = 0.82;
+const OVERVIEW_FADE_DURATION = FLIP_DURATION;
 
 function overviewUrl(): string {
   const url = new URL(window.location.href);
   url.searchParams.delete('work');
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function worksOverviewUrl(): string {
+  const url = new URL(overviewUrl(), window.location.href);
+  url.hash = 'werke';
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
@@ -101,6 +109,24 @@ function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorEleme
   return { header, backLink };
 }
 
+function animateOverviewLink(link: HTMLAnchorElement): void {
+  const label = link.textContent?.trim() || 'Zur Übersicht';
+  const mask = document.createElement('span');
+  const text = document.createElement('span');
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  link.classList.add('button-outlined');
+  mask.className = 'button-mask';
+  mask.setAttribute('aria-hidden', 'true');
+  text.className = 'button-text';
+  text.textContent = label;
+  arrow.classList.add('arrow');
+  arrow.setAttribute('viewBox', '0 0 17 15');
+  arrow.setAttribute('aria-hidden', 'true');
+  arrow.innerHTML = '<path class="arrow-dot" d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor"/><path class="arrow-arrow" d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor"/>';
+  link.replaceChildren(mask, text, arrow);
+}
+
 export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void {
   const overviewTitle = document.title;
   const overlay = document.createElement('div');
@@ -135,17 +161,18 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-label', 'Werkdetails');
   overlay.setAttribute('data-work-overlay', '');
-  overlay.setAttribute('data-lenis-prevent', '');
   overlay.tabIndex = -1;
   backdrop.className = 'work-overlay__backdrop';
   surface.className = 'work-overlay__surface';
+  surface.setAttribute('data-lenis-prevent', '');
   scrollContent.className = 'work-overlay__scroll-content';
   content.className = 'work-overlay__content';
   scrollContent.append(header, content);
   surface.append(scrollContent);
   overlay.append(backdrop, surface);
-  overlay.setAttribute('data-work-detail-overview-href', overviewUrl());
+  overlay.setAttribute('data-work-detail-overview-href', worksOverviewUrl());
   document.body.append(overlay);
+  initLogoVariants();
 
   const findSlot = (id: string): HTMLElement | null => {
     const card = Array.from(gridMount.querySelectorAll<HTMLElement>('[data-works-rendered-item]'))
@@ -162,7 +189,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
 
   const visibleContent = (): HTMLElement[] => [
     backLink,
-    ...Array.from(header.querySelectorAll<HTMLElement>('.top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link')),
+    ...Array.from(header.querySelectorAll<HTMLElement>('.nav_logo_link')),
     ...Array.from(content.querySelectorAll<HTMLElement>(
       '.cms-work-detail__content > *, .cms-work-detail__caption, .cms-work-detail__related',
     )),
@@ -173,7 +200,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     flipTween = null;
     motion?.kill();
     motion = null;
-    gsap.killTweensOf([backdrop, gridMount, surface, ...visibleContent()]);
+    gsap.killTweensOf([backdrop, surface, ...visibleContent()]);
   };
 
   const applyBackgroundInert = (): void => {
@@ -254,6 +281,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!activeImage || !activeWork) return;
     const slot = findSlot(activeWork.id) || sourceSlot;
     if (slot?.isConnected) {
+      // The original card image is already in the grid after opening. Keep it
+      // when returning the detail image from the closing animation.
       if (!slot.querySelector('img')) {
         activeImage.className = 'cms-works__image';
         slot.append(activeImage);
@@ -279,8 +308,12 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     }
     if (related) {
       related.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
-        link.setAttribute('data-transition', 'false');
+        if (!link.classList.contains('cms-work-detail__overview-link')) {
+          link.setAttribute('data-transition', 'false');
+        }
       });
+      const overviewLink = related.querySelector<HTMLAnchorElement>('.cms-work-detail__overview-link');
+      if (overviewLink) animateOverviewLink(overviewLink);
     }
     const detailRoot = document.createElement('div');
     detailRoot.className = 'work-detail_wrapper u-section cms-work-detail work-overlay__detail';
@@ -315,6 +348,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const token = ++revision;
     const oldWork = activeWork;
     cancelMotion();
+    // A related-work switch must discard Lenis's previous scroll target.
     if (oldWork) stopOverlayLenis();
     if (oldWork) restoreImageToGrid();
     phase = 'opening';
@@ -354,51 +388,38 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     moveSiteMenuIntoOverlay();
     lockBackground();
     applyBackgroundInert();
+    // Measure the visible detail image before Flip captures its destination.
     const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
     detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     startOverlayLenis();
+    if (oldWork) {
+      overlayLenis?.scrollTo(0, { immediate: true, force: true });
+      surface.scrollTop = 0;
+      requestAnimationFrame(() => {
+        if (token !== revision) return;
+        overlayLenis?.resize();
+        overlayLenis?.scrollTo(0, { immediate: true, force: true });
+        surface.scrollTop = 0;
+      });
+    }
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
     gsap.set(visibleContent(), { autoAlpha: 0 });
 
     if (instant || prefersReducedMotion() || !activeFlyer) {
       gsap.set(backdrop, { opacity: 1 });
-      gsap.set(gridMount, { opacity: 0 });
       finishOpen(token);
       return;
     }
 
     gsap.set(backdrop, { opacity: oldWork ? 1 : 0 });
-    const startFlip = (): void => {
-      if (token !== revision || !activeFlyer) return;
-      const target = placeholder.getBoundingClientRect();
-      if (target.width <= 0 || target.height <= 0) {
-        gsap.set(backdrop, { opacity: 1 });
-        gsap.set(gridMount, { opacity: 0 });
-        finishOpen(token);
-        return;
-      }
-      motion = gsap.timeline();
-      motion.to(backdrop, { opacity: 1, duration: 0.32, ease: 'power2.out' }, 0);
-      motion.to(gridMount, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0);
-      flipTween = Flip.fit(activeFlyer, placeholder, {
-        duration: FLIP_DURATION,
-        ease: 'power3.inOut',
-        onComplete: () => finishOpen(token),
-      }) as gsap.core.Animation;
-    };
-
-    if (placeholder.complete && placeholder.naturalWidth > 0) {
-      startFlip();
-    } else {
-      placeholder.addEventListener('load', () => requestAnimationFrame(startFlip), { once: true });
-      placeholder.addEventListener('error', () => {
-        if (token !== revision) return;
-        gsap.set(backdrop, { opacity: 1 });
-        gsap.set(gridMount, { opacity: 0 });
-        finishOpen(token);
-      }, { once: true });
-    }
+    motion = gsap.timeline();
+    motion.to(backdrop, { opacity: 1, duration: OVERVIEW_FADE_DURATION, ease: 'power1.inOut' }, 0);
+    flipTween = Flip.fit(activeFlyer, placeholder, {
+      duration: FLIP_DURATION,
+      ease: 'power3.inOut',
+      onComplete: () => finishOpen(token),
+    }) as gsap.core.Animation;
   };
 
   const finishClose = (token: number): void => {
@@ -412,7 +433,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     activeWork = null;
     phase = 'closed';
     document.title = overviewTitle;
-    gsap.set(gridMount, { clearProps: 'opacity' });
     gsap.set(backdrop, { clearProps: 'opacity' });
     unlockBackground();
     const focusTarget = originFocus?.isConnected ? originFocus : null;
@@ -431,8 +451,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       const slot = activeWork ? findSlot(activeWork.id) || sourceSlot : null;
       const detailImage = activeImage || content.querySelector<HTMLImageElement>('.cms-work-detail__image');
       if (!slot?.isConnected || !detailImage || prefersReducedMotion()) {
-        gsap.to(backdrop, { opacity: 0, duration: prefersReducedMotion() ? 0 : 0.25 });
-        gsap.to(gridMount, { opacity: 1, duration: prefersReducedMotion() ? 0 : 0.25,
+        gsap.to(backdrop, { opacity: 0, duration: prefersReducedMotion() ? 0 : OVERVIEW_FADE_DURATION,
           onComplete: () => finishClose(token) });
         return;
       }
@@ -444,8 +463,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
         activeImage = detailImage;
         activeFlyer = createFlyer(detailImage, bounds);
       }
-      gsap.to(backdrop, { opacity: 0, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
-      gsap.to(gridMount, { opacity: 1, duration: FLIP_DURATION * 0.75, ease: 'power2.inOut' });
+      gsap.to(backdrop, { opacity: 0, duration: OVERVIEW_FADE_DURATION, ease: 'power1.inOut' });
       flipTween = Flip.fit(activeFlyer, slot, {
         duration: FLIP_DURATION,
         ease: 'power3.inOut',
@@ -506,8 +524,8 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   };
 
   const requestBack = (): void => {
-    const state = history.state as { fwWorkOverlay?: boolean; depth?: number } | null;
-    if (state?.fwWorkOverlay && (state.depth || 0) > 1) {
+    const state = history.state as { fwWorkOverlay?: boolean; fromOverview?: boolean; depth?: number } | null;
+    if (state?.fwWorkOverlay && state.depth && (state.depth > 1 || !state.fromOverview)) {
       history.back();
       return;
     }
@@ -542,8 +560,6 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
       return;
     }
     if (link.classList.contains('cms-work-detail__overview-link')) {
-      event.preventDefault();
-      requestClose();
       return;
     }
     const work = worksById.get(slugFromHref(link.href));

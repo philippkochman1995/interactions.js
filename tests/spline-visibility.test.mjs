@@ -13,7 +13,8 @@ function compile(path) {
 const source = compile('../src/modules/spline-slider.ts');
 const markup = compile('../src/modules/site-preloader-markup.ts');
 
-function fixture({ visible = true, hidden = false, loaded = true, observer = true } = {}) {
+function fixture({ visible = true, hidden = false, loaded = true, observer = true,
+  hiddenScene = -1, invisibleScene = -1 } = {}) {
   const documentEvents = new Map();
   const windowEvents = new Map();
   const mutations = [];
@@ -71,11 +72,16 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
     addEventListener: (name, callback) => windowEvents.set(name, callback),
   };
   const context = { exports: {}, window, document, Element, HTMLElement: Element, MutationObserver,
+    getComputedStyle: (element) => ({
+      display: element === scenes[hiddenScene] ? 'none' : 'block',
+      visibility: element === scenes[invisibleScene] ? 'hidden' : 'visible',
+    }),
     IntersectionObserver: observer ? IntersectionObserver : undefined };
   runInNewContext(source, context);
   context.exports.initHeroSplineSlides();
   return {
     state,
+    inactive(index) { return context.exports.isInactiveHeroSplineScene(scenes[index]); },
     visibility(hidden) { document.hidden = hidden; documentEvents.get('visibilitychange')(); },
     viewport(value, width = 800, height = 600) {
       inViewport = value;
@@ -102,6 +108,18 @@ test('only the active visible scene plays; leaving and returning resumes it', ()
   assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
   f.viewport(true);
   assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
+});
+
+test('a scene hidden at the current breakpoint is inactive and does not play', () => {
+  const f = fixture({ hiddenScene: 0 });
+  assert.equal(f.inactive(0), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+});
+
+test('a sized but invisible scene is inactive and does not play', () => {
+  const f = fixture({ invisibleScene: 0 });
+  assert.equal(f.inactive(0), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
 });
 
 test('hidden tabs stop every scene and resume only the current visible slide', () => {

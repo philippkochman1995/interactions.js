@@ -1,5 +1,4 @@
 (function () {
-  if (/(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (window.lenis) return;
 
@@ -21,20 +20,36 @@
     window.lenis = lenis;
     window.__siteLenisManaged = true;
 
-    // Keep the current published bundle functional until its GSAP ticker is deployed.
     var frame = 0;
-    var fallback = setTimeout(function () {
-      if (window.__siteLenisTickerConnected) return;
-      function tick(time) {
-        lenis.raf(time);
-        frame = requestAnimationFrame(tick);
-      }
+    var suspended = false;
+    function tick(time) {
+      frame = 0;
+      if (suspended || window.__siteLenisTickerConnected) return;
+      lenis.raf(time);
       frame = requestAnimationFrame(tick);
-    }, 1000);
-    window.addEventListener('site:lenis-ticker-connected', function () {
+    }
+    function startFallback() {
+      if (!suspended && !window.__siteLenisTickerConnected && !frame)
+        frame = requestAnimationFrame(tick);
+    }
+    function stopFallback() {
       clearTimeout(fallback);
       cancelAnimationFrame(frame);
-    }, { once: true });
+      frame = 0;
+    }
+    var fallback = setTimeout(startFallback, 1000);
+    window.addEventListener('site:lenis-ticker-connected', stopFallback);
+    window.addEventListener('pagehide', function () {
+      suspended = true;
+      stopFallback();
+      window.__siteLenisTickerConnected = false;
+    });
+    window.addEventListener('pageshow', function (event) {
+      if (!event.persisted) return;
+      suspended = false;
+      lenis.resize();
+      startFallback();
+    });
 
     window.dispatchEvent(new Event('site:lenis-ready'));
   }

@@ -63,6 +63,10 @@ function injectAccordionStyles(): void {
     .accordion_section + .accordion_section > .accordion_item:first-child {
       border-top: 0;
     }
+
+    .accordion_section .accordion_header {
+      cursor: pointer;
+    }
   `;
 
   document.head.append(style);

@@ -1,5 +1,4 @@
 (function () {
-  if (/(?:^|\/)news(?:\/|$)/i.test(location.pathname)) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (window.matchMedia('(max-width: 767px)').matches) return;
   if (window.lenis) return;

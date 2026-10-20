@@ -18,6 +18,11 @@ html.work-overlay-active {
   color: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
 }
 
+html.work-overlay-active [data-page-transition-overlay],
+html.work-overlay-active .page-transition-overlay {
+  z-index: 2300;
+}
+
 .work-overlay__backdrop {
   position: absolute;
   inset: 0;
@@ -33,6 +38,7 @@ html.work-overlay-active {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -66,14 +72,90 @@ html.work-overlay-active {
   max-width: 100%;
 }
 
-.work-overlay [data-site-menu]:not(.is-open) [data-site-menu-toggle-label-text] {
+.work-overlay__back .arrow-arrow,
+.work-overlay__back .arrow-dot {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition: transform var(--fw-button-hover-duration, 0.45s)
+    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .work-overlay__back:hover .arrow-arrow {
+    transform: translate3d(30%, 0, 0);
+  }
+
+  .work-overlay__back:hover .arrow-dot {
+    transform: scaleX(3.8);
+  }
+}
+
+.work-overlay__back:focus-visible .arrow-arrow {
+  transform: translate3d(30%, 0, 0);
+}
+
+.work-overlay__back:focus-visible .arrow-dot {
+  transform: scaleX(3.8);
+}
+
+.work-overlay .cms-work-detail__related-inner {
+  padding-bottom: clamp(4rem, 7vw, 7rem);
+}
+
+.work-overlay .cms-work-detail__overview-link.button-outlined {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, 14rem);
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom-color: var(--cms-work-detail-dark-50);
+  color: var(--cms-work-detail-dark-50);
+  text-align: center;
+}
+
+.work-overlay .cms-work-detail__overview-link.button-outlined:hover,
+.work-overlay .cms-work-detail__overview-link.button-outlined:focus-visible {
+  border-bottom-color: var(--cms-work-detail-dark);
+  color: var(--cms-work-detail-dark);
+}
+
+.work-overlay .cms-work-detail__overview-link .button-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--cms-work-detail-rosa);
+  pointer-events: none;
+}
+
+.work-overlay .cms-work-detail__overview-link .button-text,
+.work-overlay .cms-work-detail__overview-link .arrow {
+  position: relative;
+  z-index: 1;
+}
+
+.work-overlay .cms-work-detail__overview-link .arrow {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.work-overlay [data-site-menu] [data-site-menu-toggle-label-text],
+.work-overlay [data-site-menu] [data-site-menu-toggle-label-ghost] {
   visibility: hidden;
 }
 
-.work-overlay [data-site-menu]:not(.is-open) [data-site-menu-toggle-label]::after {
+.work-overlay [data-site-menu] [data-site-menu-toggle-label]::after {
   position: absolute;
   inset: 0 auto auto 0;
-  content: 'Menu';
+  content: 'MENU';
+}
+
+.work-overlay [data-site-menu].is-open [data-site-menu-toggle-label]::after {
+  content: 'CLOSE';
 }
 
 .work-overlay__flyer {
@@ -96,5 +178,12 @@ html.work-overlay-active {
 @media (max-width: 767px) {
   .work-overlay__header .nav_logo_link {
     width: 8.125rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-overlay__back .arrow-arrow,
+  .work-overlay__back .arrow-dot {
+    transition: none;
   }
 }

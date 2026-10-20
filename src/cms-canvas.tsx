@@ -295,6 +295,7 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
       imageAlt: firstGalleryItem?.alt ?? '',
       caption: firstGalleryItem?.caption ?? '',
       html: modalBody?.innerHTML ?? '',
+      rights: element.getAttribute('data-canvas-modal-rights')?.trim() ?? '',
       work: readModalWork(element),
       gallery,
     },

@@ -5,7 +5,7 @@ var r = ".accordion_section", i = ".accordion_item", a = ".accordion_container",
 function E() {
 	if (document.getElementById(S)) return;
 	let e = document.createElement("style");
-	e.id = S, e.textContent = "\n    .accordion_item {\n      border-bottom: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n      padding-top: var(--accordion-item-padding-y, 1rem);\n      padding-bottom: var(--accordion-item-padding-y, 1rem);\n    }\n\n    .accordion_section > .accordion_item:first-child,\n    .accordion_item:first-child {\n      border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n    }\n\n    .accordion_section + .accordion_section > .accordion_item:first-child {\n      border-top: 0;\n    }\n  ", document.head.append(e);
+	e.id = S, e.textContent = "\n    .accordion_item {\n      border-bottom: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n      padding-top: var(--accordion-item-padding-y, 1rem);\n      padding-bottom: var(--accordion-item-padding-y, 1rem);\n    }\n\n    .accordion_section > .accordion_item:first-child,\n    .accordion_item:first-child {\n      border-top: 0.5px solid var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));\n    }\n\n    .accordion_section + .accordion_section > .accordion_item:first-child {\n      border-top: 0;\n    }\n\n    .accordion_section .accordion_header {\n      cursor: pointer;\n    }\n  ", document.head.append(e);
 }
 function D(e, t) {
 	return e.classList.contains("is-open") || e.classList.contains("is-active") || e.hasAttribute("data-accordion-open") || t.getAttribute("aria-expanded") === "true";

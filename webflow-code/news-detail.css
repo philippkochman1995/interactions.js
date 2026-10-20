@@ -1,0 +1,18 @@
+/* head: Webflow style */
+/* News: CMS-Auswahl für den sichtbaren Ausschnitt des breiten Detailbilds. */
+img.bild-detail {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+img.bild-detail[data-bildposition="Oben" i],
+img.bild-detail[data-bildposition="a7a8eb0f6ef4f41fcaf68c7eba739a2c"] {
+  object-position: 50% 0%;
+}
+img.bild-detail[data-bildposition="Mitte" i],
+img.bild-detail[data-bildposition="15f419f3241155a68bc163ef81674c51"] {
+  object-position: 50% 50%;
+}
+img.bild-detail[data-bildposition="Unten" i],
+img.bild-detail[data-bildposition="d833075ac64ec7dadc0c65a62fad460d"] {
+  object-position: 50% 100%;
+}

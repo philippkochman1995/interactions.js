@@ -44,14 +44,16 @@ function fixture(values = {}, reduced = false, blocked = false) {
   const window = {
     sessionStorage: {
       getItem(key) { if (blocked) throw new Error('Blocked'); return storage.get(key) ?? null; },
+      setItem: (key, value) => storage.set(key, value),
       removeItem: (key) => storage.delete(key),
     },
     matchMedia: () => ({ matches: reduced }),
     setTimeout: (fn) => timers.push(fn),
-    setInterval(fn, delay) { assert.equal(delay, 250); intervals.set(++timerId, fn); return timerId; },
+    setInterval(fn, delay) { assert.equal(delay, 210); intervals.set(++timerId, fn); return timerId; },
     clearInterval: (id) => intervals.delete(id),
+    addEventListener: () => {},
   };
-  const context = { document, window, Date, exports: {}, Image: class {}, getComputedStyle: () => ({ position: 'static', color: 'rgb(6, 2, 26)' }) };
+  const context = { document, window, Date, exports: {}, Image: class {}, Node: class {}, HTMLElement: class {}, MutationObserver: class { observe() {} }, Math: { floor: Math.floor, random: () => 0 }, getComputedStyle: () => ({ position: 'static', color: 'rgb(6, 2, 26)' }) };
   return { context, classes, storage, events, timers, intervals, element, run: (source) => runInNewContext(source, context) };
 }
 
@@ -82,7 +84,7 @@ test('failsafe leaves an overlay already controlled by GSAP alone', () => {
 });
 
 for (const tag of ['svg', 'img']) {
-  test(`logo ${tag}: single pass, tall Variant7, original colour and pointerleave reset`, () => {
+  test(`logo ${tag}: four legible variants, original colour and pointerleave reset`, () => {
     const f = fixture();
     const link = f.element('a');
     const original = f.element(tag);
@@ -90,16 +92,19 @@ for (const tag of ['svg', 'img']) {
     f.context.document.querySelectorAll = () => [link];
     f.run(logo); f.context.exports.initLogoVariants(); f.context.exports.initLogoVariants();
     assert.equal(link.children.length, 1);
-    link.events.pointerenter();
+    link.events.pointerenter({ stopImmediatePropagation() {} });
     const overlay = link.children[0];
+    [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, 'hidden');
     assert.equal(overlay.style.color, 'rgb(6, 2, 26)');
-    for (let i = 0; i < 4; i++) [...f.intervals.values()][0]();
-    assert.equal(overlay.style.height, '240%');
-    [...f.intervals.values()][0](); [...f.intervals.values()][0]();
+    for (let i = 0; i < 3; i++) [...f.intervals.values()][0]();
+    assert.equal(overlay.style.height, '100%');
+    [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, '');
     assert.equal(f.intervals.size, 0);
-    link.events.pointerenter(); link.events.pointerleave();
+    link.events.pointerleave({ stopImmediatePropagation() {}, relatedTarget: null });
+    link.events.pointerenter({ stopImmediatePropagation() {} });
+    link.events.pointerleave({ stopImmediatePropagation() {}, relatedTarget: null });
     assert.equal(overlay.style.display, 'none');
     assert.equal(f.intervals.size, 0);
   });
@@ -111,7 +116,7 @@ test('logo honours reduced motion', () => {
   const original = f.element('svg');
   link.querySelector = (selector) => selector.includes('data-logo-variant') ? null : original;
   f.context.document.querySelectorAll = () => [link];
-  f.run(logo); f.context.exports.initLogoVariants(); link.events.pointerenter();
+  f.run(logo); f.context.exports.initLogoVariants(); link.events.pointerenter({ stopImmediatePropagation() {} });
   assert.equal(original.style.visibility, '');
   assert.equal(f.intervals.size, 0);
 });
