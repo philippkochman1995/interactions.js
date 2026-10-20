@@ -1,4 +1,4 @@
-const images = [
+const photos = [
   {
     alt: 'Franz West arbeitet an einer Skulptur im Atelier am Esteplatz',
     src: 'https://s3.amazonaws.com/webflow-prod-assets/69b3f9edfc3e8e944fc06836/6ad716772edac11d79be657c_024668_Esteplatz.jpg',
@@ -16,111 +16,118 @@ const images = [
   },
 ] as const;
 
-const intervalMs = 5500;
+// The same arrow graphic, slide classes, dots and manual navigation as Editionen.
+const arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="26 31 50 50" fill="none" aria-hidden="true" focusable="false">' +
+  '<circle data-arrow-circle cx="51" cy="56" r="20.625" stroke-width="0.75"></circle>' +
+  '<path data-arrow-dot d="M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z"></path>' +
+  '<path data-arrow-head d="M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z"></path>' +
+  '</svg>';
+
+function navigationButton(direction: 'prev' | 'next'): HTMLButtonElement {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `editionen_nav is-${direction}`;
+  button.setAttribute(`data-edition-${direction}`, '');
+  button.setAttribute('aria-label', direction === 'prev' ? 'Vorheriges Bild' : 'Nächstes Bild');
+  button.innerHTML = arrowSvg;
+  return button;
+}
+
+function matchEditionenLightboxArrows(): void {
+  function paint(): boolean {
+    const lightbox = document.querySelector<HTMLElement>('[data-site-lightbox]');
+    if (!lightbox) return false;
+    lightbox.querySelectorAll<HTMLElement>('[data-lightbox-prev], [data-lightbox-next]').forEach((button) => {
+      if (!button.querySelector('[data-arrow-head]')) button.innerHTML = arrowSvg;
+    });
+    return true;
+  }
+  if (paint()) return;
+  const observer = new MutationObserver(() => { if (paint()) observer.disconnect(); });
+  observer.observe(document.body, { childList: true });
+}
 
 function initAtelierSlideshow(): void {
   const source = document.querySelector<HTMLImageElement>('img[data-atelier-slideshow]');
   if (!source || !source.parentElement) return;
 
-  const frame = document.createElement('div');
-  frame.className = 'atelier_about_img atelier-slideshow';
-  frame.setAttribute('role', 'region');
-  frame.setAttribute('aria-roledescription', 'Karussell');
-  frame.setAttribute('aria-label', 'Einblicke in das Atelier am Esteplatz');
-  source.parentElement.replaceChild(frame, source);
+  const root = document.createElement('div');
+  root.className = 'atelier_about_img editionen_media atelier-slideshow';
+  root.setAttribute('data-edition-slider', '');
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-roledescription', 'Karussell');
+  root.setAttribute('aria-label', 'Einblicke in das Atelier am Esteplatz');
+  source.parentElement.replaceChild(root, source);
 
-  const viewport = document.createElement('div');
-  viewport.className = 'atelier-slideshow__viewport';
-  const slides = images.map((photo, index) => {
+  const track = document.createElement('div');
+  track.className = 'editionen_track';
+  track.setAttribute('data-edition-track', '');
+  const slides = photos.map((photo, index) => {
+    const slide = document.createElement('div');
+    slide.className = `editionen_slide${index === 0 ? ' is-active' : ''}`;
+    slide.setAttribute('data-edition-slide', '');
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'atelier-slideshow__lightbox js-lightbox';
+    trigger.setAttribute('data-lightbox-group', 'atelier-esteplatz');
+    trigger.setAttribute('data-lightbox-src', photo.src);
+    trigger.setAttribute('data-lightbox-caption', photo.alt);
+    trigger.setAttribute('aria-label', `${photo.alt} vergrößern`);
     const image = index === 0 ? source : document.createElement('img');
     if (index === 0) {
       image.classList.remove('atelier_about_img', 'js-lightbox');
       image.removeAttribute('data-lightbox-fill');
       image.removeAttribute('data-atelier-slideshow');
-      // The Webflow image asset is the first photo and remains the no-JS fallback.
+      // Webflow keeps the first photo visible if JavaScript is unavailable.
     } else {
       image.src = photo.src;
       image.loading = 'lazy';
       image.decoding = 'async';
     }
-    image.classList.add('atelier-slideshow__image');
+    image.classList.add('editionen_img');
     image.alt = photo.alt;
     image.style.objectPosition = photo.position;
-    image.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
-    viewport.appendChild(image);
-    return image;
+    trigger.appendChild(image);
+    slide.appendChild(trigger);
+    track.appendChild(slide);
+    return { slide, trigger };
   });
-
-  const controls = document.createElement('div');
-  controls.className = 'atelier-slideshow__controls';
-  const previous = document.createElement('button');
-  previous.type = 'button';
-  previous.className = 'atelier-slideshow__arrow';
-  previous.setAttribute('aria-label', 'Vorheriges Atelierfoto');
-  previous.textContent = '←';
+  const prev = navigationButton('prev');
+  const next = navigationButton('next');
   const dots = document.createElement('div');
-  dots.className = 'atelier-slideshow__dots';
-  dots.setAttribute('role', 'group');
-  dots.setAttribute('aria-label', 'Atelierfotos auswählen');
-  const dotButtons = images.map((_, index) => {
+  dots.className = 'editionen_dots';
+  dots.setAttribute('data-edition-dots', '');
+  const dotButtons = photos.map((_, index) => {
     const dot = document.createElement('button');
     dot.type = 'button';
-    dot.className = 'atelier-slideshow__dot';
-    dot.setAttribute('aria-label', `Atelierfoto ${index + 1} von ${images.length} anzeigen`);
+    dot.className = 'editionen_dot';
+    dot.setAttribute('data-edition-dot', '');
+    dot.setAttribute('aria-label', `Bild ${index + 1}`);
     dots.appendChild(dot);
     return dot;
   });
-  const next = document.createElement('button');
-  next.type = 'button';
-  next.className = 'atelier-slideshow__arrow';
-  next.setAttribute('aria-label', 'Nächstes Atelierfoto');
-  next.textContent = '→';
-  controls.append(previous, dots, next);
-
-  const announcement = document.createElement('span');
-  announcement.className = 'atelier-slideshow__announcement';
-  announcement.setAttribute('aria-live', 'polite');
-  frame.append(viewport, controls, announcement);
+  root.append(track, prev, next, dots);
 
   let active = 0;
-  let timer: number | undefined;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   function show(index: number): void {
     active = (index + slides.length) % slides.length;
-    slides.forEach((slide, slideIndex) => {
+    slides.forEach(({ slide, trigger }, slideIndex) => {
       const selected = slideIndex === active;
       slide.classList.toggle('is-active', selected);
       slide.setAttribute('aria-hidden', String(!selected));
+      trigger.tabIndex = selected ? 0 : -1;
     });
     dotButtons.forEach((dot, dotIndex) => {
       const selected = dotIndex === active;
       dot.classList.toggle('is-active', selected);
       dot.setAttribute('aria-current', String(selected));
     });
-    announcement.textContent = `Atelierfoto ${active + 1} von ${slides.length}`;
   }
-  function stop(): void {
-    if (timer !== undefined) window.clearInterval(timer);
-    timer = undefined;
-  }
-  function start(): void {
-    stop();
-    if (reducedMotion.matches || document.hidden) return;
-    timer = window.setInterval(() => show(active + 1), intervalMs);
-  }
-  previous.addEventListener('click', () => { show(active - 1); start(); });
-  next.addEventListener('click', () => { show(active + 1); start(); });
-  dotButtons.forEach((dot, index) => dot.addEventListener('click', () => { show(index); start(); }));
-  frame.addEventListener('mouseenter', stop);
-  frame.addEventListener('mouseleave', start);
-  frame.addEventListener('focusin', stop);
-  frame.addEventListener('focusout', (event) => {
-    if (!(event.relatedTarget instanceof Node) || !frame.contains(event.relatedTarget)) start();
-  });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else start(); });
-  reducedMotion.addEventListener('change', start);
+  prev.addEventListener('click', () => show(active - 1));
+  next.addEventListener('click', () => show(active + 1));
+  dotButtons.forEach((dot, index) => dot.addEventListener('click', () => show(index)));
   show(0);
-  start();
+  matchEditionenLightboxArrows();
 }
 
 if (document.readyState === 'loading') {

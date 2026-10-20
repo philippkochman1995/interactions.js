@@ -15,59 +15,61 @@ var e = [
 		src: "https://s3.amazonaws.com/webflow-prod-assets/69b3f9edfc3e8e944fc06836/6ad71677491f17f6faf5e6e9_036733_Esteplatz.jpg",
 		position: "45% center"
 	}
-], t = 5500;
-function n() {
-	let n = document.querySelector("img[data-atelier-slideshow]");
-	if (!n || !n.parentElement) return;
-	let r = document.createElement("div");
-	r.className = "atelier_about_img atelier-slideshow", r.setAttribute("role", "region"), r.setAttribute("aria-roledescription", "Karussell"), r.setAttribute("aria-label", "Einblicke in das Atelier am Esteplatz"), n.parentElement.replaceChild(r, n);
-	let i = document.createElement("div");
-	i.className = "atelier-slideshow__viewport";
-	let a = e.map((e, t) => {
-		let r = t === 0 ? n : document.createElement("img");
-		return t === 0 ? (r.classList.remove("atelier_about_img", "js-lightbox"), r.removeAttribute("data-lightbox-fill"), r.removeAttribute("data-atelier-slideshow")) : (r.src = e.src, r.loading = "lazy", r.decoding = "async"), r.classList.add("atelier-slideshow__image"), r.alt = e.alt, r.style.objectPosition = e.position, r.setAttribute("aria-hidden", t === 0 ? "false" : "true"), i.appendChild(r), r;
-	}), o = document.createElement("div");
-	o.className = "atelier-slideshow__controls";
-	let s = document.createElement("button");
-	s.type = "button", s.className = "atelier-slideshow__arrow", s.setAttribute("aria-label", "Vorheriges Atelierfoto"), s.textContent = "←";
-	let c = document.createElement("div");
-	c.className = "atelier-slideshow__dots", c.setAttribute("role", "group"), c.setAttribute("aria-label", "Atelierfotos auswählen");
-	let l = e.map((t, n) => {
-		let r = document.createElement("button");
-		return r.type = "button", r.className = "atelier-slideshow__dot", r.setAttribute("aria-label", `Atelierfoto ${n + 1} von ${e.length} anzeigen`), c.appendChild(r), r;
-	}), u = document.createElement("button");
-	u.type = "button", u.className = "atelier-slideshow__arrow", u.setAttribute("aria-label", "Nächstes Atelierfoto"), u.textContent = "→", o.append(s, c, u);
-	let d = document.createElement("span");
-	d.className = "atelier-slideshow__announcement", d.setAttribute("aria-live", "polite"), r.append(i, o, d);
-	let f = 0, p, m = window.matchMedia("(prefers-reduced-motion: reduce)");
-	function h(e) {
-		f = (e + a.length) % a.length, a.forEach((e, t) => {
-			let n = t === f;
-			e.classList.toggle("is-active", n), e.setAttribute("aria-hidden", String(!n));
-		}), l.forEach((e, t) => {
-			let n = t === f;
-			e.classList.toggle("is-active", n), e.setAttribute("aria-current", String(n));
-		}), d.textContent = `Atelierfoto ${f + 1} von ${a.length}`;
-	}
-	function g() {
-		p !== void 0 && window.clearInterval(p), p = void 0;
-	}
-	function _() {
-		g(), !(m.matches || document.hidden) && (p = window.setInterval(() => h(f + 1), t));
-	}
-	s.addEventListener("click", () => {
-		h(f - 1), _();
-	}), u.addEventListener("click", () => {
-		h(f + 1), _();
-	}), l.forEach((e, t) => e.addEventListener("click", () => {
-		h(t), _();
-	})), r.addEventListener("mouseenter", g), r.addEventListener("mouseleave", _), r.addEventListener("focusin", g), r.addEventListener("focusout", (e) => {
-		(!(e.relatedTarget instanceof Node) || !r.contains(e.relatedTarget)) && _();
-	}), document.addEventListener("visibilitychange", () => {
-		document.hidden ? g() : _();
-	}), m.addEventListener("change", _), h(0), _();
+], t = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"26 31 50 50\" fill=\"none\" aria-hidden=\"true\" focusable=\"false\"><circle data-arrow-circle cx=\"51\" cy=\"56\" r=\"20.625\" stroke-width=\"0.75\"></circle><path data-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\"></path><path data-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\"></path></svg>";
+function n(e) {
+	let n = document.createElement("button");
+	return n.type = "button", n.className = `editionen_nav is-${e}`, n.setAttribute(`data-edition-${e}`, ""), n.setAttribute("aria-label", e === "prev" ? "Vorheriges Bild" : "Nächstes Bild"), n.innerHTML = t, n;
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", n, { once: !0 }) : n();
+function r() {
+	function e() {
+		let e = document.querySelector("[data-site-lightbox]");
+		return e ? (e.querySelectorAll("[data-lightbox-prev], [data-lightbox-next]").forEach((e) => {
+			e.querySelector("[data-arrow-head]") || (e.innerHTML = t);
+		}), !0) : !1;
+	}
+	if (e()) return;
+	let n = new MutationObserver(() => {
+		e() && n.disconnect();
+	});
+	n.observe(document.body, { childList: !0 });
+}
+function i() {
+	let t = document.querySelector("img[data-atelier-slideshow]");
+	if (!t || !t.parentElement) return;
+	let i = document.createElement("div");
+	i.className = "atelier_about_img editionen_media atelier-slideshow", i.setAttribute("data-edition-slider", ""), i.setAttribute("role", "region"), i.setAttribute("aria-roledescription", "Karussell"), i.setAttribute("aria-label", "Einblicke in das Atelier am Esteplatz"), t.parentElement.replaceChild(i, t);
+	let a = document.createElement("div");
+	a.className = "editionen_track", a.setAttribute("data-edition-track", "");
+	let o = e.map((e, n) => {
+		let r = document.createElement("div");
+		r.className = `editionen_slide${n === 0 ? " is-active" : ""}`, r.setAttribute("data-edition-slide", "");
+		let i = document.createElement("button");
+		i.type = "button", i.className = "atelier-slideshow__lightbox js-lightbox", i.setAttribute("data-lightbox-group", "atelier-esteplatz"), i.setAttribute("data-lightbox-src", e.src), i.setAttribute("data-lightbox-caption", e.alt), i.setAttribute("aria-label", `${e.alt} vergrößern`);
+		let o = n === 0 ? t : document.createElement("img");
+		return n === 0 ? (o.classList.remove("atelier_about_img", "js-lightbox"), o.removeAttribute("data-lightbox-fill"), o.removeAttribute("data-atelier-slideshow")) : (o.src = e.src, o.loading = "lazy", o.decoding = "async"), o.classList.add("editionen_img"), o.alt = e.alt, o.style.objectPosition = e.position, i.appendChild(o), r.appendChild(i), a.appendChild(r), {
+			slide: r,
+			trigger: i
+		};
+	}), s = n("prev"), c = n("next"), l = document.createElement("div");
+	l.className = "editionen_dots", l.setAttribute("data-edition-dots", "");
+	let u = e.map((e, t) => {
+		let n = document.createElement("button");
+		return n.type = "button", n.className = "editionen_dot", n.setAttribute("data-edition-dot", ""), n.setAttribute("aria-label", `Bild ${t + 1}`), l.appendChild(n), n;
+	});
+	i.append(a, s, c, l);
+	let d = 0;
+	function f(e) {
+		d = (e + o.length) % o.length, o.forEach(({ slide: e, trigger: t }, n) => {
+			let r = n === d;
+			e.classList.toggle("is-active", r), e.setAttribute("aria-hidden", String(!r)), t.tabIndex = r ? 0 : -1;
+		}), u.forEach((e, t) => {
+			let n = t === d;
+			e.classList.toggle("is-active", n), e.setAttribute("aria-current", String(n));
+		});
+	}
+	s.addEventListener("click", () => f(d - 1)), c.addEventListener("click", () => f(d + 1)), u.forEach((e, t) => e.addEventListener("click", () => f(t))), f(0), r();
+}
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", i, { once: !0 }) : i();
 //#endregion
 
 //# sourceMappingURL=atelier-slideshow.js.map
