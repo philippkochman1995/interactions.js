@@ -179,6 +179,15 @@ html.work-overlay-active .page-transition-overlay {
   .work-overlay__header .nav_logo_link {
     width: 8.125rem;
   }
+
+  .work-overlay .cms-work-detail__figure {
+    align-self: flex-start;
+  }
+
+  .work-overlay .cms-work-detail__image {
+    margin-left: 0;
+    margin-right: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
