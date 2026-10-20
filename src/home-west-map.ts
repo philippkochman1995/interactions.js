@@ -18,6 +18,7 @@ const MAP_DESTINATION = '/west-map';
 const MOBILE_QUERY = '(max-width: 767px)';
 const EUROPE_BOUNDS: [[number, number], [number, number]] = [[-7, 37], [32, 59]];
 const EUROPE_PADDING = 18;
+const EUROPE_ZOOM_OFFSET = Math.log2(1.15);
 
 let mapboxPromise: Promise<any> | undefined;
 
@@ -226,6 +227,7 @@ function initHomeMap(root: HTMLElement): void {
       }
 
       map.on('load', () => {
+        map.setZoom(map.getZoom() + EUROPE_ZOOM_OFFSET);
         map.addSource('wmHomePlaces', {
           type: 'geojson',
           data: {
@@ -261,6 +263,7 @@ function initHomeMap(root: HTMLElement): void {
         window.requestAnimationFrame(() => {
           map.resize();
           map.fitBounds(EUROPE_BOUNDS, { padding: EUROPE_PADDING, duration: 0 });
+          map.setZoom(map.getZoom() + EUROPE_ZOOM_OFFSET);
         });
       });
     } catch {
