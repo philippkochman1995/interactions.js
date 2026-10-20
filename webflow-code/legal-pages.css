@@ -17,3 +17,32 @@
 :is(.imprint_layout .imprint_p, .data_layout .data_p) p:first-child {
   margin-top: 0;
 }
+
+/* Keep the imprint's section titles close to the copy that follows them. */
+.imprint_layout .imprint_p p:has(> strong) + p {
+  margin-top: 0.4rem;
+}
+
+/* Match the footer's animated underline for imprint links. */
+.imprint_layout .imprint_p a {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  text-decoration: none;
+}
+.imprint_layout .imprint_p a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.08em;
+  height: 1.5px;
+  background-color: currentColor;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 300ms cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+}
+.imprint_layout .imprint_p a:hover::after,
+.imprint_layout .imprint_p a:focus-visible::after {
+  clip-path: inset(0 0 0 0);
+}
