@@ -10,7 +10,8 @@ var i = ".top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link", 
 	"6ab93c11c0209913a6f4ab46_West-Signatur-Variant2.svg",
 	"6ab93c11630b54996257245a_West-Signatur-Variant3.svg",
 	"6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg",
-	"6ab93c1232f656f444927b94_West-Signatur-Variant8.svg"
+	"6ab93c1232f656f444927b94_West-Signatur-Variant8.svg",
+	"6ad72a88caefffd11ac57818_Variant9.svg"
 ].map((e) => "https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/" + e), o = "fw-signature-last-variant", s = !1;
 function c() {
 	let e = -1;
@@ -91,4 +92,4 @@ function l() {
 //#endregion
 export { r as a, t as i, e as n, n as r, l as t };
 
-//# sourceMappingURL=site-interactions-el4_N2BT.js.map
+//# sourceMappingURL=site-interactions-DiIQUbt_.js.map

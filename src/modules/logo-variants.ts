@@ -5,6 +5,7 @@ const variants = [
   '6ab93c11630b54996257245a_West-Signatur-Variant3.svg',
   '6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg',
   '6ab93c1232f656f444927b94_West-Signatur-Variant8.svg',
+  '6ad72a88caefffd11ac57818_Variant9.svg',
 ].map((filename) => assetBase + filename);
 const storageKey = 'fw-signature-last-variant';
 let initialized = false;
@@ -22,7 +23,7 @@ function chooseVariant(): number {
   return choice;
 }
 
-/** Rotate the four legible signatures and the original logo across page views. */
+/** Rotate the five legible signatures and the original logo across page views. */
 export function initLogoVariants(): void {
   if (initialized) return;
   initialized = true;
