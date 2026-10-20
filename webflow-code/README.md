@@ -9,6 +9,7 @@ This directory is the source for CSS and JavaScript formerly embedded in Webflow
 | Biografie | `biography.css`, `biography-footer.js`, `dist/biography-intro.js` |
 | Editionen | `editions.css`, `editions-footer.js` |
 | Kontakt | `contact-footer.js` |
+| Impressum | `impressum.css` |
 | News | `news.css` |
 | News template | `news-detail.css`, `news-detail-head.js`, `news-detail-footer.js` |
 | Werk Überblick | `works-overview.css`, `works-overview-head.js`, `works-overview-footer.js`, `cms-works.css`, `cms-work-detail.css`, `work-overlay.css`, `dist/cms-works.js`, `dist/accordion.js` |

@@ -1,0 +1,19 @@
+/* Impressum: the site font has no bold cut; keep every passage at its regular weight. */
+.imprint_layout .imprint_p,
+.imprint_layout .imprint_p :is(p, strong, b, a, em) {
+  font-weight: 500 !important;
+}
+
+/* The document's address and credits keep their own line breaks; paragraphs breathe. */
+.imprint_layout .imprint_p p {
+  margin: 0;
+}
+.imprint_layout .imprint_p p + p {
+  margin-top: 1.25rem;
+}
+.imprint_layout .imprint_p p:has(> strong) {
+  margin-top: 2rem;
+}
+.imprint_layout .imprint_p p:first-child {
+  margin-top: 0;
+}
