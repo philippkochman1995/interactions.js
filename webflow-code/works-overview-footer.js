@@ -75,31 +75,3 @@
   }, true);
 })();
 
-/* footer: fw-works-filter-reset */
-(function () {
-  function install() {
-    var section = document.querySelector('.cms-works-filter');
-    var left = section && section.querySelector('.cms-works-filter__bar-left');
-    var label = left && left.querySelector('.cms-works-filter__label');
-    if (!section || !left || !label || left.querySelector('.cms-works-filter__reset')) return !!left;
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'cms-works-filter__reset';
-    button.textContent = 'Filter zurücksetzen';
-    button.addEventListener('click', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      var bar = section.querySelector('.cms-works-filter__bar');
-      if (!section.classList.contains('is-open') && bar) bar.click();
-      section.querySelectorAll('.cms-works-filter__pill.is-active').forEach(function (pill) { pill.click(); });
-      var apply = section.querySelector('.cms-works-filter__apply');
-      if (apply) apply.click();
-    });
-    label.insertAdjacentElement('afterend', button);
-    return true;
-  }
-  if (!install()) {
-    var observer = new MutationObserver(function () { if (install()) observer.disconnect(); });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-  }
-})();

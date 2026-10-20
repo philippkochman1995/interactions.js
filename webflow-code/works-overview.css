@@ -44,7 +44,3 @@ html.fw-works-fade-out body { opacity: 0 !important; transition: opacity 320ms e
   html.fw-works-fade-in body, html.fw-works-fade-out body { transition: none !important; }
 }
 
-/* head: fw-works-reset-style */
-.cms-works-filter__reset { border: 0; padding: .25rem 0; background: none; color: var(--cms-works-dark-75); font: inherit; font-size: var(--_sizes---footer-14, .875rem); line-height: 1.2; letter-spacing: .04em; text-transform: uppercase; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; white-space: nowrap; }
-.cms-works-filter__reset:hover, .cms-works-filter__reset:focus-visible { color: var(--cms-works-dark); }
-@media (max-width: 479px) { .cms-works-filter__reset { font-size: .6875rem; letter-spacing: 0; } }

@@ -90,6 +90,7 @@ export function createWorksFilterInterface(
   const mobileSortHeading = document.createElement('div');
   const mobileSortLabel = document.createElement('span');
   const mobileSortControls = document.createElement('div');
+  const resetButton = document.createElement('button');
   const applyLink = document.createElement('a');
   const categoryCounts = getCategoryCounts(items);
   const categoryButtons = new Map<string, HTMLButtonElement>();
@@ -189,18 +190,30 @@ export function createWorksFilterInterface(
     mobileSortControls.append(mobileButton);
   });
 
+  resetButton.className = 'cms-works-filter__reset';
+  resetButton.type = 'button';
+  resetButton.textContent = 'Filter zurücksetzen';
+  resetButton.addEventListener('click', () => {
+    state.pendingCategories.clear();
+    applyPendingFilter();
+  });
+
   applyLink.className = 'cms-works-filter__apply';
   applyLink.href = '#';
   applyLink.textContent = 'ANWENDEN';
   applyLink.addEventListener('click', (event) => {
     event.preventDefault();
+    applyPendingFilter();
+  });
+
+  function applyPendingFilter(): void {
     state.appliedCategories = new Set(state.pendingCategories);
     state.appliedSortMode = state.pendingSortMode;
     closeFilter(false);
     onApply();
-  });
+  }
 
-  panelInner.append(categories, mobileSortSection);
+  panelInner.append(categories, resetButton, mobileSortSection);
   panel.append(panelInner, applyLink);
   container.append(topbar);
   section.append(container, panel);
@@ -249,6 +262,7 @@ export function createWorksFilterInterface(
       button.tabIndex = state.open || active ? 0 : -1;
     });
 
+    resetButton.tabIndex = state.open ? 0 : -1;
     applyLink.tabIndex = state.open ? 0 : -1;
     panel.style.setProperty('--cms-works-filter-categories-height', `${categories.scrollHeight}px`);
     panel.style.setProperty('--cms-works-filter-sort-height', `${mobileSortControls.scrollHeight}px`);

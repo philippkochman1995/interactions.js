@@ -144,6 +144,32 @@
   gap: 0.625rem;
 }
 
+.cms-works-filter__reset {
+  display: none;
+  flex: 0 0 auto;
+  min-height: 2.125rem;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cms-works-dark-50);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--_sizes---footer-14, 0.875rem);
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.cms-works-filter.is-open .cms-works-filter__reset {
+  display: inline-flex;
+}
+
+.cms-works-filter__reset:hover,
+.cms-works-filter__reset:focus-visible {
+  color: var(--cms-works-dark);
+}
+
 .cms-works-filter__pill {
   display: inline-flex;
   min-height: 2.125rem;
@@ -558,6 +584,12 @@
     max-height: var(--cms-works-filter-categories-height, 20rem);
     padding-block: 1.5rem;
     border-bottom-width: 1px;
+  }
+
+  .cms-works-filter__reset {
+    align-self: flex-start;
+    margin: 0.875rem 1rem 1.125rem;
+    letter-spacing: normal;
   }
 
   .cms-works-filter__mobile-sort-section {
