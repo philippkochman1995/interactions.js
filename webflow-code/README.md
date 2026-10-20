@@ -7,7 +7,7 @@ This directory is the source for CSS and JavaScript formerly embedded in Webflow
 | Site | `site.css`, `site-footer.js`; `site-interactions-base.css`, `mobile-typography.css`, `cms-canvas.css`, `dist/site-head.js`, `dist/site-body.js`, `dist/site-interactions.js`, `dist/cms-canvas.js` |
 | Home | `home.css`, `home-footer.js`, `dist/home-west-map.js` |
 | Biografie | `biography.css`, `biography-footer.js`, `dist/biography-intro.js` |
-| Atelier | `atelier-slideshow.css` and the shared `webflow-code/editions-footer.js`; the three image slides, arrows and dots are editable Webflow elements using the Editionen structure. |
+| Atelier | `atelier-slideshow.css`, `atelier-hero-image.js` and the shared `webflow-code/editions-footer.js`; the three image slides, arrows and dots are editable Webflow elements using the Editionen structure. |
 | Editionen | `editions.css`, `editions-footer.js` |
 | Kontakt | `contact-footer.js` |
 | Impressum und Datenschutz | `legal-pages.css` |
