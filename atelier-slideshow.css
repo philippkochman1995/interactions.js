@@ -1,0 +1,72 @@
+/* The existing Atelier image is the no-JS fallback. The same grid cell hosts the slideshow. */
+.atelier_intro_layout .atelier-slideshow {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--fw_dark_purple_5, #f3f2f4);
+}
+
+.atelier-slideshow__viewport,
+.atelier-slideshow__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.atelier-slideshow__image {
+  display: block;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 550ms ease;
+}
+.atelier-slideshow__image.is-active { opacity: 1; z-index: 1; }
+
+.atelier-slideshow__controls {
+  position: absolute;
+  z-index: 2;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.atelier-slideshow__arrow {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--fw_off_white, #fff);
+  color: var(--fw_dark_purple, #06021a);
+  font: 500 1.5rem/1 Arial, sans-serif;
+  cursor: pointer;
+}
+.atelier-slideshow__dots { display: flex; align-items: center; gap: .5rem; }
+.atelier-slideshow__dot {
+  width: .65rem;
+  height: .65rem;
+  padding: 0;
+  border: 1px solid var(--fw_off_white, #fff);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.atelier-slideshow__dot.is-active { background: var(--fw_off_white, #fff); }
+.atelier-slideshow__arrow:focus-visible,
+.atelier-slideshow__dot:focus-visible { outline: 2px solid var(--fw_dark_purple, #06021a); outline-offset: 3px; }
+.atelier-slideshow__announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 767px) {
+  .atelier_intro_layout .atelier-slideshow { min-height: 0; aspect-ratio: 3 / 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atelier-slideshow__image { transition: none; }
+}
