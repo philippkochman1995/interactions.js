@@ -34,6 +34,11 @@ body.wm-legend-open .wm-filter-btn svg path{fill:var(--fw_dark_purple);}
 
 .wm-cms-source{display:none;}
 
+/* Image 2/3 credits belong in the lightbox, not the map detail panel. */
+.fwm-modal[data-modal-id="west-map-detail"] .fwm-modal__gallery .fwm-modal__caption{
+  display:none;
+}
+
 .wm-nav-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:20;background:none;border:none;font-size:1.375rem;line-height:1;cursor:pointer;color:var(--fw_dark_purple);padding:0.5rem;text-decoration:none;}
 .wm-nav-prev{left:1.5rem;}
 .wm-nav-next{right:1.5rem;}
