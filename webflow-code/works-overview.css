@@ -4,6 +4,10 @@
 /* head: quote-sub-styrene */
 .quote-sub { font-family: StyreneA, Arial, sans-serif; }
 
+/* Without a subtitle, the SVG's default 150px box and heading margin leave a gap. */
+.moebel_block .quote-icon { height: 1rem; }
+.moebel_block .quote-text > .quote-h3:only-child { margin-bottom: 0; }
+
 /* head: fw-work-overlay-menu-and-overview-fix */
 [data-work-overlay] > .work-overlay__flyer { z-index: 2 !important; }
 [data-work-overlay] > [data-site-menu] { z-index: 3 !important; }
