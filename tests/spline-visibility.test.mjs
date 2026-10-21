@@ -138,6 +138,7 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
     inactive(index) { return context.exports.isInactiveHeroSplineScene(scenes[index]); },
     visibility(hidden) { document.hidden = hidden; emit(documentEvents, 'visibilitychange'); },
     focus(value) { hasFocus = value; emit(windowEvents, value ? 'focus' : 'blur'); },
+    blur({ focused = false } = {}) { hasFocus = focused; emit(windowEvents, 'blur'); },
     pagehide() { emit(windowEvents, 'pagehide', { persisted: true }); },
     pageshow() { emit(windowEvents, 'pageshow', { persisted: true }); },
     setViewport(value) { inViewport = value; },
@@ -280,6 +281,37 @@ test('focus and tab visibility independently gate scene and grain playback', () 
   f.visibility(false);
   assert.equal(f.paused(), true);
   assert.equal(f.state[0], 'stopped');
+});
+
+test('iframe focus keeps scene playback and grain running when the document still has focus', () => {
+  const f = fixture();
+  f.flushTimers();
+  const before = f.apps().map((app) => ({ ...app.calls }));
+
+  // Focusing Spline's iframe blurs the parent window while the page remains focused.
+  f.blur({ focused: true });
+  assert.equal(f.paused(), false);
+  assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
+  assert.equal(f.apps()[0].loop, true);
+  assert.deepEqual(f.apps().map((app) => app.calls), before);
+
+  f.blur({ focused: true });
+  assert.deepEqual(f.apps().map((app) => app.calls), before,
+    'repeated iframe blur must not interrupt a drag with playback API calls');
+});
+
+test('a real window blur still pauses scenes and grain after iframe interaction', () => {
+  const f = fixture();
+  f.flushTimers();
+  f.blur({ focused: true });
+  f.blur({ focused: false });
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  assert.deepEqual(f.apps().map((app) => app.loop), [false, false, false]);
+
+  f.focus(true);
+  assert.equal(f.paused(), false);
+  assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
 });
 
 test('deferred load reconciliation uses the latest slide and focus state', () => {

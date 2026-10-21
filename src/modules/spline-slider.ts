@@ -157,7 +157,9 @@ export function initHeroSplineSlides(): void {
   }
 
   window.addEventListener('blur', () => {
-    focused = false;
+    // Spline focuses an internal iframe during dragging. That blurs this window
+    // while the document still has focus; only a real window switch should pause.
+    focused = document.hasFocus();
     syncAll();
   });
   window.addEventListener('focus', () => {

@@ -810,7 +810,9 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   Ein IntersectionObserver pausiert alle Szenen außerhalb des Viewports;
   `visibilitychange` pausiert sie in Hintergrund-Tabs. Beim Zurückkehren läuft
   ausschließlich die aktive sichtbare Szene weiter. `blur` pausiert auch bei
-  weiterhin sichtbarem Browserfenster, `focus` setzt die aktive Szene fort.
+  weiterhin sichtbarem Browserfenster, wenn das Dokument tatsächlich den Fokus
+  verloren hat; Spline-interner Fokus auf ein iframe beim Drag gilt weiterhin
+  als aktiv. `focus` setzt die aktive Szene fort.
   Die animierte Körnung bleibt währenddessen über `html.site-hero-paused`
   auf ihrem aktuellen Frame stehen. Resize und BFCache-Rückkehr gleichen die
   Szenensichtbarkeit erneut ab. Webflows eigene Szeneninitialisierung ist davon unabhängig;
