@@ -16,15 +16,3 @@ img.bild-detail[data-bildposition="Unten" i],
 img.bild-detail[data-bildposition="d833075ac64ec7dadc0c65a62fad460d"] {
   object-position: 50% 100%;
 }
-
-/* Related news dates start in line with the detail photo above them. */
-@media screen and (min-width: 992px) {
-  .news_event .intro_layout {
-    --news-detail-track: calc((100% - 2 * var(--fw-fluid-site-gutter, 1rem)) / 4);
-    grid-template-columns: minmax(0, var(--news-detail-track)) minmax(0, 1fr) minmax(0, calc(var(--news-detail-track) + 6rem));
-  }
-
-  .news_event .intro_date {
-    padding-left: 5.5rem;
-  }
-}
