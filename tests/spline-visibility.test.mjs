@@ -14,7 +14,7 @@ const source = compile('../src/modules/spline-slider.ts');
 const markup = compile('../src/modules/site-preloader-markup.ts');
 
 function fixture({ visible = true, hidden = false, focused = true, loaded = true, observer = true,
-  hiddenScene = -1, invisibleScene = -1 } = {}) {
+  hiddenScene = -1, invisibleScene = -1, iframeFocused = false } = {}) {
   const documentEvents = new Map();
   const windowEvents = new Map();
   const mutations = [];
@@ -22,7 +22,10 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
   const state = [null, null, null];
   const instances = new Map();
   const timers = [];
+  const intervals = new Map();
+  let nextInterval = 0;
   const classes = new Set();
+  let syncCount = 0;
   const display = new Map();
   const visibility = new Map();
   let hasFocus = focused;
@@ -102,9 +105,13 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
   }
   const document = {
     hidden,
+    activeElement: { tagName: iframeFocused ? 'IFRAME' : 'BODY' },
     hasFocus: () => hasFocus,
     documentElement: { classList: {
-      toggle(name, enabled) { if (enabled) classes.add(name); else classes.delete(name); },
+      toggle(name, enabled) {
+        syncCount++;
+        if (enabled) classes.add(name); else classes.delete(name);
+      },
     } },
     querySelectorAll: () => [slider],
     addEventListener: (name, callback) => listen(documentEvents, name, callback),
@@ -114,6 +121,12 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
     Webflow: { require: () => ({ getInstance: (scene) => instances.get(scene) }) },
     addEventListener: (name, callback) => listen(windowEvents, name, callback),
     setTimeout: schedule,
+    setInterval(callback, delay) {
+      const id = ++nextInterval;
+      intervals.set(id, { callback, delay });
+      return id;
+    },
+    clearInterval(id) { intervals.delete(id); },
   };
   const context = { exports: {}, window, document, Element, HTMLElement: Element, MutationObserver,
     getComputedStyle: (element) => ({
@@ -127,6 +140,10 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
     state,
     apps() { return scenes.map((scene) => instances.get(scene)?.spline); },
     paused() { return classes.has('site-hero-paused'); },
+    syncCount() { return syncCount; },
+    intervalCount() { return intervals.size; },
+    intervalDelays() { return [...intervals.values()].map(({ delay }) => delay); },
+    tickIntervals() { [...intervals.values()].forEach(({ callback }) => callback()); },
     nextTimer() { assert.ok(timers.length, 'expected a queued timer'); timers.shift()(); },
     flushTimers() {
       let count = 0;
@@ -139,6 +156,8 @@ function fixture({ visible = true, hidden = false, focused = true, loaded = true
     visibility(hidden) { document.hidden = hidden; emit(documentEvents, 'visibilitychange'); },
     focus(value) { hasFocus = value; emit(windowEvents, value ? 'focus' : 'blur'); },
     blur({ focused = false } = {}) { hasFocus = focused; emit(windowEvents, 'blur'); },
+    iframe(value = true) { document.activeElement = { tagName: value ? 'IFRAME' : 'BODY' }; },
+    setFocus(value) { hasFocus = value; },
     pagehide() { emit(windowEvents, 'pagehide', { persisted: true }); },
     pageshow() { emit(windowEvents, 'pageshow', { persisted: true }); },
     setViewport(value) { inViewport = value; },
@@ -289,20 +308,52 @@ test('iframe focus keeps scene playback and grain running when the document stil
   const before = f.apps().map((app) => ({ ...app.calls }));
 
   // Focusing Spline's iframe blurs the parent window while the page remains focused.
+  f.iframe();
   f.blur({ focused: true });
   assert.equal(f.paused(), false);
   assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
   assert.equal(f.apps()[0].loop, true);
   assert.deepEqual(f.apps().map((app) => app.calls), before);
+  assert.equal(f.intervalCount(), 1);
+  assert.deepEqual(f.intervalDelays(), [500]);
 
   f.blur({ focused: true });
+  f.tickIntervals();
+  assert.equal(f.intervalCount(), 1, 'repeated iframe blur must not create parallel focus checks');
   assert.deepEqual(f.apps().map((app) => app.calls), before,
     'repeated iframe blur must not interrupt a drag with playback API calls');
+});
+
+test('iframe focus checks start when activeElement updates after the blur event', () => {
+  const f = fixture();
+  f.flushTimers();
+  f.blur({ focused: true }); // Some browsers still report BODY during blur.
+  assert.equal(f.intervalCount(), 0);
+  f.iframe();
+  f.flushTimers();
+  assert.equal(f.intervalCount(), 1);
+  assert.equal(f.paused(), false);
+  assert.equal(f.state[0], 'playing');
+});
+
+test('deferred iframe detection cannot restart checks after hiding or suspending the page', () => {
+  for (const suspend of [(f) => f.visibility(true), (f) => f.pagehide()]) {
+    const f = fixture();
+    f.flushTimers();
+    f.blur({ focused: true });
+    f.iframe();
+    suspend(f);
+    f.flushTimers();
+    assert.equal(f.intervalCount(), 0);
+    assert.equal(f.paused(), true);
+    assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  }
 });
 
 test('a real window blur still pauses scenes and grain after iframe interaction', () => {
   const f = fixture();
   f.flushTimers();
+  f.iframe();
   f.blur({ focused: true });
   f.blur({ focused: false });
   assert.equal(f.paused(), true);
@@ -312,6 +363,83 @@ test('a real window blur still pauses scenes and grain after iframe interaction'
   f.focus(true);
   assert.equal(f.paused(), false);
   assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
+});
+
+test('iframe focus checks detect application loss and return without parent window events', () => {
+  const f = fixture({ iframeFocused: true });
+  f.flushTimers();
+  assert.equal(f.intervalCount(), 1, 'an iframe already focused at initialization is tracked');
+  assert.deepEqual(f.intervalDelays(), [500]);
+
+  f.setFocus(false); // Only the cross-origin child receives the native blur.
+  f.tickIntervals();
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  assert.deepEqual(f.apps().map((app) => app.loop), [false, false, false]);
+  assert.equal(f.intervalCount(), 1, 'keep checking the iframe to detect application return');
+
+  const pausedCalls = f.apps().map((app) => ({ ...app.calls }));
+  const pausedSyncs = f.syncCount();
+  f.tickIntervals();
+  assert.equal(f.syncCount(), pausedSyncs, 'unchanged focus must not resynchronize the sliders');
+  assert.deepEqual(f.apps().map((app) => app.calls), pausedCalls,
+    'unchanged focus must not trigger playback calls');
+
+  f.setFocus(true); // Return focuses the iframe without a parent focus event.
+  f.tickIntervals();
+  assert.equal(f.paused(), false);
+  assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
+  const playingCalls = f.apps().map((app) => ({ ...app.calls }));
+  const playingSyncs = f.syncCount();
+  f.tickIntervals();
+  assert.equal(f.syncCount(), playingSyncs);
+  assert.deepEqual(f.apps().map((app) => app.calls), playingCalls);
+});
+
+test('focus checks end when iframe focus is left, including without a parent event', () => {
+  const f = fixture();
+  assert.equal(f.intervalCount(), 0, 'ordinary document focus needs no polling');
+  f.iframe();
+  f.blur({ focused: true });
+  assert.equal(f.intervalCount(), 1);
+  f.iframe(false);
+  f.focus(true);
+  assert.equal(f.intervalCount(), 0);
+
+  f.iframe();
+  f.blur({ focused: true });
+  assert.equal(f.intervalCount(), 1);
+  f.iframe(false);
+  f.tickIntervals();
+  assert.equal(f.intervalCount(), 0);
+});
+
+test('hidden tabs stop iframe focus checks and visible tabs restart only one', () => {
+  const f = fixture({ iframeFocused: true });
+  assert.equal(f.intervalCount(), 1);
+  f.visibility(true);
+  assert.equal(f.intervalCount(), 0);
+  f.visibility(false);
+  assert.equal(f.intervalCount(), 1);
+  f.visibility(false);
+  assert.equal(f.intervalCount(), 1);
+
+  const hidden = fixture({ iframeFocused: true, hidden: true });
+  assert.equal(hidden.intervalCount(), 0, 'a hidden initial page must not start focus checks');
+  hidden.visibility(false);
+  assert.equal(hidden.intervalCount(), 1);
+});
+
+test('page suspension stops iframe focus checks and restoration restarts them', () => {
+  const f = fixture({ iframeFocused: true });
+  f.pagehide();
+  assert.equal(f.intervalCount(), 0);
+  f.focus(true);
+  assert.equal(f.intervalCount(), 0, 'focus events cannot restart a suspended page');
+  f.pageshow();
+  assert.equal(f.intervalCount(), 1);
+  f.pageshow();
+  assert.equal(f.intervalCount(), 1);
 });
 
 test('deferred load reconciliation uses the latest slide and focus state', () => {

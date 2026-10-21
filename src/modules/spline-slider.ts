@@ -81,6 +81,29 @@ export function initHeroSplineSlides(): void {
     document.documentElement.classList.toggle('site-hero-paused', !pageActive());
     syncBySlider.forEach((sync) => sync());
   };
+  let frameFocusTimer: number | undefined;
+  const updateFrameFocusCheck = (): void => {
+    const needsCheck = document.activeElement?.tagName === 'IFRAME'
+      && !document.hidden && !suspended;
+
+    if (!needsCheck) {
+      if (frameFocusTimer !== undefined) window.clearInterval(frameFocusTimer);
+      frameFocusTimer = undefined;
+      return;
+    }
+    if (frameFocusTimer !== undefined) return;
+
+    // With focus inside Spline's sandboxed iframe, OS focus changes are sent to
+    // that frame, not this window. Check sparsely until focus leaves the iframe.
+    frameFocusTimer = window.setInterval(() => {
+      const nextFocused = document.hasFocus();
+      if (focused !== nextFocused) {
+        focused = nextFocused;
+        syncAll();
+      }
+      updateFrameFocusCheck();
+    }, 500);
+  };
 
   for (const slider of sliders) {
     const track = slider.querySelector<HTMLElement>(TRACK_SELECTOR);
@@ -161,24 +184,31 @@ export function initHeroSplineSlides(): void {
     // while the document still has focus; only a real window switch should pause.
     focused = document.hasFocus();
     syncAll();
+    updateFrameFocusCheck();
+    // Some browsers update activeElement only after dispatching the blur event.
+    window.setTimeout(updateFrameFocusCheck, 0);
   });
   window.addEventListener('focus', () => {
     focused = true;
     syncAll();
+    updateFrameFocusCheck();
   });
   document.addEventListener('visibilitychange', () => {
     focused = document.hasFocus();
     syncAll();
+    updateFrameFocusCheck();
   });
   window.addEventListener('pagehide', () => {
     suspended = true;
     syncAll();
+    updateFrameFocusCheck();
   });
   window.addEventListener('pageshow', () => {
     suspended = false;
     focused = document.hasFocus();
     refreshBySlider.forEach((refresh) => refresh());
     syncAll();
+    updateFrameFocusCheck();
   });
 
   document.addEventListener('w-spline-load', (event) => {
@@ -189,4 +219,5 @@ export function initHeroSplineSlides(): void {
     }
   }, true);
   syncAll();
+  updateFrameFocusCheck();
 }
