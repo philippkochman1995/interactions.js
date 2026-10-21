@@ -65,34 +65,22 @@ function intersectsViewport(element: HTMLElement): boolean {
     && rect.top < window.innerHeight && rect.left < window.innerWidth;
 }
 
-function syncSlider(slider: HTMLElement, inViewport: boolean): void {
-  const track = slider.querySelector<HTMLElement>(TRACK_SELECTOR);
-  const current = track && activeSlide(track);
-  const spline = sliderModule();
-
-  if (!track || !current || !spline?.getInstance) return;
-
-  for (const scene of Array.from(track.querySelectorAll<HTMLElement>(SCENE_SELECTOR))) {
-    const slide = directSlideFor(scene, track);
-    const app = spline.getInstance(scene)?.spline;
-
-    if (!slide || !app) continue;
-
-    try {
-      if (slide === current && !isInactiveHeroSplineScene(scene) && inViewport && !document.hidden) app.play?.();
-      else app.stop?.();
-    } catch {
-      // A scene may be between Webflow initialization and disposal.
-    }
-  }
-}
-
 export function initHeroSplineSlides(): void {
   const sliders = Array.from(document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR));
 
   if (sliders.length === 0) return;
 
+  let focused = document.hasFocus();
+  let suspended = false;
+  const pageActive = (): boolean => focused && !document.hidden && !suspended;
+  const playingByApp = new WeakMap<SplineApp, boolean>();
+  const observedApps = new WeakSet<SplineApp>();
   const syncBySlider = new Map<HTMLElement, () => void>();
+  const refreshBySlider = new Map<HTMLElement, () => void>();
+  const syncAll = (): void => {
+    document.documentElement.classList.toggle('site-hero-paused', !pageActive());
+    syncBySlider.forEach((sync) => sync());
+  };
 
   for (const slider of sliders) {
     const track = slider.querySelector<HTMLElement>(TRACK_SELECTOR);
@@ -100,8 +88,50 @@ export function initHeroSplineSlides(): void {
 
     // Establish visibility synchronously; observer delivery can follow scene loading.
     let inViewport = intersectsViewport(slider);
-    const sync = (): void => syncSlider(slider, inViewport);
+    const sync = (settledApp?: SplineApp): void => {
+      const current = activeSlide(track);
+      const spline = sliderModule();
+      if (!current || !spline?.getInstance) return;
+
+      for (const scene of Array.from(track.querySelectorAll<HTMLElement>(SCENE_SELECTOR))) {
+        const slide = directSlideFor(scene, track);
+        const app = spline.getInstance(scene)?.spline;
+        if (!slide || !app) continue;
+
+        if (!observedApps.has(app)) {
+          observedApps.add(app);
+          // Spline queues its render-loop startup before Webflow emits w-spline-load.
+          // Run after that timer: an earlier stop() can otherwise be overwritten
+          // while isStopped remains true, making subsequent stop() calls no-ops.
+          window.setTimeout(() => {
+            if (sliderModule()?.getInstance?.(scene)?.spline === app) sync(app);
+          }, 0);
+        }
+
+        const play = slide === current && !isInactiveHeroSplineScene(scene)
+          && inViewport && pageActive();
+        try {
+          if (app === settledApp) {
+            // Reset the public pause flag once, then remove the real callback.
+            // Both calls happen in one task, before another frame can render.
+            app.play?.();
+            if (!play) app.stop?.();
+          } else if (playingByApp.get(app) !== play) {
+            if (play) app.play?.();
+            else app.stop?.();
+          }
+          playingByApp.set(app, play);
+        } catch {
+          // A scene may be between Webflow initialization and disposal.
+        }
+      }
+    };
     syncBySlider.set(slider, sync);
+    const refreshVisibility = (): void => {
+      inViewport = intersectsViewport(slider);
+      sync();
+    };
+    refreshBySlider.set(slider, refreshVisibility);
     if (typeof IntersectionObserver !== 'undefined') {
       const visibilityObserver = new IntersectionObserver((entries) => {
         for (const entry of entries) {
@@ -113,25 +143,40 @@ export function initHeroSplineSlides(): void {
       }, { threshold: 0 });
       visibilityObserver.observe(slider);
     } else {
-      const refreshVisibility = (): void => {
-        inViewport = intersectsViewport(slider);
-        sync();
-      };
       window.addEventListener('scroll', refreshVisibility, { passive: true });
-      window.addEventListener('resize', refreshVisibility);
     }
-    const observer = new MutationObserver(sync);
+    // A responsive scene can change visibility without a new intersection entry.
+    window.addEventListener('resize', refreshVisibility);
+    const observer = new MutationObserver(() => sync());
     observer.observe(track, {
       attributes: true,
       attributeFilter: ['aria-hidden', 'inert'],
       childList: true,
       subtree: true,
     });
-    sync();
   }
 
+  window.addEventListener('blur', () => {
+    focused = false;
+    syncAll();
+  });
+  window.addEventListener('focus', () => {
+    focused = true;
+    syncAll();
+  });
   document.addEventListener('visibilitychange', () => {
-    syncBySlider.forEach((sync) => sync());
+    focused = document.hasFocus();
+    syncAll();
+  });
+  window.addEventListener('pagehide', () => {
+    suspended = true;
+    syncAll();
+  });
+  window.addEventListener('pageshow', () => {
+    suspended = false;
+    focused = document.hasFocus();
+    refreshBySlider.forEach((refresh) => refresh());
+    syncAll();
   });
 
   document.addEventListener('w-spline-load', (event) => {
@@ -141,4 +186,5 @@ export function initHeroSplineSlides(): void {
       if (slider) syncBySlider.get(slider)?.();
     }
   }, true);
+  syncAll();
 }

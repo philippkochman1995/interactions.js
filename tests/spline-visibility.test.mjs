@@ -13,7 +13,7 @@ function compile(path) {
 const source = compile('../src/modules/spline-slider.ts');
 const markup = compile('../src/modules/site-preloader-markup.ts');
 
-function fixture({ visible = true, hidden = false, loaded = true, observer = true,
+function fixture({ visible = true, hidden = false, focused = true, loaded = true, observer = true,
   hiddenScene = -1, invisibleScene = -1 } = {}) {
   const documentEvents = new Map();
   const windowEvents = new Map();
@@ -21,6 +21,19 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
   const intersections = [];
   const state = [null, null, null];
   const instances = new Map();
+  const timers = [];
+  const classes = new Set();
+  const display = new Map();
+  const visibility = new Map();
+  let hasFocus = focused;
+  const listen = (events, name, callback) => {
+    if (!events.has(name)) events.set(name, []);
+    events.get(name).push(callback);
+  };
+  const emit = (events, name, event = {}) => {
+    events.get(name)?.forEach((callback) => callback(event));
+  };
+  const schedule = (callback) => { timers.push(callback); return timers.length; };
   class Element {
     attrs = {};
     getAttribute(key) { return this.attrs[key] ?? null; }
@@ -40,6 +53,8 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
     scene.parentElement = slide;
     return scene;
   });
+  if (hiddenScene >= 0) display.set(scenes[hiddenScene], 'none');
+  if (invisibleScene >= 0) visibility.set(scenes[invisibleScene], 'hidden');
   let inViewport = visible;
   slider.getBoundingClientRect = () => ({
     top: inViewport ? 0 : -600, bottom: inViewport ? 600 : 0,
@@ -48,10 +63,34 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
   slider.querySelector = () => track;
   track.children = slides;
   track.querySelectorAll = () => scenes;
-  const load = (index) => instances.set(scenes[index], { spline: {
-    play() { state[index] = 'playing'; },
-    stop() { state[index] = 'stopped'; },
-  } });
+  const load = (index) => {
+    // Model the public pause flag separately from the actual rendering loop.
+    // Runtime 2.0.100 queues startup before emitting w-spline-load; that timer
+    // can restore the loop after an early, subsequently idempotent stop().
+    const app = {
+      isStopped: false,
+      loop: true,
+      calls: { play: 0, stop: 0 },
+      play() {
+        this.calls.play++;
+        if (!this.isStopped) return;
+        this.isStopped = false;
+        this.loop = true;
+        if (instances.get(scenes[index])?.spline === this) state[index] = 'playing';
+      },
+      stop() {
+        this.calls.stop++;
+        if (this.isStopped) return;
+        this.isStopped = true;
+        this.loop = false;
+        if (instances.get(scenes[index])?.spline === this) state[index] = 'stopped';
+      },
+    };
+    instances.set(scenes[index], { spline: app });
+    state[index] = 'playing';
+    schedule(() => { app.loop = true; });
+    return app;
+  };
   if (loaded) scenes.forEach((_, index) => load(index));
   class MutationObserver {
     constructor(callback) { mutations.push(callback); }
@@ -63,32 +102,53 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
   }
   const document = {
     hidden,
+    hasFocus: () => hasFocus,
+    documentElement: { classList: {
+      toggle(name, enabled) { if (enabled) classes.add(name); else classes.delete(name); },
+    } },
     querySelectorAll: () => [slider],
-    addEventListener: (name, callback) => documentEvents.set(name, callback),
+    addEventListener: (name, callback) => listen(documentEvents, name, callback),
   };
   const window = {
     innerWidth: 1000, innerHeight: 800,
     Webflow: { require: () => ({ getInstance: (scene) => instances.get(scene) }) },
-    addEventListener: (name, callback) => windowEvents.set(name, callback),
+    addEventListener: (name, callback) => listen(windowEvents, name, callback),
+    setTimeout: schedule,
   };
   const context = { exports: {}, window, document, Element, HTMLElement: Element, MutationObserver,
     getComputedStyle: (element) => ({
-      display: element === scenes[hiddenScene] ? 'none' : 'block',
-      visibility: element === scenes[invisibleScene] ? 'hidden' : 'visible',
+      display: display.get(element) ?? 'block',
+      visibility: visibility.get(element) ?? 'visible',
     }),
     IntersectionObserver: observer ? IntersectionObserver : undefined };
   runInNewContext(source, context);
   context.exports.initHeroSplineSlides();
   return {
     state,
+    apps() { return scenes.map((scene) => instances.get(scene)?.spline); },
+    paused() { return classes.has('site-hero-paused'); },
+    nextTimer() { assert.ok(timers.length, 'expected a queued timer'); timers.shift()(); },
+    flushTimers() {
+      let count = 0;
+      while (timers.length) {
+        assert.ok(++count < 100, 'timer reconciliation must settle without polling');
+        timers.shift()();
+      }
+    },
     inactive(index) { return context.exports.isInactiveHeroSplineScene(scenes[index]); },
-    visibility(hidden) { document.hidden = hidden; documentEvents.get('visibilitychange')(); },
+    visibility(hidden) { document.hidden = hidden; emit(documentEvents, 'visibilitychange'); },
+    focus(value) { hasFocus = value; emit(windowEvents, value ? 'focus' : 'blur'); },
+    pagehide() { emit(windowEvents, 'pagehide', { persisted: true }); },
+    pageshow() { emit(windowEvents, 'pageshow', { persisted: true }); },
+    setViewport(value) { inViewport = value; },
+    setDisplay(index, value) { display.set(scenes[index], value); },
+    resize() { emit(windowEvents, 'resize'); },
     viewport(value, width = 800, height = 600) {
       inViewport = value;
       intersections.forEach((callback) => callback([{
         target: slider, isIntersecting: value, intersectionRect: { width, height },
       }]));
-      if (!observer) windowEvents.get('scroll')();
+      if (!observer) emit(windowEvents, 'scroll');
     },
     active(index) {
       slides.forEach((slide, i) => {
@@ -97,7 +157,11 @@ function fixture({ visible = true, hidden = false, loaded = true, observer = tru
       });
       mutations.forEach((callback) => callback());
     },
-    load(index) { load(index); documentEvents.get('w-spline-load')({ target: scenes[index] }); },
+    load(index) {
+      const app = load(index);
+      emit(documentEvents, 'w-spline-load', { target: scenes[index] });
+      return app;
+    },
   };
 }
 
@@ -166,6 +230,131 @@ test('scroll fallback pauses and resumes when IntersectionObserver is unavailabl
   assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
   f.viewport(true);
   assert.equal(f.state[0], 'playing');
+});
+
+test('late runtime startup cannot leave an inactive scene rendering after stop', () => {
+  const f = fixture({ loaded: false });
+  const app = f.load(1);
+  assert.equal(app.isStopped, true);
+  assert.equal(app.loop, false);
+  f.nextTimer(); // The runtime's already queued startup runs before reconciliation.
+  assert.equal(app.isStopped, true);
+  assert.equal(app.loop, true, 'the fixture reproduces the runtime race');
+  f.nextTimer();
+  assert.equal(app.isStopped, true);
+  assert.equal(app.loop, false, 'reconciliation removes the actual rendering callback');
+  assert.deepEqual(app.calls, { play: 1, stop: 2 });
+});
+
+test('already discovered scenes reconcile their runtime startup without a load event', () => {
+  const f = fixture({ visible: false });
+  f.flushTimers();
+  assert.deepEqual(f.apps().map((app) => app.loop), [false, false, false]);
+});
+
+test('a page opened without focus pauses scenes and grain until focus returns', () => {
+  const f = fixture({ focused: false });
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  f.flushTimers();
+  assert.deepEqual(f.apps().map((app) => app.loop), [false, false, false]);
+  f.focus(true);
+  assert.equal(f.paused(), false);
+  assert.deepEqual(f.state, ['playing', 'stopped', 'stopped']);
+});
+
+test('focus and tab visibility independently gate scene and grain playback', () => {
+  const f = fixture();
+  f.flushTimers();
+  f.focus(false);
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  f.visibility(true);
+  f.focus(true);
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  f.visibility(false);
+  assert.equal(f.paused(), false);
+  assert.equal(f.state[0], 'playing');
+  f.focus(false);
+  f.visibility(false);
+  assert.equal(f.paused(), true);
+  assert.equal(f.state[0], 'stopped');
+});
+
+test('deferred load reconciliation uses the latest slide and focus state', () => {
+  const f = fixture({ loaded: false, focused: false });
+  const first = f.load(0);
+  f.focus(true);
+  f.active(1);
+  const second = f.load(1);
+  f.flushTimers();
+  assert.deepEqual(f.state, ['stopped', 'playing', null]);
+  assert.equal(first.loop, false);
+  assert.equal(second.loop, true);
+  f.viewport(false);
+  assert.equal(second.loop, false);
+  f.focus(false);
+  f.focus(true);
+  assert.equal(second.loop, false, 'returning focus does not resume an offscreen scene');
+});
+
+test('resize updates responsive scene playback without another intersection entry', () => {
+  const f = fixture({ hiddenScene: 0 });
+  f.flushTimers();
+  assert.equal(f.state[0], 'stopped');
+  f.setDisplay(0, 'block');
+  f.resize();
+  assert.equal(f.state[0], 'playing');
+  f.setDisplay(0, 'none');
+  f.resize();
+  assert.equal(f.state[0], 'stopped');
+});
+
+test('BFCache suspension pauses and restoration recomputes the viewport', () => {
+  const f = fixture();
+  f.flushTimers();
+  f.pagehide();
+  assert.equal(f.paused(), true);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  f.setViewport(false); // Scroll restoration need not deliver an intersection event first.
+  f.pageshow();
+  assert.equal(f.paused(), false);
+  assert.deepEqual(f.state, ['stopped', 'stopped', 'stopped']);
+  f.pagehide();
+  f.setViewport(true);
+  f.pageshow();
+  assert.equal(f.state[0], 'playing');
+  f.focus(false);
+  f.pagehide();
+  f.pageshow();
+  assert.equal(f.paused(), true);
+  assert.equal(f.state[0], 'stopped');
+});
+
+test('settled scenes receive no repeated playback calls for unchanged state', () => {
+  const f = fixture();
+  f.flushTimers();
+  const before = f.apps().map((app) => ({ ...app.calls }));
+  f.viewport(true);
+  f.active(0);
+  f.visibility(false);
+  f.resize();
+  f.focus(true);
+  f.pageshow();
+  f.flushTimers();
+  assert.deepEqual(f.apps().map((app) => app.calls), before);
+});
+
+test('a stale deferred callback does not control an app replaced before settling', () => {
+  const f = fixture({ loaded: false });
+  const old = f.load(1);
+  const oldCalls = { ...old.calls };
+  const replacement = f.load(1);
+  f.flushTimers();
+  assert.deepEqual(old.calls, oldCalls);
+  assert.equal(replacement.isStopped, true);
+  assert.equal(replacement.loop, false);
 });
 
 test('inline Webflow boot keeps the same preloader asset URL as the hosted bundle', () => {

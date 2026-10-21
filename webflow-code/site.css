@@ -1,4 +1,10 @@
 /* head: Webflow style */
+/* Preserve the grain's current frame while the page is hidden or unfocused. */
+html.site-hero-paused #fw-hero-grained::before {
+  -webkit-animation-play-state: paused !important;
+  animation-play-state: paused !important;
+}
+
 /* Hide the pointer over the animated header signature. */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .top_bar_center .nav_logo_link:hover,

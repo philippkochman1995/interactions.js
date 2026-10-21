@@ -801,10 +801,19 @@ Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
   Geräten die inaktive Szene mit `visibility: hidden` auf voller Größe, damit WebGPU kein
   0×0-Canvas initialisiert; der Preloader überspringt sie. Inaktive Slides werden nach
   `w-spline-load` mit Webflows `stop()` pausiert und beim Aktivieren mit `play()`
-  fortgesetzt, sofern der Slider im Viewport und der Browser-Tab sichtbar ist.
+  fortgesetzt, sofern der Slider im Viewport, der Browser-Tab sichtbar und das
+  Fenster fokussiert ist. Ein einmaliger nachgelagerter Task pro Spline-Instanz
+  gleicht den Zustand nach deren internem Renderloop-Start ab. Beim Pausieren
+  setzt er mit `play()`/`stop()` auch ein bereits gesetztes Pauseflag zurück;
+  dadurch kann der spätere Spline-Starttimer keine scheinbar pausierte Szene
+  weiter rendern lassen. Weitere Ereignisse steuern nur echte Zustandswechsel.
   Ein IntersectionObserver pausiert alle Szenen außerhalb des Viewports;
   `visibilitychange` pausiert sie in Hintergrund-Tabs. Beim Zurückkehren läuft
-  ausschließlich die aktive sichtbare Szene weiter. Webflows eigene Szeneninitialisierung ist davon unabhängig;
+  ausschließlich die aktive sichtbare Szene weiter. `blur` pausiert auch bei
+  weiterhin sichtbarem Browserfenster, `focus` setzt die aktive Szene fort.
+  Die animierte Körnung bleibt währenddessen über `html.site-hero-paused`
+  auf ihrem aktuellen Frame stehen. Resize und BFCache-Rückkehr gleichen die
+  Szenensichtbarkeit erneut ab. Webflows eigene Szeneninitialisierung ist davon unabhängig;
   `stop()` pausiert die Wiedergabe, garantiert aber kein Freigeben des Szenenspeichers.
   Das gilt auf Desktop und Mobilgeräten.
 - Die Werke- und Werkdetail-Renderer signalisieren ihren ersten fertigen DOM-Aufbau
