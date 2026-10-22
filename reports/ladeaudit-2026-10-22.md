@@ -17,7 +17,7 @@ MiB = 1.048.576 Byte. Die Browserwerte sind tatsächlich empfangene Daten ohne C
 | [Biografie](https://website-4bff6e.webflow.io/biografie) | 11.37 | 10.70 | 9.66 | 9.00 | 177.94 | 82 |
 | [West Map](https://website-4bff6e.webflow.io/west-map) | 8.40 | 7.44 | 10.19 | 9.40 | 108.43 | 51 |
 | [Werk Überblick](https://website-4bff6e.webflow.io/werk-ueberblick) | 8.06 | 6.06 | 9.45 | 7.46 | 204.35 | 65 |
-| [Kontexte](https://website-4bff6e.webflow.io/kontexte) | 6.66 | 6.21 | — | — | 74.40 | 40 |
+| [Kontexte](https://website-4bff6e.webflow.io/kontexte) | 6.66 | 6.21 | 6.60 | 6.21 | 74.40 | 40 |
 | [News](https://website-4bff6e.webflow.io/news) | 6.50 | 6.06 | 1.13 | 0.69 | 42.66 | 7 |
 | [Home](https://website-4bff6e.webflow.io/) | 5.08 | 2.69 | 7.65 | 5.72 | 116.13 | 58 |
 | [Atelier](https://website-4bff6e.webflow.io/atelier) | 3.22 | 2.77 | 3.13 | 2.69 | 34.63 | 6 |
@@ -56,6 +56,6 @@ Alle Einträge wurden im HTML und anhand ihrer CMS-Bildfelder geprüft; die Brow
 ## Messmethode und Grenzen
 
 - **Alle 214 Adressen:** HTTP-Status, entpacktes HTML, Bildreferenzen und CMS-Bildfelder; Dateigrößen per HEAD. Die Summe der im HTML oder CMS referenzierten Originale ist **kein tatsächlicher Seiten-Transfer**: responsive Varianten und Lazy Loading ändern die Anfragen.
-- **Browserproben:** Google Chrome 155, isoliertes Profil, Cache aus, Desktop 1440 × 900 px bei DPR 1; Mobil 390 × 844 px bei DPR 2. 13 feste und 5 CMS-Seiten wurden am Desktop, 8 bildlastige Seiten zusätzlich mobil geladen. Netzwerk wurde nicht künstlich gedrosselt. Proben wurden etwa 6,5 s nach DOMContentLoaded beendet; spätere Bilder fehlen im Transferwert. Browserzeitpunkte sind Momentaufnahmen dieser Verbindung, keine Garantie für andere Geräte oder Netze.
+- **Browserproben:** Google Chrome 155, isoliertes Profil, Cache aus, Desktop 1440 × 900 px bei DPR 1; Mobil 390 × 844 px bei DPR 2. 13 feste und 5 CMS-Seiten wurden am Desktop, 9 bildlastige Seiten zusätzlich mobil geladen. Netzwerk wurde nicht künstlich gedrosselt. Proben wurden etwa 6,5 s nach DOMContentLoaded beendet; spätere Bilder fehlen im Transferwert. Browserzeitpunkte sind Momentaufnahmen dieser Verbindung, keine Garantie für andere Geräte oder Netze.
 - **Ladegefühl:** Die Seite zeigt ein Intro-Overlay. Frühe Paint- und LCP-Werte können dieses Overlay erfassen und wurden deshalb nicht als Nutzer-Ladezeit gewertet. Angegebene Bildzeiten sind der Abschluss der jeweiligen Netzwerkantwort ab Navigation.
 - **Modal Items:** Sechs CMS-Einträge liefern unter /modal-items/… HTTP 404. Falls diese als öffentliche Einzeladressen gedacht sind, ist das unabhängig von der Bildoptimierung zu prüfen.
