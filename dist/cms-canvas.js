@@ -8083,16 +8083,17 @@ function k(e, t) {
 	return r instanceof HTMLImageElement ? r : (n = r == null ? void 0 : r.querySelector("img")) == null ? null : n;
 }
 function A(e) {
-	var n, r, i, a, o, s;
-	let c = e.querySelector("[data-canvas-modal-work]");
-	if (!c) return null;
-	let l = k(c, "[data-works-thumbnail]"), u = de(c, "[data-works-title]") || ((n = c.getAttribute("data-works-title")) == null ? void 0 : n.trim()) || "", d = de(c, "[data-works-year]") || ((r = c.getAttribute("data-works-year")) == null ? void 0 : r.trim()) || "", f = ((i = (a = (o = c.getAttribute("data-works-href")) == null ? c.getAttribute("data-works-url") : o) == null ? (s = c.querySelector("[data-works-link], a[href]")) == null ? void 0 : s.getAttribute("href") : a) == null ? "" : i).trim(), p = t(l);
-	return !f || f.startsWith("#") ? null : {
-		title: u,
-		year: d,
-		thumbnail: p,
-		thumbnailAlt: (l == null ? void 0 : l.alt) || u,
-		href: f
+	var t, r, i, a, o, s, c;
+	let l = e.querySelector("[data-canvas-modal-work]");
+	if (!l) return null;
+	let u = k(l, "[data-works-thumbnail]"), d = de(l, "[data-works-title]") || ((t = l.getAttribute("data-works-title")) == null ? void 0 : t.trim()) || "", f = de(l, "[data-works-year]") || ((r = l.getAttribute("data-works-year")) == null ? void 0 : r.trim()) || "", p = ((i = (a = (o = l.getAttribute("data-works-href")) == null ? l.getAttribute("data-works-url") : o) == null ? (s = l.querySelector("[data-works-link], a[href]")) == null ? void 0 : s.getAttribute("href") : a) == null ? "" : i).trim(), m = n(u);
+	return !p || p.startsWith("#") ? null : {
+		title: d,
+		year: f,
+		thumbnail: m,
+		thumbnailSrcset: (c = u == null ? void 0 : u.getAttribute("srcset")) == null ? void 0 : c,
+		thumbnailAlt: (u == null ? void 0 : u.alt) || d,
+		href: p
 	};
 }
 function pe(e) {

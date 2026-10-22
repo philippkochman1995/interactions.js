@@ -29,3 +29,22 @@ export function setModalPreview(image: HTMLImageElement, original: string, srcse
   };
   image.src = preview;
 }
+
+// Webflow does not provide responsive candidates for these AVIF CMS images.
+// The exact resized copies live with the bundle so the modal never requests
+// their 2000px originals just to show a small work card.
+const MODAL_WORK_THUMBNAIL_IDS = new Set([
+  '6a7db30517820876cd23f469',
+  '6a7db3187795b95db7804762',
+  '6a7db33f5031a1007e109876',
+  '6a7db3495031a1007e10a89e',
+  '6a7db34bd247654adf43324d',
+]);
+
+export function modalWorkThumbnailSource(original: string, srcset?: string): string {
+  const id = original.match(/\/([0-9a-f]{24})_/i)?.[1]?.toLowerCase();
+  if (id && MODAL_WORK_THUMBNAIL_IDS.has(id)) {
+    return new URL('../assets/modal-work-thumbnails/' + id + '.webp', import.meta.url).href;
+  }
+  return modalPreviewSource(original, srcset, 500);
+}

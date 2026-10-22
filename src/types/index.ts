@@ -30,6 +30,7 @@ export interface ContentModalWork {
   title: string;
   year: string;
   thumbnail: string;
+  thumbnailSrcset?: string;
   thumbnailAlt: string;
   href: string;
 }

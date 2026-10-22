@@ -200,7 +200,7 @@ function readModalWork(element: HTMLElement): ContentModalWork | null {
     workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.getAttribute('href') ??
     ''
   ).trim();
-  const thumbnail = imageSource(thumbnailElement);
+  const thumbnail = getCmsImageOriginalSource(thumbnailElement);
 
   if (!href || href.startsWith('#')) {
     return null;
@@ -210,6 +210,7 @@ function readModalWork(element: HTMLElement): ContentModalWork | null {
     title,
     year,
     thumbnail,
+    thumbnailSrcset: thumbnailElement?.getAttribute('srcset') ?? undefined,
     thumbnailAlt: thumbnailElement?.alt || title,
     href,
   };

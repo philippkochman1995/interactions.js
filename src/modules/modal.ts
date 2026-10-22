@@ -1,6 +1,6 @@
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
 import { getCmsImageOriginalSource, getCmsImageSource as getImageSource } from './cms-image';
-import { setModalPreview } from './modal-image';
+import { modalWorkThumbnailSource, setModalPreview } from './modal-image';
 import {
   delegate,
   dispatchSiteEvent,
@@ -188,7 +188,7 @@ function readWorkElement(element: HTMLElement): ContentModalWork | null {
     workElement.getAttribute('data-works-url') ??
     workElement.querySelector<HTMLAnchorElement>('[data-works-link], a[href]')?.href ??
     '';
-  const thumbnail = getImageSource(imageElement);
+  const thumbnail = getCmsImageOriginalSource(imageElement);
 
   if (!title && !thumbnail && !href) {
     return null;
@@ -198,6 +198,7 @@ function readWorkElement(element: HTMLElement): ContentModalWork | null {
     title,
     year,
     thumbnail,
+    thumbnailSrcset: imageElement?.getAttribute('srcset') ?? undefined,
     thumbnailAlt: imageElement?.alt || title,
     href,
   };
@@ -390,10 +391,15 @@ function renderWork(work: ContentModalWork): HTMLElement {
     const image = document.createElement('img');
 
     image.className = 'fwm-modal__work-image';
-    image.src = work.thumbnail;
     image.alt = work.thumbnailAlt;
     image.loading = 'lazy';
     image.decoding = 'async';
+    const preview = modalWorkThumbnailSource(work.thumbnail, work.thumbnailSrcset);
+    image.onerror = preview === work.thumbnail ? null : () => {
+      image.onerror = null;
+      image.src = work.thumbnail;
+    };
+    image.src = preview;
     imageWrap.className = 'fwm-modal__work-image-wrap';
     imageWrap.append(image);
     card.append(imageWrap);
