@@ -1,54 +1,47 @@
+import { t as e } from "./site-interactions-CahnrWDV.js";
 //#region src/home-west-map.ts
-var e = "2.15.0", t = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.js`, n = `https://api.mapbox.com/mapbox-gl-js/v${e}/mapbox-gl.css`, r = "/west-map", i = "(max-width: 767px)", a = [[-7, 37], [32, 59]], o = 18, s = Math.log2(1.15), c;
-function l() {
-	if (c) return c;
+var t = "2.15.0", n = `https://api.mapbox.com/mapbox-gl-js/v${t}/mapbox-gl.js`, r = `https://api.mapbox.com/mapbox-gl-js/v${t}/mapbox-gl.css`, i = "/west-map", a = "(max-width: 767px)", o = [[-7, 37], [32, 59]], s = 18, c = Math.log2(1.15), l;
+function u() {
+	if (l) return l;
 	let e = document.createElement("link");
-	return e.rel = "stylesheet", e.href = n, document.head.appendChild(e), c = new Promise((e, n) => {
+	return e.rel = "stylesheet", e.href = r, document.head.appendChild(e), l = new Promise((e, t) => {
 		let r = window.mapboxgl;
 		if (r) {
 			e(r);
 			return;
 		}
 		let i = document.createElement("script");
-		i.src = t, i.async = !0, i.onload = () => {
-			let t = window.mapboxgl;
-			t ? e(t) : n(/* @__PURE__ */ Error("Mapbox GL did not initialize"));
-		}, i.onerror = () => n(/* @__PURE__ */ Error("Mapbox GL could not be loaded")), document.head.appendChild(i);
-	}), c;
+		i.src = n, i.async = !0, i.onload = () => {
+			let n = window.mapboxgl;
+			n ? e(n) : t(/* @__PURE__ */ Error("Mapbox GL did not initialize"));
+		}, i.onerror = () => t(/* @__PURE__ */ Error("Mapbox GL could not be loaded")), document.head.appendChild(i);
+	}), l;
 }
-function u(e) {
-	return Array.from(e.querySelectorAll(".w-dyn-item, .hm_item, [data-wm-home-item]")).map((e) => {
-		var t, n, r, i;
-		let a = Number.parseFloat(((t = e.querySelector(".hm_lat, .wm-f-lat")) == null ? void 0 : t.textContent) || ""), o = Number.parseFloat(((n = e.querySelector(".hm_lng, .wm-f-lng")) == null ? void 0 : n.textContent) || ""), s = e.querySelector(".hm_bild, .wm-f-bild");
+function d(t) {
+	return Array.from(t.querySelectorAll(".w-dyn-item, .hm_item, [data-wm-home-item]")).map((t) => {
+		var n, r, i, a;
+		let o = Number.parseFloat(((n = t.querySelector(".hm_lat, .wm-f-lat")) == null ? void 0 : n.textContent) || ""), s = Number.parseFloat(((r = t.querySelector(".hm_lng, .wm-f-lng")) == null ? void 0 : r.textContent) || ""), c = t.querySelector(".hm_bild, .wm-f-bild");
 		return {
-			lat: a,
-			lng: o,
-			category: (((r = e.querySelector(".hm_kat, .wm-f-kategorie")) == null ? void 0 : r.textContent) || "").trim(),
-			address: (((i = e.querySelector(".hm_adresse, .wm-f-adresse")) == null ? void 0 : i.textContent) || "").trim(),
-			image: s ? d(s) : ""
+			lat: o,
+			lng: s,
+			category: (((i = t.querySelector(".hm_kat, .wm-f-kategorie")) == null ? void 0 : i.textContent) || "").trim(),
+			address: (((a = t.querySelector(".hm_adresse, .wm-f-adresse")) == null ? void 0 : a.textContent) || "").trim(),
+			image: e(c)
 		};
 	}).filter((e) => Number.isFinite(e.lat) && Number.isFinite(e.lng));
-}
-function d(e) {
-	var t;
-	let n = (e.getAttribute("srcset") || "").split(",").map((e) => e.trim().match(/^(\S+)\s+(\d+)w$/)).filter((e) => !!e).map((e) => ({
-		url: e[1],
-		width: Number(e[2])
-	})).sort((e, t) => e.width - t.width);
-	return ((t = n.find((e) => e.width >= 200) || n[n.length - 1]) == null ? void 0 : t.url) || e.currentSrc || e.src || "";
 }
 function f(e) {
 	return e === "Ausstellungen" ? "wm-home-marker--ausstellungen" : e === "Werke" ? "wm-home-marker--werke" : "wm-home-marker--orte";
 }
 function p(e) {
-	let t = e.querySelector(".map_bg"), n = document.querySelector(".hm_cms, [data-wm-home-source]"), c = e.getAttribute("data-mapbox-token");
-	if (!t || !n || !c) return;
-	let d = u(n);
-	if (!d.length) return;
-	let p = window.matchMedia(i), m = window.matchMedia("(prefers-reduced-motion: reduce)"), h = document.createElement("div");
+	let t = e.querySelector(".map_bg"), n = document.querySelector(".hm_cms, [data-wm-home-source]"), r = e.getAttribute("data-mapbox-token");
+	if (!t || !n || !r) return;
+	let l = d(n);
+	if (!l.length) return;
+	let p = window.matchMedia(a), m = window.matchMedia("(prefers-reduced-motion: reduce)"), h = document.createElement("div");
 	h.className = "wm-home-map", t.appendChild(h);
 	let g = document.createElement("a");
-	g.className = "wm-home-map-link", g.href = r, g.setAttribute("aria-label", "West Map öffnen"), t.appendChild(g);
+	g.className = "wm-home-map-link", g.href = i, g.setAttribute("aria-label", "West Map öffnen"), t.appendChild(g);
 	let _ = !1, v = !1, y = !1, b = [], x = /* @__PURE__ */ new Map();
 	function S() {
 		if (!_ || !y || v) return;
@@ -65,14 +58,14 @@ function p(e) {
 	C.observe(e);
 	async function w() {
 		try {
-			let t = await l();
-			t.accessToken = c;
+			let t = await u();
+			t.accessToken = r;
 			let n = new t.Map({
 				container: h,
 				style: "mapbox://styles/mapbox/light-v11",
 				projection: "globe",
-				bounds: a,
-				fitBoundsOptions: { padding: o },
+				bounds: o,
+				fitBoundsOptions: { padding: s },
 				bearing: 0,
 				pitch: 0,
 				interactive: !1,
@@ -87,46 +80,46 @@ function p(e) {
 					"star-intensity": 0
 				});
 			});
-			function i(e) {
-				let i = e.properties, a = !!i.cluster, o = d[Number(a ? i.firstIdx : i.idx)], s = a ? i.hasW ? "Werke" : i.hasA ? "Ausstellungen" : "Wichtige Orte" : (o == null ? void 0 : o.category) || "Wichtige Orte", c = document.createElement("a");
-				c.className = `wm-home-marker ${f(s)}`, c.href = r, c.setAttribute("aria-label", a ? `${i.point_count} Orte auf der West Map öffnen` : `${(o == null ? void 0 : o.address) || "Ort"} auf der West Map öffnen`);
-				let l = document.createElement("span");
-				l.className = "wm-home-marker__inner";
+			function a(e) {
+				let r = e.properties, a = !!r.cluster, o = l[Number(a ? r.firstIdx : r.idx)], s = a ? r.hasW ? "Werke" : r.hasA ? "Ausstellungen" : "Wichtige Orte" : (o == null ? void 0 : o.category) || "Wichtige Orte", c = document.createElement("a");
+				c.className = `wm-home-marker ${f(s)}`, c.href = i, c.setAttribute("aria-label", a ? `${r.point_count} Orte auf der West Map öffnen` : `${(o == null ? void 0 : o.address) || "Ort"} auf der West Map öffnen`);
 				let u = document.createElement("span");
-				if (u.className = "wm-home-marker__circle", o != null && o.image) {
+				u.className = "wm-home-marker__inner";
+				let d = document.createElement("span");
+				if (d.className = "wm-home-marker__circle", o != null && o.image) {
 					let e = document.createElement("img");
-					e.src = o.image, e.alt = "", e.loading = "lazy", e.decoding = "async", u.appendChild(e);
+					e.src = o.image, e.alt = "", e.loading = "lazy", e.decoding = "async", d.appendChild(e);
 				}
-				if (l.appendChild(u), a) {
+				if (u.appendChild(d), a) {
 					let e = document.createElement("span");
-					e.className = "wm-home-marker__badge", e.textContent = String(i.point_count_abbreviated || i.point_count || ""), l.appendChild(e);
+					e.className = "wm-home-marker__badge", e.textContent = String(r.point_count_abbreviated || r.point_count || ""), u.appendChild(e);
 				} else if (o != null && o.address) {
 					let e = document.createElement("span");
-					e.className = "wm-home-marker__tooltip", e.textContent = o.address, l.appendChild(e);
+					e.className = "wm-home-marker__tooltip", e.textContent = o.address, u.appendChild(e);
 				}
-				return c.appendChild(l), new t.Marker({
+				return c.appendChild(u), new t.Marker({
 					element: c,
 					anchor: "center"
 				}).setLngLat(e.geometry.coordinates).addTo(n);
 			}
-			function u() {
+			function d() {
 				if (!n.getSource("wmHomePlaces") || !n.isSourceLoaded("wmHomePlaces")) return;
-				let t = /* @__PURE__ */ new Set(), r = h.clientWidth, a = h.clientHeight;
+				let t = /* @__PURE__ */ new Set(), r = h.clientWidth, i = h.clientHeight;
 				for (let e of n.querySourceFeatures("wmHomePlaces")) {
 					let o = e.properties, s = n.project(e.geometry.coordinates);
-					if (s.x < -40 || s.x > r + 40 || s.y < -40 || s.y > a + 40) continue;
+					if (s.x < -40 || s.x > r + 40 || s.y < -40 || s.y > i + 40) continue;
 					let c = o.cluster ? `c${o.cluster_id}` : `p${o.idx}`;
-					t.has(c) || (t.add(c), x.has(c) || x.set(c, i(e)));
+					t.has(c) || (t.add(c), x.has(c) || x.set(c, a(e)));
 				}
 				for (let [e, n] of x) t.has(e) || (n.remove(), x.delete(e));
 				b = Array.from(x.values()).map((e) => e.getElement()).sort((e, t) => e.getBoundingClientRect().left - t.getBoundingClientRect().left), v && b.forEach((e) => e.classList.add("is-visible")), y || (y = !0, e.classList.add("wm-home-ready"), S());
 			}
 			n.on("load", () => {
-				n.setZoom(n.getZoom() + s), n.addSource("wmHomePlaces", {
+				n.setZoom(n.getZoom() + c), n.addSource("wmHomePlaces", {
 					type: "geojson",
 					data: {
 						type: "FeatureCollection",
-						features: d.map((e, t) => ({
+						features: l.map((e, t) => ({
 							type: "Feature",
 							properties: {
 								idx: t,
@@ -172,13 +165,13 @@ function p(e) {
 						"circle-radius": 0,
 						"circle-opacity": 0
 					}
-				}), n.on("idle", u);
+				}), n.on("idle", d);
 			}), p.addEventListener("change", () => {
 				window.requestAnimationFrame(() => {
-					n.resize(), n.fitBounds(a, {
-						padding: o,
+					n.resize(), n.fitBounds(o, {
+						padding: s,
 						duration: 0
-					}), n.setZoom(n.getZoom() + s);
+					}), n.setZoom(n.getZoom() + c);
 				});
 			});
 		} catch (e) {

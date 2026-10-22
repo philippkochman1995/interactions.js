@@ -1,3 +1,5 @@
+import { markerThumbnail } from './marker-thumbnails';
+
 type HomePlace = {
   lat: number;
   lng: number;
@@ -64,20 +66,10 @@ function readPlaces(source: Element): HomePlace[] {
         lng,
         category: (item.querySelector('.hm_kat, .wm-f-kategorie')?.textContent || '').trim(),
         address: (item.querySelector('.hm_adresse, .wm-f-adresse')?.textContent || '').trim(),
-        image: image ? markerImage(image) : '',
+        image: markerThumbnail(image),
       };
     })
     .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng));
-}
-
-function markerImage(image: HTMLImageElement): string {
-  const candidates = (image.getAttribute('srcset') || '').split(',')
-    .map((entry) => entry.trim().match(/^(\S+)\s+(\d+)w$/))
-    .filter((entry): entry is RegExpMatchArray => !!entry)
-    .map((entry) => ({ url: entry[1], width: Number(entry[2]) }))
-    .sort((a, b) => a.width - b.width);
-  return (candidates.find((entry) => entry.width >= 200) || candidates[candidates.length - 1])?.url
-    || image.currentSrc || image.src || '';
 }
 
 function categoryClass(category: string): string {

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { markerThumbnail } from './marker-thumbnails';
 (function(){
   var catClassMap = {
     'Ausstellungen': 'wm-cat-ausstellungen',
@@ -18,19 +19,6 @@
     } else {
       document.addEventListener('DOMContentLoaded', fn);
     }
-  }
-
-  // Map markers are only 3.5rem wide. Keep the full source for the detail
-  // modal, but use Webflow's smallest responsive rendition for the marker.
-  function markerImage(image){
-    if(!image) return '';
-    var srcset = image.getAttribute('srcset') || '';
-    var candidates = srcset.split(',').map(function(candidate){
-      var match = candidate.trim().match(/^(\S+)\s+(\d+)w$/);
-      return match ? { url: match[1], width: Number(match[2]) } : null;
-    }).filter(Boolean).sort(function(a, b){ return a.width - b.width; });
-    var chosen = candidates.find(function(candidate){ return candidate.width >= 200; });
-    return (chosen || candidates[candidates.length - 1] || {}).url || image.getAttribute('src') || '';
   }
 
   ready(function(){
@@ -373,7 +361,7 @@ function openMapModal(data){
         kategorie: ((item.querySelector('.wm-f-kategorie') || {}).textContent || '').trim(),
         bildrechte: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '',
         bild: imgEl ? imgEl.getAttribute('src') : '',
-        markerBild: markerImage(imgEl),
+        markerBild: markerThumbnail(imgEl),
         gallery: gallery,
         text: textEl ? textEl.innerHTML : '',
         aktuell: !!item.querySelector('.wm-f-bildrechte + div')

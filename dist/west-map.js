@@ -1,46 +1,32 @@
+import { t as e } from "./site-interactions-CahnrWDV.js";
 //#region src/west-map.ts
 (function() {
-	var e = {
+	var t = {
 		Ausstellungen: "wm-cat-ausstellungen",
 		Werke: "wm-cat-werke",
 		"Wichtige Orte": "wm-cat-orte"
-	}, t = {
+	}, n = {
 		Ausstellungen: "a",
 		Werke: "w",
 		"Wichtige Orte": "o"
-	}, n = {
+	}, r = {
 		"wm-dot-ausstellungen": "Ausstellungen",
 		"wm-dot-werke": "Werke",
 		"wm-dot-orte": "Wichtige Orte"
-	}, r = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><path d=\"M13.4152 8V13.068L13.068 13.4152H8V15.5849H13.068L13.4152 15.932V21H15.5848V15.932L15.932 15.5849H21V13.4152H15.932L15.5848 13.068V8H13.4152Z\" fill=\"#FAFDFF\"/></svg>", i = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><path d=\"M9 16V13H20V16H9Z\" fill=\"#FAFDFF\"/></svg>", a = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><g clip-path=\"url(#wmFilterClip)\"><path d=\"M14.5075 10.2998H6.60848L6.30859 10.7506L7.3437 12.2998H14.5026H14.5075H21.6582L22.6932 10.7506L22.3933 10.2998H14.5075Z\" fill=\"#FAFDFF\"/><path d=\"M15.1369 14.5H9.29988C9.17037 14.6947 9 14.9508 9 14.9508L10.0351 16.5H15.1321H15.1369H19.2339L20.2689 14.9508C20.1393 14.7561 20.0985 14.6947 19.969 14.5H15.1369Z\" fill=\"#FAFDFF\"/><path d=\"M14.0832 18.7002H12.2999L12 19.151L13.0351 20.7002H14.0783H14.0832H16.1264L17.1613 19.151L16.8614 18.7002H14.0832Z\" fill=\"#FAFDFF\"/></g><defs><clipPath id=\"wmFilterClip\"><rect width=\"17\" height=\"12\" fill=\"white\" transform=\"translate(6 9.5)\"/></clipPath></defs></svg>";
-	function o(e) {
+	}, i = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><path d=\"M13.4152 8V13.068L13.068 13.4152H8V15.5849H13.068L13.4152 15.932V21H15.5848V15.932L15.932 15.5849H21V13.4152H15.932L15.5848 13.068V8H13.4152Z\" fill=\"#FAFDFF\"/></svg>", a = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><path d=\"M9 16V13H20V16H9Z\" fill=\"#FAFDFF\"/></svg>", o = "<svg width=\"29\" height=\"29\" viewBox=\"0 0 29 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"29\" height=\"29\" rx=\"14.5\" fill=\"#444153\"/><g clip-path=\"url(#wmFilterClip)\"><path d=\"M14.5075 10.2998H6.60848L6.30859 10.7506L7.3437 12.2998H14.5026H14.5075H21.6582L22.6932 10.7506L22.3933 10.2998H14.5075Z\" fill=\"#FAFDFF\"/><path d=\"M15.1369 14.5H9.29988C9.17037 14.6947 9 14.9508 9 14.9508L10.0351 16.5H15.1321H15.1369H19.2339L20.2689 14.9508C20.1393 14.7561 20.0985 14.6947 19.969 14.5H15.1369Z\" fill=\"#FAFDFF\"/><path d=\"M14.0832 18.7002H12.2999L12 19.151L13.0351 20.7002H14.0783H14.0832H16.1264L17.1613 19.151L16.8614 18.7002H14.0832Z\" fill=\"#FAFDFF\"/></g><defs><clipPath id=\"wmFilterClip\"><rect width=\"17\" height=\"12\" fill=\"white\" transform=\"translate(6 9.5)\"/></clipPath></defs></svg>";
+	function s(e) {
 		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e) : e();
 	}
-	function s(e) {
-		if (!e) return "";
-		var t = (e.getAttribute("srcset") || "").split(",").map(function(e) {
-			var t = e.trim().match(/^(\S+)\s+(\d+)w$/);
-			return t ? {
-				url: t[1],
-				width: Number(t[2])
-			} : null;
-		}).filter(Boolean).sort(function(e, t) {
-			return e.width - t.width;
-		});
-		return (t.find(function(e) {
-			return e.width >= 200;
-		}) || t[t.length - 1] || {}).url || e.getAttribute("src") || "";
-	}
-	o(function() {
-		var o = document.getElementById("wmMap");
-		if (!o || typeof mapboxgl > "u") return;
-		var c = o.getAttribute("data-mapbox-token");
+	s(function() {
+		var s = document.getElementById("wmMap");
+		if (!s || typeof mapboxgl > "u") return;
+		var c = s.getAttribute("data-mapbox-token");
 		if (!c) {
 			console.error("West Map: #wmMap benötigt das Attribut data-mapbox-token.");
 			return;
 		}
 		mapboxgl.accessToken = c;
-		var l = o.parentElement;
+		var l = s.parentElement;
 		l.classList.add("wm-page"), Array.prototype.forEach.call(l.children, function(e) {
 			e.tagName === "DIV" && !e.id && (e.querySelector("a") ? e.classList.add("wm-overview-slot") : e.querySelector("svg") && e.classList.add("wm-scrolldown-slot"));
 		});
@@ -87,7 +73,7 @@
 			"keydown",
 			"click"
 		].forEach(function(e) {
-			o.addEventListener(e, function() {
+			s.addEventListener(e, function() {
 				v = null;
 			}, {
 				capture: !0,
@@ -99,11 +85,11 @@
 			var b = document.createElement("div");
 			b.className = "wm-zoom-controls";
 			var x = document.createElement("button");
-			x.type = "button", x.className = "wm-zoom-btn", x.setAttribute("aria-label", "Reinzoomen"), x.innerHTML = r;
+			x.type = "button", x.className = "wm-zoom-btn", x.setAttribute("aria-label", "Reinzoomen"), x.innerHTML = i;
 			var S = document.createElement("button");
-			S.type = "button", S.className = "wm-zoom-btn", S.setAttribute("aria-label", "Rauszoomen"), S.innerHTML = i;
+			S.type = "button", S.className = "wm-zoom-btn", S.setAttribute("aria-label", "Rauszoomen"), S.innerHTML = a;
 			var C = document.createElement("button");
-			C.type = "button", C.className = "wm-zoom-btn wm-filter-btn", C.setAttribute("aria-label", "Legende"), C.setAttribute("aria-expanded", "false"), C.innerHTML = a, b.appendChild(x), b.appendChild(S), b.appendChild(C), u && u.parentElement === y ? y.insertBefore(b, u) : y.appendChild(b);
+			C.type = "button", C.className = "wm-zoom-btn wm-filter-btn", C.setAttribute("aria-label", "Legende"), C.setAttribute("aria-expanded", "false"), C.innerHTML = o, b.appendChild(x), b.appendChild(S), b.appendChild(C), u && u.parentElement === y ? y.insertBefore(b, u) : y.appendChild(b);
 			function e() {
 				var e = _.cameraForBounds([[-12, 34], [36, 72]]);
 				return e && Number.isFinite(e.zoom) ? Math.max(0, Math.min(18, e.zoom - .25)) : 3;
@@ -133,7 +119,7 @@
 				var a = w.getBoundingClientRect();
 				C.style.left = a.left + "px", C.style.top = a.top + "px";
 			}
-			function o() {
+			function r() {
 				var e = C.getBoundingClientRect();
 				w.style.width = e.width + "px", w.style.height = e.height + "px", b.replaceChild(w, C), document.body.appendChild(C), C.classList.add("is-floating"), n();
 			}
@@ -154,7 +140,7 @@
 			C.addEventListener("click", function() {
 				if (u) {
 					var e = u.classList.toggle("is-open");
-					document.body.classList.toggle("wm-legend-open", e), C.setAttribute("aria-expanded", e ? "true" : "false"), e ? (c(), o()) : s();
+					document.body.classList.toggle("wm-legend-open", e), C.setAttribute("aria-expanded", e ? "true" : "false"), e ? (c(), r()) : s();
 				}
 			}), window.addEventListener("resize", function() {
 				u && u.classList.contains("is-open") && (c(), n());
@@ -163,7 +149,7 @@
 			});
 		} else _.addControl(new mapboxgl.NavigationControl({ showCompass: !1 }), "top-right");
 		var T = document.createElement("div");
-		T.className = "wm-map-fade", o.appendChild(T);
+		T.className = "wm-map-fade", s.appendChild(T);
 		function E(e, t) {
 			if (Math.abs(t - _.getZoom()) <= 4) {
 				_.easeTo({
@@ -202,33 +188,33 @@
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), d.click());
 		}));
 		var O = [];
-		document.querySelectorAll(".wm-cms-item").forEach(function(e) {
-			var t = parseFloat((e.querySelector(".wm-f-lat") || {}).textContent || ""), n = parseFloat((e.querySelector(".wm-f-lng") || {}).textContent || "");
-			if (!(isNaN(t) || isNaN(n))) {
-				var r = e.querySelector(".wm-f-bild"), i = e.querySelector(".wm-f-text"), a = [{
-					src: r && r.getAttribute("src") || "",
+		document.querySelectorAll(".wm-cms-item").forEach(function(t) {
+			var n = parseFloat((t.querySelector(".wm-f-lat") || {}).textContent || ""), r = parseFloat((t.querySelector(".wm-f-lng") || {}).textContent || "");
+			if (!(isNaN(n) || isNaN(r))) {
+				var i = t.querySelector(".wm-f-bild"), a = t.querySelector(".wm-f-text"), o = [{
+					src: i && i.getAttribute("src") || "",
 					alt: "",
-					caption: (e.querySelector(".wm-f-bildrechte") || {}).textContent || ""
+					caption: (t.querySelector(".wm-f-bildrechte") || {}).textContent || ""
 				}];
-				[2, 3].forEach(function(t) {
-					var n = e.querySelector(".wm-f-bild-" + t);
-					n && n.getAttribute("src") && a.push({
+				[2, 3].forEach(function(e) {
+					var n = t.querySelector(".wm-f-bild-" + e);
+					n && n.getAttribute("src") && o.push({
 						src: n.getAttribute("src"),
 						alt: n.getAttribute("alt") || "",
-						caption: (e.querySelector(".wm-f-bild-" + t + "-unterschrift") || {}).textContent || ""
+						caption: (t.querySelector(".wm-f-bild-" + e + "-unterschrift") || {}).textContent || ""
 					});
 				}), O.push({
-					lat: t,
-					lng: n,
-					name: (e.querySelector(".wm-f-name") || {}).textContent || "",
-					adresse: (e.querySelector(".wm-f-adresse") || {}).textContent || "",
-					kategorie: ((e.querySelector(".wm-f-kategorie") || {}).textContent || "").trim(),
-					bildrechte: (e.querySelector(".wm-f-bildrechte") || {}).textContent || "",
-					bild: r ? r.getAttribute("src") : "",
-					markerBild: s(r),
-					gallery: a,
-					text: i ? i.innerHTML : "",
-					aktuell: !!e.querySelector(".wm-f-bildrechte + div")
+					lat: n,
+					lng: r,
+					name: (t.querySelector(".wm-f-name") || {}).textContent || "",
+					adresse: (t.querySelector(".wm-f-adresse") || {}).textContent || "",
+					kategorie: ((t.querySelector(".wm-f-kategorie") || {}).textContent || "").trim(),
+					bildrechte: (t.querySelector(".wm-f-bildrechte") || {}).textContent || "",
+					bild: i ? i.getAttribute("src") : "",
+					markerBild: e(i),
+					gallery: o,
+					text: a ? a.innerHTML : "",
+					aktuell: !!t.querySelector(".wm-f-bildrechte + div")
 				});
 			}
 		});
@@ -239,17 +225,17 @@
 		};
 		function j() {
 			var e = [];
-			return O.forEach(function(n, r) {
-				A[n.kategorie] === !1 || k && !n.aktuell || e.push({
+			return O.forEach(function(t, r) {
+				A[t.kategorie] === !1 || k && !t.aktuell || e.push({
 					type: "Feature",
 					id: r,
 					properties: {
 						idx: r,
-						kat: t[n.kategorie] || "o"
+						kat: n[t.kategorie] || "o"
 					},
 					geometry: {
 						type: "Point",
-						coordinates: [n.lng, n.lat]
+						coordinates: [t.lng, t.lat]
 					}
 				});
 			}), e;
@@ -269,10 +255,10 @@
 		}), f.addEventListener("keydown", function(e) {
 			(e.key === "Enter" || e.key === " ") && (e.preventDefault(), f.click());
 		})), u && u.querySelectorAll(".wm-legend-item").forEach(function(e) {
-			var t = e.querySelector(".wm-dot"), r = null;
-			if (t) for (var i in n) t.classList.contains(i) && (r = n[i]);
-			if (r) {
-				var a = r, o = document.createElement("button");
+			var t = e.querySelector(".wm-dot"), n = null;
+			if (t) for (var i in r) t.classList.contains(i) && (n = r[i]);
+			if (n) {
+				var a = n, o = document.createElement("button");
 				o.type = "button", o.className = "wm-switch is-on wm-category-switch", o.setAttribute("role", "switch"), o.setAttribute("aria-label", a), o.setAttribute("aria-checked", "true"), o.innerHTML = "<span class=\"wm-switch-track\"></span><span class=\"wm-switch-thumb\"></span>", e.appendChild(o), o.addEventListener("click", function() {
 					A[a] = !A[a], o.classList.toggle("is-on", A[a]), o.setAttribute("aria-checked", A[a] ? "true" : "false"), e.classList.toggle("is-off", !A[a]), M();
 				});
@@ -287,15 +273,15 @@
 				inner: n
 			};
 		}
-		function P(t) {
-			var n = N(e[t.kategorie] || "wm-cat-orte"), r = document.createElement("div");
-			if (r.className = "wm-marker-circle", t.markerBild && (r.style.backgroundImage = "url(" + t.markerBild + ")"), n.inner.appendChild(r), t.adresse) {
+		function P(e) {
+			var n = N(t[e.kategorie] || "wm-cat-orte"), r = document.createElement("div");
+			if (r.className = "wm-marker-circle", e.markerBild && (r.style.backgroundImage = "url(" + e.markerBild + ")"), n.inner.appendChild(r), e.adresse) {
 				var i = document.createElement("div");
-				i.className = "wm-marker-tooltip", i.textContent = t.adresse, n.inner.appendChild(i);
+				i.className = "wm-marker-tooltip", i.textContent = e.adresse, n.inner.appendChild(i);
 			}
 			var a = document.createElement("div");
-			return a.className = "wm-marker-label", a.textContent = t.name, n.inner.appendChild(a), n.el.addEventListener("click", function() {
-				D(t);
+			return a.className = "wm-marker-label", a.textContent = e.name, n.inner.appendChild(a), n.el.addEventListener("click", function() {
+				D(e);
 			}), n.el;
 		}
 		function F(e, t) {
