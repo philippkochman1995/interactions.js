@@ -1,5 +1,6 @@
 import { primeSitePreloader } from './modules/site-preloader-state';
 import { pruneMobileHeroSpline } from './modules/mobile-hero-spline';
+import { optimizeNewsImageSizes } from './modules/news-image-sizes';
 
 // Loaded as a blocking classic script in <head>, not as a deferred module.
 function primePageTransition(): void {
@@ -22,5 +23,6 @@ function primePageTransition(): void {
 }
 
 primePageTransition();
+optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();

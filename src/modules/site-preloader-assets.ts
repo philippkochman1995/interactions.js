@@ -108,6 +108,15 @@ export function collectPreloadTasks(): PreloadTask[] {
     if (image.closest('[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template')) continue;
     const priority = explicitPriority(image);
     if (!priority && (image.closest('[hidden]') || getComputedStyle(image).display === 'none')) continue;
+    // Far below the fold, let the browser request an image as it approaches
+    // view. Warming every Webflow image made long pages download megabytes
+    // that a visitor had not scrolled to yet.
+    const rect = image.getBoundingClientRect();
+    const farFromViewport = rect.top > window.innerHeight * 2 || rect.bottom < -window.innerHeight;
+    if (!priority && !image.closest('[data-site-preloader]') && farFromViewport) {
+      image.loading = 'lazy';
+      continue;
+    }
     const url = absoluteUrl(image.currentSrc || image.getAttribute('src'));
     const responsive = image.srcset || image.closest('picture')?.querySelector('source[srcset]');
     if (!url && !responsive) continue;

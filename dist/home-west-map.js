@@ -25,18 +25,26 @@ function u(e) {
 			lng: o,
 			category: (((r = e.querySelector(".hm_kat, .wm-f-kategorie")) == null ? void 0 : r.textContent) || "").trim(),
 			address: (((i = e.querySelector(".hm_adresse, .wm-f-adresse")) == null ? void 0 : i.textContent) || "").trim(),
-			image: (s == null ? void 0 : s.currentSrc) || (s == null ? void 0 : s.src) || ""
+			image: s ? d(s) : ""
 		};
 	}).filter((e) => Number.isFinite(e.lat) && Number.isFinite(e.lng));
 }
 function d(e) {
-	return e === "Ausstellungen" ? "wm-home-marker--ausstellungen" : e === "Werke" ? "wm-home-marker--werke" : "wm-home-marker--orte";
+	var t;
+	let n = (e.getAttribute("srcset") || "").split(",").map((e) => e.trim().match(/^(\S+)\s+(\d+)w$/)).filter((e) => !!e).map((e) => ({
+		url: e[1],
+		width: Number(e[2])
+	})).sort((e, t) => e.width - t.width);
+	return ((t = n.find((e) => e.width >= 200) || n[n.length - 1]) == null ? void 0 : t.url) || e.currentSrc || e.src || "";
 }
 function f(e) {
+	return e === "Ausstellungen" ? "wm-home-marker--ausstellungen" : e === "Werke" ? "wm-home-marker--werke" : "wm-home-marker--orte";
+}
+function p(e) {
 	let t = e.querySelector(".map_bg"), n = document.querySelector(".hm_cms, [data-wm-home-source]"), c = e.getAttribute("data-mapbox-token");
 	if (!t || !n || !c) return;
-	let f = u(n);
-	if (!f.length) return;
+	let d = u(n);
+	if (!d.length) return;
 	let p = window.matchMedia(i), m = window.matchMedia("(prefers-reduced-motion: reduce)"), h = document.createElement("div");
 	h.className = "wm-home-map", t.appendChild(h);
 	let g = document.createElement("a");
@@ -80,8 +88,8 @@ function f(e) {
 				});
 			});
 			function i(e) {
-				let i = e.properties, a = !!i.cluster, o = f[Number(a ? i.firstIdx : i.idx)], s = a ? i.hasW ? "Werke" : i.hasA ? "Ausstellungen" : "Wichtige Orte" : (o == null ? void 0 : o.category) || "Wichtige Orte", c = document.createElement("a");
-				c.className = `wm-home-marker ${d(s)}`, c.href = r, c.setAttribute("aria-label", a ? `${i.point_count} Orte auf der West Map öffnen` : `${(o == null ? void 0 : o.address) || "Ort"} auf der West Map öffnen`);
+				let i = e.properties, a = !!i.cluster, o = d[Number(a ? i.firstIdx : i.idx)], s = a ? i.hasW ? "Werke" : i.hasA ? "Ausstellungen" : "Wichtige Orte" : (o == null ? void 0 : o.category) || "Wichtige Orte", c = document.createElement("a");
+				c.className = `wm-home-marker ${f(s)}`, c.href = r, c.setAttribute("aria-label", a ? `${i.point_count} Orte auf der West Map öffnen` : `${(o == null ? void 0 : o.address) || "Ort"} auf der West Map öffnen`);
 				let l = document.createElement("span");
 				l.className = "wm-home-marker__inner";
 				let u = document.createElement("span");
@@ -118,7 +126,7 @@ function f(e) {
 					type: "geojson",
 					data: {
 						type: "FeatureCollection",
-						features: f.map((e, t) => ({
+						features: d.map((e, t) => ({
 							type: "Feature",
 							properties: {
 								idx: t,
@@ -183,10 +191,10 @@ function f(e) {
 	}, { rootMargin: "400px 0px" });
 	T.observe(e);
 }
-function p() {
-	document.querySelectorAll("[data-wm-home]").forEach(f);
+function m() {
+	document.querySelectorAll("[data-wm-home]").forEach(p);
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", p, { once: !0 }) : p();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m, { once: !0 }) : m();
 //#endregion
 
 //# sourceMappingURL=home-west-map.js.map

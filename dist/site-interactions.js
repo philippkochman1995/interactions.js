@@ -2265,9 +2265,14 @@ function rs() {
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], template")) continue;
 		let i = es(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
-		let a = $o(n.currentSrc || n.getAttribute("src")), o = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
-		!a && !o || t({
-			key: a ? `image:${a}` : `image:responsive-${e}`,
+		let a = n.getBoundingClientRect(), o = a.top > window.innerHeight * 2 || a.bottom < -window.innerHeight;
+		if (!i && !n.closest("[data-site-preloader]") && o) {
+			n.loading = "lazy";
+			continue;
+		}
+		let s = $o(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		!s && !c || t({
+			key: s ? `image:${s}` : `image:responsive-${e}`,
 			priority: i == null ? n.closest("[data-site-preloader]") || ts(n) ? "critical" : "warm" : i,
 			load: (e) => Zo(n, e)
 		});

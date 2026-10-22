@@ -20,6 +20,19 @@
     }
   }
 
+  // Map markers are only 3.5rem wide. Keep the full source for the detail
+  // modal, but use Webflow's smallest responsive rendition for the marker.
+  function markerImage(image){
+    if(!image) return '';
+    var srcset = image.getAttribute('srcset') || '';
+    var candidates = srcset.split(',').map(function(candidate){
+      var match = candidate.trim().match(/^(\S+)\s+(\d+)w$/);
+      return match ? { url: match[1], width: Number(match[2]) } : null;
+    }).filter(Boolean).sort(function(a, b){ return a.width - b.width; });
+    var chosen = candidates.find(function(candidate){ return candidate.width >= 200; });
+    return (chosen || candidates[candidates.length - 1] || {}).url || image.getAttribute('src') || '';
+  }
+
   ready(function(){
     var mapEl = document.getElementById('wmMap');
     if(!mapEl || typeof mapboxgl === 'undefined') return;
@@ -360,6 +373,7 @@ function openMapModal(data){
         kategorie: ((item.querySelector('.wm-f-kategorie') || {}).textContent || '').trim(),
         bildrechte: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '',
         bild: imgEl ? imgEl.getAttribute('src') : '',
+        markerBild: markerImage(imgEl),
         gallery: gallery,
         text: textEl ? textEl.innerHTML : '',
         aktuell: !!item.querySelector('.wm-f-bildrechte + div')
@@ -487,8 +501,8 @@ function openMapModal(data){
       var circle = document.createElement('div');
       circle.className = 'wm-marker-circle';
 
-      if(ort.bild){
-        circle.style.backgroundImage = 'url(' + ort.bild + ')';
+      if(ort.markerBild){
+        circle.style.backgroundImage = 'url(' + ort.markerBild + ')';
       }
 
       shell.inner.appendChild(circle);
@@ -520,8 +534,8 @@ function openMapModal(data){
       circle.className = 'wm-marker-circle';
 
       var o = orte[props.firstIdx];
-      if(o && o.bild){
-        circle.style.backgroundImage = 'url(' + o.bild + ')';
+      if(o && o.markerBild){
+        circle.style.backgroundImage = 'url(' + o.markerBild + ')';
       }
 
       shell.inner.appendChild(circle);
