@@ -7,7 +7,13 @@ function e(e) {
 	let s = e.currentSrc || (a ? e.src : "");
 	return s.includes("/plugins/Basic/assets/placeholder.") ? "" : s;
 }
+function t(t) {
+	var n, r;
+	if (!t || t.closest(".w-dyn-bind-empty, .w-condition-invisible")) return "";
+	let i = (n = (r = t.getAttribute("src")) == null ? void 0 : r.trim()) == null ? "" : n;
+	return i.includes("/plugins/Basic/assets/placeholder.") ? "" : i ? t.src : e(t);
+}
 //#endregion
-export { e as t };
+export { e as n, t };
 
-//# sourceMappingURL=site-interactions-QtEWUsWn.js.map
+//# sourceMappingURL=site-interactions-CKkKncuX.js.map

@@ -175,6 +175,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 				id: "west-map-detail",
 				address: e.name && e.adresse ? e.name + " | " + e.adresse : e.name || e.adresse || "",
 				image: e.bild || "",
+				imageSrcset: e.gallery && e.gallery[0] && e.gallery[0].srcset || "",
 				imageAlt: e.name || "",
 				caption: e.bildrechte || "",
 				html: e.text || "",
@@ -193,6 +194,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			if (!(isNaN(n) || isNaN(r))) {
 				var i = t.querySelector(".wm-f-bild"), a = t.querySelector(".wm-f-text"), o = [{
 					src: i && i.getAttribute("src") || "",
+					srcset: i && i.getAttribute("srcset") || "",
 					alt: "",
 					caption: (t.querySelector(".wm-f-bildrechte") || {}).textContent || ""
 				}];
@@ -200,6 +202,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 					var n = t.querySelector(".wm-f-bild-" + e);
 					n && n.getAttribute("src") && o.push({
 						src: n.getAttribute("src"),
+						srcset: n.getAttribute("srcset") || "",
 						alt: n.getAttribute("alt") || "",
 						caption: (t.querySelector(".wm-f-bild-" + e + "-unterschrift") || {}).textContent || ""
 					});

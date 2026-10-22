@@ -1,5 +1,6 @@
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
-import { getCmsImageSource as getImageSource } from './cms-image';
+import { getCmsImageOriginalSource, getCmsImageSource as getImageSource } from './cms-image';
+import { setModalPreview } from './modal-image';
 import {
   delegate,
   dispatchSiteEvent,
@@ -206,10 +207,11 @@ function readGalleryItems(element: HTMLElement): ContentModalGalleryItem[] {
   const items = qsa<HTMLElement>('[data-modal-gallery-item]', element)
     .map((item) => {
       const imageElement = getImageFrom(item, '[data-modal-gallery-image]') ?? item.querySelector<HTMLImageElement>('img');
-      const src = getImageSource(imageElement);
+      const src = getCmsImageOriginalSource(imageElement);
 
       return {
         src,
+        srcset: imageElement?.getAttribute('srcset') ?? undefined,
         alt: imageElement?.alt ?? '',
         caption: item.querySelector<HTMLElement>('[data-modal-gallery-caption]')?.textContent?.trim() ?? '',
       };
@@ -221,12 +223,13 @@ function readGalleryItems(element: HTMLElement): ContentModalGalleryItem[] {
   }
 
   const legacyImageElement = getImageFrom(element, '[data-modal-image]');
-  const legacyImage = getImageSource(legacyImageElement);
+  const legacyImage = getCmsImageOriginalSource(legacyImageElement);
 
   return legacyImage
     ? [
         {
           src: legacyImage,
+          srcset: legacyImageElement?.getAttribute('srcset') ?? undefined,
           alt: legacyImageElement?.alt ?? '',
           caption: element.querySelector<HTMLElement>('[data-modal-caption]')?.textContent?.trim() ?? '',
         },
@@ -256,6 +259,7 @@ function readContentElement(element: HTMLElement): ContentModalData | null {
     layout: element.getAttribute('data-modal-layout') === 'context' ? 'context' : 'default',
     headline,
     image: firstGalleryItem?.src ?? '',
+    imageSrcset: firstGalleryItem?.srcset,
     imageAlt: firstGalleryItem?.alt ?? '',
     caption: firstGalleryItem?.caption ?? '',
     html: bodyElement?.innerHTML ?? '',
@@ -273,7 +277,7 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
   }
 
   const imageElement = element.querySelector<HTMLImageElement>('.fwm-modal__image');
-  const image = getImageSource(imageElement);
+  const image = getCmsImageOriginalSource(imageElement);
   const caption = element.querySelector<HTMLElement>('.fwm-modal__caption')?.textContent?.trim() ?? '';
   // Webflow cannot bind CMS Rich Text inside an Embed. Read a native sibling
   // from the same Collection Item, preserving its paragraphs and formatting.
@@ -295,6 +299,7 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
     layout: 'default',
     headline: '',
     image,
+    imageSrcset: imageElement?.getAttribute('srcset') ?? undefined,
     imageAlt: imageElement?.alt ?? '',
     caption,
     html: existingHtml + (richText?.innerHTML ?? ''),
@@ -303,6 +308,7 @@ function readLegacyModal(element: HTMLElement): ContentModalData | null {
       ? [
           {
             src: image,
+            srcset: imageElement?.getAttribute('srcset') ?? undefined,
             alt: imageElement?.alt ?? '',
             caption,
           },
@@ -435,10 +441,10 @@ function renderGalleryItem(item: ContentModalGalleryItem, index: number): HTMLEl
   link.classList.toggle('has-caption', item.caption.length > 0);
 
   image.className = 'fwm-modal__image';
-  image.src = item.src;
   image.alt = item.alt;
   image.loading = index === 0 ? 'eager' : 'lazy';
   image.decoding = 'async';
+  setModalPreview(image, item.src, item.srcset, 500);
 
   lightboxIcon.className = 'fwm-modal__lightbox-icon';
   lightboxIcon.setAttribute('aria-hidden', 'true');
@@ -491,7 +497,11 @@ function renderDefaultContent(singleton: SingletonElements, content: ContentModa
   singleton.imageLink.setAttribute('data-lightbox-src', hasImage ? content.image : '');
   singleton.imageLink.setAttribute('data-lightbox-caption', content.caption);
   singleton.imageLink.setAttribute('data-lightbox-group', `modal-${content.id}`);
-  singleton.image.src = hasImage ? content.image : '';
+  if (hasImage) setModalPreview(singleton.image, content.image, content.imageSrcset ?? content.gallery?.[0]?.srcset, 1080);
+  else {
+    singleton.image.onerror = null;
+    singleton.image.removeAttribute('src');
+  }
   singleton.image.alt = content.imageAlt;
   singleton.caption.textContent = content.caption;
   renderModalText(singleton.text, content.html);
@@ -519,6 +529,7 @@ function renderContextContent(singleton: SingletonElements, content: ContentModa
   singleton.imageLink.setAttribute('data-lightbox-alt', '');
   singleton.imageLink.setAttribute('data-lightbox-group', '');
   singleton.image.removeAttribute('src');
+  singleton.image.onerror = null;
   singleton.image.alt = '';
   singleton.caption.textContent = '';
   singleton.headline.textContent = content.headline ?? '';
@@ -593,6 +604,7 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
     layout: content.layout ?? 'default',
     headline: content.headline ?? '',
     image: content.image ?? '',
+    imageSrcset: content.imageSrcset,
     imageAlt: content.imageAlt ?? '',
     caption: content.caption ?? '',
     html: content.html ?? '',

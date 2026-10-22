@@ -17,6 +17,7 @@ export interface ContentModalData {
   layout?: 'default' | 'context';
   headline?: string;
   image: string;
+  imageSrcset?: string;
   imageAlt: string;
   caption: string;
   html: string;
@@ -35,6 +36,7 @@ export interface ContentModalWork {
 
 export interface ContentModalGalleryItem {
   src: string;
+  srcset?: string;
   alt: string;
   caption: string;
 }

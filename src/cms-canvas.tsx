@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { gsap } from 'gsap';
-import { getCmsImageSource as imageSource } from './modules/cms-image';
+import { getCmsImageOriginalSource, getCmsImageSource as imageSource } from './modules/cms-image';
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork } from './types';
 
 interface CanvasItem {
@@ -223,7 +223,8 @@ function readModalGallery(element: HTMLElement): ContentModalGalleryItem[] {
         imageFromTarget(item, '[data-canvas-modal-gallery-image]') ?? item.querySelector<HTMLImageElement>('img');
 
       return {
-        src: imageSource(imageElement),
+        src: getCmsImageOriginalSource(imageElement),
+        srcset: imageElement?.getAttribute('srcset') ?? undefined,
         alt: imageElement?.alt ?? '',
         caption: textFrom(item, '[data-canvas-modal-gallery-caption]'),
       };
@@ -235,12 +236,13 @@ function readModalGallery(element: HTMLElement): ContentModalGalleryItem[] {
   }
 
   const legacyImageElement = imageFromTarget(element, '[data-canvas-modal-image]');
-  const legacyImage = imageSource(legacyImageElement);
+  const legacyImage = getCmsImageOriginalSource(legacyImageElement);
 
   return legacyImage
     ? [
         {
           src: legacyImage,
+          srcset: legacyImageElement?.getAttribute('srcset') ?? undefined,
           alt: legacyImageElement?.alt ?? '',
           caption: textFrom(element, '[data-canvas-modal-caption]'),
         },
@@ -292,6 +294,7 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
       layout: 'context',
       headline,
       image: firstGalleryItem?.src ?? '',
+      imageSrcset: firstGalleryItem?.srcset,
       imageAlt: firstGalleryItem?.alt ?? '',
       caption: firstGalleryItem?.caption ?? '',
       html: modalBody?.innerHTML ?? '',

@@ -309,6 +309,7 @@ function openMapModal(data){
     id: 'west-map-detail',
     address: data.name && data.adresse ? data.name + ' | ' + data.adresse : (data.name || data.adresse || ''),
     image: data.bild || '',
+    imageSrcset: data.gallery && data.gallery[0] && data.gallery[0].srcset || '',
     imageAlt: data.name || '',
     caption: data.bildrechte || '',
     html: data.text || '',
@@ -343,11 +344,12 @@ function openMapModal(data){
 
       var imgEl = item.querySelector('.wm-f-bild');
       var textEl = item.querySelector('.wm-f-text');
-      var gallery = [{ src: imgEl ? imgEl.getAttribute('src') || '' : '', alt: '', caption: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '' }];
+      var gallery = [{ src: imgEl ? imgEl.getAttribute('src') || '' : '', srcset: imgEl ? imgEl.getAttribute('srcset') || '' : '', alt: '', caption: (item.querySelector('.wm-f-bildrechte') || {}).textContent || '' }];
       [2, 3].forEach(function(n){
         var image = item.querySelector('.wm-f-bild-' + n);
         if(image && image.getAttribute('src')) gallery.push({
           src: image.getAttribute('src'),
+          srcset: image.getAttribute('srcset') || '',
           alt: image.getAttribute('alt') || '',
           caption: (item.querySelector('.wm-f-bild-' + n + '-unterschrift') || {}).textContent || ''
         });
