@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <link rel="stylesheet" href="/cms-works.css">
+  <link rel="stylesheet" href="/cms-work-detail.css">
+  <link rel="stylesheet" href="/work-overlay.css">
+  <style>
+    body { margin: 0; }
+    .lead { height: 150vh; }
+    .work-overlay__scroll-content { min-height: 2400px; }
+  </style>
+</head>
+<body>
+  <div class="lead"></div>
+  <main id="werke" data-cms-works>
+    <div data-cms-works-source>
+      <article data-cms-works-item data-works-id="echolalie">
+        <a data-works-link href="/werke/echolalie">
+          <img data-works-thumbnail src="/tests/fixtures/image.svg" alt="Echolalie">
+        </a>
+        <span data-works-title>Echolalie</span>
+      </article>
+    </div>
+  </main>
+  <script>
+    // Model a mobile browser applying its fragment/scroll restoration at load.
+    window.addEventListener('load', () => {
+      const surface = document.querySelector('.work-overlay__surface');
+      if (!surface) return;
+      surface.scrollTop = 500;
+      surface.dataset.lateScroll = String(surface.scrollTop);
+    });
+  </script>
+  <script type="module" src="/dist/cms-works.js"></script>
+</body>
+</html>

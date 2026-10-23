@@ -236,6 +236,12 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     overlayLenis = null;
   };
 
+  const resetOverlayScroll = (): void => {
+    overlayLenis?.resize();
+    overlayLenis?.scrollTo(0, { immediate: true, force: true });
+    surface.scrollTop = 0;
+  };
+
   const lockBackground = (): void => {
     if (document.documentElement.classList.contains('work-overlay-active')) return;
     gridScrollY = window.scrollY;
@@ -392,15 +398,16 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const detailRoot = content.querySelector<HTMLElement>('.work-overlay__detail');
     detailLayoutCleanup = detailRoot ? fitDetailImage(detailRoot) : null;
     startOverlayLenis();
-    if (oldWork) {
-      overlayLenis?.scrollTo(0, { immediate: true, force: true });
-      surface.scrollTop = 0;
-      requestAnimationFrame(() => {
-        if (token !== revision) return;
-        overlayLenis?.resize();
-        overlayLenis?.scrollTo(0, { immediate: true, force: true });
-        surface.scrollTop = 0;
-      });
+    resetOverlayScroll();
+    requestAnimationFrame(() => {
+      if (token === revision) resetOverlayScroll();
+    });
+    // On direct links the browser may apply the #werke fragment after the
+    // overlay has mounted, especially on mobile browsers.
+    if (instant && document.readyState !== 'complete') {
+      window.addEventListener('load', () => {
+        if (token === revision) resetOverlayScroll();
+      }, { once: true });
     }
     overlay.focus({ preventScroll: true });
     document.documentElement.classList.remove('work-overlay-initial');
