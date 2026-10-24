@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion, qsa } from './utils';
 
 const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p';
-const NEWS_TEXT_SELECTOR = '.news_highlight_section .u-text-eyebrow[data-animation-ready]';
+const HIGHLIGHT_EYEBROW_SELECTOR = '.news_event .u-text-eyebrow[data-animation-ready]';
 const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
   '[data-modal-rich-text]', '[data-modal-body]',
@@ -104,9 +104,9 @@ function waitForFonts(): Promise<void> {
 }
 
 export function initLineReveal(root: ParentNode = document): void {
-  if (initialized || prefersReducedMotion()) return;
+  if (initialized || isNewsPage() || prefersReducedMotion()) return;
 
-  const elements = qsa<HTMLElement>(isNewsPage() ? NEWS_TEXT_SELECTOR : TEXT_SELECTOR, root).filter(isEligible);
+  const elements = qsa<HTMLElement>(`${TEXT_SELECTOR}, ${HIGHLIGHT_EYEBROW_SELECTOR}`, root).filter(isEligible);
   if (!elements.length) return;
   initialized = true;
   gsap.registerPlugin(ScrollTrigger);
