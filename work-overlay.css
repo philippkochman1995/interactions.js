@@ -99,7 +99,7 @@ html.work-overlay-active .page-transition-overlay {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: currentColor;
+  background: var(--cms-work-detail-rosa);
   pointer-events: none;
 }
 

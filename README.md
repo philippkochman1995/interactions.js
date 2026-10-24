@@ -516,12 +516,10 @@ Interaktions-CSS und nicht im Webflow Custom Code.
 
 `.btn` und `.button-outlined` nutzen dieselbe Füllbewegung: von unten mit
 `--eo: cubic-bezier(.05, .85, .05, 1)` über 1,3 s hinein und beim Verlassen mit
-derselben Kurve zurück. Text und Pfeil wechseln über 1,2 s die Farbe, der Pfeil
+derselben Kurve zurück. Die bestehenden Farben bleiben erhalten; der Pfeil
 bewegt sich über 1,4 s um 5 px. Die Zeiten stehen als Variablen am Anfang von
 `site-interactions-base.css`. Das Script ergänzt bei vorhandenen Buttons ohne
-`.f` oder `.button-mask` den Füll-Layer. Auf dunklen Flächen wird
-`data-button-surface="dark"` automatisch gesetzt; bei Hintergründen aus Bildern
-oder Verläufen kann das Attribut im Markup gesetzt werden. Es gibt keinen
+`.f` oder `.button-mask` den Füll-Layer. Es gibt keinen
 magnetischen Maus-Effekt. Touch-Geräte erhalten keine Hover-Füllung;
 Tastaturfokus zeigt Füllung und Fokus-Ring. Bei Reduced Motion dauern die
 Transitions 0,01 s.

@@ -17,9 +17,9 @@ test('outlined buttons use the long fill easing without moving the button', asyn
   await expect.poll(() => fill.evaluate((element) => getComputedStyle(element).transform)).not.toBe('none');
 
   const dark = page.locator('.dark .button-outlined');
-  await expect(dark).toHaveAttribute('data-button-surface', 'dark');
+  await expect(dark).not.toHaveAttribute('data-button-surface', 'dark');
   await dark.hover();
-  await expect(dark.locator('span:not(.button-mask)')).toHaveCSS('color', 'rgb(22, 20, 58)');
+  await expect(dark.locator('span:not(.button-mask)')).toHaveCSS('color', 'rgb(242, 197, 208)');
 });
 
 test('touch and reduced motion keep the button accessible', async ({ browser }) => {

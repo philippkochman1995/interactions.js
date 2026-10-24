@@ -27,7 +27,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: currentColor;
+  background: var(--cms-work-detail-rosa);
   pointer-events: none;
   transform: translateY(102%) !important;
   transition: transform var(--fw-button-fill-duration, 1.3s)

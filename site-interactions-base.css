@@ -27,7 +27,6 @@
 
   --eo: cubic-bezier(.05, .85, .05, 1);
   --fw-button-fill-duration: 1.3s;
-  --fw-button-color-duration: 1.2s;
   --fw-button-arrow-duration: 1.4s;
   --fw-button-reduced-duration: 0.01s;
 }
@@ -1680,16 +1679,17 @@ footer a.w--current:focus-visible::after,
   }
 }
 
-/* Outlined buttons share one fill, color and arrow timing. Existing Webflow
-   .button-mask layers use the same rules as the new .f layer. */
+/* Keep Webflow's existing button colors; only the movement gets the long easing. */
 :is(.btn, .button-outlined) {
-  --button-hover-text: #f2c5d0;
   position: relative;
   isolation: isolate;
   overflow: clip;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn {
   min-width: 13.8rem;
   padding: .7rem 1.7rem;
   border: 1.5px solid currentColor;
@@ -1698,40 +1698,36 @@ footer a.w--current:focus-visible::after,
   letter-spacing: .06em;
 }
 
-:is(.btn, .button-outlined)[data-button-surface="dark"] {
-  --button-hover-text: #16143a;
-}
-
 :is(.btn, .button-outlined) > :is(.f, .button-mask) {
   position: absolute;
   inset: 0;
   z-index: 0;
   display: block;
-  background: currentColor;
   pointer-events: none;
   transform: translateY(102%) !important;
   transition: transform var(--fw-button-fill-duration) var(--eo) !important;
 }
 
+:is(.btn, .button-outlined) > .f {
+  background: currentColor;
+}
+
+.button-outlined > .f {
+  background: var(--fw_rosa, #ffc7d1);
+}
+
 :is(.btn, .button-outlined) > :is(span:not(.button-mask), .button-text, svg) {
   position: relative;
   z-index: 1;
-  transition: color var(--fw-button-color-duration) var(--eo);
 }
 
 :is(.btn, .button-outlined) > svg {
-  transition:
-    transform var(--fw-button-arrow-duration) var(--eo),
-    color var(--fw-button-color-duration) var(--eo);
+  transition: transform var(--fw-button-arrow-duration) var(--eo);
 }
 
 @media (hover: hover) {
   :is(.btn, .button-outlined):hover > :is(.f, .button-mask) {
     transform: none !important;
-  }
-
-  :is(.btn, .button-outlined):hover > :is(span:not(.button-mask), .button-text, svg) {
-    color: var(--button-hover-text);
   }
 
   :is(.btn, .button-outlined):hover > svg {
@@ -1746,10 +1742,6 @@ footer a.w--current:focus-visible::after,
 
 :is(.btn, .button-outlined):focus-visible > :is(.f, .button-mask) {
   transform: none !important;
-}
-
-:is(.btn, .button-outlined):focus-visible > :is(span:not(.button-mask), .button-text, svg) {
-  color: var(--button-hover-text);
 }
 
 :is(.btn, .button-outlined):focus-visible > svg {
