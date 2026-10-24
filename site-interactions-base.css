@@ -25,14 +25,11 @@
   --fw-image-zoom-duration: 0.62s;
   --fw-image-zoom-ease: cubic-bezier(0.33, 1, 0.68, 1);
 
-  /*
-    Button-Hover (siehe Abschnitt ganz unten). Die Kurve ist bewusst dieselbe wie beim
-    Bild-Zoom - ein Gefuehl fuer die ganze Site. Die Dauer nicht: 0.62s trifft ein Bild,
-    das langsam wegdriftet, ein Button soll unter dem Zeiger schneller antworten. Wer
-    beides exakt gleich haben will, setzt hier var(--fw-image-zoom-duration).
-  */
-  --fw-button-hover-duration: 0.45s;
-  --fw-button-hover-ease: var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
+  --eo: cubic-bezier(.05, .85, .05, 1);
+  --fw-button-fill-duration: 1.3s;
+  --fw-button-color-duration: 1.2s;
+  --fw-button-arrow-duration: 1.4s;
+  --fw-button-reduced-duration: 0.01s;
 }
 
 /* Aus dem Site-Head-Custom-Code hierher gezogen (04.09.2026). Diese Datei
@@ -1683,40 +1680,87 @@ footer a.w--current:focus-visible::after,
   }
 }
 
-/*
-  Button-Hover als CSS statt Webflow-Interaction.
+/* Outlined buttons share one fill, color and arrow timing. Existing Webflow
+   .button-mask layers use the same rules as the new .f layer. */
+:is(.btn, .button-outlined) {
+  --button-hover-text: #f2c5d0;
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 13.8rem;
+  padding: .7rem 1.7rem;
+  border: 1.5px solid currentColor;
+  text-transform: uppercase;
+  font-size: .78rem;
+  letter-spacing: .06em;
+}
 
-  Bis hierher lief der Hover ueber drei Paare von Webflow-Interactions - "Button In/Out"
-  (a-9/a-10), "Button In 3/Out 5" (a-46/a-47) und "Button - Map - In/Out" (a-27/a-26).
-  Alle drei taten dasselbe, nur an unterschiedlichen Elementen, und alle drei liefen mit
-  150ms easeOut. Das ist jetzt eine Regel hier, damit der Button dieselbe Kurve nimmt wie
-  jeder Bild-Hover der Site.
+:is(.btn, .button-outlined)[data-button-surface="dark"] {
+  --button-hover-text: #16143a;
+}
 
-  Die Bewegung selbst bleibt wie gehabt: die rosa Maske faehrt von unten nach oben ins
-  Bild, der Pfeil bekommt wie bei den Carousels beim Hover einen Schaft.
+:is(.btn, .button-outlined) > :is(.f, .button-mask) {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  background: currentColor;
+  pointer-events: none;
+  transform: translateY(102%) !important;
+  transition: transform var(--fw-button-fill-duration) var(--eo) !important;
+}
 
-  Warum ueberall !important: die Interactions duerfen noch im Designer stehen. IX2
-  schreibt seine Werte inline auf die Elemente - ein inline transform schlaegt jede
-  normale Regel, ein !important schlaegt das inline transform. Damit gewinnt CSS, egal
-  ob die Interaction noch existiert. Sobald die sechs Actions im Designer geloescht sind,
-  koennen die !important hier ersatzlos raus.
+:is(.btn, .button-outlined) > :is(span:not(.button-mask), .button-text, svg) {
+  position: relative;
+  z-index: 1;
+  transition: color var(--fw-button-color-duration) var(--eo);
+}
 
-  Der Hover haengt an (hover: hover) - auf dem Touchgeraet bliebe die Fuellung sonst nach
-  dem Tap kleben. Die Webflow-Interaction lief auf allen Breakpoints und hatte genau das
-  Problem.
-*/
-.button-outlined .button-mask,
+:is(.btn, .button-outlined) > svg {
+  transition:
+    transform var(--fw-button-arrow-duration) var(--eo),
+    color var(--fw-button-color-duration) var(--eo);
+}
+
+@media (hover: hover) {
+  :is(.btn, .button-outlined):hover > :is(.f, .button-mask) {
+    transform: none !important;
+  }
+
+  :is(.btn, .button-outlined):hover > :is(span:not(.button-mask), .button-text, svg) {
+    color: var(--button-hover-text);
+  }
+
+  :is(.btn, .button-outlined):hover > svg {
+    transform: translateX(5px);
+  }
+}
+
+:is(.btn, .button-outlined):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+:is(.btn, .button-outlined):focus-visible > :is(.f, .button-mask) {
+  transform: none !important;
+}
+
+:is(.btn, .button-outlined):focus-visible > :is(span:not(.button-mask), .button-text, svg) {
+  color: var(--button-hover-text);
+}
+
+:is(.btn, .button-outlined):focus-visible > svg {
+  transform: translateX(5px);
+}
+
 .button-outlined .tp_l,
 .button-outlined .tp_r,
 .button-outlined .bt_l,
 .button-outlined .bt_r {
-  transition: transform var(--fw-button-hover-duration, 0.45s)
-    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1));
-}
-
-.button-outlined .button-mask {
-  transform: translate3d(0, 100%, 0) !important;
-  will-change: transform;
+  transition: transform var(--fw-button-fill-duration) var(--eo);
 }
 
 /*
@@ -1738,10 +1782,6 @@ footer a.w--current:focus-visible::after,
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .button-outlined:hover .button-mask {
-    transform: translate3d(0, 0, 0) !important;
-  }
-
   /* Die vier Klammern des Map-Buttons laufen zur Mitte. */
   .button-outlined:hover .tp_l {
     transform: translate3d(60%, 60%, 0) !important;
@@ -1758,11 +1798,6 @@ footer a.w--current:focus-visible::after,
   .button-outlined:hover .bt_r {
     transform: translate3d(-60%, -60%, 0) !important;
   }
-}
-
-/* Tastaturbedienung bekommt denselben Zustand - die Interaction konnte das nie. */
-.button-outlined:focus-visible .button-mask {
-  transform: translate3d(0, 0, 0) !important;
 }
 
 .button-outlined:focus-visible .tp_l {
@@ -1782,12 +1817,12 @@ footer a.w--current:focus-visible::after,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .button-outlined .button-mask,
+  :is(.btn, .button-outlined) > :is(.f, .button-mask, span, .button-text, svg),
   .button-outlined .tp_l,
   .button-outlined .tp_r,
   .button-outlined .bt_l,
   .button-outlined .bt_r {
-    transition: none;
+    transition-duration: var(--fw-button-reduced-duration) !important;
   }
 }
 
@@ -2055,20 +2090,6 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   to { translate: 0 4px; }
 }
 .site-preloader.is-curtain { clip-path: inset(0 0 100% 0); }
-.site-preloader-replay {
-  position: fixed;
-  right: clamp(16px, 3vw, 48px);
-  bottom: clamp(16px, 3vw, 48px);
-  z-index: 2099;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  padding: .45rem .8rem;
-  background: var(--fw_rosa, #ffc7d1);
-  color: var(--fw_dark_purple, #06021a);
-  font: 500 .75rem/1 'StyreneA', 'Styrene A Web', sans-serif;
-  cursor: pointer;
-}
-.site-preloader-replay[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .site-preloader,
   .site-preloader *,

@@ -512,6 +512,20 @@ Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt. News-Bilder 
 `.news_img` und `.news_event` bleiben statisch; diese Ausnahme liegt in der zentralen
 Interaktions-CSS und nicht im Webflow Custom Code.
 
+### Outlined-Buttons
+
+`.btn` und `.button-outlined` nutzen dieselbe Füllbewegung: von unten mit
+`--eo: cubic-bezier(.05, .85, .05, 1)` über 1,3 s hinein und beim Verlassen mit
+derselben Kurve zurück. Text und Pfeil wechseln über 1,2 s die Farbe, der Pfeil
+bewegt sich über 1,4 s um 5 px. Die Zeiten stehen als Variablen am Anfang von
+`site-interactions-base.css`. Das Script ergänzt bei vorhandenen Buttons ohne
+`.f` oder `.button-mask` den Füll-Layer. Auf dunklen Flächen wird
+`data-button-surface="dark"` automatisch gesetzt; bei Hintergründen aus Bildern
+oder Verläufen kann das Attribut im Markup gesetzt werden. Es gibt keinen
+magnetischen Maus-Effekt. Touch-Geräte erhalten keine Hover-Füllung;
+Tastaturfokus zeigt Füllung und Fokus-Ring. Bei Reduced Motion dauern die
+Transitions 0,01 s.
+
 ## Parallax
 
 Parallax als Fenster: der Rahmen steht fest im Layout, das Bild dahinter wandert beim
@@ -788,8 +802,7 @@ hart mit dem Zählerfortschritt; jede erscheint mit einem 3-s-Zoom-Impact.
 Die letzte ist `SIGNATUR2.svg` und bleibt bis zur Freigabe sichtbar. Nach
 Asset- und `window.load`-Abschluss hält die Szene 0,6 s. Danach gehen Zähler,
 Text und Signatur gemeinsam ab; 0,5 s später zieht sich das rosa Overlay per
-`clip-path` in 1,3 s nach oben zurück. Ein Replay-Button rechts unten startet
-den gesamten Ablauf erneut. Bei reduzierter Bewegung entfallen Wartezeiten und
+`clip-path` in 1,3 s nach oben zurück. Bei reduzierter Bewegung entfallen Wartezeiten und
 Bewegungen, während echte Assets weiter abgewartet werden.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `4`),

@@ -37,20 +37,6 @@ test('preloader follows the staged intro and timed signature progress', async ({
   expect(marks.complete - marks.loading).toBeLessThan(7000);
   near(marks.fade - marks.complete, 600, 200);
   near(marks.curtain - marks.fade, 500, 160);
-  await expect(page.locator('.site-preloader-replay')).toBeVisible();
-});
-
-test('replay resets progress and starts the first signature again', async ({ page }) => {
-  test.setTimeout(35000);
-  await page.goto('/tests/fixtures/preloader.html');
-  await expect(page.locator('.site-preloader-replay')).toBeVisible({ timeout: 20000 });
-  await page.locator('.site-preloader-replay').click();
-  const overlay = page.locator('[data-site-preloader]');
-  await expect(overlay).toBeVisible();
-  await expect(overlay).toHaveAttribute('aria-valuenow', '0');
-  await expect(overlay).toHaveAttribute('data-signature-index', '0', { timeout: 6000 });
-  await expect(page.locator('.site-preloader-replay')).toBeHidden();
-  await page.evaluate(() => window.__sitePreloader?.release());
 });
 
 test('reduced motion skips the timed choreography', async ({ page }) => {

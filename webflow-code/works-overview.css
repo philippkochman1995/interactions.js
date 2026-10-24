@@ -21,20 +21,25 @@
 [data-work-overlay] .cms-work-detail__overview-link.button-outlined {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: clip;
 }
 [data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-mask {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: var(--cms-work-detail-rosa);
+  background: currentColor;
   pointer-events: none;
-  transform: translate3d(0, 100%, 0) !important;
-  transition: transform var(--fw-button-hover-duration, 0.45s)
-    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1)) !important;
+  transform: translateY(102%) !important;
+  transition: transform var(--fw-button-fill-duration, 1.3s)
+    var(--eo, cubic-bezier(.05, .85, .05, 1)) !important;
 }
-[data-work-overlay] .cms-work-detail__overview-link.button-outlined:is(:hover, :focus-visible) .button-mask {
-  transform: translate3d(0, 0, 0) !important;
+@media (hover: hover) {
+  [data-work-overlay] .cms-work-detail__overview-link.button-outlined:hover .button-mask {
+    transform: none !important;
+  }
+}
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined:focus-visible .button-mask {
+  transform: none !important;
 }
 [data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-text,
 [data-work-overlay] .cms-work-detail__overview-link.button-outlined .arrow {
@@ -43,7 +48,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   [data-work-overlay] .cms-work-detail__overview-link.button-outlined .button-mask {
-    transition: none !important;
+    transition-duration: var(--fw-button-reduced-duration, 0.01s) !important;
   }
 }
 

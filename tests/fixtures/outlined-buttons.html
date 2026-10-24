@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    body { margin: 2rem; background: #f2c5d0; display: flex; flex-direction: column; align-items: flex-start; gap: 3rem; }
+    .btn, .button-outlined { color: #16143a; }
+    .dark { padding: 2rem; background: #16143a; }
+    .dark .button-outlined { color: #f2c5d0; }
+  </style>
+</head>
+<body>
+  <a class="btn" href="#bio"><i class="f"></i><span>Biografie</span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13m-5-5 5 5-5 5" fill="none" stroke="currentColor"/></svg></a>
+  <div class="dark"><a class="button-outlined" href="#works"><span class="button-mask"></span><span>Werke</span><svg width="16" height="16" aria-hidden="true"></svg></a></div>
+  <script type="module">
+    import { initOutlinedButtons } from '/src/modules/outlined-buttons.ts';
+    initOutlinedButtons();
+  </script>
+</body>
+</html>

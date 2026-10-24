@@ -1,11 +1,9 @@
 import { gsap } from 'gsap';
 import { collectPreloadTasks, untilAborted, waitForCmsAssets, warmAssets } from './site-preloader-assets';
-import { createSitePreloader } from './site-preloader-markup';
-import { PRELOADER_EXIT_CLASS, PRELOADER_MINIMUM, PRELOADER_SELECTOR, PRELOADER_STORAGE_KEY, primeSitePreloader } from './site-preloader-state';
+import { PRELOADER_EXIT_CLASS, PRELOADER_MINIMUM, PRELOADER_SELECTOR } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
 const initializedStates = new WeakSet<object>();
-let replayButton: HTMLButtonElement | null = null;
 const PROGRESS_MS = 6800;
 const HOLD_AFTER_LOAD_MS = 600;
 const FADE_BEFORE_CURTAIN_MS = 500;
@@ -151,24 +149,6 @@ export function initSitePreloader(): void {
   initializedStates.add(state);
   const overlay = document.querySelector<HTMLElement>(PRELOADER_SELECTOR);
   if (!overlay) { state.release(); return; }
-  if (!replayButton) {
-    replayButton = document.createElement('button');
-    replayButton.type = 'button';
-    replayButton.className = 'site-preloader-replay';
-    replayButton.textContent = 'Replay';
-    replayButton.hidden = true;
-    replayButton.addEventListener('click', () => {
-      replayButton!.hidden = true;
-      try { window.sessionStorage.removeItem(PRELOADER_STORAGE_KEY); } catch { /* Storage is optional. */ }
-      window.__sitePreloader = undefined;
-      primeSitePreloader();
-      createSitePreloader();
-      initSitePreloader();
-    });
-    document.body.appendChild(replayButton);
-  }
-  replayButton.hidden = true;
-  void state.ready.then(() => { if (replayButton) replayButton.hidden = false; });
   const controller = new AbortController();
   const progress = createProgressController(overlay);
   state.allowExit?.();

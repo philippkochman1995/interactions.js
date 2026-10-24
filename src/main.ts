@@ -9,6 +9,7 @@ import { initSiteMenu } from './modules/site-menu';
 import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
 import { initMoreArrows } from './modules/more-arrows';
+import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 
@@ -42,6 +43,7 @@ function boot(): void {
   initBackButtons();
   initLogoVariants();
   initMoreArrows();
+  initOutlinedButtons();
 
   window.SiteInteractions = {
     openModal,
