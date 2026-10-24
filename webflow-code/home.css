@@ -109,6 +109,13 @@
   min-width: 0;
   max-width: 100%;
   padding-inline: 1.5rem;
+  border-color: var(--fw_dark_purple_50);
+  color: var(--fw_dark_purple_50);
+}
+
+[data-insta-feed] .button-outlined[data-insta-follow]:is(:hover, :focus-visible) {
+  border-color: var(--fw_dark_purple);
+  color: var(--fw_dark_purple);
 }
 
 [data-insta-feed] [data-insta-slider] { position: relative; }
