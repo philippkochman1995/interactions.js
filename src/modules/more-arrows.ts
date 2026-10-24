@@ -16,11 +16,11 @@ function updateMoreLink(link: Element): void {
     link.appendChild(arrow);
   }
 
-  // Keep the existing Webflow icon box. The viewBox places the original
-  // Editionen arrow at its right edge and leaves room for the expanding shaft.
+  // Keep Webflow's icon height. The wider viewBox contains both the expanded
+  // shaft and the tip at its furthest hover position.
   arrow.classList.add('more-arrow');
   arrow.setAttribute('data-more-arrow', '');
-  arrow.setAttribute('viewBox', '41 49 17 15');
+  arrow.setAttribute('viewBox', '40 49 19 15');
   arrow.setAttribute('aria-hidden', 'true');
   arrow.setAttribute('focusable', 'false');
   arrow.innerHTML = ARROW_PATHS;

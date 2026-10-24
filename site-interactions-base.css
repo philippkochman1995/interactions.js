@@ -1844,7 +1844,7 @@ footer a.w--current:focus-visible::after,
 
 /* "Mehr erfahren" uses the Editionen/Instagram arrow paths and motion,
    without the carousel circle. The link's existing icon box is preserved. */
-.more-arrow {
+.arrow.more-arrow {
   overflow: visible;
 }
 
