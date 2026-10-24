@@ -33,7 +33,6 @@
       accountLink.href = follow.href;
       accountLink.target = follow.target;
       accountLink.rel = follow.rel;
-      accountLink.className = 'u-animate-underline';
       accountLink.setAttribute('data-insta-account-link', '');
       account.parentNode.insertBefore(accountLink, account);
       accountLink.appendChild(account);
