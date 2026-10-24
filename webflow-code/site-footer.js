@@ -5,6 +5,11 @@
       var href = link.getAttribute('href');
       if (!href || href.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(href)) return;
 
+      if (link.matches('.news_event a.text-link[href]')) {
+        link.target = '_self';
+        return;
+      }
+
       try {
         var url = new URL(link.href, window.location.href);
         if (url.origin !== window.location.origin) {
@@ -37,14 +42,10 @@
     var card = event.target.closest('.news_event');
     if (!card || event.target.closest('a, button, input, select, textarea, summary, [role="button"], [contenteditable], .site-lightbox-trigger')) return;
 
-    var link = card.querySelector('.intro_date_infos a.button-outlined[href]') || card.querySelector('a.text-link[href]');
+    var link = card.querySelector('a.text-link[href]');
     if (!link) return;
 
-    if (event.metaKey || event.ctrlKey || event.shiftKey) {
-      window.open(link.href, '_blank', 'noopener');
-    } else {
-      link.click();
-    }
+    window.location.assign(link.href);
   });
 })();
 
