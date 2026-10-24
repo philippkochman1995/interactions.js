@@ -18,6 +18,14 @@
     var root = document.querySelector('[data-insta-feed]');
     if (!root) return;
 
+    var avatar = root.querySelector('[data-insta-avatar]');
+    if (avatar && !avatar.closest('.insta-feed__avatar-frame')) {
+      var avatarFrame = document.createElement('span');
+      avatarFrame.className = 'insta-feed__avatar-frame';
+      avatar.parentNode.insertBefore(avatarFrame, avatar);
+      avatarFrame.appendChild(avatar);
+    }
+
     var account = root.querySelector('[data-insta-account]');
     var follow = root.querySelector('a[data-insta-follow][href]');
     if (account && follow && !account.closest('a')) {
@@ -182,10 +190,12 @@
 
     var wheelDistance = 0;
     viewport.addEventListener('wheel', function (event) {
-      var horizontal = event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY);
-      var delta = horizontal ? (event.deltaX || event.deltaY) : event.deltaY;
-      if (!delta) return;
-      if (horizontal) event.preventDefault();
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) {
+        wheelDistance = 0;
+        return;
+      }
+      var delta = event.deltaX;
+      event.preventDefault();
       if (busy) {
         wheelDistance = 0;
         return;

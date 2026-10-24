@@ -58,7 +58,7 @@
 }
 
 .footer.u-section {
-  min-height: 120svh;
+  padding-block: clamp(1.5rem, 2.5vw, 2.5rem);
 }
 
 .u-animate-underline::after {
@@ -683,8 +683,6 @@ html.is-page-transition-pending .page-transition-overlay {
   .footer.u-section {
     min-height: 0;
     height: auto;
-    padding-top: clamp(2rem, 5svh, 4rem);
-    padding-bottom: clamp(2rem, 5svh, 4rem);
   }
 
   .atelier_location_txt.u-p,
@@ -1824,7 +1822,7 @@ footer a.w--current:focus-visible::after,
 
   :is(a, button, [role="button"], .button-outlined, .text-link):hover .arrow .arrow-dot {
     opacity: 1 !important;
-    transform: translateX(6.13px) scaleX(2.7) !important;
+    transform: translateX(6.13px) scaleX(4.2) !important;
   }
 }
 
@@ -1834,7 +1832,7 @@ footer a.w--current:focus-visible::after,
 
 :is(a, button, [role="button"], .button-outlined, .text-link):focus-visible .arrow .arrow-dot {
   opacity: 1 !important;
-  transform: translateX(6.13px) scaleX(2.7) !important;
+  transform: translateX(6.13px) scaleX(4.2) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

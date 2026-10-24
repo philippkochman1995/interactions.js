@@ -20,19 +20,28 @@
   min-width: 0;
 }
 
-[data-insta-feed] [data-insta-avatar] {
+[data-insta-feed] .insta-feed__avatar-frame {
   display: block;
   flex: none;
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 0 0 2px transparent;
+  box-shadow: 0 0 0 4px transparent, 0 0 0 transparent;
   transition: box-shadow 300ms ease;
 }
 
-[data-insta-feed] [data-insta-avatar]:hover {
-  box-shadow: 0 0 0 2px var(--fw_rosa, #ffc7d1);
+[data-insta-feed] .insta-feed__avatar-frame:hover {
+  box-shadow: 0 0 0 4px var(--fw_rosa, #ffc7d1), 0 0 10px 3px rgb(255 199 209 / 35%);
+}
+
+[data-insta-feed] [data-insta-avatar] {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  clip-path: circle(calc(50% - 3px));
 }
 
 [data-insta-feed] [data-insta-profile-copy] {
@@ -204,7 +213,7 @@
 @media screen and (max-width: 479px) {
   [data-insta-feed] > div:first-child { flex-wrap: wrap; gap: 12px; }
   [data-insta-feed] > div:first-child > div:first-child { gap: 10px; }
-  [data-insta-feed] [data-insta-avatar] { width: 42px; height: 42px; }
+  [data-insta-feed] .insta-feed__avatar-frame { width: 42px; height: 42px; }
   [data-insta-feed] [data-insta-account] { font-size: 13px; line-height: 18px; }
   [data-insta-feed] .button-outlined[data-insta-follow] {
     width: 100px;
