@@ -1,6 +1,8 @@
 import { PRELOADER_SELECTOR } from './site-preloader-state';
-import { PRELOADER_FINAL_SIGNATURE_INDEX, setPageSignatureVariant, SIGNATURE_FRAME_MS, SIGNATURE_VARIANTS, signatureSequence } from './signature-variants';
+import { PRELOADER_FINAL_SIGNATURE_INDEX, setPageSignatureVariant, SIGNATURE_VARIANTS } from './signature-variants';
 import { isInactiveHeroSplineScene } from './spline-slider';
+
+const INTRO = { title: 400, date: 1500, settle: 3400, loading: 4200 } as const;
 
 /**
  * Start native Webflow scene requests before the deferred application bundle.
@@ -35,6 +37,8 @@ export function createSitePreloader(): void {
   overlay.setAttribute('aria-valuemin', '0');
   overlay.setAttribute('aria-valuemax', '100');
   overlay.setAttribute('aria-valuenow', '0');
+  const progressMask = document.createElement('div');
+  progressMask.className = 'site-preloader__progress-mask';
   const percent = document.createElement('div');
   percent.className = 'site-preloader__progress';
   percent.setAttribute('aria-hidden', 'true');
@@ -56,6 +60,7 @@ export function createSitePreloader(): void {
   suffix.className = 'site-preloader__suffix';
   suffix.textContent = '%';
   percent.appendChild(suffix);
+  progressMask.appendChild(percent);
   const name = document.createElement('div');
   name.className = 'site-preloader__name';
   name.setAttribute('aria-hidden', 'true');
@@ -83,85 +88,80 @@ export function createSitePreloader(): void {
   signatureStage.setAttribute('aria-hidden', 'true');
   signatureStage.appendChild(signature);
   signatureStage.appendChild(signatureVariant);
-  overlay.appendChild(percent);
+  overlay.appendChild(progressMask);
   overlay.appendChild(name);
   overlay.appendChild(signatureStage);
   document.body.appendChild(overlay);
 
   const active = PRELOADER_FINAL_SIGNATURE_INDEX;
   setPageSignatureVariant(active);
+  let live = false;
+  let currentIndex = -1;
+  const widths = [175, 199, 222, 226, 227, 227, 227];
   const renderSignature = (index: number): void => {
+    if (index === currentIndex) return;
+    currentIndex = index;
     overlay.setAttribute('data-signature-index', String(index));
+    signatureStage.style.setProperty('--signature-width', `${widths[index] / 227 * 100}%`);
     if (index === 0) {
-      signature.style.visibility = '';
+      signature.style.visibility = 'visible';
       signatureVariant.style.display = 'none';
-      return;
+    } else {
+      const mask = `url("${SIGNATURE_VARIANTS[index - 1]}")`;
+      signatureVariant.style.maskImage = mask;
+      signatureVariant.style.setProperty('-webkit-mask-image', mask);
+      signatureVariant.style.display = 'block';
+      signature.style.visibility = 'hidden';
     }
-    const mask = `url("${SIGNATURE_VARIANTS[index - 1]}")`;
-    signatureVariant.style.maskImage = mask;
-    signatureVariant.style.setProperty('-webkit-mask-image', mask);
-    signatureVariant.style.display = 'block';
-    signature.style.visibility = 'hidden';
-  };
-  const order = signatureSequence(active);
-  let frame = 0;
-  let timer: number | null = null;
-  let introTimer: number | null = null;
-  let introFinished = false;
-  let stopRequested = false;
-  let finishAnimation!: () => void;
-  let finishIntro!: () => void;
-  state.introReady = new Promise<void>((resolve) => { finishIntro = resolve; });
-  const animationDone = new Promise<void>((resolve) => { finishAnimation = resolve; });
-  state.stopSignatureAnimation = () => {
-    stopRequested = true;
-    if (overlay.getAttribute('data-signature-index') === String(active) && timer !== null) {
-      window.clearInterval(timer);
-      timer = null;
-      finishAnimation();
+    if (live && !reduced) {
+      signatureStage.classList.remove('is-impact');
+      void signatureStage.offsetWidth;
+      signatureStage.classList.add('is-impact');
     }
-    return animationDone;
   };
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const completeIntro = (): void => {
-    if (introFinished) return;
-    introFinished = true;
-    if (introTimer !== null) window.clearTimeout(introTimer);
-    name.removeEventListener('animationend', onIntroEnd);
-    if (state.active && !reduced) {
+  const timers: number[] = [];
+  let finishIntro!: () => void;
+  state.introReady = new Promise<void>((resolve) => { finishIntro = resolve; });
+  state.setSignatureIndex = renderSignature;
+  const schedule = (callback: () => void, delay: number): void => {
+    timers.push(window.setTimeout(() => { if (state.active) callback(); }, delay));
+  };
+  const startIntro = (): void => {
+    if (!state.active) return;
+    // With its final bottom inset, move the whole block so its first position
+    // is exactly centered; the same transform later settles it at the bottom.
+    const bottom = Math.max(36, Math.min(window.innerHeight * .08, 72));
+    const dy = window.innerHeight / 2 - bottom - name.offsetHeight / 2;
+    name.style.setProperty('--intro-shift', `${-dy}px`);
+    name.classList.add('is-ready');
+    if (reduced) {
+      name.classList.add('is-settled');
+      name.children[0].classList.add('is-visible');
+      name.children[1].classList.add('is-visible');
+      overlay.classList.add('is-loading');
+      live = true;
+      renderSignature(0);
       state.sceneTwoStartedAt = Date.now();
-      overlay.setAttribute('data-intro-complete', '');
-      timer = window.setInterval(() => {
-        const index = order[frame];
-        renderSignature(index);
-        frame = (frame + 1) % order.length;
-        if (stopRequested && index === active) {
-          window.clearInterval(timer!);
-          timer = null;
-          finishAnimation();
-        }
-      }, SIGNATURE_FRAME_MS);
+      finishIntro();
+      return;
     }
-    if (state.active && reduced) state.sceneTwoStartedAt = Date.now();
-    finishIntro();
+    schedule(() => name.children[0].classList.add('is-visible'), INTRO.title);
+    schedule(() => name.children[1].classList.add('is-visible'), INTRO.date);
+    schedule(() => name.classList.add('is-settled'), INTRO.settle);
+    schedule(() => {
+      overlay.classList.add('is-loading');
+      live = true;
+      renderSignature(0); // The first impact begins only when the stage appears.
+      state.sceneTwoStartedAt = Date.now();
+      finishIntro();
+    }, INTRO.loading);
   };
-  const onIntroEnd = (event: AnimationEvent): void => {
-    if (event.target === name && event.animationName === 'site-preloader-name-transition') completeIntro();
-  };
-  if (reduced) {
-    renderSignature(active);
-    finishAnimation();
-    completeIntro();
-  } else {
-    renderSignature(0);
-    SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
-    name.addEventListener('animationend', onIntroEnd);
-    introTimer = window.setTimeout(completeIntro, 2700);
-  }
+  if (document.fonts?.ready) void document.fonts.ready.then(startIntro, startIntro);
   state.cleanup.push(() => {
-    completeIntro();
-    if (timer !== null) window.clearInterval(timer);
-    finishAnimation();
+    timers.forEach(window.clearTimeout);
+    finishIntro();
+    state.setSignatureIndex = undefined;
   });
 
   const locked = new Map<HTMLElement, boolean>();

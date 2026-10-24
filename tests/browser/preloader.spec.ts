@@ -2,62 +2,35 @@ import { test, expect } from '@playwright/test';
 
 const fixture = '/tests/fixtures/preloader.html';
 const loader = '[data-site-preloader]';
+test.beforeEach(({}, testInfo) => testInfo.setTimeout(30000));
 
 test('title and date fade in separately before moving down and revealing scene two', async ({ page }) => {
-  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
-  await page.addInitScript(() => {
-    (window as any).__introSamples = [];
-    document.addEventListener('DOMContentLoaded', () => {
-      let origin: number | null = null;
-      const capture = (): void => {
-        const name = document.querySelector<HTMLElement>('.site-preloader__name');
-        const title = document.querySelector<HTMLElement>('.site-preloader__title');
-        const date = document.querySelector<HTMLElement>('.site-preloader__date');
-        const progress = document.querySelector<HTMLElement>('.site-preloader__progress');
-        const signature = document.querySelector<HTMLElement>('.site-preloader__signature-stage');
-        if (origin === null && name?.getAnimations()[0]?.currentTime != null) {
-          origin = performance.now() - Number(name.getAnimations()[0].currentTime);
-        }
-        const time = performance.now() - (origin ?? performance.now());
-        if (name && title && date && progress && signature && Number.isFinite(time)) {
-          const rect = name.getBoundingClientRect();
-          (window as any).__introSamples.push({
-            time,
-            center: (rect.top + rect.height / 2) / innerHeight,
-            titleOpacity: Number(getComputedStyle(title).opacity),
-            dateOpacity: Number(getComputedStyle(date).opacity),
-            progressOpacity: Number(getComputedStyle(progress).opacity),
-            signatureOpacity: Number(getComputedStyle(signature).opacity),
-            signatureWidth: signature.getBoundingClientRect().width / innerWidth,
-          });
-        }
-        if (time < 2800) requestAnimationFrame(capture);
-      };
-      requestAnimationFrame(capture);
-    });
-  });
   await page.goto(`${fixture}?mode=native`);
-  await page.waitForFunction(() => (window as any).__introSamples.some((sample: { time: number }) => sample.time >= 2700));
-  const samples = await page.evaluate(() => (window as any).__introSamples as Array<{
-    time: number; center: number; titleOpacity: number; dateOpacity: number;
-    progressOpacity: number; signatureOpacity: number; signatureWidth: number;
-  }>);
-  const near = (time: number) => samples.reduce((closest, sample) => Math.abs(sample.time - time) < Math.abs(closest.time - time) ? sample : closest);
-  expect(near(200).center).toBeCloseTo(0.5, 2);
-  expect(near(200).titleOpacity).toBeGreaterThan(0);
-  expect(near(200).dateOpacity).toBe(0);
-  expect(near(200).progressOpacity).toBe(0);
-  expect(near(200).signatureOpacity).toBe(0);
-  expect(near(1050).titleOpacity).toBeGreaterThan(0.95);
-  expect(near(1050).dateOpacity).toBeGreaterThan(0.5);
-  expect(near(1050).center).toBeCloseTo(0.5, 2);
-  expect(near(1800).center).toBeGreaterThan(0.5);
-  expect(near(1800).center).toBeLessThan(0.865);
-  expect(near(1800).progressOpacity).toBe(0);
-  expect(near(2600).center).toBeCloseTo(0.865, 2);
-  expect(near(2600).progressOpacity).toBeGreaterThan(0.5);
-  expect(near(2600).signatureOpacity).toBeGreaterThan(0.5);
-  expect(near(2600).signatureWidth).toBeCloseTo(0.5, 2);
+  await page.locator('.site-preloader__name.is-ready').waitFor();
+  const sample = () => page.evaluate(() => {
+    const name = document.querySelector<HTMLElement>('.site-preloader__name')!;
+    const rect = name.getBoundingClientRect();
+    return {
+      center: (rect.top + rect.height / 2) / innerHeight,
+      title: Number(getComputedStyle(name.children[0]).opacity),
+      date: Number(getComputedStyle(name.children[1]).opacity),
+      loading: document.querySelector('.site-preloader')!.classList.contains('is-loading'),
+      signature: Number(getComputedStyle(document.querySelector('.site-preloader__signature-stage')!).opacity),
+    };
+  });
+  const initial = await sample();
+  expect(initial.center).toBeCloseTo(.5, 2);
+  await page.waitForTimeout(2000);
+  const middle = await sample();
+  expect(middle.center).toBeCloseTo(.5, 2);
+  expect(middle.title).toBeGreaterThan(.9);
+  expect(middle.date).toBeGreaterThan(.7);
+  expect(middle.loading).toBe(false);
+  await page.waitForTimeout(2700);
+  const final = await sample();
+  expect(final.center).toBeGreaterThan(.85);
+  expect(final.loading).toBe(true);
+  expect(final.signature).toBeGreaterThan(0);
   await page.evaluate(() => window.__sitePreloader!.release());
 });
 
@@ -97,7 +70,7 @@ test('signature cycles to SIGNATUR2, holds, then exits with the matching header'
   await expect(page.locator('.top_bar_center [data-logo-variant]')).toHaveCSS('display', 'block');
 });
 
-test('signature keeps cycling while a native scene is still loading', async ({ page }) => {
+test('final signature holds while a native scene is still loading', async ({ page }) => {
   await page.route('https://cdn.prod.website-files.com/**', (route) => route.fulfill({
     contentType: 'image/svg+xml',
     body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 70"><path d="M0 35h160" stroke="black" stroke-width="20"/></svg>',
@@ -113,8 +86,11 @@ test('signature keeps cycling while a native scene is still loading', async ({ p
     }).observe(document, { attributes: true, subtree: true, attributeFilter: ['data-signature-index'] });
   });
   await page.goto(`${fixture}?mode=native`);
-  await page.waitForFunction(() => (window as any).__signatureFrames.filter((value: number) => value === 6).length >= 2);
-  expect(await page.locator(loader).getAttribute('aria-valuenow')).not.toBe('100');
+  await page.waitForFunction(() => (window as any).__signatureFrames.includes(6));
+  await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100');
+  await page.waitForTimeout(500);
+  await expect(page.locator(loader)).toBeVisible();
+  await expect(page.locator(loader)).toHaveAttribute('data-signature-index', '6');
   await page.evaluate(() => window.__sitePreloader!.release());
 });
 
@@ -186,7 +162,7 @@ test('late CMS assets join the frozen critical set, errors settle', async ({ pag
   await expect(page.locator(loader)).toBeVisible();
   expect(Number(await page.locator(loader).getAttribute('aria-valuenow'))).toBeLessThan(100);
   failImage();
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
 });
 
 for (const mode of ['spline', 'native']) {
@@ -195,7 +171,7 @@ for (const mode of ['spline', 'native']) {
     await page.waitForTimeout(600);
     await expect(page.locator(loader)).toBeVisible();
     await page.locator('#scene').dispatchEvent(mode === 'native' ? 'w-spline-load' : 'load-complete');
-    await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
+    await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
     await page.locator('#scene').dispatchEvent('load-complete');
     await expect(page.locator(loader)).toHaveCount(0);
   });
@@ -216,61 +192,29 @@ test('three native Webflow scenes all gate release, including an offscreen scene
   await expect(page.locator(loader)).toBeVisible();
   expect(Number(await page.locator(loader).getAttribute('aria-valuenow'))).toBeLessThan(100);
   await page.locator('#scene-3').dispatchEvent('w-spline-load');
-  await expect(page.locator(loader)).toHaveCount(0);
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
   expect(requests.size).toBe(3);
 });
 
-test('progress advances, then scene three fades info before signature and panel move together', async ({ page }) => {
+test('progress stays monotonic and waits for scene readiness before exit', async ({ page }) => {
   await page.addInitScript(() => {
     (window as any).__progressValues = [];
-    (window as any).__preloaderExitOrder = { finalAt: null, infoFadeAt: null, infoGoneAt: null, signatureFadeAt: null, moveAt: null };
-    const capture = (): void => {
-      const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
-      const value = Number(overlay?.getAttribute('aria-valuenow'));
+    new MutationObserver(() => {
+      const value = Number(document.querySelector('[data-site-preloader]')?.getAttribute('aria-valuenow'));
       const values = (window as any).__progressValues as number[];
       if (Number.isFinite(value) && values.at(-1) !== value) values.push(value);
-      if (!overlay) return;
-      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; infoFadeAt: number | null; infoGoneAt: number | null; signatureFadeAt: number | null; moveAt: number | null };
-      if (value === 100 && overlay.getAttribute('data-signature-index') === '6' && order.finalAt === null) order.finalAt = performance.now();
-      if (!document.documentElement.classList.contains('is-site-preloader-exiting')) return;
-      const progressOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__progress')!).opacity);
-      const nameOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__name')!).opacity);
-      const signatureOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__signature-stage')!).opacity);
-      if (progressOpacity < 0.99 && nameOpacity < 0.99 && order.infoFadeAt === null) order.infoFadeAt = performance.now();
-      if (progressOpacity < 0.05 && nameOpacity < 0.05 && order.infoGoneAt === null) order.infoGoneAt = performance.now();
-      if (signatureOpacity < 0.99 && order.signatureFadeAt === null) order.signatureFadeAt = performance.now();
-      if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) {
-        order.moveAt = performance.now();
-      }
-    };
-    new MutationObserver(capture).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow', 'style'] });
+    }).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow'] });
   });
   await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
   await page.goto(`${fixture}?mode=native`);
-  await page.waitForFunction(() => (window as any).__progressValues.length > 5);
+  await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100', { timeout: 14000 });
   const values = await page.evaluate(() => (window as any).__progressValues as number[]);
-  expect(values[0]).toBe(0);
-  expect(values.length).toBeGreaterThan(5);
-  expect(values.at(-1)).toBeGreaterThan(values[0]);
+  expect(values.length).toBeGreaterThan(30);
   expect(values.every((value, index) => index === 0 || value >= values[index - 1])).toBe(true);
-  expect(values.every((value, index) => index === 0 || value - values[index - 1] <= 4)).toBe(true);
-  expect(values.at(-1)).toBeLessThan(100);
-
+  await expect(page.locator(loader)).toBeVisible();
   await page.locator('#scene').dispatchEvent('w-spline-load');
-  await expect(page.locator('html')).toHaveClass(/is-site-preloader-exiting/);
-  expect(await page.evaluate(() => Date.now() - window.__sitePreloader!.sceneTwoStartedAt!)).toBeGreaterThanOrEqual(1500);
-  await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100');
-  await page.waitForFunction(() => {
-    const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
-    return overlay && new DOMMatrix(getComputedStyle(overlay).transform).m42 < -10;
-  });
-  await expect(page.locator(loader)).toHaveCount(0);
-  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; infoFadeAt: number; infoGoneAt: number; signatureFadeAt: number; moveAt: number });
-  expect(exitOrder.infoFadeAt - exitOrder.finalAt).toBeGreaterThanOrEqual(450);
-  expect(exitOrder.infoGoneAt).toBeGreaterThan(exitOrder.infoFadeAt);
-  expect(exitOrder.signatureFadeAt).toBeGreaterThanOrEqual(exitOrder.infoGoneAt);
-  expect(exitOrder.moveAt).toBeGreaterThanOrEqual(exitOrder.signatureFadeAt);
-  expect(exitOrder.moveAt - exitOrder.signatureFadeAt).toBeLessThan(160);
+  await expect(page.locator('html')).toHaveClass(/is-site-preloader-exiting/, { timeout: 5000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 5000 });
 });
 
 test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {
@@ -288,7 +232,7 @@ test('successful splinecode prefetch alone never counts as runtime readiness', a
   await page.goto(`${fixture}?mode=native`);
   await page.waitForTimeout(2200);
   await expect(page.locator(loader)).toBeVisible();
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 6500 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
   expect(Date.now() - startedAt).toBeGreaterThanOrEqual(5900);
   await expect(page.locator('#content')).not.toHaveAttribute('inert', '');
 });
@@ -298,7 +242,7 @@ test('iframe load does not falsely signal a ready scene; timeout releases', asyn
   await page.goto(`${fixture}?mode=iframe`);
   await page.waitForTimeout(600);
   await expect(page.locator(loader)).toBeVisible();
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 10000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
 });
 
 test('rolling digits carry 9→10 and 99→100 without queued intermediate values', async ({ page }) => {
@@ -374,7 +318,7 @@ test('warmup stays non-blocking and malformed manifests fail open', async ({ pag
     document.body.append(malformed);
     document.querySelector('main')!.setAttribute('data-site-assets-ready', '');
   });
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 8000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
   finishWarm();
 });
 
@@ -394,7 +338,7 @@ test('critical lazy image is started without scrolling; duplicate URL counts onc
     return count;
   });
   expect(count).toBe(1);
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 8000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
   expect(await page.locator('img[src="/lazy.svg"]').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 
@@ -425,6 +369,6 @@ test('srcset-only lazy pictures are critical even before currentSrc exists', asy
   await page.waitForTimeout(650);
   await expect(page.locator(loader)).toBeVisible();
   release();
-  await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 20000 });
   expect(await page.locator('#srcset-only').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(100);
 });

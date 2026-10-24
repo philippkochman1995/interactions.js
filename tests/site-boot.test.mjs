@@ -15,7 +15,7 @@ const signature = ts.transpileModule(readFileSync(new URL('../src/modules/signat
 
 function fixture(values = {}, reduced = false, blocked = false) {
   const classes = new Set();
-  const storage = new Map([['site-preloader-seen', '3'], ...Object.entries(values)]);
+  const storage = new Map([['site-preloader-seen', '4'], ...Object.entries(values)]);
   const events = {};
   const timers = [];
   const intervals = new Map();

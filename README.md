@@ -779,29 +779,29 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 `assets/preloader-background.svg`; ihre URLs werden relativ zum ausgelieferten
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
-Die Signatur im Preloader zeigt dieselben Varianten und das Original wie das
-Topbar-Logo im 210-ms-Takt. Szene 1 dauert etwa 1,5 s: Zuerst blendet „Franz
-West“ ein, danach das Datum. Beide fahren dann in 0,8 s mit langsamem Anlauf
-und Auslauf nach unten. In Szene 2 blenden Prozentanzeige und Signatur ein;
-die Signaturen füllen jeweils 50 % der Bildschirmbreite und laufen mindestens
-1,5 s bis zur Ladefreigabe in Schleifen. Die Animation endet auf
-`SIGNATUR2.svg`; die Topbar zeigt auf der Intro-Seite dieselbe Signatur. Nach
-0,5 s Stillstand beginnt Szene 3: Prozentanzeige und beide Namenszeilen
-blenden aus. Danach verblasst die Signatur, während die rosa Fläche nach oben
-ausfährt. Bei reduzierter Bewegung erscheint direkt die finale Signatur.
+Die Signatur im Preloader zeigt dieselben sieben Motive wie das Topbar-Logo.
+Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,4 s und das Datum
+bei 1,5 s mit langem Fade-up-Auslauf. Bei 3,4 s fährt der Textblock nach unten;
+bei 4,2 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 6,8 s
+mit `0.6*t + 0.4*easeInOutCubic(t)` bis 100 %. Die sieben Signaturen wechseln
+hart mit dem Zählerfortschritt; jede erscheint mit einem 3-s-Zoom-Impact.
+Die letzte ist `SIGNATUR2.svg` und bleibt bis zur Freigabe sichtbar. Nach
+Asset- und `window.load`-Abschluss hält die Szene 0,6 s. Danach gehen Zähler,
+Text und Signatur gemeinsam ab; 0,5 s später zieht sich das rosa Overlay per
+`clip-path` in 1,3 s nach oben zurück. Ein Replay-Button rechts unten startet
+den gesamten Ablauf erneut. Bei reduzierter Bewegung entfallen Wartezeiten und
+Bewegungen, während echte Assets weiter abgewartet werden.
 
-- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `3`),
+- Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `4`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
-- Mindestanzeige 2.000 ms. Der Head-Wachhund gibt bei ausbleibender
-  Ladefreigabe nach 6 s frei; nach erfolgter Ladefreigabe bleiben mindestens
-  5 s für die Abschlussanimation.
+- Mindestanzeige 11.000 ms. Der Head-Wachhund gibt ohne Hauptbundle nach 6 s
+  frei; mit aktivem Hauptbundle begrenzt er den Ablauf auf weitere 20 s.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
-- Der sichtbare Zähler beginnt bei 0, kombiniert erledigte kritische Tasks mit
-  einer geglätteten Ladezeitschätzung und reserviert 100 % für den echten
-  Ready-Zustand. Danach blenden die Inhalte aus und die rosa Fläche fährt nach
-  oben aus dem Viewport; reduzierte Bewegung überspringt diese Animation.
+- Der sichtbare Zähler beginnt bei 0 und läuft zeitgesteuert bis 100 %.
+  Kritische Assets und der `window.load`-Zustand bestimmen, wann die
+  Abschlussanimation beginnen darf.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
 - Native Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
@@ -846,13 +846,12 @@ ausfährt. Bei reduzierter Bewegung erscheint direkt die finale Signatur.
   „Mehr anzeigen“ lädt die nächste 16er-Gruppe nach; ein Filter setzt die Gruppe
   zurück und lädt die ersten 16 Treffer der gewählten Sortierung. Bilder im
   versteckten CMS-Quellbereich werden nach dem Auslesen ihrer URLs freigegeben.
-- Fortschritt = abgeschlossene kritische Aufgaben / festgelegte Gesamtzahl,
-  einschließlich Fehlern, nicht übertragene Bytes. Beim Timeout verschwindet
-  der Preloader beim erreichten Stand, ohne einen falschen Ladeerfolg vorzugeben.
+- Beim Timeout verschwindet der Preloader auch dann, wenn ein kritisches Asset
+  noch nicht bereit ist.
 - Weitere erkannte Bilder und markierte Warmup-Assets laden nach der Freigabe mit
   höchstens drei parallelen Aufgaben, bis `pagehide` oder maximal 30 s. Bei
   `navigator.connection.saveData` wird auf dieses zusätzliche Vorwärmen verzichtet.
-- Prozentrollen bewegen sich mit `power2.out` über 180 ms. Reduced Motion schaltet
+- Prozentrollen bewegen sich mit `power2.out` über 65 ms. Reduced Motion schaltet
   sofort um. Menü- und Text-Eintrittsanimationen warten auf die Freigabe.
 - Währenddessen ist der Seiteninhalt `inert`; bestehende `inert`-Zustände bleiben
   erhalten. Nur die eigenen Scroll-/Interaktionssperren werden aufgehoben.

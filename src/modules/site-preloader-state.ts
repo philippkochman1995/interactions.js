@@ -4,9 +4,9 @@ export const PRELOADER_CLASS = 'is-site-preloading';
 export const PRELOADER_EXIT_CLASS = 'is-site-preloader-exiting';
 export const PRELOADER_SELECTOR = '[data-site-preloader]';
 export const PRELOADER_STORAGE_KEY = 'site-preloader-seen';
-export const PRELOADER_STORAGE_VERSION = '3';
+export const PRELOADER_STORAGE_VERSION = '4';
 export const PRELOADER_TIMEOUT = 6000;
-export const PRELOADER_MINIMUM = 2000;
+export const PRELOADER_MINIMUM = 11000;
 
 export interface PreloaderState {
   active: boolean;
@@ -14,7 +14,7 @@ export interface PreloaderState {
   ready: Promise<void>;
   introReady?: Promise<void>;
   sceneTwoStartedAt?: number;
-  stopSignatureAnimation?: () => Promise<void>;
+  setSignatureIndex?: (index: number) => void;
   allowExit?: () => void;
   cleanup: Array<() => void>;
   release: () => void;
@@ -57,7 +57,8 @@ export function primeSitePreloader(): void {
   let timeout = window.setTimeout(state.release, PRELOADER_TIMEOUT);
   state.allowExit = () => {
     window.clearTimeout(timeout);
-    timeout = window.setTimeout(state.release, Math.max(5000, PRELOADER_TIMEOUT - (Date.now() - state.startedAt)));
+    // The full intro is intentionally longer than the boot-failure watchdog.
+    timeout = window.setTimeout(state.release, 20000);
   };
   const onPageShow = (event: PageTransitionEvent): void => { if (event.persisted) state.release(); };
   const preventScroll = (event: Event): void => { if (event.cancelable) event.preventDefault(); };
