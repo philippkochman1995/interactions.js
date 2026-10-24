@@ -1842,6 +1842,45 @@ footer a.w--current:focus-visible::after,
   }
 }
 
+/* "Mehr erfahren" uses the Editionen/Instagram arrow paths and motion,
+   without the carousel circle. The link's existing icon box is preserved. */
+.more-arrow {
+  overflow: visible;
+}
+
+.more-arrow [data-more-arrow-dot],
+.more-arrow [data-more-arrow-head] {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: right center;
+  transition: transform 380ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-dot] {
+    transform: translate(0.1715px, 0.1599px) scale(7.8925, 0.8005);
+  }
+
+  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-head] {
+    transform: translateX(1.4839px) scaleX(0.8769);
+  }
+}
+
+:is(a, button, [role="button"]):focus-visible .more-arrow [data-more-arrow-dot] {
+  transform: translate(0.1715px, 0.1599px) scale(7.8925, 0.8005);
+}
+
+:is(a, button, [role="button"]):focus-visible .more-arrow [data-more-arrow-head] {
+  transform: translateX(1.4839px) scaleX(0.8769);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .more-arrow [data-more-arrow-dot],
+  .more-arrow [data-more-arrow-head] {
+    transition: none;
+  }
+}
+
 /* Figma 1358:10234 — one session intro. Assets are original local Figma exports.
    Root coverage exists before body markup; no display:none on page content,
    so responsive images, CMS geometry and native Spline can initialize normally. */

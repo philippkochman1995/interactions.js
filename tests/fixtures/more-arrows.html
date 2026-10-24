@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    .arrow { width: 17px; height: 15px; }
+  </style>
+</head>
+<body>
+  <a id="more" class="text-link" href="/news/story">
+    <span>Mehr erfahren</span>
+    <svg class="arrow" viewBox="0 0 17 15"><path class="arrow-dot" d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z"/><path class="arrow-arrow" d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z"/></svg>
+  </a>
+  <a id="other" class="text-link" href="/news">Zurück <svg class="arrow" viewBox="0 0 17 15"><path class="arrow-arrow"/></svg></a>
+  <script type="module">
+    import { initMoreArrows } from '/src/modules/more-arrows.ts';
+    initMoreArrows();
+  </script>
+</body>
+</html>

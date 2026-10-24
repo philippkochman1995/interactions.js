@@ -2251,31 +2251,51 @@ function Qo(e = document) {
 	}));
 }
 //#endregion
+//#region src/modules/more-arrows.ts
+var $o = "\n  <path data-more-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\" fill=\"currentColor\"/>\n  <path data-more-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\" fill=\"currentColor\"/>\n";
+function es(e) {
+	var t, n;
+	if (!/^mehr\s+erfahren$/i.test((t = (n = e.textContent) == null ? void 0 : n.trim()) == null ? "" : t)) return;
+	let r = e.querySelector("svg.arrow");
+	r != null && r.hasAttribute("data-more-arrow") || (r || (r = document.createElementNS("http://www.w3.org/2000/svg", "svg"), r.classList.add("arrow"), e.appendChild(r)), r.classList.add("more-arrow"), r.setAttribute("data-more-arrow", ""), r.setAttribute("viewBox", "41 49 17 15"), r.setAttribute("aria-hidden", "true"), r.setAttribute("focusable", "false"), r.innerHTML = $o);
+}
+function ts(e) {
+	e instanceof Element && e.matches("a, button, [role=\"button\"]") && es(e), e.querySelectorAll("a, button, [role=\"button\"]").forEach(es);
+}
+function ns() {
+	ts(document), new MutationObserver((e) => {
+		for (let t of e) for (let e of t.addedNodes) e instanceof Element && ts(e);
+	}).observe(document.body, {
+		childList: !0,
+		subtree: !0
+	});
+}
+//#endregion
 //#region src/modules/spline-slider.ts
-var $o = ".werk_hero_slider", es = ".werk_hero_track";
-function ts(e, t) {
+var rs = ".werk_hero_slider", is = ".werk_hero_track";
+function as(e, t) {
 	let n = e.parentElement;
 	for (; n && n.parentElement !== t;) n = n.parentElement;
 	return (n == null ? void 0 : n.parentElement) === t ? n : null;
 }
-function ns(e) {
+function os(e) {
 	var t, n;
 	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
 	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
 }
-function rs(e) {
-	let t = e.closest($o), n = t == null ? void 0 : t.querySelector(es);
+function ss(e) {
+	let t = e.closest(rs), n = t == null ? void 0 : t.querySelector(is);
 	if (!n) return !1;
 	if (typeof getComputedStyle == "function") {
 		let t = getComputedStyle(e);
 		if (t.display === "none" || t.visibility === "hidden") return !0;
 	}
-	let r = ts(e, n), i = ns(n);
+	let r = as(e, n), i = os(n);
 	return !!(r && i && r !== i);
 }
 //#endregion
 //#region src/modules/site-preloader-assets.ts
-function is(e, t) {
+function cs(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -2284,7 +2304,7 @@ function is(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function as(e, t) {
+function ls(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -2295,7 +2315,7 @@ function as(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function os(e, t) {
+function us(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -2304,7 +2324,7 @@ function os(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function ss(e) {
+function ds(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -2313,16 +2333,16 @@ function ss(e) {
 		return null;
 	}
 }
-function cs(e) {
+function fs(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function ls(e) {
+function ps(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function us(e, t) {
+function ms(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -2341,7 +2361,7 @@ function us(e, t) {
 		}
 	});
 }
-function ds() {
+function hs() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -2350,45 +2370,45 @@ function ds() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return os(e, t);
+				if (n === "spline") return us(e, t);
 				let r = new Image();
-				return r.src = e, as(r, t);
+				return r.src = e, ls(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], [data-modal-content], [data-modal], #wmCmsSource, template")) continue;
-		let i = cs(n);
+		let i = fs(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
 		let a = n.getBoundingClientRect(), o = a.top > window.innerHeight * 2 || a.bottom < -window.innerHeight;
 		if (!i && !n.closest("[data-site-preloader]") && o) {
 			n.loading = "lazy";
 			continue;
 		}
-		let s = ss(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let s = ds(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!s && !c || t({
 			key: s ? `image:${s}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || ls(n) ? "critical" : "warm" : i,
-			load: (e) => as(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || ps(n) ? "critical" : "warm" : i,
+			load: (e) => ls(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		if (r.matches("[data-animation-type=\"spline\"]") && rs(r)) continue;
-		let i = r instanceof HTMLIFrameElement, o = ss(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && ss(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = ds(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = cs(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = fs(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => us(r, e)
+			load: (e) => ms(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", us(r, e))
+			load: (e) => (r.loading = "eager", ms(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -2402,17 +2422,17 @@ function ds() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = ss(e.url);
+			let t = ds(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => is(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => cs(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function fs(e) {
+function gs(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -2429,13 +2449,13 @@ function fs(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function ps(e) {
+async function _s(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await is(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await cs(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -2449,8 +2469,8 @@ async function ps(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var ms = !1;
-function hs(e) {
+var vs = !1;
+function ys(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -2462,7 +2482,7 @@ function hs(e) {
 		});
 	});
 }
-function gs(e, t) {
+function bs(e, t) {
 	if (!Number.isFinite(t)) return;
 	let n = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.floor(t))));
 	e.setAttribute("aria-valuenow", String(n));
@@ -2493,12 +2513,12 @@ function gs(e, t) {
 		}
 	});
 }
-function _s(e, t) {
+function xs(e, t) {
 	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = 0, d = performance.now(), f = 0, p, m = new Promise((e) => {
 		p = e;
 	}), h = (t) => {
 		let n = Math.max(o, Math.min(100, Math.floor(t)));
-		n === o && n !== 100 || (o = n, gs(e, o));
+		n === o && n !== 100 || (o = n, bs(e, o));
 	}, g = (e) => {
 		if (c) return;
 		let n = Math.min(64, Math.max(0, e - d));
@@ -2516,7 +2536,7 @@ function _s(e, t) {
 		}
 	};
 }
-function vs(e, t) {
+function Ss(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -2524,7 +2544,7 @@ function vs(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function ys(e, t) {
+function Cs(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(C);
 	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature");
@@ -2545,9 +2565,9 @@ function ys(e, t) {
 		}, { once: !0 });
 	});
 }
-function bs() {
-	if (ms) return;
-	ms = !0;
+function ws() {
+	if (vs) return;
+	vs = !0;
 	let e = window.__sitePreloader;
 	if (!(e != null && e.active)) return;
 	let t = document.querySelector(ee);
@@ -2555,16 +2575,16 @@ function bs() {
 		e.release();
 		return;
 	}
-	let n = new AbortController(), r = _s(t, e.startedAt);
+	let n = new AbortController(), r = xs(t, e.startedAt);
 	e.cleanup.push(() => {
 		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature"));
 	});
 	let i = async () => {
-		if (await fs(n.signal), !e.active) return;
-		let i = ds(), a = i.filter((e) => e.priority === "critical"), o = 0;
+		if (await gs(n.signal), !e.active) return;
+		let i = hs(), a = i.filter((e) => e.priority === "critical"), o = 0;
 		r.setTasks(0, a.length), await Promise.all(a.map(async (t) => {
-			await is(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
-		})), e.active && (await hs(n.signal), e.active && (await vs(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await ys(t, n.signal), e.active && (e.release(), ps(i))))));
+			await cs(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
+		})), e.active && (await ys(n.signal), e.active && (await Ss(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await Cs(t, n.signal), e.active && (e.release(), _s(i))))));
 	}, a = () => {
 		i().catch(e.release);
 	};
@@ -2572,33 +2592,33 @@ function bs() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var xs = !1, Ss = !1;
-function Cs() {
-	if (Ss || u()) return;
-	Ss = !0;
+var Ts = !1, Es = !1;
+function Ds() {
+	if (Es || u()) return;
+	Es = !0;
 	let e, t = () => {
 		let t = window.lenis;
-		if (xs || !window.__siteLenisManaged || !t) return;
-		xs = !0, b.registerPlugin($), t.on("scroll", $.update);
+		if (Ts || !window.__siteLenisManaged || !t) return;
+		Ts = !0, b.registerPlugin($), t.on("scroll", $.update);
 		let n = (e) => t.raf(e * 1e3);
 		b.ticker.add(n), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), $.refresh(), e = () => {
-			b.ticker.remove(n), t.off("scroll", $.update), xs = !1, window.__siteLenisTickerConnected = !1, e = void 0;
+			b.ticker.remove(n), t.off("scroll", $.update), Ts = !1, window.__siteLenisTickerConnected = !1, e = void 0;
 		};
 	};
 	window.addEventListener("pagehide", () => e == null ? void 0 : e()), window.addEventListener("pageshow", (e) => {
 		var n;
 		e.persisted && (t(), (n = window.lenis) == null || n.resize());
-	}), t(), xs || window.addEventListener("site:lenis-ready", t, { once: !0 });
+	}), t(), Ts || window.addEventListener("site:lenis-ready", t, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var ws = !1;
-bs(), Po(), Ar(), Cs();
-function Ts() {
-	if (ws) return;
-	ws = !0;
+var Os = !1;
+ws(), Po(), Ar(), Ds();
+function ks() {
+	if (Os) return;
+	Os = !0;
 	let e = ne();
-	va({ i18n: e }), Si({ i18n: e }), Qo(), co(), se(), _(), w(), window.SiteInteractions = {
+	va({ i18n: e }), Si({ i18n: e }), Qo(), co(), se(), _(), w(), ns(), window.SiteInteractions = {
 		openModal: ma,
 		openContentModal: pa,
 		closeModal: ha,
@@ -2606,7 +2626,7 @@ function Ts() {
 		closeLightbox: yi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Ts, { once: !0 }) : Ts();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ks, { once: !0 }) : ks();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

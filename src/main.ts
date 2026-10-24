@@ -8,6 +8,7 @@ import { initParallax } from './modules/parallax';
 import { initSiteMenu } from './modules/site-menu';
 import { initBackButtons } from './modules/utils';
 import { initLogoVariants } from './modules/logo-variants';
+import { initMoreArrows } from './modules/more-arrows';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 
@@ -40,6 +41,7 @@ function boot(): void {
   initLanguagePicker();
   initBackButtons();
   initLogoVariants();
+  initMoreArrows();
 
   window.SiteInteractions = {
     openModal,
