@@ -1112,7 +1112,7 @@ $.sort = function(e) {
 }, xt() && G.registerPlugin($);
 //#endregion
 //#region src/modules/line-reveal.ts
-var pr = "h1, h2, h3, h4, h5, h6, p", mr = ".news_highlight_section .u-text-eyebrow[data-animation-ready]", hr = [
+var pr = "h1, h2, h3, h4, h5, h6, p", mr = ".news_event .u-text-eyebrow[data-animation-ready]", hr = [
 	".fwm-modal",
 	"[data-modal]",
 	"[data-site-modal]",
@@ -1198,8 +1198,8 @@ function Ar() {
 }
 function jr(e = document) {
 	var t;
-	if (xr || u()) return;
-	let n = o(Sr() ? mr : pr, e).filter(Cr);
+	if (xr || Sr() || u()) return;
+	let n = o(`${pr}, ${mr}`, e).filter(Cr);
 	if (!n.length) return;
 	xr = !0, b.registerPlugin($);
 	let r = n.map((e) => ({
