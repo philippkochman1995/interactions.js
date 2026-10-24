@@ -45,7 +45,7 @@
     var link = card.querySelector('a.text-link[href]');
     if (!link) return;
 
-    window.location.assign(link.href);
+    link.click();
   });
 })();
 
