@@ -2514,25 +2514,28 @@ function xs(e, t) {
 	});
 }
 function Ss(e, t) {
-	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = 0, d = performance.now(), f = 0, p, m = new Promise((e) => {
-		p = e;
-	}), h = (t) => {
+	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = !1, d = 0, f = performance.now(), p = 0, m, h = new Promise((e) => {
+		m = e;
+	}), g = (t) => {
 		let n = Math.max(o, Math.min(100, Math.floor(t)));
 		n === o && n !== 100 || (o = n, xs(e, o));
-	}, g = (e) => {
+	}, _ = (e) => {
 		if (c) return;
-		let n = Math.min(64, Math.max(0, e - d));
-		d = e;
-		let o = Math.max(0, Date.now() - t), u = Math.min(88, 90 * (1 - Math.exp(-o / 1900))), m = i ? Math.min(90, 8 + 82 * r / i) : 0, _ = s ? 100 : Math.max(u, m), v = 1 - Math.exp(-n * (s ? .014 : .0042)), y = (_ - a) * v, b = (s ? 180 : 30) * n / 1e3;
-		a += Math.min(y, b), s && a >= 99.4 && (a = 100), (e - f >= 70 || a === 100) && (h(a), f = e), a === 100 ? p() : l = window.requestAnimationFrame(g);
+		let n = Math.min(64, Math.max(0, e - f));
+		f = e;
+		let o = Math.max(0, Date.now() - t), l = Math.min(88, 90 * (1 - Math.exp(-o / 1900))), u = i ? Math.min(90, 8 + 82 * r / i) : 0, h = s ? 100 : Math.max(l, u), v = 1 - Math.exp(-n * (s ? .014 : .0042)), y = (h - a) * v, b = (s ? 180 : 30) * n / 1e3;
+		a += Math.min(y, b), s && a >= 99.4 && (a = 100), (e - p >= 70 || a === 100) && (g(a), p = e), a === 100 ? m() : d = window.requestAnimationFrame(_);
 	};
-	return n || (l = window.requestAnimationFrame(g)), {
-		setTasks: (e, t) => {
-			r = e, i = t, n && h(t ? 8 + 82 * e / t : 0);
+	return {
+		start: () => {
+			l || c || (l = !0, f = performance.now(), n || (d = window.requestAnimationFrame(_)));
 		},
-		complete: () => (s = !0, n && (a = 100, h(100), p()), m),
+		setTasks: (e, t) => {
+			r = e, i = t, n && g(t ? 8 + 82 * e / t : 0);
+		},
+		complete: () => (s = !0, n && (a = 100, g(100), m()), h),
 		stop: () => {
-			c = !0, window.cancelAnimationFrame(l);
+			c = !0, window.cancelAnimationFrame(d);
 		}
 	};
 }
@@ -2547,8 +2550,10 @@ function Cs(e, t) {
 function ws(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(C);
-	let n = e.querySelectorAll(".site-preloader__digit:not([hidden]), .site-preloader__suffix"), r = e.querySelectorAll(".site-preloader__letter"), i = e.querySelectorAll(".site-preloader__signature, .site-preloader__signature-variant");
-	return new Promise((a) => {
+	let n = e.querySelectorAll(".site-preloader__digit:not([hidden]), .site-preloader__suffix"), r = e.querySelectorAll(".site-preloader__letter"), i = e.querySelectorAll(".site-preloader__signature-stage");
+	return i.forEach((e) => {
+		e.style.animation = "none", e.style.opacity = "1";
+	}), new Promise((a) => {
 		let o = !1, s = () => {
 			o || (o = !0, t.removeEventListener("abort", s), a());
 		}, c = b.timeline({ onComplete: s });
@@ -2578,30 +2583,33 @@ function ws(e, t) {
 	});
 }
 function Ts() {
+	var e;
 	if (ys) return;
 	ys = !0;
-	let e = window.__sitePreloader;
-	if (!(e != null && e.active)) return;
-	let t = document.querySelector(ee);
-	if (!t) {
-		e.release();
+	let t = window.__sitePreloader;
+	if (!(t != null && t.active)) return;
+	let n = document.querySelector(ee);
+	if (!n) {
+		t.release();
 		return;
 	}
-	let n = new AbortController(), r = Ss(t, e.startedAt);
-	e.cleanup.push(() => {
-		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant"));
+	let r = new AbortController(), i = Ss(n, t.startedAt);
+	((e = t.introReady) == null ? Promise.resolve() : e).then(() => {
+		t.active && i.start();
+	}), t.cleanup.push(() => {
+		r.abort(), i.stop(), b.killTweensOf(n), b.killTweensOf(n.querySelectorAll(".site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage"));
 	});
-	let i = async () => {
-		var i, a;
-		if (await _s(n.signal), !e.active) return;
-		let o = gs(), s = o.filter((e) => e.priority === "critical"), c = 0;
-		r.setTasks(0, s.length), await Promise.all(s.map(async (t) => {
-			await ls(Promise.resolve().then(() => t.load(n.signal)), n.signal), c++, e.active && r.setTasks(c, s.length);
-		})), e.active && (await bs(n.signal), e.active && ((i = e.allowExit) == null || i.call(e), await Cs(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await ((a = e.stopSignatureAnimation) == null ? void 0 : a.call(e)), e.active && (await Cs(500, n.signal), e.active && (await ws(t, n.signal), e.active && (e.release(), vs(o))))))));
-	}, a = () => {
-		i().catch(e.release);
+	let a = async () => {
+		var e, a, o;
+		if (await _s(r.signal), !t.active) return;
+		let s = gs(), c = s.filter((e) => e.priority === "critical"), l = 0;
+		i.setTasks(0, c.length), await Promise.all(c.map(async (e) => {
+			await ls(Promise.resolve().then(() => e.load(r.signal)), r.signal), l++, t.active && i.setTasks(l, c.length);
+		})), t.active && (await bs(r.signal), t.active && ((e = t.allowExit) == null || e.call(t), await t.introReady, t.active && (await Cs(Math.max(0, te - (Date.now() - t.startedAt)), r.signal), t.active && (await i.complete(), t.active && ((a = t.allowExit) == null || a.call(t), await ((o = t.stopSignatureAnimation) == null ? void 0 : o.call(t)), t.active && (await Cs(500, r.signal), t.active && (await ws(n, r.signal), t.active && (t.release(), vs(s)))))))));
+	}, o = () => {
+		a().catch(t.release);
 	};
-	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", a, { once: !0 }) : a();
+	document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", o, { once: !0 }) : o();
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts

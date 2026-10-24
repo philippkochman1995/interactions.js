@@ -59,6 +59,7 @@ export function setPreloaderProgress(overlay: HTMLElement, value: number): void 
 }
 
 interface ProgressController {
+  start: () => void;
   setTasks: (complete: number, total: number) => void;
   complete: () => Promise<void>;
   stop: () => void;
@@ -72,6 +73,7 @@ function createProgressController(overlay: HTMLElement, startedAt: number): Prog
   let shown = 0;
   let ready = false;
   let stopped = false;
+  let started = false;
   let frame = 0;
   let lastFrame = performance.now();
   let lastRender = 0;
@@ -110,8 +112,13 @@ function createProgressController(overlay: HTMLElement, startedAt: number): Prog
     else frame = window.requestAnimationFrame(tick);
   };
 
-  if (!reduced) frame = window.requestAnimationFrame(tick);
   return {
+    start: () => {
+      if (started || stopped) return;
+      started = true;
+      lastFrame = performance.now();
+      if (!reduced) frame = window.requestAnimationFrame(tick);
+    },
     setTasks: (complete, total) => {
       taskComplete = complete;
       taskTotal = total;
@@ -147,7 +154,13 @@ function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promis
   document.documentElement.classList.add(PRELOADER_EXIT_CLASS);
   const progressLetters = overlay.querySelectorAll('.site-preloader__digit:not([hidden]), .site-preloader__suffix');
   const nameLetters = overlay.querySelectorAll('.site-preloader__letter');
-  const signature = overlay.querySelectorAll('.site-preloader__signature, .site-preloader__signature-variant');
+  const signature = overlay.querySelectorAll<HTMLElement>('.site-preloader__signature-stage');
+  // The intro's fill-forwards animation would otherwise override GSAP's
+  // inline opacity during the exit fade.
+  signature.forEach((element) => {
+    element.style.animation = 'none';
+    element.style.opacity = '1';
+  });
   return new Promise((resolve) => {
     let settled = false;
     const finish = (): void => {
@@ -175,11 +188,12 @@ export function initSitePreloader(): void {
   if (!overlay) { state.release(); return; }
   const controller = new AbortController();
   const progress = createProgressController(overlay, state.startedAt);
+  void (state.introReady ?? Promise.resolve()).then(() => { if (state.active) progress.start(); });
   state.cleanup.push(() => {
     controller.abort();
     progress.stop();
     gsap.killTweensOf(overlay);
-    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant'));
+    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage'));
   });
   const run = async (): Promise<void> => {
     await waitForCmsAssets(controller.signal);
@@ -199,11 +213,14 @@ export function initSitePreloader(): void {
     await waitForPaint(controller.signal);
     if (!state.active) return;
     state.allowExit?.();
+    await state.introReady;
+    if (!state.active) return;
     const minimumRemaining = Math.max(0, PRELOADER_MINIMUM - (Date.now() - state.startedAt));
     await wait(minimumRemaining, controller.signal);
     if (!state.active) return;
     await progress.complete();
     if (!state.active) return;
+    state.allowExit?.();
     await state.stopSignatureAnimation?.();
     if (!state.active) return;
     await wait(500, controller.signal);

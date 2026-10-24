@@ -1934,10 +1934,12 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
-  will-change: opacity;
+  will-change: top, opacity;
 }
 .site-preloader__progress {
   top: 12.0412%;
+  opacity: 0;
+  animation: site-preloader-reveal 0.4s ease-out 1.75s both;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1957,37 +1959,83 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   display: block;
 }
 .site-preloader__track > span { height: 18px; }
-.site-preloader__name { top: 86.5264%; }
+.site-preloader__name {
+  top: 50%;
+  opacity: 0;
+  animation: site-preloader-name-intro 1.75s both;
+}
+.site-preloader__signature-stage {
+  position: absolute;
+  top: 50%;
+  left: 17.5%;
+  width: 65%;
+  aspect-ratio: 2 / 1;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  animation: site-preloader-reveal 0.4s ease-out 1.75s both;
+  will-change: opacity;
+}
 .site-preloader__signature,
 .site-preloader__signature-variant {
   position: absolute;
-  top: 42.7%;
-  left: 17.5%;
-  width: 65%;
+  left: 0;
+  width: 100%;
   pointer-events: none;
-  will-change: opacity;
 }
 .site-preloader__signature {
+  top: 50%;
+  transform: translateY(-50%);
   height: auto;
   max-width: none;
   display: block;
 }
 .site-preloader__signature-variant {
-  aspect-ratio: 1507 / 642;
+  inset: 0;
+  height: 100%;
   display: none;
   background-color: currentColor;
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
-  -webkit-mask-size: contain;
+  -webkit-mask-size: 100% auto;
   mask-repeat: no-repeat;
   mask-position: center;
-  mask-size: contain;
+  mask-size: 100% auto;
 }
-@media (max-width: 767px) {
-  .site-preloader__signature,
-  .site-preloader__signature-variant {
+@keyframes site-preloader-name-intro {
+  0% {
     top: 50%;
-    transform: translateY(-50%);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  24% {
+    top: 50%;
+    opacity: 1;
+  }
+  35% {
+    top: 50%;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  100% {
+    top: 86.5264%;
+    opacity: 1;
+  }
+}
+@keyframes site-preloader-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-preloader__name {
+    top: 86.5264%;
+    opacity: 1;
+    animation: none;
+  }
+  .site-preloader__progress,
+  .site-preloader__signature-stage {
+    opacity: 1;
+    animation: none;
   }
 }
 

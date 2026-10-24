@@ -780,11 +780,14 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 Die Signatur im Preloader zeigt dieselben Varianten und das Original wie das
-Topbar-Logo im 210-ms-Takt. Sie läuft bis zur Ladefreigabe in Schleifen und
-endet auf `SIGNATUR2.svg`; die Topbar zeigt auf der Intro-Seite dieselbe
-Signatur. Nach 0,5 s Stillstand verschwinden Prozentanzeige und Namenszeilen
-buchstabenweise nach oben, bevor die rosa Fläche ausfährt. Bei reduzierter
-Bewegung erscheint direkt die finale Signatur.
+Topbar-Logo im 210-ms-Takt. Zuerst erscheinen „Franz West“ und das Datum in
+der Mitte, dann fahren sie mit langsamem Anlauf und Auslauf nach unten. Erst
+danach blenden Prozentanzeige und Signatur ein und der Signaturwechsel startet.
+Alle Signaturen nutzen dieselbe sichtbare Breite. Die Schleife läuft bis zur
+Ladefreigabe und endet auf `SIGNATUR2.svg`; die Topbar zeigt auf der Intro-Seite
+dieselbe Signatur. Nach 0,5 s Stillstand verschwinden Prozentanzeige und
+Namenszeilen buchstabenweise nach oben, bevor die rosa Fläche ausfährt. Bei
+reduzierter Bewegung erscheint direkt die finale Signatur.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `3`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.

@@ -82,10 +82,14 @@ export function createSitePreloader(): void {
   const signatureVariant = document.createElement('span');
   signatureVariant.className = 'site-preloader__signature-variant';
   signatureVariant.setAttribute('aria-hidden', 'true');
+  const signatureStage = document.createElement('div');
+  signatureStage.className = 'site-preloader__signature-stage';
+  signatureStage.setAttribute('aria-hidden', 'true');
+  signatureStage.appendChild(signature);
+  signatureStage.appendChild(signatureVariant);
   overlay.appendChild(percent);
   overlay.appendChild(name);
-  overlay.appendChild(signature);
-  overlay.appendChild(signatureVariant);
+  overlay.appendChild(signatureStage);
   document.body.appendChild(overlay);
 
   const active = PRELOADER_FINAL_SIGNATURE_INDEX;
@@ -106,8 +110,12 @@ export function createSitePreloader(): void {
   const order = signatureSequence(active);
   let frame = 0;
   let timer: number | null = null;
+  let introTimer: number | null = null;
+  let introFinished = false;
   let stopRequested = false;
   let finishAnimation!: () => void;
+  let finishIntro!: () => void;
+  state.introReady = new Promise<void>((resolve) => { finishIntro = resolve; });
   const animationDone = new Promise<void>((resolve) => { finishAnimation = resolve; });
   state.stopSignatureAnimation = () => {
     stopRequested = true;
@@ -118,24 +126,42 @@ export function createSitePreloader(): void {
     }
     return animationDone;
   };
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const completeIntro = (): void => {
+    if (introFinished) return;
+    introFinished = true;
+    if (introTimer !== null) window.clearTimeout(introTimer);
+    name.removeEventListener('animationend', onIntroEnd);
+    if (state.active && !reduced) {
+      overlay.setAttribute('data-intro-complete', '');
+      timer = window.setInterval(() => {
+        const index = order[frame];
+        renderSignature(index);
+        frame = (frame + 1) % order.length;
+        if (stopRequested && index === active) {
+          window.clearInterval(timer!);
+          timer = null;
+          finishAnimation();
+        }
+      }, SIGNATURE_FRAME_MS);
+    }
+    finishIntro();
+  };
+  const onIntroEnd = (event: AnimationEvent): void => {
+    if (event.target === name && event.animationName === 'site-preloader-name-intro') completeIntro();
+  };
+  if (reduced) {
     renderSignature(active);
     finishAnimation();
+    completeIntro();
   } else {
     renderSignature(0);
     SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
-    timer = window.setInterval(() => {
-      const index = order[frame];
-      renderSignature(index);
-      frame = (frame + 1) % order.length;
-      if (stopRequested && index === active) {
-        window.clearInterval(timer!);
-        timer = null;
-        finishAnimation();
-      }
-    }, SIGNATURE_FRAME_MS);
+    name.addEventListener('animationend', onIntroEnd);
+    introTimer = window.setTimeout(completeIntro, 2200);
   }
   state.cleanup.push(() => {
+    completeIntro();
     if (timer !== null) window.clearInterval(timer);
     finishAnimation();
   });

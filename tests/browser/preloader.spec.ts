@@ -3,6 +3,54 @@ import { test, expect } from '@playwright/test';
 const fixture = '/tests/fixtures/preloader.html';
 const loader = '[data-site-preloader]';
 
+test('name starts centered, moves down, then reveals progress and signatures', async ({ page }) => {
+  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
+  await page.addInitScript(() => {
+    (window as any).__introSamples = [];
+    document.addEventListener('DOMContentLoaded', () => {
+      let origin: number | null = null;
+      const capture = (): void => {
+        const name = document.querySelector<HTMLElement>('.site-preloader__name');
+        const progress = document.querySelector<HTMLElement>('.site-preloader__progress');
+        const signature = document.querySelector<HTMLElement>('.site-preloader__signature-stage');
+        if (origin === null && name?.getAnimations()[0]?.currentTime != null) {
+          origin = performance.now() - Number(name.getAnimations()[0].currentTime);
+        }
+        const time = performance.now() - (origin ?? performance.now());
+        if (name && progress && signature && Number.isFinite(time)) {
+          const rect = name.getBoundingClientRect();
+          (window as any).__introSamples.push({
+            time,
+            center: (rect.top + rect.height / 2) / innerHeight,
+            nameOpacity: Number(getComputedStyle(name).opacity),
+            progressOpacity: Number(getComputedStyle(progress).opacity),
+            signatureOpacity: Number(getComputedStyle(signature).opacity),
+          });
+        }
+        if (time < 2200) requestAnimationFrame(capture);
+      };
+      requestAnimationFrame(capture);
+    });
+  });
+  await page.goto(`${fixture}?mode=native`);
+  await page.waitForFunction(() => (window as any).__introSamples.some((sample: { time: number }) => sample.time >= 2100));
+  const samples = await page.evaluate(() => (window as any).__introSamples as Array<{
+    time: number; center: number; nameOpacity: number; progressOpacity: number; signatureOpacity: number;
+  }>);
+  const near = (time: number) => samples.reduce((closest, sample) => Math.abs(sample.time - time) < Math.abs(closest.time - time) ? sample : closest);
+  expect(near(200).center).toBeCloseTo(0.5, 2);
+  expect(near(200).nameOpacity).toBeGreaterThan(0);
+  expect(near(200).progressOpacity).toBe(0);
+  expect(near(200).signatureOpacity).toBe(0);
+  expect(near(1100).center).toBeGreaterThan(0.55);
+  expect(near(1100).center).toBeLessThan(0.86);
+  expect(near(1100).progressOpacity).toBe(0);
+  expect(near(2000).center).toBeCloseTo(0.865, 2);
+  expect(near(2000).progressOpacity).toBeGreaterThan(0.5);
+  expect(near(2000).signatureOpacity).toBeGreaterThan(0.5);
+  await page.evaluate(() => window.__sitePreloader!.release());
+});
+
 test('signature cycles to SIGNATUR2, holds, then exits with the matching header', async ({ page }) => {
   await page.route('https://cdn.prod.website-files.com/**', (route) => route.fulfill({
     contentType: 'image/svg+xml',
@@ -165,25 +213,28 @@ test('three native Webflow scenes all gate release, including an offscreen scene
 test('visible progress advances continuously, then content fades before the panel reveals the page', async ({ page }) => {
   await page.addInitScript(() => {
     (window as any).__progressValues = [];
-    (window as any).__preloaderExitOrder = { finalAt: null, fadeAt: null, lastFadeAt: null, moveAt: null };
+    (window as any).__preloaderExitOrder = { finalAt: null, fadeAt: null, lastFadeAt: null, moveAt: null, signatureOpacityAtMove: null };
     const capture = (): void => {
       const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
       const value = Number(overlay?.getAttribute('aria-valuenow'));
       const values = (window as any).__progressValues as number[];
       if (Number.isFinite(value) && values.at(-1) !== value) values.push(value);
       if (!overlay) return;
-      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; fadeAt: number | null; lastFadeAt: number | null; moveAt: number | null };
+      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; fadeAt: number | null; lastFadeAt: number | null; moveAt: number | null; signatureOpacityAtMove: number | null };
       if (value === 100 && overlay.getAttribute('data-signature-index') === '6' && order.finalAt === null) order.finalAt = performance.now();
       const letters = overlay.querySelectorAll<HTMLElement>('.site-preloader__letter');
       if (letters.length && Number(getComputedStyle(letters[0]).opacity) < 0.99 && order.fadeAt === null) order.fadeAt = performance.now();
       if (letters.length && Number(getComputedStyle(letters[letters.length - 1]).opacity) < 0.99 && order.lastFadeAt === null) order.lastFadeAt = performance.now();
-      if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) order.moveAt = performance.now();
+      if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) {
+        order.moveAt = performance.now();
+        order.signatureOpacityAtMove = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__signature-stage')!).opacity);
+      }
     };
     new MutationObserver(capture).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow', 'style'] });
   });
   await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
   await page.goto(`${fixture}?mode=native`);
-  await page.waitForTimeout(1000);
+  await page.waitForFunction(() => (window as any).__progressValues.length > 5);
   const values = await page.evaluate(() => (window as any).__progressValues as number[]);
   expect(values[0]).toBe(0);
   expect(values.length).toBeGreaterThan(5);
@@ -200,10 +251,11 @@ test('visible progress advances continuously, then content fades before the pane
     return overlay && new DOMMatrix(getComputedStyle(overlay).transform).m42 < -10;
   });
   await expect(page.locator(loader)).toHaveCount(0);
-  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; fadeAt: number; lastFadeAt: number; moveAt: number });
+  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; fadeAt: number; lastFadeAt: number; moveAt: number; signatureOpacityAtMove: number });
   expect(exitOrder.fadeAt - exitOrder.finalAt).toBeGreaterThanOrEqual(450);
   expect(exitOrder.lastFadeAt).toBeGreaterThan(exitOrder.fadeAt);
   expect(exitOrder.moveAt).toBeGreaterThan(exitOrder.lastFadeAt);
+  expect(exitOrder.signatureOpacityAtMove).toBeLessThan(0.05);
 });
 
 test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {

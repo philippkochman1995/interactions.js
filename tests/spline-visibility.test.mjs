@@ -526,6 +526,7 @@ test('inline Webflow boot keeps the same preloader asset URL as the hosted bundl
       style = { setProperty() {} };
       setAttribute() {}
       appendChild(child) { this.children.push(child); }
+      removeEventListener() {}
     }
     const document = {
       documentElement: { lang: 'de' }, body: new Element(),
