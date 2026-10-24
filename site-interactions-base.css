@@ -1939,7 +1939,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 .site-preloader__progress {
   top: 12.0412%;
   opacity: 0;
-  animation: site-preloader-reveal 0.4s ease-out 1.75s both;
+  animation: site-preloader-reveal 0.4s ease-out 2.3s both;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1952,8 +1952,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   overflow: hidden;
 }
 .site-preloader__digit[hidden] { display: none; }
-.site-preloader__suffix,
-.site-preloader__letter { display: inline-block; }
+.site-preloader__suffix { display: inline-block; }
 .site-preloader__track,
 .site-preloader__track > span {
   display: block;
@@ -1961,19 +1960,26 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 .site-preloader__track > span { height: 18px; }
 .site-preloader__name {
   top: 50%;
-  opacity: 0;
-  animation: site-preloader-name-intro 1.75s both;
+  animation: site-preloader-name-transition 0.8s cubic-bezier(0.76, 0, 0.24, 1) 1.5s both;
+}
+.site-preloader__title,
+.site-preloader__date { opacity: 0; }
+.site-preloader__title {
+  animation: site-preloader-reveal 0.45s ease-out both;
+}
+.site-preloader__date {
+  animation: site-preloader-reveal 0.45s ease-out 0.65s both;
 }
 .site-preloader__signature-stage {
   position: absolute;
   top: 50%;
-  left: 17.5%;
-  width: 65%;
+  left: 25%;
+  width: 50%;
   aspect-ratio: 2 / 1;
   transform: translateY(-50%);
   opacity: 0;
   pointer-events: none;
-  animation: site-preloader-reveal 0.4s ease-out 1.75s both;
+  animation: site-preloader-reveal 0.4s ease-out 2.3s both;
   will-change: opacity;
 }
 .site-preloader__signature,
@@ -2002,25 +2008,9 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   mask-position: center;
   mask-size: 100% auto;
 }
-@keyframes site-preloader-name-intro {
-  0% {
-    top: 50%;
-    opacity: 0;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  24% {
-    top: 50%;
-    opacity: 1;
-  }
-  35% {
-    top: 50%;
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-  }
-  100% {
-    top: 86.5264%;
-    opacity: 1;
-  }
+@keyframes site-preloader-name-transition {
+  from { top: 50%; }
+  to { top: 86.5264%; }
 }
 @keyframes site-preloader-reveal {
   from { opacity: 0; }
@@ -2029,6 +2019,10 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 @media (prefers-reduced-motion: reduce) {
   .site-preloader__name {
     top: 86.5264%;
+    animation: none;
+  }
+  .site-preloader__title,
+  .site-preloader__date {
     opacity: 1;
     animation: none;
   }

@@ -152,12 +152,12 @@ function wait(duration: number, signal: AbortSignal): Promise<void> {
 function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promise<void> {
   if (prefersReducedMotion() || signal.aborted) return Promise.resolve();
   document.documentElement.classList.add(PRELOADER_EXIT_CLASS);
-  const progressLetters = overlay.querySelectorAll('.site-preloader__digit:not([hidden]), .site-preloader__suffix');
-  const nameLetters = overlay.querySelectorAll('.site-preloader__letter');
+  const progress = overlay.querySelector<HTMLElement>('.site-preloader__progress');
+  const name = overlay.querySelector<HTMLElement>('.site-preloader__name');
   const signature = overlay.querySelectorAll<HTMLElement>('.site-preloader__signature-stage');
   // The intro's fill-forwards animation would otherwise override GSAP's
   // inline opacity during the exit fade.
-  signature.forEach((element) => {
+  [...signature, ...(progress ? [progress] : [])].forEach((element) => {
     element.style.animation = 'none';
     element.style.opacity = '1';
   });
@@ -171,10 +171,9 @@ function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promis
     };
     const timeline = gsap.timeline({ onComplete: finish });
     timeline
-      .to(progressLetters, { y: -18, autoAlpha: 0, duration: 0.28, stagger: 0.04, ease: 'power2.in' })
-      .to(nameLetters, { y: -18, autoAlpha: 0, duration: 0.28, stagger: 0.04, ease: 'power2.in' }, '<')
-      .to(signature, { autoAlpha: 0, duration: 0.22, ease: 'power2.out' }, '<+0.2')
-      .to(overlay, { yPercent: -100, duration: 0.72, ease: 'power3.inOut' });
+      .to([progress, name].filter(Boolean), { autoAlpha: 0, duration: 0.35, ease: 'power2.out' })
+      .to(signature, { autoAlpha: 0, duration: 0.55, ease: 'power2.inOut' })
+      .to(overlay, { yPercent: -100, duration: 0.72, ease: 'power3.inOut' }, '<');
     signal.addEventListener('abort', () => { timeline.kill(); finish(); }, { once: true });
   });
 }
@@ -193,7 +192,7 @@ export function initSitePreloader(): void {
     controller.abort();
     progress.stop();
     gsap.killTweensOf(overlay);
-    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage'));
+    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage'));
   });
   const run = async (): Promise<void> => {
     await waitForCmsAssets(controller.signal);
@@ -215,7 +214,11 @@ export function initSitePreloader(): void {
     state.allowExit?.();
     await state.introReady;
     if (!state.active) return;
-    const minimumRemaining = Math.max(0, PRELOADER_MINIMUM - (Date.now() - state.startedAt));
+    const minimumRemaining = Math.max(
+      0,
+      PRELOADER_MINIMUM - (Date.now() - state.startedAt),
+      1500 - (Date.now() - (state.sceneTwoStartedAt ?? state.startedAt)),
+    );
     await wait(minimumRemaining, controller.signal);
     if (!state.active) return;
     await progress.complete();

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const fixture = '/tests/fixtures/preloader.html';
 const loader = '[data-site-preloader]';
 
-test('name starts centered, moves down, then reveals progress and signatures', async ({ page }) => {
+test('title and date fade in separately before moving down and revealing scene two', async ({ page }) => {
   await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
   await page.addInitScript(() => {
     (window as any).__introSamples = [];
@@ -11,43 +11,53 @@ test('name starts centered, moves down, then reveals progress and signatures', a
       let origin: number | null = null;
       const capture = (): void => {
         const name = document.querySelector<HTMLElement>('.site-preloader__name');
+        const title = document.querySelector<HTMLElement>('.site-preloader__title');
+        const date = document.querySelector<HTMLElement>('.site-preloader__date');
         const progress = document.querySelector<HTMLElement>('.site-preloader__progress');
         const signature = document.querySelector<HTMLElement>('.site-preloader__signature-stage');
         if (origin === null && name?.getAnimations()[0]?.currentTime != null) {
           origin = performance.now() - Number(name.getAnimations()[0].currentTime);
         }
         const time = performance.now() - (origin ?? performance.now());
-        if (name && progress && signature && Number.isFinite(time)) {
+        if (name && title && date && progress && signature && Number.isFinite(time)) {
           const rect = name.getBoundingClientRect();
           (window as any).__introSamples.push({
             time,
             center: (rect.top + rect.height / 2) / innerHeight,
-            nameOpacity: Number(getComputedStyle(name).opacity),
+            titleOpacity: Number(getComputedStyle(title).opacity),
+            dateOpacity: Number(getComputedStyle(date).opacity),
             progressOpacity: Number(getComputedStyle(progress).opacity),
             signatureOpacity: Number(getComputedStyle(signature).opacity),
+            signatureWidth: signature.getBoundingClientRect().width / innerWidth,
           });
         }
-        if (time < 2200) requestAnimationFrame(capture);
+        if (time < 2800) requestAnimationFrame(capture);
       };
       requestAnimationFrame(capture);
     });
   });
   await page.goto(`${fixture}?mode=native`);
-  await page.waitForFunction(() => (window as any).__introSamples.some((sample: { time: number }) => sample.time >= 2100));
+  await page.waitForFunction(() => (window as any).__introSamples.some((sample: { time: number }) => sample.time >= 2700));
   const samples = await page.evaluate(() => (window as any).__introSamples as Array<{
-    time: number; center: number; nameOpacity: number; progressOpacity: number; signatureOpacity: number;
+    time: number; center: number; titleOpacity: number; dateOpacity: number;
+    progressOpacity: number; signatureOpacity: number; signatureWidth: number;
   }>);
   const near = (time: number) => samples.reduce((closest, sample) => Math.abs(sample.time - time) < Math.abs(closest.time - time) ? sample : closest);
   expect(near(200).center).toBeCloseTo(0.5, 2);
-  expect(near(200).nameOpacity).toBeGreaterThan(0);
+  expect(near(200).titleOpacity).toBeGreaterThan(0);
+  expect(near(200).dateOpacity).toBe(0);
   expect(near(200).progressOpacity).toBe(0);
   expect(near(200).signatureOpacity).toBe(0);
-  expect(near(1100).center).toBeGreaterThan(0.55);
-  expect(near(1100).center).toBeLessThan(0.86);
-  expect(near(1100).progressOpacity).toBe(0);
-  expect(near(2000).center).toBeCloseTo(0.865, 2);
-  expect(near(2000).progressOpacity).toBeGreaterThan(0.5);
-  expect(near(2000).signatureOpacity).toBeGreaterThan(0.5);
+  expect(near(1050).titleOpacity).toBeGreaterThan(0.95);
+  expect(near(1050).dateOpacity).toBeGreaterThan(0.5);
+  expect(near(1050).center).toBeCloseTo(0.5, 2);
+  expect(near(1800).center).toBeGreaterThan(0.5);
+  expect(near(1800).center).toBeLessThan(0.865);
+  expect(near(1800).progressOpacity).toBe(0);
+  expect(near(2600).center).toBeCloseTo(0.865, 2);
+  expect(near(2600).progressOpacity).toBeGreaterThan(0.5);
+  expect(near(2600).signatureOpacity).toBeGreaterThan(0.5);
+  expect(near(2600).signatureWidth).toBeCloseTo(0.5, 2);
   await page.evaluate(() => window.__sitePreloader!.release());
 });
 
@@ -176,7 +186,7 @@ test('late CMS assets join the frozen critical set, errors settle', async ({ pag
   await expect(page.locator(loader)).toBeVisible();
   expect(Number(await page.locator(loader).getAttribute('aria-valuenow'))).toBeLessThan(100);
   failImage();
-  await expect(page.locator(loader)).toHaveCount(0);
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
 });
 
 for (const mode of ['spline', 'native']) {
@@ -185,7 +195,7 @@ for (const mode of ['spline', 'native']) {
     await page.waitForTimeout(600);
     await expect(page.locator(loader)).toBeVisible();
     await page.locator('#scene').dispatchEvent(mode === 'native' ? 'w-spline-load' : 'load-complete');
-    await expect(page.locator(loader)).toHaveCount(0);
+    await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
     await page.locator('#scene').dispatchEvent('load-complete');
     await expect(page.locator(loader)).toHaveCount(0);
   });
@@ -210,24 +220,27 @@ test('three native Webflow scenes all gate release, including an offscreen scene
   expect(requests.size).toBe(3);
 });
 
-test('visible progress advances continuously, then content fades before the panel reveals the page', async ({ page }) => {
+test('progress advances, then scene three fades info before signature and panel move together', async ({ page }) => {
   await page.addInitScript(() => {
     (window as any).__progressValues = [];
-    (window as any).__preloaderExitOrder = { finalAt: null, fadeAt: null, lastFadeAt: null, moveAt: null, signatureOpacityAtMove: null };
+    (window as any).__preloaderExitOrder = { finalAt: null, infoFadeAt: null, infoGoneAt: null, signatureFadeAt: null, moveAt: null };
     const capture = (): void => {
       const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
       const value = Number(overlay?.getAttribute('aria-valuenow'));
       const values = (window as any).__progressValues as number[];
       if (Number.isFinite(value) && values.at(-1) !== value) values.push(value);
       if (!overlay) return;
-      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; fadeAt: number | null; lastFadeAt: number | null; moveAt: number | null; signatureOpacityAtMove: number | null };
+      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; infoFadeAt: number | null; infoGoneAt: number | null; signatureFadeAt: number | null; moveAt: number | null };
       if (value === 100 && overlay.getAttribute('data-signature-index') === '6' && order.finalAt === null) order.finalAt = performance.now();
-      const letters = overlay.querySelectorAll<HTMLElement>('.site-preloader__letter');
-      if (letters.length && Number(getComputedStyle(letters[0]).opacity) < 0.99 && order.fadeAt === null) order.fadeAt = performance.now();
-      if (letters.length && Number(getComputedStyle(letters[letters.length - 1]).opacity) < 0.99 && order.lastFadeAt === null) order.lastFadeAt = performance.now();
+      if (!document.documentElement.classList.contains('is-site-preloader-exiting')) return;
+      const progressOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__progress')!).opacity);
+      const nameOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__name')!).opacity);
+      const signatureOpacity = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__signature-stage')!).opacity);
+      if (progressOpacity < 0.99 && nameOpacity < 0.99 && order.infoFadeAt === null) order.infoFadeAt = performance.now();
+      if (progressOpacity < 0.05 && nameOpacity < 0.05 && order.infoGoneAt === null) order.infoGoneAt = performance.now();
+      if (signatureOpacity < 0.99 && order.signatureFadeAt === null) order.signatureFadeAt = performance.now();
       if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) {
         order.moveAt = performance.now();
-        order.signatureOpacityAtMove = Number(getComputedStyle(overlay.querySelector<HTMLElement>('.site-preloader__signature-stage')!).opacity);
       }
     };
     new MutationObserver(capture).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow', 'style'] });
@@ -245,17 +258,19 @@ test('visible progress advances continuously, then content fades before the pane
 
   await page.locator('#scene').dispatchEvent('w-spline-load');
   await expect(page.locator('html')).toHaveClass(/is-site-preloader-exiting/);
+  expect(await page.evaluate(() => Date.now() - window.__sitePreloader!.sceneTwoStartedAt!)).toBeGreaterThanOrEqual(1500);
   await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100');
   await page.waitForFunction(() => {
     const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
     return overlay && new DOMMatrix(getComputedStyle(overlay).transform).m42 < -10;
   });
   await expect(page.locator(loader)).toHaveCount(0);
-  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; fadeAt: number; lastFadeAt: number; moveAt: number; signatureOpacityAtMove: number });
-  expect(exitOrder.fadeAt - exitOrder.finalAt).toBeGreaterThanOrEqual(450);
-  expect(exitOrder.lastFadeAt).toBeGreaterThan(exitOrder.fadeAt);
-  expect(exitOrder.moveAt).toBeGreaterThan(exitOrder.lastFadeAt);
-  expect(exitOrder.signatureOpacityAtMove).toBeLessThan(0.05);
+  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; infoFadeAt: number; infoGoneAt: number; signatureFadeAt: number; moveAt: number });
+  expect(exitOrder.infoFadeAt - exitOrder.finalAt).toBeGreaterThanOrEqual(450);
+  expect(exitOrder.infoGoneAt).toBeGreaterThan(exitOrder.infoFadeAt);
+  expect(exitOrder.signatureFadeAt).toBeGreaterThanOrEqual(exitOrder.infoGoneAt);
+  expect(exitOrder.moveAt).toBeGreaterThanOrEqual(exitOrder.signatureFadeAt);
+  expect(exitOrder.moveAt - exitOrder.signatureFadeAt).toBeLessThan(160);
 });
 
 test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {
@@ -410,6 +425,6 @@ test('srcset-only lazy pictures are critical even before currentSrc exists', asy
   await page.waitForTimeout(650);
   await expect(page.locator(loader)).toBeVisible();
   release();
-  await expect(page.locator(loader)).toHaveCount(0);
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 9000 });
   expect(await page.locator('#srcset-only').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(100);
 });

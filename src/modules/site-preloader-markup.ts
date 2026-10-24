@@ -59,14 +59,10 @@ export function createSitePreloader(): void {
   const name = document.createElement('div');
   name.className = 'site-preloader__name';
   name.setAttribute('aria-hidden', 'true');
-  for (const text of ['Franz West', '1947—2012']) {
+  for (const [index, text] of ['Franz West', '1947—2012'].entries()) {
     const line = document.createElement('div');
-    for (const character of text) {
-      const letter = document.createElement('span');
-      letter.className = 'site-preloader__letter';
-      letter.textContent = character === ' ' ? '\u00a0' : character;
-      line.appendChild(letter);
-    }
+    line.className = index === 0 ? 'site-preloader__title' : 'site-preloader__date';
+    line.textContent = text;
     name.appendChild(line);
   }
   const signature = document.createElement('img');
@@ -133,6 +129,7 @@ export function createSitePreloader(): void {
     if (introTimer !== null) window.clearTimeout(introTimer);
     name.removeEventListener('animationend', onIntroEnd);
     if (state.active && !reduced) {
+      state.sceneTwoStartedAt = Date.now();
       overlay.setAttribute('data-intro-complete', '');
       timer = window.setInterval(() => {
         const index = order[frame];
@@ -145,10 +142,11 @@ export function createSitePreloader(): void {
         }
       }, SIGNATURE_FRAME_MS);
     }
+    if (state.active && reduced) state.sceneTwoStartedAt = Date.now();
     finishIntro();
   };
   const onIntroEnd = (event: AnimationEvent): void => {
-    if (event.target === name && event.animationName === 'site-preloader-name-intro') completeIntro();
+    if (event.target === name && event.animationName === 'site-preloader-name-transition') completeIntro();
   };
   if (reduced) {
     renderSignature(active);
@@ -158,7 +156,7 @@ export function createSitePreloader(): void {
     renderSignature(0);
     SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
     name.addEventListener('animationend', onIntroEnd);
-    introTimer = window.setTimeout(completeIntro, 2200);
+    introTimer = window.setTimeout(completeIntro, 2700);
   }
   state.cleanup.push(() => {
     completeIntro();

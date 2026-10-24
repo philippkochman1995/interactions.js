@@ -2550,34 +2550,26 @@ function Cs(e, t) {
 function ws(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(C);
-	let n = e.querySelectorAll(".site-preloader__digit:not([hidden]), .site-preloader__suffix"), r = e.querySelectorAll(".site-preloader__letter"), i = e.querySelectorAll(".site-preloader__signature-stage");
-	return i.forEach((e) => {
+	let n = e.querySelector(".site-preloader__progress"), r = e.querySelector(".site-preloader__name"), i = e.querySelectorAll(".site-preloader__signature-stage");
+	return [...i, ...n ? [n] : []].forEach((e) => {
 		e.style.animation = "none", e.style.opacity = "1";
 	}), new Promise((a) => {
 		let o = !1, s = () => {
 			o || (o = !0, t.removeEventListener("abort", s), a());
 		}, c = b.timeline({ onComplete: s });
-		c.to(n, {
-			y: -18,
+		c.to([n, r].filter(Boolean), {
 			autoAlpha: 0,
-			duration: .28,
-			stagger: .04,
-			ease: "power2.in"
-		}).to(r, {
-			y: -18,
-			autoAlpha: 0,
-			duration: .28,
-			stagger: .04,
-			ease: "power2.in"
-		}, "<").to(i, {
-			autoAlpha: 0,
-			duration: .22,
+			duration: .35,
 			ease: "power2.out"
-		}, "<+0.2").to(e, {
+		}).to(i, {
+			autoAlpha: 0,
+			duration: .55,
+			ease: "power2.inOut"
+		}).to(e, {
 			yPercent: -100,
 			duration: .72,
 			ease: "power3.inOut"
-		}), t.addEventListener("abort", () => {
+		}, "<"), t.addEventListener("abort", () => {
 			c.kill(), s();
 		}, { once: !0 });
 	});
@@ -2597,15 +2589,15 @@ function Ts() {
 	((e = t.introReady) == null ? Promise.resolve() : e).then(() => {
 		t.active && i.start();
 	}), t.cleanup.push(() => {
-		r.abort(), i.stop(), b.killTweensOf(n), b.killTweensOf(n.querySelectorAll(".site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage"));
+		r.abort(), i.stop(), b.killTweensOf(n), b.killTweensOf(n.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature-stage"));
 	});
 	let a = async () => {
-		var e, a, o;
+		var e, a, o, s;
 		if (await _s(r.signal), !t.active) return;
-		let s = gs(), c = s.filter((e) => e.priority === "critical"), l = 0;
-		i.setTasks(0, c.length), await Promise.all(c.map(async (e) => {
-			await ls(Promise.resolve().then(() => e.load(r.signal)), r.signal), l++, t.active && i.setTasks(l, c.length);
-		})), t.active && (await bs(r.signal), t.active && ((e = t.allowExit) == null || e.call(t), await t.introReady, t.active && (await Cs(Math.max(0, te - (Date.now() - t.startedAt)), r.signal), t.active && (await i.complete(), t.active && ((a = t.allowExit) == null || a.call(t), await ((o = t.stopSignatureAnimation) == null ? void 0 : o.call(t)), t.active && (await Cs(500, r.signal), t.active && (await ws(n, r.signal), t.active && (t.release(), vs(s)))))))));
+		let c = gs(), l = c.filter((e) => e.priority === "critical"), u = 0;
+		i.setTasks(0, l.length), await Promise.all(l.map(async (e) => {
+			await ls(Promise.resolve().then(() => e.load(r.signal)), r.signal), u++, t.active && i.setTasks(u, l.length);
+		})), t.active && (await bs(r.signal), t.active && ((e = t.allowExit) == null || e.call(t), await t.introReady, t.active && (await Cs(Math.max(0, te - (Date.now() - t.startedAt), 1500 - (Date.now() - ((a = t.sceneTwoStartedAt) == null ? t.startedAt : a))), r.signal), t.active && (await i.complete(), t.active && ((o = t.allowExit) == null || o.call(t), await ((s = t.stopSignatureAnimation) == null ? void 0 : s.call(t)), t.active && (await Cs(500, r.signal), t.active && (await ws(n, r.signal), t.active && (t.release(), vs(c)))))))));
 	}, o = () => {
 		a().catch(t.release);
 	};
