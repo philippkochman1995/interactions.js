@@ -53,10 +53,6 @@
   text-decoration: none;
 }
 
-.footer_list {
-  gap: 1.15em;
-}
-
 .footer.u-section {
   padding-block: clamp(1.5rem, 2.5vw, 2.5rem);
 }
