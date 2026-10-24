@@ -633,8 +633,9 @@ bleiben als normale, indexierbare Seiten und als Fallback verfuegbar.
 
 ## Line reveal
 
-`src/modules/line-reveal.ts` animiert auf allen Seiten ausser `/news` und dessen
-Detailseiten jedes sichtbare `h1`–`h6` und `p`. Texte in Modals, Lightboxes und
+`src/modules/line-reveal.ts` animiert ausserhalb von `/news` und dessen
+Detailseiten jedes sichtbare `h1`–`h6` und `p`. Auf News-Seiten wird nur die
+Highlight-Eyebrow mit `data-animation-ready` animiert. Texte in Modals, Lightboxes und
 versteckten Modal-Quellen bleiben unberuehrt. Das gilt auch fuer die separaten
 `data-modal-rich-text`-Quellen; beim Einsetzen ins Modal werden verbliebene Reveal-Hooks
 und alte Animationsklassen vom Text entfernt. `data-reveal="off"` nimmt ein einzelnes
