@@ -1,4 +1,9 @@
 /* head: Webflow style */
+/* Slightly enlarge the home hero grain without changing its animation. */
+#fw-hero-grained::before {
+  scale: 1.08;
+}
+
 /* Preserve the grain's current frame while the page is hidden or unfocused. */
 html.site-hero-paused #fw-hero-grained::before {
   -webkit-animation-play-state: paused !important;

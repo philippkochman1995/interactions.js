@@ -360,7 +360,7 @@
 .bio_video_trigger img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .bio_video_play {
   position: absolute; top: 50%; left: 50%; display: grid; place-items: center;
-  width: clamp(3.25rem, 6vw, 4.5rem); aspect-ratio: 1; border-radius: 50%;
+  width: clamp(3rem, 5.25vw, 4rem); aspect-ratio: 1; border-radius: 50%;
   background: #f7f7f8; color: #06021a; transform: translate(-50%, -50%);
   transition: transform .25s ease, background-color .25s ease;
 }

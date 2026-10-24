@@ -1,6 +1,13 @@
 /* head: werkgruppen-click-cursor */
 .accordion_section .accordion_header { cursor: pointer; }
 
+/* Selected works and work groups: 15px at the 1440px type baseline, fluid above it. */
+.eyebrow_section:has(+ .works_header) .werke_heading.u-p,
+.eyebrow_section:has(+ .accordion_section) .werke_heading.u-p {
+  font-family: 'StyreneA', 'Styrene A', sans-serif;
+  font-size: calc(var(--fw-fluid-font-base, 1rem) * 0.9375);
+}
+
 /* head: quote-sub-styrene */
 .quote-sub { font-family: StyreneA, Arial, sans-serif; }
 

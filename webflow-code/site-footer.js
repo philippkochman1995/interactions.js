@@ -29,6 +29,25 @@
   });
 })();
 
+/* footer: fw-event-card-link */
+(function () {
+  document.addEventListener('click', function (event) {
+    if (event.defaultPrevented || event.button !== 0 || !(event.target instanceof Element)) return;
+
+    var card = event.target.closest('.news_event');
+    if (!card || event.target.closest('a, button, input, select, textarea, summary, [role="button"], [contenteditable], .site-lightbox-trigger')) return;
+
+    var link = card.querySelector('.intro_date_infos a.button-outlined[href]') || card.querySelector('a.text-link[href]');
+    if (!link) return;
+
+    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+      window.open(link.href, '_blank', 'noopener');
+    } else {
+      link.click();
+    }
+  });
+})();
+
 /* footer: fw-content-modal-mobile-sheet */
 (function () {
   if (window.__fwContentModalScrollReset) return;

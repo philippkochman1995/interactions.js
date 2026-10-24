@@ -72,32 +72,6 @@ html.work-overlay-active .page-transition-overlay {
   max-width: 100%;
 }
 
-.work-overlay__back .arrow-arrow,
-.work-overlay__back .arrow-dot {
-  transform-box: view-box;
-  transform-origin: 0 0;
-  transition: transform var(--fw-button-hover-duration, 0.45s)
-    var(--fw-button-hover-ease, cubic-bezier(0.33, 1, 0.68, 1));
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .work-overlay__back:hover .arrow-arrow {
-    transform: translate3d(30%, 0, 0);
-  }
-
-  .work-overlay__back:hover .arrow-dot {
-    transform: scaleX(3.8);
-  }
-}
-
-.work-overlay__back:focus-visible .arrow-arrow {
-  transform: translate3d(30%, 0, 0);
-}
-
-.work-overlay__back:focus-visible .arrow-dot {
-  transform: scaleX(3.8);
-}
-
 .work-overlay .cms-work-detail__related-inner {
   padding-bottom: clamp(4rem, 7vw, 7rem);
 }
@@ -191,8 +165,4 @@ html.work-overlay-active .page-transition-overlay {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .work-overlay__back .arrow-arrow,
-  .work-overlay__back .arrow-dot {
-    transition: none;
-  }
 }

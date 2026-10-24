@@ -1,8 +1,36 @@
 /* Homepage Instagram slider. Static Webflow images remain visible until the feed loads. */
 (function () {
+  function formatQuote() {
+    var quote = document.querySelector('.quote-h3');
+    if (!quote || quote.querySelector('.home-quote-break')) return;
+    var text = quote.textContent || '';
+    var marker = 'Befindlichkeit. Auch';
+    var markerIndex = text.indexOf(marker);
+    if (markerIndex === -1) return;
+    var breakIndex = markerIndex + 'Befindlichkeit. '.length;
+    var lineBreak = document.createElement('br');
+    lineBreak.className = 'home-quote-break';
+    quote.replaceChildren(document.createTextNode(text.slice(0, breakIndex)), lineBreak, document.createTextNode(text.slice(breakIndex)));
+  }
+
   function initFeed() {
     var root = document.querySelector('[data-insta-feed]');
-    if (!root || root.hasAttribute('data-insta-ready')) return;
+    if (!root) return;
+
+    var account = root.querySelector('[data-insta-account]');
+    var follow = root.querySelector('a[data-insta-follow][href]');
+    if (account && follow && !account.closest('a')) {
+      var accountLink = document.createElement('a');
+      accountLink.href = follow.href;
+      accountLink.target = follow.target;
+      accountLink.rel = follow.rel;
+      accountLink.className = 'u-animate-underline';
+      accountLink.setAttribute('data-insta-account-link', '');
+      account.parentNode.insertBefore(accountLink, account);
+      accountLink.appendChild(account);
+    }
+
+    if (root.hasAttribute('data-insta-ready')) return;
     var track = root.querySelector('[data-insta-track]');
     var previous = root.querySelector('[data-insta-prev]');
     var next = root.querySelector('[data-insta-next]');
@@ -106,6 +134,68 @@
       if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) move(dx < 0 ? 1 : -1);
     }, { passive: true });
 
+    var dragStart = null;
+    var dragged = false;
+    var suppressSlideClick = false;
+    viewport.addEventListener('dragstart', function (event) { event.preventDefault(); });
+    viewport.addEventListener('pointerdown', function (event) {
+      if (event.pointerType === 'touch' || event.button !== 0 || busy) return;
+      dragStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      dragged = false;
+    });
+    window.addEventListener('pointermove', function (event) {
+      if (!dragStart || event.pointerId !== dragStart.id) return;
+      var dx = event.clientX - dragStart.x;
+      var dy = event.clientY - dragStart.y;
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+        dragged = true;
+        root.classList.add('is-insta-dragging');
+      }
+      if (dragged) event.preventDefault();
+    }, { passive: false });
+    window.addEventListener('pointerup', function (event) {
+      if (!dragStart || event.pointerId !== dragStart.id) return;
+      var dx = event.clientX - dragStart.x;
+      var dy = event.clientY - dragStart.y;
+      if (dragged) {
+        suppressSlideClick = true;
+        window.setTimeout(function () { suppressSlideClick = false; }, 0);
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) move(dx < 0 ? 1 : -1);
+      }
+      dragStart = null;
+      dragged = false;
+      root.classList.remove('is-insta-dragging');
+    });
+    window.addEventListener('pointercancel', function (event) {
+      if (!dragStart || event.pointerId !== dragStart.id) return;
+      dragStart = null;
+      dragged = false;
+      root.classList.remove('is-insta-dragging');
+    });
+    viewport.addEventListener('click', function (event) {
+      if (!suppressSlideClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressSlideClick = false;
+    }, true);
+
+    var wheelDistance = 0;
+    viewport.addEventListener('wheel', function (event) {
+      var horizontal = event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      var delta = horizontal ? (event.deltaX || event.deltaY) : event.deltaY;
+      if (!delta) return;
+      if (horizontal) event.preventDefault();
+      if (busy) {
+        wheelDistance = 0;
+        return;
+      }
+      if (wheelDistance && Math.sign(wheelDistance) !== Math.sign(delta)) wheelDistance = 0;
+      wheelDistance += delta * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientWidth : 1);
+      if (Math.abs(wheelDistance) < 40) return;
+      move(wheelDistance > 0 ? 1 : -1);
+      wheelDistance = 0;
+    }, { passive: false });
+
     if (typeof ResizeObserver === 'function') {
       new ResizeObserver(function () { position(false); }).observe(viewport);
     } else {
@@ -148,9 +238,14 @@
       .finally(function () { window.clearTimeout(timeout); });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFeed, { once: true });
-  } else {
+  function initHome() {
+    formatQuote();
     initFeed();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHome, { once: true });
+  } else {
+    initHome();
   }
 }());

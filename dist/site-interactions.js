@@ -1982,7 +1982,7 @@ var lo = {
 	holdDuration: .1,
 	revealDuration: .92,
 	ease: "power4.inOut"
-}, uo = "page-transition-overlay", fo = "[data-page-transition-overlay], .page-transition-overlay", po = "site-page-transition", mo = "pending", ho = "is-page-transition-pending", go = "[data-site-menu]", _o = [
+}, uo = "page-transition-overlay", fo = "[data-page-transition-overlay], .page-transition-overlay", po = "page-transition-overlay__title", mo = "site-page-transition", ho = "site-page-transition-title", go = "pending", _o = "is-page-transition-pending", vo = "[data-site-menu]", yo = [
 	"[data-transition=\"false\"]",
 	"[data-lightbox-src]",
 	".js-lightbox",
@@ -1991,45 +1991,83 @@ var lo = {
 	"[data-back-button]",
 	"[data-work-overlay-trigger]",
 	"[download]"
-].join(","), vo = !1, yo = !1;
-function bo(e) {
-	document.documentElement.classList.toggle(ho, e);
+].join(","), bo = !1, xo = !1;
+function So(e) {
+	document.documentElement.classList.toggle(_o, e);
 }
-function xo() {
+function Co() {
 	try {
-		bo(window.sessionStorage.getItem(po) === mo);
+		So(window.sessionStorage.getItem(mo) === go);
 	} catch (e) {
-		bo(!1);
+		So(!1);
 	}
 }
-function So() {
+function wo() {
 	let e = document.querySelector(fo);
-	if (e) return e.classList.add(uo), e.setAttribute("data-page-transition-overlay", ""), e.setAttribute("aria-hidden", "true"), e;
+	if (e) return e.classList.add(uo), e.setAttribute("data-page-transition-overlay", ""), e.setAttribute("aria-hidden", "true"), To(e), e;
 	let t = document.createElement("div");
-	return t.className = uo, t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), document.body.append(t), t;
+	return t.className = uo, t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), To(t), document.body.append(t), t;
 }
-function Co(e) {
-	var t;
-	return !!(e.closest(_o) || e.getAttribute("data-transition") === "false" || e.target && e.target !== "_self" || e.hasAttribute("download") || (t = e.getAttribute("href")) != null && t.trim().startsWith("#"));
-}
-function wo(e, t) {
-	return !yo && !e.defaultPrevented && !l(e) && !Co(t);
-}
-function To() {
+function To(e) {
+	let t = e.querySelector(`.${po}`);
+	t || (t = document.createElement("span"), t.className = po, e.append(t));
 	try {
-		window.sessionStorage.setItem(po, mo), bo(!0);
+		if (window.sessionStorage.getItem(mo) === go) {
+			var n;
+			t.textContent = (n = window.sessionStorage.getItem(ho)) == null ? "" : n;
+		}
 	} catch (e) {}
+	return t;
 }
-function Eo() {
+function Eo(e, t) {
+	var n, r, i;
+	let a = (e) => {
+		var t;
+		return (t = e == null ? void 0 : e.replace(/\s+/g, " ").trim()) == null ? "" : t;
+	}, o = a((n = t.closest("[data-transition-title]")) == null ? void 0 : n.getAttribute("data-transition-title"));
+	if (o) return o;
+	let s = e.pathname.replace(/\/$/, "") || "/", c = Array.from(document.querySelectorAll("[data-site-menu-link][href]")).find((e) => {
+		try {
+			return (new URL(e.href).pathname.replace(/\/$/, "") || "/") === s;
+		} catch (e) {
+			return !1;
+		}
+	}), l = a(c == null ? void 0 : c.getAttribute("data-site-menu-label")) || a(c == null ? void 0 : c.textContent);
+	if (l) return l;
+	let u = t.closest("article, [class*=\"card\"]"), d = a((r = t.querySelector("h1, h2, h3, h4")) == null ? void 0 : r.textContent) || a(u == null || (i = u.querySelector("h1, h2, h3, h4")) == null ? void 0 : i.textContent);
+	if (d) return d;
+	let f = a(t.textContent);
+	if (f && f.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(f)) return f;
+	let p = e.pathname.split("/").filter(Boolean).pop();
+	if (!p) return "Startseite";
 	try {
-		let e = window.sessionStorage.getItem(po) === mo;
-		return window.sessionStorage.removeItem(po), bo(!1), e;
+		return decodeURIComponent(p).replace(/[-_]+/g, " ").replace(/\b\p{L}/gu, (e) => e.toUpperCase());
 	} catch (e) {
-		return bo(!1), !1;
+		return p.replace(/[-_]+/g, " ");
 	}
 }
 function Do(e) {
-	let t = Eo(), n = Array.from(document.querySelectorAll(go)), r = () => {
+	var t;
+	return !!(e.closest(yo) || e.getAttribute("data-transition") === "false" || e.target && e.target !== "_self" || e.hasAttribute("download") || (t = e.getAttribute("href")) != null && t.trim().startsWith("#"));
+}
+function Oo(e, t) {
+	return !xo && !e.defaultPrevented && !l(e) && !Do(t);
+}
+function ko() {
+	try {
+		window.sessionStorage.setItem(mo, go), So(!0);
+	} catch (e) {}
+}
+function Ao() {
+	try {
+		let e = window.sessionStorage.getItem(mo) === go;
+		return window.sessionStorage.removeItem(mo), window.sessionStorage.removeItem(ho), So(!1), e;
+	} catch (e) {
+		return So(!1), !1;
+	}
+}
+function jo(e) {
+	let t = Ao(), n = Array.from(document.querySelectorAll(vo)), r = () => {
 		n.forEach((e) => {
 			b.fromTo(e, {
 				y: Math.max(0, window.innerHeight - e.getBoundingClientRect().top) + 8,
@@ -2072,15 +2110,23 @@ function Do(e) {
 		}
 	});
 }
-function Oo(e, t, n) {
-	yo = !0, b.killTweensOf(t);
-	let r = b.timeline();
+function Mo(e, t, n, r) {
+	xo = !0, b.killTweensOf(t);
+	let i = To(t);
+	i.textContent = r, b.set(i, {
+		autoAlpha: 0,
+		y: 18
+	});
+	try {
+		window.sessionStorage.setItem(ho, r);
+	} catch (e) {}
+	let a = b.timeline();
 	if (n) {
 		b.killTweensOf(n);
 		let e = io(n);
-		e && r.add(e);
+		e && a.add(e);
 	}
-	r.call(To, [], 0), r.fromTo(t, {
+	a.call(ko, [], 0), a.fromTo(t, {
 		yPercent: -100,
 		y: 0
 	}, {
@@ -2090,55 +2136,60 @@ function Oo(e, t, n) {
 		onComplete: () => {
 			window.location.href = e.href;
 		}
-	}, 0);
+	}, 0), a.to(i, {
+		autoAlpha: 1,
+		y: 0,
+		duration: .35,
+		ease: "power2.out"
+	}, .4);
 }
-function ko(e, t) {
+function No(e, t) {
 	if (!e.persisted) return;
-	yo = !1, Eo(), b.killTweensOf(t), b.set(t, {
+	xo = !1, Ao(), b.killTweensOf(t), b.set(t, {
 		yPercent: -100,
 		y: 0
-	});
-	let n = document.querySelectorAll(go);
+	}), To(t).textContent = "";
+	let n = document.querySelectorAll(vo);
 	b.killTweensOf(n), b.set(n, { clearProps: "transform,opacity,visibility" });
 	let r = document.querySelectorAll("[data-site-menu-panel]");
 	b.killTweensOf(r), b.set(r, { clearProps: "height" });
 }
-function Ao() {
-	if (vo) return;
+function Po() {
+	if (bo) return;
 	if (!document.body) {
-		document.addEventListener("DOMContentLoaded", Ao, { once: !0 });
+		document.addEventListener("DOMContentLoaded", Po, { once: !0 });
 		return;
 	}
-	vo = !0;
-	let e = So();
-	S(() => Do(e)), document.addEventListener("click", (t) => {
+	bo = !0;
+	let e = wo();
+	S(() => jo(e)), document.addEventListener("click", (t) => {
 		let n = t.target;
 		if (!(n instanceof Element)) return;
 		let r = n.closest("a[href]");
 		if (!r) return;
-		if (yo) {
+		if (xo) {
 			t.preventDefault();
 			return;
 		}
-		if (!wo(t, r)) return;
+		if (!Oo(t, r)) return;
 		let i = h(r);
-		!i || u() || (t.preventDefault(), Oo(i, e, r.closest(go)));
-	}, !0), window.addEventListener("pageshow", (t) => ko(t, e));
+		!i || u() || (t.preventDefault(), Mo(i, e, r.closest(vo), Eo(i, r)));
+	}, !0), window.addEventListener("pageshow", (t) => No(t, e));
 }
-xo();
+Co();
 //#endregion
 //#region src/modules/parallax.ts
-var jo = "[data-parallax]", Mo = "data-parallax", No = "data-parallax-ready", Po = "fw-parallax-window", Fo = "fw-parallax-window--self-sized", Io = "fw-parallax-inner", Lo = 60, Ro = 160, zo = ".site-lightbox-trigger", Bo = 1, Vo = !1;
-function Ho() {
-	Vo || (Vo = !0, b.registerPlugin($));
+var Fo = "[data-parallax]", Io = "data-parallax", Lo = "data-parallax-ready", Ro = "fw-parallax-window", zo = "fw-parallax-window--self-sized", Bo = "fw-parallax-inner", Vo = 60, Ho = 160, Uo = ".site-lightbox-trigger", Wo = 1, Go = !1;
+function Ko() {
+	Go || (Go = !0, b.registerPlugin($));
 }
-function Uo(e) {
-	let t = e.getAttribute(Mo);
-	if (t === null || t.trim() === "") return Lo;
+function qo(e) {
+	let t = e.getAttribute(Io);
+	if (t === null || t.trim() === "") return Vo;
 	let n = Number.parseFloat(t);
-	return Number.isFinite(n) ? Math.min(Math.abs(n), Ro) : Lo;
+	return Number.isFinite(n) ? Math.min(Math.abs(n), Ho) : Vo;
 }
-function Wo(e) {
+function Jo(e) {
 	return e.complete && e.naturalWidth > 0 ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			e.removeEventListener("load", n), e.removeEventListener("error", n), t();
@@ -2146,44 +2197,44 @@ function Wo(e) {
 		e.addEventListener("load", n, { once: !0 }), e.addEventListener("error", n, { once: !0 });
 	});
 }
-function Go(e, t) {
+function Yo(e, t) {
 	var n;
-	let r = (n = e.closest(zo)) == null ? e.parentElement : n;
-	if (!r || r.classList.contains(Po)) return null;
+	let r = (n = e.closest(Uo)) == null ? e.parentElement : n;
+	if (!r || r.classList.contains(Ro)) return null;
 	let i = r.getBoundingClientRect().height;
 	if (i <= 0) return null;
-	r.classList.add(Po);
-	let a = document.createElement("span"), o = t / 2 + Bo;
-	if (a.className = Io, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
+	r.classList.add(Ro);
+	let a = document.createElement("span"), o = t / 2 + Wo;
+	if (a.className = Bo, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
 		let t = e.naturalWidth / e.naturalHeight;
-		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Po), null;
-		r.classList.add(Fo), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
+		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Ro), null;
+		r.classList.add(zo), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
 	}
 	return a;
 }
-function Ko(e, t) {
+function Xo(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
 		b.fromTo(e, { y: t / 2 }, {
 			y: -t / 2,
 			ease: "none",
-			scrollTrigger: qo(e)
+			scrollTrigger: Zo(e)
 		});
 		return;
 	}
 	n.forEach((n) => {
-		Wo(n).then(() => {
+		Jo(n).then(() => {
 			if (!n.isConnected) return;
-			let r = Go(n, t);
+			let r = Yo(n, t);
 			r && (b.fromTo(r, { y: t / 2 }, {
 				y: -t / 2,
 				ease: "none",
-				scrollTrigger: qo(e)
+				scrollTrigger: Zo(e)
 			}), $.refresh());
 		});
 	});
 }
-function qo(e) {
+function Zo(e) {
 	return {
 		trigger: e,
 		start: "top bottom",
@@ -2192,39 +2243,39 @@ function qo(e) {
 		invalidateOnRefresh: !0
 	};
 }
-function Jo(e = document) {
-	let t = o(jo, e).filter((e) => !e.hasAttribute(No));
-	t.length === 0 || u() || (Ho(), t.forEach((e) => {
-		let t = Uo(e);
-		t !== 0 && (e.setAttribute(No, ""), Ko(e, t));
+function Qo(e = document) {
+	let t = o(Fo, e).filter((e) => !e.hasAttribute(Lo));
+	t.length === 0 || u() || (Ko(), t.forEach((e) => {
+		let t = qo(e);
+		t !== 0 && (e.setAttribute(Lo, ""), Xo(e, t));
 	}));
 }
 //#endregion
 //#region src/modules/spline-slider.ts
-var Yo = ".werk_hero_slider", Xo = ".werk_hero_track";
-function Zo(e, t) {
+var $o = ".werk_hero_slider", es = ".werk_hero_track";
+function ts(e, t) {
 	let n = e.parentElement;
 	for (; n && n.parentElement !== t;) n = n.parentElement;
 	return (n == null ? void 0 : n.parentElement) === t ? n : null;
 }
-function Qo(e) {
+function ns(e) {
 	var t, n;
 	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
 	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
 }
-function $o(e) {
-	let t = e.closest(Yo), n = t == null ? void 0 : t.querySelector(Xo);
+function rs(e) {
+	let t = e.closest($o), n = t == null ? void 0 : t.querySelector(es);
 	if (!n) return !1;
 	if (typeof getComputedStyle == "function") {
 		let t = getComputedStyle(e);
 		if (t.display === "none" || t.visibility === "hidden") return !0;
 	}
-	let r = Zo(e, n), i = Qo(n);
+	let r = ts(e, n), i = ns(n);
 	return !!(r && i && r !== i);
 }
 //#endregion
 //#region src/modules/site-preloader-assets.ts
-function es(e, t) {
+function is(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -2233,7 +2284,7 @@ function es(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function ts(e, t) {
+function as(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -2244,7 +2295,7 @@ function ts(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function ns(e, t) {
+function os(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -2253,7 +2304,7 @@ function ns(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function rs(e) {
+function ss(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -2262,16 +2313,16 @@ function rs(e) {
 		return null;
 	}
 }
-function is(e) {
+function cs(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function as(e) {
+function ls(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function os(e, t) {
+function us(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -2290,7 +2341,7 @@ function os(e, t) {
 		}
 	});
 }
-function ss() {
+function ds() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -2299,45 +2350,45 @@ function ss() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return ns(e, t);
+				if (n === "spline") return os(e, t);
 				let r = new Image();
-				return r.src = e, ts(r, t);
+				return r.src = e, as(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], [data-modal-content], [data-modal], #wmCmsSource, template")) continue;
-		let i = is(n);
+		let i = cs(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
 		let a = n.getBoundingClientRect(), o = a.top > window.innerHeight * 2 || a.bottom < -window.innerHeight;
 		if (!i && !n.closest("[data-site-preloader]") && o) {
 			n.loading = "lazy";
 			continue;
 		}
-		let s = rs(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let s = ss(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!s && !c || t({
 			key: s ? `image:${s}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || as(n) ? "critical" : "warm" : i,
-			load: (e) => ts(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || ls(n) ? "critical" : "warm" : i,
+			load: (e) => as(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		if (r.matches("[data-animation-type=\"spline\"]") && $o(r)) continue;
-		let i = r instanceof HTMLIFrameElement, o = rs(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && rs(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = ss(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = is(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = cs(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => os(r, e)
+			load: (e) => us(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", os(r, e))
+			load: (e) => (r.loading = "eager", us(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -2351,17 +2402,17 @@ function ss() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = rs(e.url);
+			let t = ss(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => es(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => is(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function cs(e) {
+function fs(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -2378,13 +2429,13 @@ function cs(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function ls(e) {
+async function ps(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await es(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await is(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -2398,8 +2449,8 @@ async function ls(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var us = !1;
-function ds(e) {
+var ms = !1;
+function hs(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -2411,7 +2462,7 @@ function ds(e) {
 		});
 	});
 }
-function fs(e, t) {
+function gs(e, t) {
 	if (!Number.isFinite(t)) return;
 	let n = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.floor(t))));
 	e.setAttribute("aria-valuenow", String(n));
@@ -2442,12 +2493,12 @@ function fs(e, t) {
 		}
 	});
 }
-function ps(e, t) {
+function _s(e, t) {
 	let n = u(), r = 0, i = 0, a = 0, o = 0, s = !1, c = !1, l = 0, d = performance.now(), f = 0, p, m = new Promise((e) => {
 		p = e;
 	}), h = (t) => {
 		let n = Math.max(o, Math.min(100, Math.floor(t)));
-		n === o && n !== 100 || (o = n, fs(e, o));
+		n === o && n !== 100 || (o = n, gs(e, o));
 	}, g = (e) => {
 		if (c) return;
 		let n = Math.min(64, Math.max(0, e - d));
@@ -2465,7 +2516,7 @@ function ps(e, t) {
 		}
 	};
 }
-function ms(e, t) {
+function vs(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -2473,7 +2524,7 @@ function ms(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function hs(e, t) {
+function ys(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(C);
 	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature");
@@ -2494,9 +2545,9 @@ function hs(e, t) {
 		}, { once: !0 });
 	});
 }
-function gs() {
-	if (us) return;
-	us = !0;
+function bs() {
+	if (ms) return;
+	ms = !0;
 	let e = window.__sitePreloader;
 	if (!(e != null && e.active)) return;
 	let t = document.querySelector(ee);
@@ -2504,16 +2555,16 @@ function gs() {
 		e.release();
 		return;
 	}
-	let n = new AbortController(), r = ps(t, e.startedAt);
+	let n = new AbortController(), r = _s(t, e.startedAt);
 	e.cleanup.push(() => {
 		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature"));
 	});
 	let i = async () => {
-		if (await cs(n.signal), !e.active) return;
-		let i = ss(), a = i.filter((e) => e.priority === "critical"), o = 0;
+		if (await fs(n.signal), !e.active) return;
+		let i = ds(), a = i.filter((e) => e.priority === "critical"), o = 0;
 		r.setTasks(0, a.length), await Promise.all(a.map(async (t) => {
-			await es(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
-		})), e.active && (await ds(n.signal), e.active && (await ms(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await hs(t, n.signal), e.active && (e.release(), ls(i))))));
+			await is(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
+		})), e.active && (await hs(n.signal), e.active && (await vs(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await ys(t, n.signal), e.active && (e.release(), ps(i))))));
 	}, a = () => {
 		i().catch(e.release);
 	};
@@ -2521,33 +2572,33 @@ function gs() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var _s = !1, vs = !1;
-function ys() {
-	if (vs || u()) return;
-	vs = !0;
+var xs = !1, Ss = !1;
+function Cs() {
+	if (Ss || u()) return;
+	Ss = !0;
 	let e, t = () => {
 		let t = window.lenis;
-		if (_s || !window.__siteLenisManaged || !t) return;
-		_s = !0, b.registerPlugin($), t.on("scroll", $.update);
+		if (xs || !window.__siteLenisManaged || !t) return;
+		xs = !0, b.registerPlugin($), t.on("scroll", $.update);
 		let n = (e) => t.raf(e * 1e3);
 		b.ticker.add(n), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), $.refresh(), e = () => {
-			b.ticker.remove(n), t.off("scroll", $.update), _s = !1, window.__siteLenisTickerConnected = !1, e = void 0;
+			b.ticker.remove(n), t.off("scroll", $.update), xs = !1, window.__siteLenisTickerConnected = !1, e = void 0;
 		};
 	};
 	window.addEventListener("pagehide", () => e == null ? void 0 : e()), window.addEventListener("pageshow", (e) => {
 		var n;
 		e.persisted && (t(), (n = window.lenis) == null || n.resize());
-	}), t(), _s || window.addEventListener("site:lenis-ready", t, { once: !0 });
+	}), t(), xs || window.addEventListener("site:lenis-ready", t, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var bs = !1;
-gs(), Ao(), Ar(), ys();
-function xs() {
-	if (bs) return;
-	bs = !0;
+var ws = !1;
+bs(), Po(), Ar(), Cs();
+function Ts() {
+	if (ws) return;
+	ws = !0;
 	let e = ne();
-	va({ i18n: e }), Si({ i18n: e }), Jo(), co(), se(), _(), w(), window.SiteInteractions = {
+	va({ i18n: e }), Si({ i18n: e }), Qo(), co(), se(), _(), w(), window.SiteInteractions = {
 		openModal: ma,
 		openContentModal: pa,
 		closeModal: ha,
@@ -2555,7 +2606,7 @@ function xs() {
 		closeLightbox: yi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", xs, { once: !0 }) : xs();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Ts, { once: !0 }) : Ts();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

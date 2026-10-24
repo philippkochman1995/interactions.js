@@ -467,7 +467,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   gridHost.className = 'cms-works__grid-host u-section';
   collectionOverlay.className = 'cms-works__collection-overlay';
   collectionOverlay.type = 'button';
-  collectionOverlay.setAttribute('aria-label', 'Filter schliessen');
+  collectionOverlay.setAttribute('aria-label', 'Filter anwenden');
   gridMount.className = 'cms-works__grid-mount';
   gridHost.append(gridMount);
 
@@ -559,7 +559,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
       }
     },
   });
-  collectionOverlay.addEventListener('click', () => controls.close(true));
+  collectionOverlay.addEventListener('click', () => controls.apply());
   if (loadMoreButton) {
     const showMoreItems = () => {
       const previousCount = visibleCount;

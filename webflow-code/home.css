@@ -62,6 +62,12 @@
   height: 55px;
   border-radius: 50%;
   object-fit: cover;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 300ms ease;
+}
+
+[data-insta-feed] [data-insta-avatar]:hover {
+  box-shadow: 0 0 0 2px var(--fw_rosa, #ffc7d1);
 }
 
 [data-insta-feed] [data-insta-profile-copy] {
@@ -73,8 +79,12 @@
 }
 
 [data-insta-feed] [data-insta-account] {
-  font-size: 16px;
-  line-height: 22.4px;
+  font-size: 15px;
+  line-height: 21px;
+}
+
+[data-insta-feed] [data-insta-account-link] {
+  color: inherit;
 }
 
 [data-insta-feed] [data-insta-subtitle] {
@@ -96,7 +106,7 @@
 }
 
 [data-insta-feed] [data-insta-follow] .button-text {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
 }
 
@@ -114,6 +124,8 @@
 
 [data-insta-feed] [data-insta-slider] { position: relative; }
 [data-insta-feed] [data-insta-slider] > div:first-child { width: 100%; overflow: hidden; }
+[data-insta-feed].is-insta-dragging [data-insta-slider],
+[data-insta-feed].is-insta-dragging [data-insta-slider] * { cursor: grabbing !important; user-select: none; }
 
 [data-insta-feed] [data-insta-track] {
   display: flex;
@@ -172,8 +184,8 @@
   filter: drop-shadow(0 -5px 30px rgba(6, 2, 26, .08));
 }
 
-[data-insta-feed] [data-insta-prev] { left: 8px; }
-[data-insta-feed] [data-insta-next] { right: 8px; }
+[data-insta-feed] [data-insta-prev] { left: 0; }
+[data-insta-feed] [data-insta-next] { right: 0; }
 [data-insta-feed] .editionen_nav_icon { display: block; width: 100%; height: 100%; overflow: visible; }
 
 [data-insta-feed] [data-arrow-circle] {
@@ -272,7 +284,7 @@
 [data-wm-home] .wm-home-marker__badge{position:absolute;top:-.375rem;right:-.375rem;display:grid;place-items:center;min-width:1.375rem;height:1.375rem;padding:0 .3125rem;border-radius:999px;background:var(--blue,#a5d8ef);color:var(--fw_dark_purple,#06021a);box-sizing:border-box;font:500 .75rem/1 'StyreneA',sans-serif;}
 [data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__badge{background:var(--green,#9bdc8a);}
 [data-wm-home] .wm-home-marker--werke .wm-home-marker__badge{background:var(--fw_rosa,#f7b6cd);}
-[data-wm-home] .wm-home-marker__tooltip{position:absolute;top:calc(100% + .625rem);left:50%;transform:translateX(-50%);padding:.75rem 1rem;border-radius:.375rem;background:var(--blue,#a5d8ef);color:var(--fw_dark_purple,#06021a);font:500 var(--_sizes---p-small-font-size,.875rem)/1.3 'StyreneA',sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease;}
+[data-wm-home] .wm-home-marker__tooltip{position:absolute;top:calc(100% + .625rem);left:50%;transform:translateX(-50%);padding:.75rem 1rem;border-radius:0;background:var(--blue,#a5d8ef);color:var(--fw_dark_purple,#06021a);font:500 var(--_sizes---p-small-font-size,.875rem)/1.3 'StyreneA',sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease;}
 [data-wm-home] .wm-home-marker__tooltip::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:.5rem solid transparent;border-bottom-color:var(--blue,#a5d8ef);border-top:0;}
 [data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__tooltip{background:var(--green,#9bdc8a);}
 [data-wm-home] .wm-home-marker--ausstellungen .wm-home-marker__tooltip::before{border-bottom-color:var(--green,#9bdc8a);}
@@ -286,3 +298,6 @@
 
 /* head: fw-light-map-background */
 [data-wm-home] .wm-home-map { background-color: var(--fw_dark_purple_5, #f3f2f4); }
+@media (max-width: 1199px) {
+  .quote-h3 .home-quote-break { display: none; }
+}

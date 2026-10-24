@@ -15,3 +15,17 @@ if (!document.querySelector('[data-page-transition-overlay], .page-transition-ov
   overlay.setAttribute('aria-hidden', 'true');
   document.body.appendChild(overlay);
 }
+
+const transitionOverlay = document.querySelector<HTMLElement>('[data-page-transition-overlay], .page-transition-overlay');
+if (transitionOverlay && !transitionOverlay.querySelector('.page-transition-overlay__title')) {
+  const title = document.createElement('span');
+  title.className = 'page-transition-overlay__title';
+  try {
+    if (window.sessionStorage.getItem('site-page-transition') === 'pending') {
+      title.textContent = window.sessionStorage.getItem('site-page-transition-title') ?? '';
+    }
+  } catch {
+    // Session storage is optional for the incoming title.
+  }
+  transitionOverlay.appendChild(title);
+}

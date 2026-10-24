@@ -45,7 +45,7 @@ function g(e, t, n, r = {}) {
 		e.preventDefault(), j();
 	});
 	function j() {
-		t.appliedCategories = new Set(t.pendingCategories), t.appliedSortMode = t.pendingSortMode, P(!1), n();
+		t.open && (t.appliedCategories = new Set(t.pendingCategories), t.appliedSortMode = t.pendingSortMode, P(!1), n());
 	}
 	y.append(b, E, S), v.append(y, D), a.append(o), i.append(a, v);
 	function M() {
@@ -54,7 +54,7 @@ function g(e, t, n, r = {}) {
 			let a = t.pendingCategories.has(n), o = e.querySelector(".cms-works-filter__pill-count");
 			if (e.classList.toggle("is-active", a), e.setAttribute("aria-pressed", a ? "true" : "false"), e.tabIndex = t.open ? 0 : -1, o) {
 				if (a) {
-					o.textContent = "x";
+					o.textContent = "✕";
 					return;
 				}
 				o.textContent = `[${(r = (i = O.find((e) => e.name === n)) == null ? void 0 : i.count) == null ? 0 : r}]`;
@@ -84,13 +84,13 @@ function g(e, t, n, r = {}) {
 	}), document.addEventListener("keydown", (e) => {
 		e.key === "Escape" && t.open && P(!0);
 	}), document.addEventListener("pointerdown", (e) => {
-		!t.open || i.contains(e.target) || P(!0);
+		!t.open || i.contains(e.target) || j();
 	}), window.addEventListener("resize", () => {
 		v.style.setProperty("--cms-works-filter-panel-height", `${v.scrollHeight}px`);
 	}), M(), {
 		element: i,
 		sync: M,
-		close: P
+		apply: j
 	};
 }
 //#endregion
@@ -1184,7 +1184,7 @@ function Qt(e, t) {
 		pendingSortMode: (i = c == null ? void 0 : c.sort) == null ? Rt(e) : i,
 		open: !1
 	}, d = document.createElement("div"), f = document.createElement("button"), p = document.createElement("div"), m = Xt(e, t), h = 0, _ = 0, b = 0, x = (a = c == null ? void 0 : c.visibleCount) == null ? Ct : a, S = window.location.hash === "#werke" || (o = c == null ? void 0 : c.scrollY) == null ? null : o, C = [], w = /* @__PURE__ */ new Map(), T = /* @__PURE__ */ new Map(), E = 0;
-	t.hidden = !0, t.setAttribute("aria-hidden", "true"), Lt(t), e.classList.add("cms-works"), d.className = "cms-works__grid-host u-section", f.className = "cms-works__collection-overlay", f.type = "button", f.setAttribute("aria-label", "Filter schliessen"), p.className = "cms-works__grid-mount", d.append(p), m && d.append(m);
+	t.hidden = !0, t.setAttribute("aria-hidden", "true"), Lt(t), e.classList.add("cms-works"), d.className = "cms-works__grid-host u-section", f.className = "cms-works__collection-overlay", f.type = "button", f.setAttribute("aria-label", "Filter anwenden"), p.className = "cms-works__grid-mount", d.append(p), m && d.append(m);
 	let D = () => Vt(Ht(s, u.appliedCategories), u.appliedSortMode, e), O = (t = !1, n) => {
 		let r = ++E, i = C.slice(0, x);
 		Promise.all(i.map(async (e) => {
@@ -1221,7 +1221,7 @@ function Qt(e, t) {
 	}, { onOpenChange: (t) => {
 		e.classList.toggle("is-filter-open", t), t && A();
 	} });
-	if (f.addEventListener("click", () => j.close(!0)), m) {
+	if (f.addEventListener("click", () => j.apply()), m) {
 		let e = () => {
 			let e = x;
 			x = Math.min(x + wt, C.length);

@@ -13,7 +13,9 @@ const PAGE_TRANSITION = {
 
 const OVERLAY_CLASS = 'page-transition-overlay';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
+const TITLE_CLASS = 'page-transition-overlay__title';
 const TRANSITION_STORAGE_KEY = 'site-page-transition';
+const TRANSITION_TITLE_STORAGE_KEY = 'site-page-transition-title';
 const TRANSITION_STORAGE_VALUE = 'pending';
 const PENDING_CLASS = 'is-page-transition-pending';
 const MENU_SELECTOR = '[data-site-menu]';
@@ -50,6 +52,7 @@ function ensureOverlay(): HTMLElement {
     existing.classList.add(OVERLAY_CLASS);
     existing.setAttribute('data-page-transition-overlay', '');
     existing.setAttribute('aria-hidden', 'true');
+    ensureTitle(existing);
     return existing;
   }
 
@@ -57,8 +60,64 @@ function ensureOverlay(): HTMLElement {
   overlay.className = OVERLAY_CLASS;
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
+  ensureTitle(overlay);
   document.body.append(overlay);
   return overlay;
+}
+
+function ensureTitle(overlay: HTMLElement): HTMLElement {
+  let title = overlay.querySelector<HTMLElement>(`.${TITLE_CLASS}`);
+
+  if (!title) {
+    title = document.createElement('span');
+    title.className = TITLE_CLASS;
+    overlay.append(title);
+  }
+
+  try {
+    if (window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE) {
+      title.textContent = window.sessionStorage.getItem(TRANSITION_TITLE_STORAGE_KEY) ?? '';
+    }
+  } catch {
+    // The title is optional when storage is unavailable.
+  }
+
+  return title;
+}
+
+function getTransitionTitle(url: URL, link: HTMLAnchorElement): string {
+  const clean = (value: string | null | undefined): string => value?.replace(/\s+/g, ' ').trim() ?? '';
+  const explicit = clean(link.closest<HTMLElement>('[data-transition-title]')?.getAttribute('data-transition-title'));
+  if (explicit) return explicit;
+
+  const destinationPath = url.pathname.replace(/\/$/, '') || '/';
+  const menuLink = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-site-menu-link][href]')).find((candidate) => {
+    try {
+      return (new URL(candidate.href).pathname.replace(/\/$/, '') || '/') === destinationPath;
+    } catch {
+      return false;
+    }
+  });
+  const menuTitle = clean(menuLink?.getAttribute('data-site-menu-label')) || clean(menuLink?.textContent);
+  if (menuTitle) return menuTitle;
+
+  const card = link.closest<HTMLElement>('article, [class*="card"]');
+  const heading = clean(link.querySelector('h1, h2, h3, h4')?.textContent)
+    || clean(card?.querySelector('h1, h2, h3, h4')?.textContent);
+  if (heading) return heading;
+
+  const linkText = clean(link.textContent);
+  if (linkText && linkText.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(linkText)) {
+    return linkText;
+  }
+
+  const segment = url.pathname.split('/').filter(Boolean).pop();
+  if (!segment) return 'Startseite';
+  try {
+    return decodeURIComponent(segment).replace(/[-_]+/g, ' ').replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
+  } catch {
+    return segment.replace(/[-_]+/g, ' ');
+  }
 }
 
 function isIgnoredLink(link: HTMLAnchorElement): boolean {
@@ -88,6 +147,7 @@ function consumeTransitionPending(): boolean {
   try {
     const hasPendingTransition = window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE;
     window.sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
+    window.sessionStorage.removeItem(TRANSITION_TITLE_STORAGE_KEY);
     syncPendingClass(false);
     return hasPendingTransition;
   } catch {
@@ -152,9 +212,17 @@ function revealPage(overlay: HTMLElement): void {
   );
 }
 
-function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElement | null): void {
+function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElement | null, titleText: string): void {
   isTransitioning = true;
   gsap.killTweensOf(overlay);
+  const title = ensureTitle(overlay);
+  title.textContent = titleText;
+  gsap.set(title, { autoAlpha: 0, y: 18 });
+  try {
+    window.sessionStorage.setItem(TRANSITION_TITLE_STORAGE_KEY, titleText);
+  } catch {
+    // The outgoing page can still show the title without storage.
+  }
 
   const transition = gsap.timeline();
 
@@ -181,6 +249,12 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
     },
     coverStart,
   );
+  transition.to(title, {
+    autoAlpha: 1,
+    y: 0,
+    duration: 0.35,
+    ease: 'power2.out',
+  }, coverStart + 0.4);
 }
 
 function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement): void {
@@ -192,6 +266,7 @@ function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement
   consumeTransitionPending();
   gsap.killTweensOf(overlay);
   gsap.set(overlay, { yPercent: -100, y: 0 });
+  ensureTitle(overlay).textContent = '';
   const menus = document.querySelectorAll<HTMLElement>(MENU_SELECTOR);
   gsap.killTweensOf(menus);
   gsap.set(menus, { clearProps: 'transform,opacity,visibility' });
@@ -244,7 +319,7 @@ export function initPageTransitions(): void {
     }
 
     event.preventDefault();
-    navigateWithTransition(url, overlay, link.closest<HTMLElement>(MENU_SELECTOR));
+    navigateWithTransition(url, overlay, link.closest<HTMLElement>(MENU_SELECTOR), getTransitionTitle(url, link));
   }, true);
 
   window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay));

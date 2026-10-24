@@ -72,7 +72,7 @@ export function createWorksFilterInterface(
 ): {
   element: HTMLElement;
   sync: () => void;
-  close: (discardPending: boolean) => void;
+  apply: () => void;
 } {
   const section = document.createElement('section');
   const container = document.createElement('div');
@@ -207,6 +207,10 @@ export function createWorksFilterInterface(
   });
 
   function applyPendingFilter(): void {
+    if (!state.open) {
+      return;
+    }
+
     state.appliedCategories = new Set(state.pendingCategories);
     state.appliedSortMode = state.pendingSortMode;
     closeFilter(false);
@@ -236,7 +240,7 @@ export function createWorksFilterInterface(
       }
 
       if (active) {
-        buttonCount.textContent = 'x';
+        buttonCount.textContent = '✕';
         return;
       }
 
@@ -333,7 +337,7 @@ export function createWorksFilterInterface(
       return;
     }
 
-    closeFilter(true);
+    applyPendingFilter();
   });
   window.addEventListener('resize', () => {
     panel.style.setProperty('--cms-works-filter-panel-height', `${panel.scrollHeight}px`);
@@ -341,5 +345,5 @@ export function createWorksFilterInterface(
 
   sync();
 
-  return { element: section, sync, close: closeFilter };
+  return { element: section, sync, apply: applyPendingFilter };
 }
