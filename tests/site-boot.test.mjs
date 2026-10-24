@@ -91,7 +91,7 @@ test('failsafe leaves an overlay already controlled by GSAP alone', () => {
 });
 
 for (const tag of ['svg', 'img']) {
-  test(`logo ${tag}: five legible variants, original colour and pointerleave reset`, () => {
+  test(`logo ${tag}: six legible variants, original colour and pointerleave reset`, () => {
     const f = fixture();
     const link = f.element('a');
     const original = f.element(tag);
@@ -104,7 +104,7 @@ for (const tag of ['svg', 'img']) {
     [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, 'hidden');
     assert.equal(overlay.style.color, 'rgb(6, 2, 26)');
-    for (let i = 0; i < 4; i++) [...f.intervals.values()][0]();
+    for (let i = 0; i < 5; i++) [...f.intervals.values()][0]();
     assert.equal(overlay.style.height, '100%');
     [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, '');

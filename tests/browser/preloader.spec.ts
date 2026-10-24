@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const fixture = '/tests/fixtures/preloader.html';
 const loader = '[data-site-preloader]';
 
-test('signature cycles through the header variants and stops on the shared choice', async ({ page }) => {
+test('signature cycles to SIGNATUR2, holds, then exits with the matching header', async ({ page }) => {
   await page.route('https://cdn.prod.website-files.com/**', (route) => route.fulfill({
     contentType: 'image/svg+xml',
     body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 70"><path d="M0 35h160" stroke="black" stroke-width="20"/></svg>',
@@ -20,19 +20,44 @@ test('signature cycles through the header variants and stops on the shared choic
     }).observe(document, { attributes: true, subtree: true, attributeFilter: ['data-signature-index'] });
   });
   await page.goto(fixture);
-  await page.waitForFunction(() => (window as any).__signatureFrames.includes(1));
+  await page.waitForFunction(() => (window as any).__signatureFrames.includes(6));
   const frames = await page.evaluate(() => (window as any).__signatureFrames as number[]);
-  expect(frames.filter((value, index) => index === 0 || value !== frames[index - 1]))
-    .toEqual([0, 2, 3, 4, 5, 1]);
-  await expect(page.locator(loader)).toHaveAttribute('data-signature-index', '1');
+  expect(frames.filter((value, index) => index === 0 || value !== frames[index - 1]).slice(0, 7))
+    .toEqual([0, 1, 2, 3, 4, 5, 6]);
+  await expect(page.locator(loader)).toHaveAttribute('aria-valuenow', '100');
+  await expect(page.locator(loader)).toHaveAttribute('data-signature-index', '6');
   await expect(page.locator('.top_bar_center [data-logo-variant]')).toHaveCSS('display', 'block');
   const masks = await page.evaluate(() => [
     getComputedStyle(document.querySelector<HTMLElement>('.site-preloader__signature-variant')!).maskImage,
     getComputedStyle(document.querySelector<HTMLElement>('.top_bar_center [data-logo-variant]')!).maskImage,
   ]);
   expect(masks[0]).toBe(masks[1]);
+  expect(masks[0]).toContain('6a3a705c3445399a04fbd850_SIGNATUR2.svg');
+  await page.waitForTimeout(300);
+  await expect(page.locator('html')).not.toHaveClass(/is-site-preloader-exiting/);
   await page.waitForFunction(() => !window.__sitePreloader?.active);
   await expect(page.locator('.top_bar_center [data-logo-variant]')).toHaveCSS('display', 'block');
+});
+
+test('signature keeps cycling while a native scene is still loading', async ({ page }) => {
+  await page.route('https://cdn.prod.website-files.com/**', (route) => route.fulfill({
+    contentType: 'image/svg+xml',
+    body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 70"><path d="M0 35h160" stroke="black" stroke-width="20"/></svg>',
+  }));
+  await page.route('https://prod.spline.design/**', (route) => route.fulfill({ body: 'scene' }));
+  await page.addInitScript(() => {
+    (window as any).__signatureFrames = [];
+    new MutationObserver((records) => {
+      for (const record of records) {
+        const value = (record.target as HTMLElement).getAttribute('data-signature-index');
+        if (value !== null) (window as any).__signatureFrames.push(Number(value));
+      }
+    }).observe(document, { attributes: true, subtree: true, attributeFilter: ['data-signature-index'] });
+  });
+  await page.goto(`${fixture}?mode=native`);
+  await page.waitForFunction(() => (window as any).__signatureFrames.filter((value: number) => value === 6).length >= 2);
+  expect(await page.locator(loader).getAttribute('aria-valuenow')).not.toBe('100');
+  await page.evaluate(() => window.__sitePreloader!.release());
 });
 
 test('cached assets, minimum visibility, session skip and ownership of inert', async ({ page }) => {
@@ -140,16 +165,18 @@ test('three native Webflow scenes all gate release, including an offscreen scene
 test('visible progress advances continuously, then content fades before the panel reveals the page', async ({ page }) => {
   await page.addInitScript(() => {
     (window as any).__progressValues = [];
-    (window as any).__preloaderExitOrder = { fadeAt: null, moveAt: null };
+    (window as any).__preloaderExitOrder = { finalAt: null, fadeAt: null, lastFadeAt: null, moveAt: null };
     const capture = (): void => {
       const overlay = document.querySelector<HTMLElement>('[data-site-preloader]');
       const value = Number(overlay?.getAttribute('aria-valuenow'));
       const values = (window as any).__progressValues as number[];
       if (Number.isFinite(value) && values.at(-1) !== value) values.push(value);
       if (!overlay) return;
-      const order = (window as any).__preloaderExitOrder as { fadeAt: number | null; moveAt: number | null };
-      const progress = overlay.querySelector<HTMLElement>('.site-preloader__progress');
-      if (progress && Number(getComputedStyle(progress).opacity) < 0.99 && order.fadeAt === null) order.fadeAt = performance.now();
+      const order = (window as any).__preloaderExitOrder as { finalAt: number | null; fadeAt: number | null; lastFadeAt: number | null; moveAt: number | null };
+      if (value === 100 && overlay.getAttribute('data-signature-index') === '6' && order.finalAt === null) order.finalAt = performance.now();
+      const letters = overlay.querySelectorAll<HTMLElement>('.site-preloader__letter');
+      if (letters.length && Number(getComputedStyle(letters[0]).opacity) < 0.99 && order.fadeAt === null) order.fadeAt = performance.now();
+      if (letters.length && Number(getComputedStyle(letters[letters.length - 1]).opacity) < 0.99 && order.lastFadeAt === null) order.lastFadeAt = performance.now();
       if (Math.abs(new DOMMatrix(getComputedStyle(overlay).transform).m42) > 2 && order.moveAt === null) order.moveAt = performance.now();
     };
     new MutationObserver(capture).observe(document, { attributes: true, childList: true, subtree: true, attributeFilter: ['aria-valuenow', 'style'] });
@@ -173,9 +200,10 @@ test('visible progress advances continuously, then content fades before the pane
     return overlay && new DOMMatrix(getComputedStyle(overlay).transform).m42 < -10;
   });
   await expect(page.locator(loader)).toHaveCount(0);
-  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { fadeAt: number; moveAt: number });
-  expect(exitOrder.fadeAt).toBeGreaterThan(0);
-  expect(exitOrder.moveAt).toBeGreaterThan(exitOrder.fadeAt);
+  const exitOrder = await page.evaluate(() => (window as any).__preloaderExitOrder as { finalAt: number; fadeAt: number; lastFadeAt: number; moveAt: number });
+  expect(exitOrder.fadeAt - exitOrder.finalAt).toBeGreaterThanOrEqual(450);
+  expect(exitOrder.lastFadeAt).toBeGreaterThan(exitOrder.fadeAt);
+  expect(exitOrder.moveAt).toBeGreaterThan(exitOrder.lastFadeAt);
 });
 
 test('a native ready event captured before the main bundle still completes after two seconds', async ({ page }) => {
@@ -279,7 +307,7 @@ test('warmup stays non-blocking and malformed manifests fail open', async ({ pag
     document.body.append(malformed);
     document.querySelector('main')!.setAttribute('data-site-assets-ready', '');
   });
-  await expect(page.locator(loader)).toHaveCount(0);
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 8000 });
   finishWarm();
 });
 
@@ -299,7 +327,7 @@ test('critical lazy image is started without scrolling; duplicate URL counts onc
     return count;
   });
   expect(count).toBe(1);
-  await expect(page.locator(loader)).toHaveCount(0);
+  await expect(page.locator(loader)).toHaveCount(0, { timeout: 8000 });
   expect(await page.locator('img[src="/lazy.svg"]').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 

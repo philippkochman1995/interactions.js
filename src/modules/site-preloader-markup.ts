@@ -1,5 +1,5 @@
 import { PRELOADER_SELECTOR } from './site-preloader-state';
-import { getPageSignatureVariant, SIGNATURE_FRAME_MS, SIGNATURE_VARIANTS, signatureSequence } from './signature-variants';
+import { PRELOADER_FINAL_SIGNATURE_INDEX, setPageSignatureVariant, SIGNATURE_FRAME_MS, SIGNATURE_VARIANTS, signatureSequence } from './signature-variants';
 import { isInactiveHeroSplineScene } from './spline-slider';
 
 /**
@@ -53,6 +53,7 @@ export function createSitePreloader(): void {
     percent.appendChild(digit);
   }
   const suffix = document.createElement('span');
+  suffix.className = 'site-preloader__suffix';
   suffix.textContent = '%';
   percent.appendChild(suffix);
   const name = document.createElement('div');
@@ -60,7 +61,12 @@ export function createSitePreloader(): void {
   name.setAttribute('aria-hidden', 'true');
   for (const text of ['Franz West', '1947—2012']) {
     const line = document.createElement('div');
-    line.textContent = text;
+    for (const character of text) {
+      const letter = document.createElement('span');
+      letter.className = 'site-preloader__letter';
+      letter.textContent = character === ' ' ? '\u00a0' : character;
+      line.appendChild(letter);
+    }
     name.appendChild(line);
   }
   const signature = document.createElement('img');
@@ -82,7 +88,8 @@ export function createSitePreloader(): void {
   overlay.appendChild(signatureVariant);
   document.body.appendChild(overlay);
 
-  const active = getPageSignatureVariant();
+  const active = PRELOADER_FINAL_SIGNATURE_INDEX;
+  setPageSignatureVariant(active);
   const renderSignature = (index: number): void => {
     overlay.setAttribute('data-signature-index', String(index));
     if (index === 0) {
@@ -99,8 +106,18 @@ export function createSitePreloader(): void {
   const order = signatureSequence(active);
   let frame = 0;
   let timer: number | null = null;
+  let stopRequested = false;
   let finishAnimation!: () => void;
-  state.signatureAnimationDone = new Promise<void>((resolve) => { finishAnimation = resolve; });
+  const animationDone = new Promise<void>((resolve) => { finishAnimation = resolve; });
+  state.stopSignatureAnimation = () => {
+    stopRequested = true;
+    if (overlay.getAttribute('data-signature-index') === String(active) && timer !== null) {
+      window.clearInterval(timer);
+      timer = null;
+      finishAnimation();
+    }
+    return animationDone;
+  };
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     renderSignature(active);
     finishAnimation();
@@ -108,8 +125,10 @@ export function createSitePreloader(): void {
     renderSignature(0);
     SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
     timer = window.setInterval(() => {
-      renderSignature(order[frame++]);
-      if (frame === order.length) {
+      const index = order[frame];
+      renderSignature(index);
+      frame = (frame + 1) % order.length;
+      if (stopRequested && index === active) {
         window.clearInterval(timer!);
         timer = null;
         finishAnimation();

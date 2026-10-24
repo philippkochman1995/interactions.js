@@ -1950,6 +1950,8 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   overflow: hidden;
 }
 .site-preloader__digit[hidden] { display: none; }
+.site-preloader__suffix,
+.site-preloader__letter { display: inline-block; }
 .site-preloader__track,
 .site-preloader__track > span {
   display: block;

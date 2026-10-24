@@ -145,7 +145,9 @@ function wait(duration: number, signal: AbortSignal): Promise<void> {
 function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promise<void> {
   if (prefersReducedMotion() || signal.aborted) return Promise.resolve();
   document.documentElement.classList.add(PRELOADER_EXIT_CLASS);
-  const contents = overlay.querySelectorAll('.site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant');
+  const progressLetters = overlay.querySelectorAll('.site-preloader__digit:not([hidden]), .site-preloader__suffix');
+  const nameLetters = overlay.querySelectorAll('.site-preloader__letter');
+  const signature = overlay.querySelectorAll('.site-preloader__signature, .site-preloader__signature-variant');
   return new Promise((resolve) => {
     let settled = false;
     const finish = (): void => {
@@ -156,8 +158,9 @@ function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promis
     };
     const timeline = gsap.timeline({ onComplete: finish });
     timeline
-      .to({}, { duration: 0.12 })
-      .to(contents, { autoAlpha: 0, duration: 0.22, ease: 'power2.out' })
+      .to(progressLetters, { y: -18, autoAlpha: 0, duration: 0.28, stagger: 0.04, ease: 'power2.in' })
+      .to(nameLetters, { y: -18, autoAlpha: 0, duration: 0.28, stagger: 0.04, ease: 'power2.in' }, '<')
+      .to(signature, { autoAlpha: 0, duration: 0.22, ease: 'power2.out' }, '<+0.2')
       .to(overlay, { yPercent: -100, duration: 0.72, ease: 'power3.inOut' });
     signal.addEventListener('abort', () => { timeline.kill(); finish(); }, { once: true });
   });
@@ -176,7 +179,7 @@ export function initSitePreloader(): void {
     controller.abort();
     progress.stop();
     gsap.killTweensOf(overlay);
-    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant'));
+    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__digit, .site-preloader__suffix, .site-preloader__letter, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant'));
   });
   const run = async (): Promise<void> => {
     await waitForCmsAssets(controller.signal);
@@ -195,12 +198,15 @@ export function initSitePreloader(): void {
     // every ready canvas two frames to paint before uncovering the document.
     await waitForPaint(controller.signal);
     if (!state.active) return;
+    state.allowExit?.();
     const minimumRemaining = Math.max(0, PRELOADER_MINIMUM - (Date.now() - state.startedAt));
     await wait(minimumRemaining, controller.signal);
     if (!state.active) return;
     await progress.complete();
     if (!state.active) return;
-    await state.signatureAnimationDone;
+    await state.stopSignatureAnimation?.();
+    if (!state.active) return;
+    await wait(500, controller.signal);
     if (!state.active) return;
     await animatePreloaderExit(overlay, controller.signal);
     if (!state.active) return;

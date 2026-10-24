@@ -539,7 +539,7 @@ test('inline Webflow boot keeps the same preloader asset URL as the hosted bundl
       window: { __sitePreloader: { active: true, cleanup: [] }, matchMedia: () => ({ matches: true }) },
       MutationObserver: class { observe() {} },
       require: (path) => path.includes('signature-variants')
-        ? { getPageSignatureVariant: () => 0, signatureSequence: () => [], SIGNATURE_VARIANTS: [], SIGNATURE_FRAME_MS: 210 }
+        ? { PRELOADER_FINAL_SIGNATURE_INDEX: 0, setPageSignatureVariant: () => {}, signatureSequence: () => [], SIGNATURE_VARIANTS: [], SIGNATURE_FRAME_MS: 210 }
         : { PRELOADER_SELECTOR: '[data-site-preloader]' },
     };
     runInNewContext(markup, context);

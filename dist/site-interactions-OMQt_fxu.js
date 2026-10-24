@@ -11,8 +11,11 @@ var i = [
 	"6ab93c11630b54996257245a_West-Signatur-Variant3.svg",
 	"6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg",
 	"6ab93c1232f656f444927b94_West-Signatur-Variant8.svg",
-	"6ad72a88caefffd11ac57818_Variant9.svg"
-].map((e) => `https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/${e}`), a = "fw-signature-last-variant";
+	"6ad72a88caefffd11ac57818_Variant9.svg",
+	"6a3a705c3445399a04fbd850_SIGNATUR2.svg"
+].map((e) => `https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/${e}`);
+i.length;
+var a = "fw-signature-last-variant";
 function o() {
 	let e = -1;
 	try {
@@ -103,4 +106,4 @@ function f() {
 //#endregion
 export { r as a, t as i, e as n, n as r, f as t };
 
-//# sourceMappingURL=site-interactions-_2WzD52W.js.map
+//# sourceMappingURL=site-interactions-OMQt_fxu.js.map

@@ -3,7 +3,7 @@ import { chooseNextPageSignatureVariant, getPageSignatureVariant, SIGNATURE_FRAM
 const selector = '.top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link';
 let initialized = false;
 
-/** Rotate the five legible signatures and the original logo across page views. */
+/** Rotate the signature variants and the original logo across page views. */
 export function initLogoVariants(): void {
   if (initialized) return;
   initialized = true;

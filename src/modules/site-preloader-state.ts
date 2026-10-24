@@ -12,7 +12,8 @@ export interface PreloaderState {
   active: boolean;
   startedAt: number;
   ready: Promise<void>;
-  signatureAnimationDone?: Promise<void>;
+  stopSignatureAnimation?: () => Promise<void>;
+  allowExit?: () => void;
   cleanup: Array<() => void>;
   release: () => void;
 }
@@ -51,7 +52,11 @@ export function primeSitePreloader(): void {
   };
   window.__sitePreloader = state;
   root.classList.add(PRELOADER_CLASS);
-  const timeout = window.setTimeout(state.release, PRELOADER_TIMEOUT);
+  let timeout = window.setTimeout(state.release, PRELOADER_TIMEOUT);
+  state.allowExit = () => {
+    window.clearTimeout(timeout);
+    timeout = window.setTimeout(state.release, Math.max(5000, PRELOADER_TIMEOUT - (Date.now() - state.startedAt)));
+  };
   const onPageShow = (event: PageTransitionEvent): void => { if (event.persisted) state.release(); };
   const preventScroll = (event: Event): void => { if (event.cancelable) event.preventDefault(); };
   window.addEventListener('pagehide', state.release);

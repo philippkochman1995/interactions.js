@@ -779,16 +779,20 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 `assets/preloader-background.svg`; ihre URLs werden relativ zum ausgelieferten
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
-Die Signatur im Preloader zeigt dieselben fünf Varianten und das Original wie
-das Topbar-Logo, wechselt alle 210 ms und bleibt auf der für diese Seite
-gewählten Variante stehen. Die Auswahl wird vor dem ersten Preloader-Frame
-geteilt; bei reduzierter Bewegung erscheint direkt die finale Signatur.
+Die Signatur im Preloader zeigt dieselben Varianten und das Original wie das
+Topbar-Logo im 210-ms-Takt. Sie läuft bis zur Ladefreigabe in Schleifen und
+endet auf `SIGNATUR2.svg`; die Topbar zeigt auf der Intro-Seite dieselbe
+Signatur. Nach 0,5 s Stillstand verschwinden Prozentanzeige und Namenszeilen
+buchstabenweise nach oben, bevor die rosa Fläche ausfährt. Bei reduzierter
+Bewegung erscheint direkt die finale Signatur.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `3`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
-- Mindestanzeige 2.000 ms, unabhängiger Head-Wachhund maximal 6 s ab Aktivierung.
+- Mindestanzeige 2.000 ms. Der Head-Wachhund gibt bei ausbleibender
+  Ladefreigabe nach 6 s frei; nach erfolgter Ladefreigabe bleiben mindestens
+  5 s für die Abschlussanimation.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
 - Der sichtbare Zähler beginnt bei 0, kombiniert erledigte kritische Tasks mit
   einer geglätteten Ladezeitschätzung und reserviert 100 % für den echten
