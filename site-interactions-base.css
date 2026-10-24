@@ -1857,11 +1857,13 @@ footer a.w--current:focus-visible::after,
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-dot] {
+  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-dot],
+  :is(.news_event, .news_highlight_section):hover a.text-link .more-arrow [data-more-arrow-dot] {
     transform: translate(0.1715px, 0.1599px) scale(7.8925, 0.8005);
   }
 
-  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-head] {
+  :is(a, button, [role="button"]):hover .more-arrow [data-more-arrow-head],
+  :is(.news_event, .news_highlight_section):hover a.text-link .more-arrow [data-more-arrow-head] {
     transform: translateX(1.4839px) scaleX(0.8769);
   }
 }
