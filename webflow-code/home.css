@@ -60,13 +60,14 @@
   flex: none;
   width: 55px;
   height: 55px;
+  box-sizing: border-box;
+  border: 2px solid var(--fw_dark_purple_50, #82808c);
   border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--fw_dark_purple_50, #82808c), 0 0 0 transparent;
-  transition: box-shadow 300ms ease;
+  transition: border-color 300ms ease;
 }
 
 [data-insta-feed] > div:first-child > div:first-child:is(:hover, :focus-within) .insta-feed__avatar-frame {
-  box-shadow: 0 0 0 4px var(--fw_rosa, #ffc7d1), 0 0 10px 3px rgb(255 199 209 / 35%);
+  border-color: var(--fw_rosa, #ffc7d1);
 }
 
 [data-insta-feed] [data-insta-avatar] {
