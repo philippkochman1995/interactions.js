@@ -1960,8 +1960,8 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 .site-preloader__signature-variant {
   position: absolute;
   top: 42.7%;
-  left: 6.38%;
-  width: 87.1927%;
+  left: 17.5%;
+  width: 65%;
   pointer-events: none;
   will-change: opacity;
 }
