@@ -1,7 +1,7 @@
 import { _ as e, a as t, b as n, c as r, d as i, f as a, g as o, h as s, i as c, l, m as u, n as d, o as f, p, r as m, s as h, t as g, u as _, v, y } from "./site-interactions-Cou7uu3t.js";
 import { t as b } from "./site-interactions-BxJ-FVg3.js";
 import { t as x } from "./site-interactions-CKkKncuX.js";
-import { a as S, i as ee, n as C, r as te, t as w } from "./site-interactions-DiIQUbt_.js";
+import { a as S, i as ee, n as C, r as te, t as w } from "./site-interactions-_2WzD52W.js";
 //#region src/modules/i18n.ts
 var T = {};
 function E(e) {
@@ -2547,7 +2547,7 @@ function Cs(e, t) {
 function ws(e, t) {
 	if (u() || t.aborted) return Promise.resolve();
 	document.documentElement.classList.add(C);
-	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature");
+	let n = e.querySelectorAll(".site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant");
 	return new Promise((r) => {
 		let i = !1, a = () => {
 			i || (i = !0, t.removeEventListener("abort", a), r());
@@ -2577,14 +2577,14 @@ function Ts() {
 	}
 	let n = new AbortController(), r = Ss(t, e.startedAt);
 	e.cleanup.push(() => {
-		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature"));
+		n.abort(), r.stop(), b.killTweensOf(t), b.killTweensOf(t.querySelectorAll(".site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant"));
 	});
 	let i = async () => {
 		if (await _s(n.signal), !e.active) return;
 		let i = gs(), a = i.filter((e) => e.priority === "critical"), o = 0;
 		r.setTasks(0, a.length), await Promise.all(a.map(async (t) => {
 			await ls(Promise.resolve().then(() => t.load(n.signal)), n.signal), o++, e.active && r.setTasks(o, a.length);
-		})), e.active && (await bs(n.signal), e.active && (await Cs(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await ws(t, n.signal), e.active && (e.release(), vs(i))))));
+		})), e.active && (await bs(n.signal), e.active && (await Cs(Math.max(0, te - (Date.now() - e.startedAt)), n.signal), e.active && (await r.complete(), e.active && (await e.signatureAnimationDone, e.active && (await ws(t, n.signal), e.active && (e.release(), vs(i)))))));
 	}, a = () => {
 		i().catch(e.release);
 	};

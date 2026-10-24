@@ -9,6 +9,9 @@ const body = readFileSync(new URL('../dist/site-body.js', import.meta.url), 'utf
 const logo = ts.transpileModule(readFileSync(new URL('../src/modules/logo-variants.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2018 },
 }).outputText;
+const signature = ts.transpileModule(readFileSync(new URL('../src/modules/signature-variants.ts', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2018 },
+}).outputText;
 
 function fixture(values = {}, reduced = false, blocked = false) {
   const classes = new Set();
@@ -23,6 +26,7 @@ function fixture(values = {}, reduced = false, blocked = false) {
       style: { visibility: '', setProperty(key, value) { this[key] = value; } },
       setAttribute(key, value) { this.attrs[key] = value; },
       appendChild(child) { this.children.push(child); },
+      querySelector(selector) { return this.children.find((child) => selector === '.page-transition-overlay__title' && child.className === 'page-transition-overlay__title') ?? null; },
       addEventListener(event, handler) { this.events[event] = handler; },
     };
   }
@@ -54,6 +58,9 @@ function fixture(values = {}, reduced = false, blocked = false) {
     addEventListener: () => {},
   };
   const context = { document, window, Date, exports: {}, Image: class {}, Node: class {}, HTMLElement: class {}, MutationObserver: class { observe() {} }, Math: { floor: Math.floor, random: () => 0 }, getComputedStyle: () => ({ position: 'static', color: 'rgb(6, 2, 26)' }) };
+  const signatureExports = {};
+  runInNewContext(signature, { ...context, exports: signatureExports });
+  context.require = () => signatureExports;
   return { context, classes, storage, events, timers, intervals, element, run: (source) => runInNewContext(source, context) };
 }
 
@@ -84,7 +91,7 @@ test('failsafe leaves an overlay already controlled by GSAP alone', () => {
 });
 
 for (const tag of ['svg', 'img']) {
-  test(`logo ${tag}: four legible variants, original colour and pointerleave reset`, () => {
+  test(`logo ${tag}: five legible variants, original colour and pointerleave reset`, () => {
     const f = fixture();
     const link = f.element('a');
     const original = f.element(tag);
@@ -97,7 +104,7 @@ for (const tag of ['svg', 'img']) {
     [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, 'hidden');
     assert.equal(overlay.style.color, 'rgb(6, 2, 26)');
-    for (let i = 0; i < 3; i++) [...f.intervals.values()][0]();
+    for (let i = 0; i < 4; i++) [...f.intervals.values()][0]();
     assert.equal(overlay.style.height, '100%');
     [...f.intervals.values()][0]();
     assert.equal(original.style.visibility, '');

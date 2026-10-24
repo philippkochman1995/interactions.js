@@ -8,10 +8,12 @@
     body { margin: 0; }
     main { min-height: 200vh; }
     .test-image { width: 240px; height: 180px; }
+    .top_bar_center .nav_logo_link { position: relative; display: block; width: 160px; height: 70px; }
   </style>
   <script src="/dist/site-head.js"></script>
 </head>
 <body>
+  <header class="top_bar_center"><a class="nav_logo_link" href="/"><svg class="nav_logo" viewBox="0 0 160 70" aria-label="Franz West"><path d="M0 35h160" stroke="currentColor"/></svg></a></header>
   <main id="content"><a href="?next">Weiter</a><img class="test-image" src="/tests/fixtures/image.svg" alt="Werk"></main>
   <aside id="already-inert" inert>Unverändert gesperrt</aside>
   <script>

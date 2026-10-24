@@ -523,6 +523,7 @@ test('inline Webflow boot keeps the same preloader asset URL as the hosted bundl
     const images = [];
     class Element {
       children = [];
+      style = { setProperty() {} };
       setAttribute() {}
       appendChild(child) { this.children.push(child); }
     }
@@ -535,9 +536,11 @@ test('inline Webflow boot keeps the same preloader asset URL as the hosted bundl
     };
     const context = {
       exports: {}, document, URL, HTMLElement: Element,
-      window: { __sitePreloader: { active: true, cleanup: [] } },
+      window: { __sitePreloader: { active: true, cleanup: [] }, matchMedia: () => ({ matches: true }) },
       MutationObserver: class { observe() {} },
-      require: () => ({ PRELOADER_SELECTOR: '[data-site-preloader]' }),
+      require: (path) => path.includes('signature-variants')
+        ? { getPageSignatureVariant: () => 0, signatureSequence: () => [], SIGNATURE_VARIANTS: [], SIGNATURE_FRAME_MS: 210 }
+        : { PRELOADER_SELECTOR: '[data-site-preloader]' },
     };
     runInNewContext(markup, context);
     context.exports.createSitePreloader();

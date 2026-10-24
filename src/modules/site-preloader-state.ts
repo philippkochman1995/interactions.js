@@ -12,6 +12,7 @@ export interface PreloaderState {
   active: boolean;
   startedAt: number;
   ready: Promise<void>;
+  signatureAnimationDone?: Promise<void>;
   cleanup: Array<() => void>;
   release: () => void;
 }

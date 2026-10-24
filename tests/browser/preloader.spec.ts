@@ -3,6 +3,38 @@ import { test, expect } from '@playwright/test';
 const fixture = '/tests/fixtures/preloader.html';
 const loader = '[data-site-preloader]';
 
+test('signature cycles through the header variants and stops on the shared choice', async ({ page }) => {
+  await page.route('https://cdn.prod.website-files.com/**', (route) => route.fulfill({
+    contentType: 'image/svg+xml',
+    body: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 70"><path d="M0 35h160" stroke="black" stroke-width="20"/></svg>',
+  }));
+  await page.addInitScript(() => {
+    sessionStorage.setItem('fw-signature-last-variant', '0');
+    Math.random = () => 0;
+    (window as any).__signatureFrames = [];
+    new MutationObserver((records) => {
+      for (const record of records) {
+        const value = (record.target as HTMLElement).getAttribute('data-signature-index');
+        if (value !== null) (window as any).__signatureFrames.push(Number(value));
+      }
+    }).observe(document, { attributes: true, subtree: true, attributeFilter: ['data-signature-index'] });
+  });
+  await page.goto(fixture);
+  await page.waitForFunction(() => (window as any).__signatureFrames.includes(1));
+  const frames = await page.evaluate(() => (window as any).__signatureFrames as number[]);
+  expect(frames.filter((value, index) => index === 0 || value !== frames[index - 1]))
+    .toEqual([0, 2, 3, 4, 5, 1]);
+  await expect(page.locator(loader)).toHaveAttribute('data-signature-index', '1');
+  await expect(page.locator('.top_bar_center [data-logo-variant]')).toHaveCSS('display', 'block');
+  const masks = await page.evaluate(() => [
+    getComputedStyle(document.querySelector<HTMLElement>('.site-preloader__signature-variant')!).maskImage,
+    getComputedStyle(document.querySelector<HTMLElement>('.top_bar_center [data-logo-variant]')!).maskImage,
+  ]);
+  expect(masks[0]).toBe(masks[1]);
+  await page.waitForFunction(() => !window.__sitePreloader?.active);
+  await expect(page.locator('.top_bar_center [data-logo-variant]')).toHaveCSS('display', 'block');
+});
+
 test('cached assets, minimum visibility, session skip and ownership of inert', async ({ page }) => {
   await page.addInitScript(() => {
     document.addEventListener('DOMContentLoaded', () => {

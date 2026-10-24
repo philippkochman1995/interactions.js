@@ -1,27 +1,7 @@
-const selector = '.top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link';
-const assetBase = 'https://cdn.prod.website-files.com/69b3f9edfc3e8e944fc06836/';
-const variants = [
-  '6ab93c11c0209913a6f4ab46_West-Signatur-Variant2.svg',
-  '6ab93c11630b54996257245a_West-Signatur-Variant3.svg',
-  '6ab93c12f66f79789e902f77_West-Signatur-Variant4.svg',
-  '6ab93c1232f656f444927b94_West-Signatur-Variant8.svg',
-  '6ad72a88caefffd11ac57818_Variant9.svg',
-].map((filename) => assetBase + filename);
-const storageKey = 'fw-signature-last-variant';
-let initialized = false;
+import { chooseNextPageSignatureVariant, getPageSignatureVariant, SIGNATURE_FRAME_MS, SIGNATURE_VARIANTS, signatureSequence } from './signature-variants';
 
-function chooseVariant(): number {
-  let previous = -1;
-  try {
-    const stored = window.sessionStorage.getItem(storageKey);
-    if (stored !== null) previous = Number(stored);
-  } catch { /* Storage may be disabled. */ }
-  if (!Number.isInteger(previous) || previous < 0 || previous > variants.length) previous = -1;
-  let choice = Math.floor(Math.random() * (previous < 0 ? variants.length + 1 : variants.length));
-  if (previous >= 0 && choice >= previous) choice++;
-  try { window.sessionStorage.setItem(storageKey, String(choice)); } catch { /* Storage may be disabled. */ }
-  return choice;
-}
+const selector = '.top_bar_center .nav_logo_link, .top_bar_center .nav_logo_image_link';
+let initialized = false;
 
 /** Rotate the five legible signatures and the original logo across page views. */
 export function initLogoVariants(): void {
@@ -30,7 +10,7 @@ export function initLogoVariants(): void {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const known = new WeakSet<HTMLElement>();
   const states: Array<{ link: HTMLElement; reset: () => void }> = [];
-  let active = chooseVariant();
+  let active = getPageSignatureVariant();
 
   function setup(link: HTMLElement): void {
     if (known.has(link)) return;
@@ -56,7 +36,7 @@ export function initLogoVariants(): void {
         original!.style.visibility = originalVisibility;
         return;
       }
-      const mask = `url("${variants[index - 1]}")`;
+      const mask = `url("${SIGNATURE_VARIANTS[index - 1]}")`;
       layer.style.height = '100%';
       layer.style.maskImage = mask;
       layer.style.setProperty('-webkit-mask-image', mask);
@@ -74,9 +54,7 @@ export function initLogoVariants(): void {
       if (hovering || reducedMotion.matches) return;
       hovering = true;
       reset();
-      const order = Array.from({ length: variants.length + 1 }, (_, index) => index)
-        .filter((index) => index !== active);
-      order.push(active);
+      const order = signatureSequence(active);
       let frame = 0;
       timer = window.setInterval(() => {
         render(order[frame++]);
@@ -84,7 +62,7 @@ export function initLogoVariants(): void {
           window.clearInterval(timer!);
           timer = null;
         }
-      }, 210);
+      }, SIGNATURE_FRAME_MS);
     }, true);
     link.addEventListener('pointerleave', (event) => {
       event.stopImmediatePropagation();
@@ -113,8 +91,8 @@ export function initLogoVariants(): void {
   }).observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
-    active = chooseVariant();
+    active = chooseNextPageSignatureVariant();
     states.forEach((state) => { if (state.link.isConnected) state.reset(); });
   });
-  variants.forEach((url) => { const image = new Image(); image.src = url; });
+  SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
 }

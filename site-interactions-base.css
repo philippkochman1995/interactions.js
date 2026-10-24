@@ -1956,19 +1956,34 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 }
 .site-preloader__track > span { height: 18px; }
 .site-preloader__name { top: 86.5264%; }
-.site-preloader__signature {
+.site-preloader__signature,
+.site-preloader__signature-variant {
   position: absolute;
   top: 42.7%;
   left: 6.38%;
   width: 87.1927%;
-  height: auto;
-  max-width: none;
-  display: block;
   pointer-events: none;
   will-change: opacity;
 }
+.site-preloader__signature {
+  height: auto;
+  max-width: none;
+  display: block;
+}
+.site-preloader__signature-variant {
+  aspect-ratio: 1507 / 642;
+  display: none;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
 @media (max-width: 767px) {
-  .site-preloader__signature {
+  .site-preloader__signature,
+  .site-preloader__signature-variant {
     top: 50%;
     transform: translateY(-50%);
   }

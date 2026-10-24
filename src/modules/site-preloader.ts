@@ -145,7 +145,7 @@ function wait(duration: number, signal: AbortSignal): Promise<void> {
 function animatePreloaderExit(overlay: HTMLElement, signal: AbortSignal): Promise<void> {
   if (prefersReducedMotion() || signal.aborted) return Promise.resolve();
   document.documentElement.classList.add(PRELOADER_EXIT_CLASS);
-  const contents = overlay.querySelectorAll('.site-preloader__progress, .site-preloader__name, .site-preloader__signature');
+  const contents = overlay.querySelectorAll('.site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant');
   return new Promise((resolve) => {
     let settled = false;
     const finish = (): void => {
@@ -176,7 +176,7 @@ export function initSitePreloader(): void {
     controller.abort();
     progress.stop();
     gsap.killTweensOf(overlay);
-    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature'));
+    gsap.killTweensOf(overlay.querySelectorAll('.site-preloader__track, .site-preloader__progress, .site-preloader__name, .site-preloader__signature, .site-preloader__signature-variant'));
   });
   const run = async (): Promise<void> => {
     await waitForCmsAssets(controller.signal);
@@ -199,6 +199,8 @@ export function initSitePreloader(): void {
     await wait(minimumRemaining, controller.signal);
     if (!state.active) return;
     await progress.complete();
+    if (!state.active) return;
+    await state.signatureAnimationDone;
     if (!state.active) return;
     await animatePreloaderExit(overlay, controller.signal);
     if (!state.active) return;

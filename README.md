@@ -779,6 +779,10 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 `assets/preloader-background.svg`; ihre URLs werden relativ zum ausgelieferten
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
+Die Signatur im Preloader zeigt dieselben fünf Varianten und das Original wie
+das Topbar-Logo, wechselt alle 210 ms und bleibt auf der für diese Seite
+gewählten Variante stehen. Die Auswahl wird vor dem ersten Preloader-Frame
+geteilt; bei reduzierter Bewegung erscheint direkt die finale Signatur.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `3`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.

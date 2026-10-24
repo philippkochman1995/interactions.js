@@ -1,4 +1,5 @@
 import { PRELOADER_SELECTOR } from './site-preloader-state';
+import { getPageSignatureVariant, SIGNATURE_FRAME_MS, SIGNATURE_VARIANTS, signatureSequence } from './signature-variants';
 import { isInactiveHeroSplineScene } from './spline-slider';
 
 /**
@@ -72,10 +73,53 @@ export function createSitePreloader(): void {
   const scriptBase = script?.getAttribute('data-site-script-base') || script?.src
     || new URL('dist/site-body.js', document.baseURI).href;
   signature.src = new URL('../assets/preloader-signature.svg', scriptBase).href;
+  const signatureVariant = document.createElement('span');
+  signatureVariant.className = 'site-preloader__signature-variant';
+  signatureVariant.setAttribute('aria-hidden', 'true');
   overlay.appendChild(percent);
   overlay.appendChild(name);
   overlay.appendChild(signature);
+  overlay.appendChild(signatureVariant);
   document.body.appendChild(overlay);
+
+  const active = getPageSignatureVariant();
+  const renderSignature = (index: number): void => {
+    overlay.setAttribute('data-signature-index', String(index));
+    if (index === 0) {
+      signature.style.visibility = '';
+      signatureVariant.style.display = 'none';
+      return;
+    }
+    const mask = `url("${SIGNATURE_VARIANTS[index - 1]}")`;
+    signatureVariant.style.maskImage = mask;
+    signatureVariant.style.setProperty('-webkit-mask-image', mask);
+    signatureVariant.style.display = 'block';
+    signature.style.visibility = 'hidden';
+  };
+  const order = signatureSequence(active);
+  let frame = 0;
+  let timer: number | null = null;
+  let finishAnimation!: () => void;
+  state.signatureAnimationDone = new Promise<void>((resolve) => { finishAnimation = resolve; });
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    renderSignature(active);
+    finishAnimation();
+  } else {
+    renderSignature(0);
+    SIGNATURE_VARIANTS.forEach((url) => { const image = new Image(); image.src = url; });
+    timer = window.setInterval(() => {
+      renderSignature(order[frame++]);
+      if (frame === order.length) {
+        window.clearInterval(timer!);
+        timer = null;
+        finishAnimation();
+      }
+    }, SIGNATURE_FRAME_MS);
+  }
+  state.cleanup.push(() => {
+    if (timer !== null) window.clearInterval(timer);
+    finishAnimation();
+  });
 
   const locked = new Map<HTMLElement, boolean>();
   const lockContent = (): void => {
