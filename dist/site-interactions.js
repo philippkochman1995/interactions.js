@@ -2513,7 +2513,7 @@ function Ts() {
 	let d = document.createElement("div");
 	d.className = "site-preloader__signature-stage", d.setAttribute("aria-hidden", "true"), d.appendChild(s), d.appendChild(u), n.appendChild(r), n.appendChild(o), n.appendChild(d), document.body.appendChild(n), w(T);
 	let f = !1, p = -1, m = [
-		175,
+		175 * 1.25,
 		199,
 		222,
 		226,

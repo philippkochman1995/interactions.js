@@ -97,7 +97,7 @@ export function createSitePreloader(): void {
   setPageSignatureVariant(active);
   let live = false;
   let currentIndex = -1;
-  const widths = [175, 199, 222, 226, 227, 227, 227];
+  const widths = [175 * 1.25, 199, 222, 226, 227, 227, 227];
   const renderSignature = (index: number): void => {
     if (index === currentIndex) return;
     currentIndex = index;
