@@ -9,7 +9,6 @@
 }
 .fwm-modal__rights[hidden] { display: none !important; }
 
-.fwm-modal[data-modal-variant="context"] .fwm-modal__text em,
-.fwm-modal[data-modal-variant="context"] .fwm-modal__text i {
+.fwm-modal[data-modal-variant="context"] .fwm-modal__caption {
   font-size: var(--_sizes---footer-14);
 }
