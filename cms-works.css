@@ -329,7 +329,8 @@
   display: none !important;
 }
 
-[data-cms-works-load-more] {
+.cms-works__grid-host > [data-cms-works-load-more] {
+  display: flex;
   max-width: 15rem;
   margin-right: auto;
   margin-left: auto;
