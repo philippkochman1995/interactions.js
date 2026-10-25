@@ -41,11 +41,13 @@
 
 [data-insta-feed] > div:first-child {
   display: flex;
+  position: relative;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
   min-height: 55px;
   margin-bottom: 16px;
+  cursor: pointer;
 }
 
 [data-insta-feed] > div:first-child > div:first-child {
@@ -75,7 +77,7 @@
   transition: inset 300ms ease, border-width 300ms ease, border-color 300ms ease;
 }
 
-[data-insta-feed] > div:first-child > div:first-child:is(:hover, :focus-within) .insta-feed__avatar-frame::after {
+[data-insta-feed] > div:first-child:is(:hover, :focus-within) .insta-feed__avatar-frame::after {
   inset: -3px;
   border-width: 3px;
   border-color: var(--fw_rosa, #ffc7d1);
@@ -110,7 +112,15 @@
 }
 
 [data-insta-feed] [data-insta-account-link]::after {
-  content: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+[data-insta-feed] [data-insta-account-link]:focus-visible::after {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 [data-insta-feed] [data-insta-subtitle] {
@@ -121,6 +131,8 @@
 }
 
 [data-insta-feed] .button-outlined[data-insta-follow] {
+  position: relative;
+  z-index: 1;
   flex: none;
   width: max-content;
   min-width: 0;
