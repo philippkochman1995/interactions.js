@@ -792,9 +792,9 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 Die Signatur im Preloader zeigt dieselben sieben Motive wie das Topbar-Logo.
-Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,4 s und das Datum
-bei 1,5 s mit langem Fade-up-Auslauf. Bei 3,4 s fährt der Textblock nach unten;
-bei 4,2 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 6,8 s
+Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,3 s und das Datum
+bei 1,125 s mit langem Fade-up-Auslauf. Bei 2,55 s fährt der Textblock nach unten;
+bei 3,35 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 6,8 s
 mit `0.6*t + 0.4*easeInOutCubic(t)` bis 100 %. Die sieben Signaturen wechseln
 hart mit dem Zählerfortschritt; jede erscheint mit einem 3-s-Zoom-Impact.
 Die letzte ist `SIGNATUR2.svg` und bleibt bis zur Freigabe sichtbar. Nach
