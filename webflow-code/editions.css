@@ -20,24 +20,6 @@
     pointer-events: none;
   }
 
-  /* The Editionen gallery reveals the next image from a vertical edge. */
-  .is-edition-split-slider [data-edition-slide] {
-    opacity: 0;
-    transition: none !important;
-  }
-
-  .is-edition-split-slider [data-edition-slide]:is(.is-active, [data-edition-wipe-out]) {
-    opacity: 1;
-  }
-
-  .is-edition-split-slider [data-edition-slide][data-edition-wipe-out] {
-    z-index: 1;
-  }
-
-  .is-edition-split-slider [data-edition-slide][data-edition-wipe-in] {
-    z-index: 2;
-  }
-
   /* Ausgewaehlte Farbe im Color-Picker. */
   .editionen_swatch.is-selected {
     transform: scale(1.3);
