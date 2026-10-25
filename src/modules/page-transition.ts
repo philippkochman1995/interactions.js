@@ -1,369 +1,206 @@
-import { gsap } from 'gsap';
-
-import { collapseSiteMenu } from './site-menu';
 import { afterSitePreloader } from './site-preloader-state';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
-const PAGE_TRANSITION = {
-  coverDuration: 0.82,
-  holdDuration: 0.1,
-  revealDuration: 0.92,
-  ease: 'power4.inOut',
-};
-
-const OVERLAY_CLASS = 'page-transition-overlay';
+// The matching easing and duration variables live in the curtain CSS block.
+const TIME = { titleStart: 300, navigate: 1200, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
+const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
-const TITLE_CLASS = 'page-transition-overlay__title';
-const TRANSITION_STORAGE_KEY = 'site-page-transition';
-const TRANSITION_TITLE_STORAGE_KEY = 'site-page-transition-title';
-const TRANSITION_STORAGE_VALUE = 'pending';
 const PENDING_CLASS = 'is-page-transition-pending';
-const MENU_SELECTOR = '[data-site-menu]';
-const INTRO_FADE_SELECTORS = [
-  '.top_bar_section',
-  '.werk_hero_dots',
-  '.werk_hero_slide .u-slide-info',
-] as const;
-const INTRO_FADE_DELAY = 0.225;
-const INTRO_FADE_STAGGER = 0.125;
-const INTRO_FADE_DURATION = 0.7;
-const INTRO_MENU_GAP = 0.08;
-const IGNORED_LINK_SELECTOR = [
-  '[data-transition="false"]',
-  '[data-lightbox-src]',
-  '.js-lightbox',
-  '[data-modal-open]',
-  '[data-modal-close]',
-  '[data-back-button]',
-  '[data-work-overlay-trigger]',
-  '[download]',
+const IGNORED_LINKS = [
+  '[data-transition="false"]', '[data-lightbox-src]', '.js-lightbox',
+  '[data-modal-open]', '[data-modal-close]', '[data-back-button]',
+  '[data-work-overlay-trigger]', '[download]',
 ].join(',');
 
 let initialized = false;
-let isTransitioning = false;
+let busy = false;
+let timers: number[] = [];
 
-function syncPendingClass(isPending: boolean): void {
-  document.documentElement.classList.toggle(PENDING_CLASS, isPending);
+function later(callback: () => void, delay: number): void {
+  timers.push(window.setTimeout(callback, delay));
 }
 
-function primePendingClass(): void {
-  try {
-    syncPendingClass(window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE);
-  } catch {
-    syncPendingClass(false);
-  }
+function clearTimers(): void {
+  timers.forEach((timer) => window.clearTimeout(timer));
+  timers = [];
+}
+
+function storedTitle(): string {
+  try { return window.sessionStorage.getItem(STORAGE_KEY) ?? ''; }
+  catch { return ''; }
+}
+
+function clearPending(): void {
+  try { window.sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage is optional. */ }
+  document.documentElement.classList.remove(PENDING_CLASS, 'is-page-transition-boot');
 }
 
 function ensureOverlay(): HTMLElement {
-  const existing = document.querySelector<HTMLElement>(OVERLAY_SELECTOR);
-
-  if (existing) {
-    existing.classList.add(OVERLAY_CLASS);
-    existing.setAttribute('data-page-transition-overlay', '');
-    existing.setAttribute('aria-hidden', 'true');
-    ensureTitle(existing);
-    return existing;
+  let overlay = document.querySelector<HTMLElement>(OVERLAY_SELECTOR);
+  if (!overlay) {
+    overlay = document.createElement('div');
+    document.body.append(overlay);
   }
-
-  const overlay = document.createElement('div');
-  overlay.className = OVERLAY_CLASS;
+  overlay.classList.add('curtain', 'page-transition-overlay');
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
-  ensureTitle(overlay);
-  document.body.append(overlay);
+  if (!overlay.querySelector('.page-transition-overlay__title')) {
+    const title = document.createElement('span');
+    title.className = 'page-transition-overlay__title';
+    overlay.append(title);
+  }
+  overlay.querySelector('.page-transition-overlay__title')?.setAttribute('aria-live', 'polite');
   return overlay;
 }
 
-function ensureTitle(overlay: HTMLElement): HTMLElement {
-  let title = overlay.querySelector<HTMLElement>(`.${TITLE_CLASS}`);
-
-  if (!title) {
-    title = document.createElement('span');
-    title.className = TITLE_CLASS;
-    overlay.append(title);
-  }
-
-  try {
-    if (window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE) {
-      title.textContent = window.sessionStorage.getItem(TRANSITION_TITLE_STORAGE_KEY) ?? '';
-    }
-  } catch {
-    // The title is optional when storage is unavailable.
-  }
-
-  return title;
-}
-
-function getTransitionTitle(url: URL, link: HTMLAnchorElement): string {
+function titleFor(url: URL, link: HTMLAnchorElement): string {
   const clean = (value: string | null | undefined): string => value?.replace(/\s+/g, ' ').trim() ?? '';
-  const explicit = clean(link.closest<HTMLElement>('[data-transition-title]')?.getAttribute('data-transition-title'));
+  const explicit = clean(link.getAttribute('data-page-name') || link.getAttribute('data-transition-title')
+    || link.closest<HTMLElement>('[data-page-name], [data-transition-title]')?.getAttribute('data-page-name')
+    || link.closest<HTMLElement>('[data-transition-title]')?.getAttribute('data-transition-title'));
   if (explicit) return explicit;
-
-  const destinationPath = url.pathname.replace(/\/$/, '') || '/';
-  const menuLink = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-site-menu-link][href]')).find((candidate) => {
-    try {
-      return (new URL(candidate.href).pathname.replace(/\/$/, '') || '/') === destinationPath;
-    } catch {
-      return false;
-    }
+  const path = url.pathname.replace(/\/$/, '') || '/';
+  const menuLink = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-site-menu-link][href]')).find((item) => {
+    try { return (new URL(item.href).pathname.replace(/\/$/, '') || '/') === path; }
+    catch { return false; }
   });
-  const menuTitle = clean(menuLink?.getAttribute('data-site-menu-label')) || clean(menuLink?.textContent);
+  const menuTitle = clean(menuLink?.getAttribute('data-site-menu-label') || menuLink?.textContent);
   if (menuTitle) return menuTitle;
-
   const card = link.closest<HTMLElement>('article, [class*="card"]');
-  const heading = clean(link.querySelector('h1, h2, h3, h4')?.textContent)
-    || clean(card?.querySelector('h1, h2, h3, h4')?.textContent);
+  const heading = clean(link.querySelector('h1, h2, h3, h4')?.textContent || card?.querySelector('h1, h2, h3, h4')?.textContent);
   if (heading) return heading;
-
   const linkText = clean(link.textContent);
-  if (linkText && linkText.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(linkText)) {
-    return linkText;
-  }
-
+  if (linkText && linkText.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(linkText)) return linkText;
   const segment = url.pathname.split('/').filter(Boolean).pop();
   if (!segment) return 'Startseite';
-  try {
-    return decodeURIComponent(segment).replace(/[-_]+/g, ' ').replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
-  } catch {
-    return segment.replace(/[-_]+/g, ' ');
+  try { return decodeURIComponent(segment).replace(/[-_]+/g, ' '); }
+  catch { return segment.replace(/[-_]+/g, ' '); }
+}
+
+function pageContent(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('main, [role="main"]');
+}
+
+// A plain-text h1 can be split without destroying nested Webflow markup.
+function prepareHeading(main: HTMLElement | null): void {
+  const heading = main?.querySelector<HTMLElement>('h1');
+  if (!heading || heading.children.length || !heading.textContent?.trim()) return;
+  const words = heading.textContent.trim().split(/\s+/);
+  heading.setAttribute('data-reveal', 'off');
+  heading.setAttribute('aria-label', words.join(' '));
+  heading.textContent = '';
+  words.forEach((word, index) => {
+    if (index) heading.append(document.createTextNode(' '));
+    const mask = document.createElement('span');
+    mask.className = 'page-transition-word-mask';
+    mask.setAttribute('aria-hidden', 'true');
+    const inner = document.createElement('span');
+    inner.className = 'page-transition-word';
+    inner.style.setProperty('--word-index', String(index));
+    inner.textContent = word;
+    mask.append(inner);
+    heading.append(mask);
+  });
+  heading.classList.add('is-page-transition-heading');
+}
+
+function focusMain(main: HTMLElement | null): void {
+  if (!main) return;
+  if (!main.hasAttribute('tabindex')) {
+    main.setAttribute('tabindex', '-1');
+    main.addEventListener('blur', () => main.removeAttribute('tabindex'), { once: true });
   }
+  main.focus({ preventScroll: true });
 }
 
-function isIgnoredLink(link: HTMLAnchorElement): boolean {
-  return Boolean(
-    link.closest(IGNORED_LINK_SELECTOR) ||
-      link.getAttribute('data-transition') === 'false' ||
-      (link.target && link.target !== '_self') ||
-      link.hasAttribute('download') ||
-      link.getAttribute('href')?.trim().startsWith('#'),
-  );
+function reset(overlay: HTMLElement, main: HTMLElement | null): void {
+  clearTimers();
+  overlay.classList.add('is-resetting');
+  overlay.classList.remove('is-covering', 'is-covered', 'is-title-visible', 'is-title-leaving', 'is-uncovering');
+  overlay.setAttribute('aria-hidden', 'true');
+  main?.classList.remove('is-page-transition-out', 'is-page-transition-in', 'is-page-transition-entered');
+  document.documentElement.classList.remove('is-page-transition-entering');
+  clearPending();
+  busy = false;
+  window.requestAnimationFrame(() => overlay.classList.remove('is-resetting'));
 }
 
-function shouldTransition(event: MouseEvent, link: HTMLAnchorElement): boolean {
-  return !isTransitioning && !event.defaultPrevented && !hasModifierKey(event) && !isIgnoredLink(link);
-}
-
-function markTransitionPending(): void {
-  try {
-    window.sessionStorage.setItem(TRANSITION_STORAGE_KEY, TRANSITION_STORAGE_VALUE);
-    syncPendingClass(true);
-  } catch {
-    // Storage can be unavailable in private or embedded contexts; the exit animation still works.
-  }
-}
-
-function consumeTransitionPending(): boolean {
-  try {
-    const hasPendingTransition = window.sessionStorage.getItem(TRANSITION_STORAGE_KEY) === TRANSITION_STORAGE_VALUE;
-    window.sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
-    window.sessionStorage.removeItem(TRANSITION_TITLE_STORAGE_KEY);
-    syncPendingClass(false);
-    return hasPendingTransition;
-  } catch {
-    syncPendingClass(false);
-    return false;
-  }
-}
-
-/*
- * Der y-Anteil wird ueberall explizit auf 0 gepinnt.
- *
- * gsap.set(overlay, { yPercent: -100 }) schreibt inline
- * `transform: translate3d(0px, -100%, 0px)`. Beim naechsten Zugriff liest GSAP
- * dieses -100% als Pixel-y (eine Viewporthoehe) zurueck und rechnet das neue
- * yPercent obendrauf — die Cover-Animation lief dann von -200% auf -100% und
- * damit komplett ausserhalb des Viewports. Mit y: 0 kommt die Position immer
- * allein aus yPercent.
- */
-function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []): void {
-  const hasPendingTransition = consumeTransitionPending();
-  const menus = Array.from(document.querySelectorAll<HTMLElement>(MENU_SELECTOR));
-  const introFadeGroups = INTRO_FADE_SELECTORS.map((selector) =>
-    introFadeTargets.filter((element) => element.matches(selector)));
-  const menuDelay = introFadeGroups.reduce((delay, targets, index) => targets.length
-    ? INTRO_FADE_DELAY + index * INTRO_FADE_STAGGER + INTRO_FADE_DURATION + INTRO_MENU_GAP
-    : delay, 0);
-  const revealMenus = (): void => {
-    menus.forEach((menu) => {
-      gsap.fromTo(menu, {
-        y: Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8,
-        autoAlpha: 1,
-      }, {
-        y: 0,
-        delay: menuDelay,
-        duration: 0.55,
-        ease: 'power3.out',
-        clearProps: 'transform,opacity,visibility',
-      });
-    });
-  };
-
-  const revealIntroDetails = (): void => {
-    introFadeGroups.forEach((targets, index) => {
-      if (!targets.length) return;
-      gsap.to(targets, {
-        autoAlpha: 1,
-        delay: INTRO_FADE_DELAY + index * INTRO_FADE_STAGGER,
-        duration: INTRO_FADE_DURATION,
-        ease: 'power2.out',
-        clearProps: 'opacity,visibility',
-      });
-    });
-  };
-
+function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
+  busy = true;
   if (prefersReducedMotion()) {
-    gsap.set(overlay, { yPercent: -100, y: 0 });
+    focusMain(main);
+    reset(overlay, main);
     return;
   }
-
-  gsap.set(menus, { autoAlpha: 0 });
-
-  if (!hasPendingTransition) {
-    gsap.set(overlay, { yPercent: -100, y: 0 });
-    revealIntroDetails();
-    revealMenus();
-    return;
-  }
-
-  gsap.fromTo(
-    overlay,
-    { yPercent: 0, y: 0 },
-    {
-      yPercent: 100,
-      delay: PAGE_TRANSITION.holdDuration,
-      duration: PAGE_TRANSITION.revealDuration,
-      ease: PAGE_TRANSITION.ease,
-      onComplete: () => {
-        gsap.set(overlay, { yPercent: -100, y: 0 });
-        revealIntroDetails();
-        revealMenus();
-      },
-    },
-  );
+  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
+  if (title) title.textContent = storedTitle();
+  overlay.setAttribute('aria-hidden', 'false');
+  overlay.classList.add('is-covered', 'is-title-visible');
+  main?.classList.add('is-page-transition-in');
+  document.documentElement.classList.add('is-page-transition-entering');
+  prepareHeading(main);
+  // The head script releases the page if this bundle never starts.
+  const fonts = document.fonts?.ready ?? Promise.resolve();
+  void fonts.catch(() => undefined).then(() => {
+    later(() => overlay.classList.add('is-title-leaving'), TIME.hold);
+    later(() => {
+      overlay.classList.add('is-uncovering');
+      main?.classList.add('is-page-transition-entered');
+      main?.querySelector('.is-page-transition-heading')?.classList.add('is-revealing');
+    }, TIME.uncoverStart);
+    later(() => { focusMain(main); reset(overlay, main); }, TIME.reset);
+  });
 }
 
-function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElement | null, titleText: string): void {
-  isTransitioning = true;
-  gsap.killTweensOf(overlay);
-  const title = ensureTitle(overlay);
-  title.textContent = titleText;
-  gsap.set(title, { autoAlpha: 0, y: 18 });
-  try {
-    window.sessionStorage.setItem(TRANSITION_TITLE_STORAGE_KEY, titleText);
-  } catch {
-    // The outgoing page can still show the title without storage.
-  }
-
-  const transition = gsap.timeline();
-
-  if (menu) {
-    gsap.killTweensOf(menu);
-    const collapse = collapseSiteMenu(menu);
-    if (collapse) {
-      transition.add(collapse);
-    }
-  }
-
-  const coverStart = 0;
-  transition.call(markTransitionPending, [], coverStart);
-  transition.fromTo(
-    overlay,
-    { yPercent: -100, y: 0 },
-    {
-      yPercent: 0,
-      duration: PAGE_TRANSITION.coverDuration,
-      ease: PAGE_TRANSITION.ease,
-      onComplete: () => {
-        window.location.href = url.href;
-      },
-    },
-    coverStart,
-  );
-  transition.to(title, {
-    autoAlpha: 1,
-    y: 0,
-    duration: 0.35,
-    ease: 'power2.out',
-  }, coverStart + 0.4);
+function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleText: string): void {
+  busy = true;
+  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
+  if (title) title.textContent = titleText;
+  overlay.setAttribute('aria-hidden', 'false');
+  try { window.sessionStorage.setItem(STORAGE_KEY, titleText); } catch { /* Continue normally. */ }
+  overlay.classList.add('is-covering');
+  main?.classList.add('is-page-transition-out');
+  later(() => overlay.classList.add('is-title-visible'), TIME.titleStart);
+  later(() => { window.location.href = url.href; }, TIME.navigate);
+  later(() => { window.location.href = url.href; }, TIME.watchdog);
 }
 
-function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement, introFadeTargets: HTMLElement[]): void {
-  if (!event.persisted) {
-    return;
-  }
-
-  isTransitioning = false;
-  consumeTransitionPending();
-  gsap.killTweensOf(overlay);
-  gsap.set(overlay, { yPercent: -100, y: 0 });
-  ensureTitle(overlay).textContent = '';
-  const menus = document.querySelectorAll<HTMLElement>(MENU_SELECTOR);
-  gsap.killTweensOf(menus);
-  gsap.set(menus, { clearProps: 'transform,opacity,visibility' });
-  gsap.killTweensOf(introFadeTargets);
-  gsap.set(introFadeTargets, { clearProps: 'opacity,visibility' });
-  const panels = document.querySelectorAll<HTMLElement>('[data-site-menu-panel]');
-  gsap.killTweensOf(panels);
-  gsap.set(panels, { clearProps: 'height' });
+function revealPreloaderDetails(): void {
+  if (prefersReducedMotion()) return;
+  // Keep the existing first-visit detail entrance in vanilla Web Animations.
+  const targets = document.querySelectorAll<HTMLElement>('.top_bar_section, .werk_hero_dots, .werk_hero_slide .u-slide-info, [data-site-menu]');
+  targets.forEach((element, index) => {
+    element.animate([{ opacity: 0, transform: 'translate3d(0, 12px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }], {
+      duration: 700, delay: 225 + index * 125, easing: 'cubic-bezier(.05, .85, .05, 1)',
+    });
+  });
 }
 
 export function initPageTransitions(): void {
-  if (initialized) {
-    return;
-  }
-
+  if (initialized) return;
   if (!document.body) {
     document.addEventListener('DOMContentLoaded', initPageTransitions, { once: true });
     return;
   }
-
   initialized = true;
-
   const overlay = ensureOverlay();
-  const hasPreloader = Boolean(window.__sitePreloader?.active);
-  const animateIntro = hasPreloader && !prefersReducedMotion();
-  const introFadeTargets = animateIntro
-    ? Array.from(document.querySelectorAll<HTMLElement>(INTRO_FADE_SELECTORS.join(', ')))
-    : [];
-  if (animateIntro) {
-    gsap.set(document.querySelectorAll<HTMLElement>(MENU_SELECTOR), { autoAlpha: 0 });
-    gsap.set(introFadeTargets, { autoAlpha: 0 });
-  }
-  afterSitePreloader(() => revealPage(overlay, introFadeTargets));
+  const main = pageContent();
+  const incoming = Boolean(storedTitle()) && document.documentElement.classList.contains(PENDING_CLASS);
+  if (incoming) revealIncoming(overlay, main);
+  else afterSitePreloader(revealPreloaderDetails);
 
   document.addEventListener('click', (event) => {
-    const target = event.target;
-
-    if (!(target instanceof Element)) {
-      return;
-    }
-
-    const link = target.closest<HTMLAnchorElement>('a[href]');
-
-    if (!link) {
-      return;
-    }
-
-    if (isTransitioning) {
-      event.preventDefault();
-      return;
-    }
-
-    if (!shouldTransition(event, link)) {
-      return;
-    }
-
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (!link || event.defaultPrevented || hasModifierKey(event)) return;
+    if (busy) { event.preventDefault(); return; }
+    if (link.closest(IGNORED_LINKS) || (link.target && link.target !== '_self')) return;
     const url = getNavigableUrl(link);
-
-    if (!url || prefersReducedMotion()) {
-      return;
-    }
-
+    if (!url || url.hash || prefersReducedMotion() || window.__sitePreloader?.active) return;
     event.preventDefault();
-    navigateWithTransition(url, overlay, link.closest<HTMLElement>(MENU_SELECTOR), getTransitionTitle(url, link));
+    leave(url, overlay, main, titleFor(url, link));
   }, true);
 
-  window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay, introFadeTargets));
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) reset(overlay, main);
+  });
 }
-
-primePendingClass();

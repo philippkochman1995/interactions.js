@@ -6,7 +6,7 @@ import { optimizeNewsImageSizes } from './modules/news-image-sizes';
 function primePageTransition(): void {
   const root = document.documentElement;
   try {
-    if (window.sessionStorage.getItem('site-page-transition') !== 'pending') return;
+    if (!window.sessionStorage.getItem('pt')) return;
   } catch {
     return;
   }
@@ -14,12 +14,13 @@ function primePageTransition(): void {
   document.addEventListener('DOMContentLoaded', () => {
     root.classList.remove('is-page-transition-boot');
   }, { once: true });
+  // Emergency release even when the deferred bundle or font loading fails.
   window.setTimeout(() => {
-    const overlay = document.querySelector<HTMLElement>('[data-page-transition-overlay]');
-    if (!overlay || !overlay.style.transform) {
-      root.classList.remove('is-page-transition-pending', 'is-page-transition-boot');
-    }
-  }, 4000);
+    if (!root.classList.contains('is-page-transition-pending')) return;
+    document.querySelector<HTMLElement>('[data-page-transition-overlay]')?.remove();
+    root.classList.remove('is-page-transition-pending', 'is-page-transition-boot');
+    try { window.sessionStorage.removeItem('pt'); } catch { /* Storage is optional. */ }
+  }, 6000);
 }
 
 primePageTransition();

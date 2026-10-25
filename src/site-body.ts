@@ -10,22 +10,25 @@ createSitePreloader();
 
 if (!document.querySelector('[data-page-transition-overlay], .page-transition-overlay')) {
   const overlay = document.createElement('div');
-  overlay.className = 'page-transition-overlay';
+  overlay.className = 'curtain page-transition-overlay';
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
   document.body.appendChild(overlay);
 }
 
 const transitionOverlay = document.querySelector<HTMLElement>('[data-page-transition-overlay], .page-transition-overlay');
-if (transitionOverlay && !transitionOverlay.querySelector('.page-transition-overlay__title')) {
-  const title = document.createElement('span');
-  title.className = 'page-transition-overlay__title';
+transitionOverlay?.classList.add('curtain');
+if (transitionOverlay) {
+  let title = transitionOverlay.querySelector<HTMLElement>('.page-transition-overlay__title');
+  if (!title) {
+    title = document.createElement('span');
+    title.className = 'page-transition-overlay__title';
+    transitionOverlay.appendChild(title);
+  }
+  title.setAttribute('aria-live', 'polite');
   try {
-    if (window.sessionStorage.getItem('site-page-transition') === 'pending') {
-      title.textContent = window.sessionStorage.getItem('site-page-transition-title') ?? '';
-    }
+    title.textContent = window.sessionStorage.getItem('pt') ?? '';
   } catch {
     // Session storage is optional for the incoming title.
   }
-  transitionOverlay.appendChild(title);
 }

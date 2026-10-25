@@ -129,8 +129,21 @@ body.is-lightbox-open {
   overscroll-behavior: contain;
 }
 
+/* Page transition: only motion is owned here; existing site colors and type remain. */
+:root {
+  --e: cubic-bezier(.7, 0, .08, 1);
+  --eo: cubic-bezier(.05, .85, .05, 1);
+  --tail: cubic-bezier(.02, .9, .03, 1);
+  --pt-cover-duration: 1.1s;
+  --pt-uncover-duration: 1.2s;
+  --pt-content-duration: 1.1s;
+  --pt-title-opacity-duration: 3.5s;
+  --pt-title-travel-duration: 7s;
+}
+
 [data-page-transition-overlay],
-.page-transition-overlay {
+.page-transition-overlay,
+.curtain {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -138,8 +151,25 @@ body.is-lightbox-open {
   z-index: 2000;
   background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
   pointer-events: none;
-  transform: translate3d(0, -100%, 0);
-  will-change: transform;
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+  transition: clip-path var(--pt-cover-duration) var(--e);
+}
+
+.curtain.is-covering,
+.curtain.is-covered,
+html.is-page-transition-pending .curtain {
+  clip-path: inset(0);
+}
+
+.curtain.is-uncovering {
+  clip-path: inset(0 0 100% 0) !important;
+  transition-duration: var(--pt-uncover-duration);
+}
+
+.curtain.is-resetting {
+  transition: none !important;
+  clip-path: inset(100% 0 0 0) !important;
 }
 
 .page-transition-overlay__title {
@@ -158,6 +188,82 @@ body.is-lightbox-open {
   text-align: center;
   text-transform: uppercase;
   overflow-wrap: anywhere;
+  opacity: 0;
+  transform: translate3d(0, 40px, 0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition:
+    opacity var(--pt-title-opacity-duration) var(--tail),
+    transform var(--pt-title-travel-duration) var(--tail);
+}
+
+.curtain.is-title-visible .page-transition-overlay__title {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.curtain.is-title-leaving .page-transition-overlay__title {
+  opacity: 0;
+  transition: opacity .5s var(--e);
+}
+
+.curtain.is-resetting .page-transition-overlay__title {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0);
+  transition: none;
+}
+
+html.is-page-transition-pending .curtain:not(.is-title-leaving) .page-transition-overlay__title {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+main.is-page-transition-out,
+[role="main"].is-page-transition-out {
+  transform: translate3d(0, -7vh, 0);
+  transition: transform var(--pt-content-duration) var(--e);
+}
+
+main.is-page-transition-in,
+[role="main"].is-page-transition-in {
+  transform: translate3d(0, 7vh, 0);
+  transition: transform var(--pt-content-duration) var(--e);
+}
+
+main.is-page-transition-entered,
+[role="main"].is-page-transition-entered {
+  transform: translate3d(0, 0, 0);
+}
+
+.page-transition-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.page-transition-word {
+  display: inline-block;
+  transform: translate3d(0, 108%, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 2.4s var(--eo);
+  transition-delay: calc(var(--word-index) * .12s);
+}
+
+.is-page-transition-heading.is-revealing .page-transition-word {
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain,
+  .curtain .page-transition-overlay__title,
+  main.is-page-transition-out,
+  main.is-page-transition-in,
+  [role="main"].is-page-transition-out,
+  [role="main"].is-page-transition-in,
+  .page-transition-word {
+    transition-duration: .01s !important;
+  }
 }
 
 /* Covers the first paint until site-body.js creates the real overlay. */
@@ -194,11 +300,6 @@ html.is-page-transition-boot::before {
   .top_bar_center .nav_logo_image_link:hover * {
     cursor: none;
   }
-}
-
-html.is-page-transition-pending [data-page-transition-overlay],
-html.is-page-transition-pending .page-transition-overlay {
-  transform: translate3d(0, 0, 0);
 }
 
 [data-site-menu] {

@@ -587,17 +587,17 @@ reduce` passiert nichts.
 
 ## Page transitions
 
-The global `site-interactions.js` bundle adds a GSAP-powered page transition for
-normal same-origin page links. The overlay moves in one direction: from above the
-viewport into place, then after the new page loads it continues downward to reveal
-the new page.
+The global `site-interactions.js` bundle adds a vanilla JavaScript page transition
+for normal same-origin page links. The curtain rises from the bottom, holds the
+destination title while the new page loads, and leaves through the top. Motion
+uses `clip-path`; existing Webflow colors and typography stay in place.
 
 The script creates the overlay automatically. To reduce the chance of a visible
 flash between Webflow page loads, you may also place this element once in the
 global Webflow footer before the script include:
 
 ```html
-<div class="page-transition-overlay" data-page-transition-overlay aria-hidden="true"></div>
+<div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"><span class="page-transition-overlay__title" aria-live="polite"></span></div>
 ```
 
 Style color through Webflow or CSS. The base stylesheet uses:
@@ -613,6 +613,12 @@ and modifier-clicks. To opt out a specific internal link:
 ```html
 <a href="/example" data-transition="false">No transition</a>
 ```
+
+Use `data-page-name="West Map"` on a link when its visible label differs from
+the destination title. The title can also be read from the site menu, a nearby
+card heading, the link text, or the URL. The global head script sets the covered
+state before first paint; the global footer scripts create the curtain on every
+page. Only the destination title appears in the curtain.
 
 ## Werk-Overlay
 
