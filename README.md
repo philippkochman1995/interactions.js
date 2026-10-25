@@ -623,6 +623,8 @@ the destination title. The title can also be read from the site menu, a nearby
 card heading, the link text, or the URL. The global head script sets the covered
 state and title before first paint; the global footer scripts create the curtain
 on every page. Only the destination title appears in the curtain.
+The global head also preloads the existing StyreneA medium font so the title
+does not switch fonts during the head-to-footer handoff.
 
 ## Werk-Overlay
 
