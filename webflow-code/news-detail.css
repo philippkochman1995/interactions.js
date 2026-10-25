@@ -1,35 +1,6 @@
 /* head: Webflow style */
 .news_detail_hero_section.u-section {
   height: 51.75svh;
-  position: sticky;
-  top: 0;
-  z-index: 0;
-}
-
-.news_detail_hero_section[data-news-image-parallax] {
-  overflow: hidden;
-}
-
-.news_detail_hero_section[data-news-image-parallax] img.bild-detail {
-  top: -12px;
-  bottom: auto;
-  height: calc(100% + 24px);
-  transform: translate3d(0, var(--fw-news-detail-image-shift, 12px), 0);
-  will-change: transform;
-}
-
-.news_detail_color_wrap {
-  position: relative;
-  z-index: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .news_detail_hero_section[data-news-image-parallax] img.bild-detail {
-    top: 0;
-    height: 100%;
-    transform: none;
-    will-change: auto;
-  }
 }
 
 .news_detail_more_section.u-section {
