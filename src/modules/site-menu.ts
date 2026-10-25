@@ -26,6 +26,7 @@ const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
 const LABEL_SLIDE_DURATION = 0.42;
+const PANEL_DURATION = { open: 0.513, close: 0.378, transition: 0.54 } as const;
 gsap.registerPlugin(CustomEase);
 // Matches --preloader-ease on the opening text movement.
 const MENU_PANEL_EASE = CustomEase.create('site-menu-panel', '0.7,0,0.08,1');
@@ -325,7 +326,7 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
     { height: fromHeight },
     {
       height: toHeight,
-      duration: open ? 0.38 : 0.28,
+      duration: open ? PANEL_DURATION.open : PANEL_DURATION.close,
       ease: MENU_PANEL_EASE,
       onComplete: () => {
         gsap.set(instance.panel, { clearProps: 'height' });
@@ -364,7 +365,7 @@ export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined
   // Den aktuellen Menuezustand beibehalten und direkt komplett einklappen.
   return gsap.to(panel, {
     height: 0,
-    duration: 0.4,
+    duration: PANEL_DURATION.transition,
     ease: MENU_PANEL_EASE,
   });
 }
