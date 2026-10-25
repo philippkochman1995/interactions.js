@@ -5,6 +5,7 @@ import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 const TIME = { titleStart: 300, navigate: 900, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
+const HOME_INTRO_SLOWDOWN = 1.4;
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
@@ -185,6 +186,9 @@ function restorePreloaderIntro(): void {
   [...groups.flat(), ...menus].forEach((element) => { element.style.opacity = '0'; });
 
   afterSitePreloader(() => {
+    const slowdown = window.location.pathname === '/' ? HOME_INTRO_SLOWDOWN : 1;
+    const fadeDuration = INTRO.fade * slowdown;
+    const menuDuration = INTRO.menu * slowdown;
     const animate = (element: HTMLElement, keyframes: Keyframe[], delay: number, duration: number): void => {
       if (!element.animate) { element.style.removeProperty('opacity'); return; }
       const animation = element.animate(keyframes, {
@@ -197,17 +201,17 @@ function restorePreloaderIntro(): void {
     };
     groups.forEach((elements, index) => {
       elements.forEach((element) => animate(element, [{ opacity: 0 }, { opacity: 1 }],
-        INTRO.delay + index * INTRO.stagger, INTRO.fade));
+        INTRO.delay + index * INTRO.stagger, fadeDuration));
     });
     const lastGroup = groups.reduce((last, elements, index) => elements.length ? index : last, -1);
     const menuDelay = lastGroup < 0 ? 0
-      : INTRO.delay + lastGroup * INTRO.stagger + INTRO.fade + INTRO.menuGap;
+      : INTRO.delay + lastGroup * INTRO.stagger + fadeDuration + INTRO.menuGap;
     menus.forEach((menu) => {
       const distance = Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8;
       animate(menu, [
         { opacity: 1, transform: `translate3d(0, ${distance}px, 0)` },
         { opacity: 1, transform: 'translate3d(0, 0, 0)' },
-      ], menuDelay, INTRO.menu);
+      ], menuDelay, menuDuration);
     });
   });
 }
