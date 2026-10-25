@@ -1,7 +1,7 @@
 import { afterSitePreloader } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
-const REVEAL_SELECTOR = '.news_event .intro_img, .about_section .about_img, [data-wm-home] .map_info';
+const REVEAL_SELECTOR = '.news_event .home-news-parallax-frame, .news_event .intro_layout > .intro_img, .about_section .about_img, [data-wm-home] .map_info';
 const PENDING = 'data-home-image-wipe';
 const DURATION = 1300;
 
@@ -33,7 +33,9 @@ export function initHomeImageWipe(): void {
         };
       };
 
-      const image = element instanceof HTMLImageElement ? element : element.querySelector('img');
+      const image = element instanceof HTMLImageElement
+        ? element
+        : element.querySelector('img.home-news-parallax-copy, img');
       if (image && !image.complete) {
         image.addEventListener('load', reveal, { once: true });
         image.addEventListener('error', reveal, { once: true });

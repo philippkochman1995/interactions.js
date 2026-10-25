@@ -13,6 +13,7 @@ import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 import { initHomeImageWipe } from './modules/home-image-wipe';
+import { initHomeImageParallax } from './modules/home-image-parallax';
 import { initHomeHeadingReveal } from './modules/home-heading-reveal';
 import { initAtelierHeroReveal } from './modules/atelier-hero-reveal';
 import { initAtelierStoryReveal } from './modules/atelier-story-reveal';
@@ -42,6 +43,7 @@ function boot(): void {
 
   initModals({ i18n });
   initLightbox({ i18n });
+  initHomeImageParallax();
   // Nach initLightbox: der Wrapper, der bei Lightbox-Bildern zum Fenster wird,
   // entsteht erst dort.
   initParallax();

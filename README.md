@@ -525,6 +525,13 @@ Der Preloader gibt den Effekt erst nach seinem Exit frei. Bei Reduced Motion
 sind alle drei Elemente sofort sichtbar. Die Logik liegt in
 `src/modules/home-image-wipe.ts`.
 
+Das News-Bild und das kleine Portraet im About-Bereich haben zusaetzlich einen
+dezenten Parallax-Weg von 40px. Beim News-Bild bleibt das CMS-Bild als unsichtbarer
+Platzhalter im Layout; eine Bildkopie bewegt sich im beschnittenen Rahmen, auf dem
+auch der bestehende Wipe liegt. Das Portraet nutzt das gemeinsame Parallax-Modul.
+Die Einrichtung steht in `src/modules/home-image-parallax.ts` und entfaellt bei
+Reduced Motion.
+
 ### Outlined-Buttons
 
 `.btn` und `.button-outlined` nutzen dieselbe Füllbewegung: von unten mit
