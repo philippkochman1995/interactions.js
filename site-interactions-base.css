@@ -143,11 +143,11 @@ body.is-lightbox-open {
   --e: cubic-bezier(.7, 0, .08, 1);
   --eo: cubic-bezier(.05, .85, .05, 1);
   --tail: cubic-bezier(.02, .9, .03, 1);
-  --pt-cover-duration: .8s;
-  --pt-uncover-duration: .8s;
-  --pt-content-duration: .8s;
-  --pt-title-opacity-duration: 1.2s;
-  --pt-title-travel-duration: 1.5s;
+  --pt-cover-duration: .64s;
+  --pt-uncover-duration: .64s;
+  --pt-content-duration: .64s;
+  --pt-title-opacity-duration: .96s;
+  --pt-title-travel-duration: 1.2s;
 }
 
 [data-page-transition-overlay],
@@ -214,7 +214,7 @@ html.is-page-transition-pending .curtain {
 
 .curtain.is-title-leaving .page-transition-overlay__title {
   opacity: 0;
-  transition: opacity .5s var(--e);
+  transition: opacity .4s var(--e);
 }
 
 .curtain.is-resetting .page-transition-overlay__title {
@@ -256,8 +256,8 @@ main.is-page-transition-entered,
   transform: translate3d(0, 108%, 0);
   backface-visibility: hidden;
   will-change: transform;
-  transition: transform 2.4s var(--eo);
-  transition-delay: calc(var(--word-index) * .12s);
+  transition: transform 1.92s var(--eo);
+  transition-delay: calc(var(--word-index) * .096s);
 }
 
 .is-page-transition-heading.is-revealing .page-transition-word {

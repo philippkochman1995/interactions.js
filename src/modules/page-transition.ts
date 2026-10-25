@@ -2,7 +2,7 @@ import { afterSitePreloader } from './site-preloader-state';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // The matching easing and duration variables live in the curtain CSS block.
-const TIME = { titleStart: 300, navigate: 900, hold: 520, uncoverStart: 970, reset: 2470, watchdog: 6000 };
+const TIME = { titleStart: 240, navigate: 720, hold: 416, uncoverStart: 776, reset: 1976, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const HOME_INTRO = { fade: 1200, easing: 'ease-in-out' };

@@ -1762,11 +1762,11 @@ function ya(e) {
 //#endregion
 //#region src/modules/page-transition.ts
 var ba = {
-	titleStart: 300,
-	navigate: 900,
-	hold: 520,
-	uncoverStart: 970,
-	reset: 2470,
+	titleStart: 240,
+	navigate: 720,
+	hold: 416,
+	uncoverStart: 776,
+	reset: 1976,
 	watchdog: 6e3
 }, xa = [
 	".top_bar_section",
