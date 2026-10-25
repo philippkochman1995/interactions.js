@@ -621,8 +621,8 @@ and modifier-clicks. To opt out a specific internal link:
 Use `data-page-name="West Map"` on a link when its visible label differs from
 the destination title. The title can also be read from the site menu, a nearby
 card heading, the link text, or the URL. The global head script sets the covered
-state before first paint; the global footer scripts create the curtain on every
-page. Only the destination title appears in the curtain.
+state and title before first paint; the global footer scripts create the curtain
+on every page. Only the destination title appears in the curtain.
 
 ## Werk-Overlay
 

@@ -278,8 +278,32 @@ html.is-page-transition-boot::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  z-index: 2001;
   background: var(--fw_rosa, #ffc7d1);
+  pointer-events: none;
+}
+
+/* The head boot layer carries the same title until the footer curtain exists. */
+html.is-page-transition-boot::after {
+  content: attr(data-page-transition-title);
+  position: fixed;
+  inset: 0;
+  z-index: 2002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  color: var(--fw_dark_purple, #06021a);
+  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
   pointer-events: none;
 }
 
