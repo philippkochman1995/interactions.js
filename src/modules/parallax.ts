@@ -14,6 +14,7 @@ import { prefersReducedMotion, qsa } from './utils';
 
     <div class="editionen_media" data-parallax>        Standardweg
     <div class="editionen_media" data-parallax="90">   eigener Weg in Pixeln
+    <div class="editionen_media" data-parallax="-90">  umgekehrte Richtung
     <div class="editionen_media" data-parallax="0">    aus
 
   Das Attribut darf auf einem Container sitzen: jedes Bild darin bekommt sein eigenes
@@ -72,7 +73,7 @@ function readShift(element: HTMLElement): number {
     return DEFAULT_SHIFT;
   }
 
-  return Math.min(Math.abs(value), MAX_SHIFT);
+  return Math.sign(value) * Math.min(Math.abs(value), MAX_SHIFT);
 }
 
 function whenMeasurable(image: HTMLImageElement): Promise<void> {
@@ -121,7 +122,7 @@ function buildWindow(image: HTMLImageElement, shift: number): HTMLElement | null
   frame.classList.add(WINDOW_CLASS);
 
   const inner = document.createElement('span');
-  const overscan = shift / 2 + EDGE_RESERVE;
+  const overscan = Math.abs(shift) / 2 + EDGE_RESERVE;
 
   inner.className = INNER_CLASS;
   inner.style.top = `${-overscan}px`;

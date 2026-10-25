@@ -1969,7 +1969,7 @@ function io(e) {
 	let t = e.getAttribute(qa);
 	if (t === null || t.trim() === "") return Qa;
 	let n = Number.parseFloat(t);
-	return Number.isFinite(n) ? Math.min(Math.abs(n), $a) : Qa;
+	return Number.isFinite(n) ? Math.sign(n) * Math.min(Math.abs(n), $a) : Qa;
 }
 function ao(e) {
 	return e.complete && e.naturalWidth > 0 ? Promise.resolve() : new Promise((t) => {
@@ -1986,7 +1986,7 @@ function oo(e, t) {
 	let i = r.getBoundingClientRect().height;
 	if (i <= 0) return null;
 	r.classList.add(Ya);
-	let a = document.createElement("span"), o = t / 2 + to;
+	let a = document.createElement("span"), o = Math.abs(t) / 2 + to;
 	if (a.className = Za, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
 		let t = e.naturalWidth / e.naturalHeight;
 		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Ya), null;

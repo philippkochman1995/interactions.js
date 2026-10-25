@@ -539,12 +539,13 @@ Optik, und ueberlebt in Webflow das Umbenennen und Kombinieren von Klassen.
 ```html
 <div class="img-zoom" data-parallax>       Standardweg, 60px
 <div class="img-zoom" data-parallax="90">  eigener Weg in Pixeln
+<div class="img-zoom" data-parallax="-90"> umgekehrte Richtung
 <div class="img-zoom" data-parallax="0">   aus
 ```
 
 Das Attribut darf auf einem Container sitzen - jedes Bild darin bekommt sein eigenes
-Fenster. Der Wert ist der gesamte Weg, den das Bild hinter dem Fenster zuruecklegt,
-gedeckelt bei 160px. Unter etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf
+Fenster. Der Betrag ist der gesamte Weg, den das Bild hinter dem Fenster zuruecklegt,
+gedeckelt bei 160px; ein negativer Wert kehrt die Richtung um. Unter etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf
 die volle Scrollstrecke des Elements verteilt.
 
 ### Aufbau
