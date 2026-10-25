@@ -1780,7 +1780,6 @@ var ba = {
 	menu: 550
 }, Ca = {
 	fade: 1200,
-	menu: 1e3,
 	easing: "ease-in-out"
 }, wa = "pt", Ta = "[data-page-transition-overlay], .page-transition-overlay", Ea = "is-page-transition-pending", Da = [
 	"[data-transition=\"false\"]",
@@ -1909,7 +1908,7 @@ function Wa() {
 	[...t.flat(), ...n].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {
-		let e = window.location.pathname === "/", r = e ? Ca.fade : Sa.fade, i = e ? Ca.menu : Sa.menu, a = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
+		let e = window.location.pathname === "/", r = e ? Ca.fade : Sa.fade, i = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
 			if (!e.animate) {
 				e.style.removeProperty("opacity");
 				return;
@@ -1925,18 +1924,18 @@ function Wa() {
 			};
 		};
 		t.forEach((t, n) => {
-			t.forEach((t) => a(t, [{ opacity: 0 }, { opacity: 1 }], Sa.delay + n * Sa.stagger, r, e ? Ca.easing : void 0));
+			t.forEach((t) => i(t, [{ opacity: 0 }, { opacity: 1 }], Sa.delay + n * Sa.stagger, r, e ? Ca.easing : void 0));
 		});
-		let o = t.reduce((e, t, n) => t.length ? n : e, -1), s = o < 0 ? 0 : Sa.delay + o * Sa.stagger + r + Sa.menuGap;
-		n.forEach((t) => {
-			let n = Math.max(0, window.innerHeight - t.getBoundingClientRect().top) + 8;
-			a(t, [{
-				opacity: +!e,
-				transform: `translate3d(0, ${n}px, 0)`
+		let a = t.reduce((e, t, n) => t.length ? n : e, -1), o = a < 0 ? 0 : Sa.delay + a * Sa.stagger + r + Sa.menuGap;
+		n.forEach((e) => {
+			let t = Math.max(0, window.innerHeight - e.getBoundingClientRect().top) + 8;
+			i(e, [{
+				opacity: 1,
+				transform: `translate3d(0, ${t}px, 0)`
 			}, {
 				opacity: 1,
 				transform: "translate3d(0, 0, 0)"
-			}], s, i, e ? Ca.easing : void 0);
+			}], o, Sa.menu);
 		});
 	});
 }

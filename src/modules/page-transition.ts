@@ -5,7 +5,7 @@ import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 const TIME = { titleStart: 300, navigate: 900, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
-const HOME_INTRO = { fade: 1200, menu: 1000, easing: 'ease-in-out' };
+const HOME_INTRO = { fade: 1200, easing: 'ease-in-out' };
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
@@ -188,7 +188,6 @@ function restorePreloaderIntro(): void {
   afterSitePreloader(() => {
     const isHome = window.location.pathname === '/';
     const fadeDuration = isHome ? HOME_INTRO.fade : INTRO.fade;
-    const menuDuration = isHome ? HOME_INTRO.menu : INTRO.menu;
     const animate = (element: HTMLElement, keyframes: Keyframe[], delay: number, duration: number,
       easing = 'cubic-bezier(.05, .85, .05, 1)'): void => {
       if (!element.animate) { element.style.removeProperty('opacity'); return; }
@@ -211,9 +210,9 @@ function restorePreloaderIntro(): void {
     menus.forEach((menu) => {
       const distance = Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8;
       animate(menu, [
-        { opacity: isHome ? 0 : 1, transform: `translate3d(0, ${distance}px, 0)` },
+        { opacity: 1, transform: `translate3d(0, ${distance}px, 0)` },
         { opacity: 1, transform: 'translate3d(0, 0, 0)' },
-      ], menuDelay, menuDuration, isHome ? HOME_INTRO.easing : undefined);
+      ], menuDelay, INTRO.menu);
     });
   });
 }
