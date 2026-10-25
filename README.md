@@ -517,11 +517,12 @@ in der zentralen Interaktions-CSS und nicht im Webflow Custom Code.
 
 ### Startseite: Bild-Wipe
 
-Auf der Startseite erhalten das News-Bild und das About-Bild beim ersten Eintritt
-in den Viewport einen Wipe von unten nach oben. Der Wipe verwendet `--eo` und
-dauert 1,3 s. Instagram-Karten und die Map-Grafik bleiben davon ausgenommen.
+Auf der Startseite erhalten das News-Bild, das About-Bild und die gelbe
+`.map_info`-Karte der West Map beim ersten Eintritt in den Viewport einen Wipe
+von unten nach oben. Der Wipe verwendet `--eo` und dauert 1,3 s.
+Instagram-Karten und die Karte im Hintergrund bleiben davon ausgenommen.
 Der Preloader gibt den Effekt erst nach seinem Exit frei. Bei Reduced Motion
-sind beide Bilder sofort sichtbar. Die Logik liegt in
+sind alle drei Elemente sofort sichtbar. Die Logik liegt in
 `src/modules/home-image-wipe.ts`.
 
 ### Outlined-Buttons

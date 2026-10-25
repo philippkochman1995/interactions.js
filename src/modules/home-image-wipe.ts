@@ -1,7 +1,7 @@
 import { afterSitePreloader } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
-const EDITORIAL_SELECTOR = '.news_event .intro_img, .about_section .about_img';
+const REVEAL_SELECTOR = '.news_event .intro_img, .about_section .about_img, [data-wm-home] .map_info';
 const PENDING = 'data-home-image-wipe';
 const DURATION = 1300;
 
@@ -43,7 +43,7 @@ export function initHomeImageWipe(): void {
     });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
 
-  document.querySelectorAll<HTMLElement>(EDITORIAL_SELECTOR).forEach((element) => {
+  document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((element) => {
     element.setAttribute(PENDING, '');
     observer.observe(element);
   });

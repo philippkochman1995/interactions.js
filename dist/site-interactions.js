@@ -2777,7 +2777,7 @@ function fc() {
 }
 //#endregion
 //#region src/modules/home-image-wipe.ts
-var pc = ".news_event .intro_img, .about_section .about_img", mc = "data-home-image-wipe", hc = 1300;
+var pc = ".news_event .intro_img, .about_section .about_img, [data-wm-home] .map_info", mc = "data-home-image-wipe", hc = 1300;
 function gc() {
 	var e;
 	if (!document.querySelector(".werk_hero_section") || !document.querySelector(".about_section") || u()) return;
