@@ -24,6 +24,10 @@ const INTRO_FADE_SELECTORS = [
   '.werk_hero_dots',
   '.werk_hero_slide .u-slide-info',
 ] as const;
+const INTRO_FADE_DELAY = 0.225;
+const INTRO_FADE_STAGGER = 0.125;
+const INTRO_FADE_DURATION = 0.7;
+const INTRO_MENU_GAP = 0.08;
 const IGNORED_LINK_SELECTOR = [
   '[data-transition="false"]',
   '[data-lightbox-src]',
@@ -174,6 +178,11 @@ function consumeTransitionPending(): boolean {
 function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []): void {
   const hasPendingTransition = consumeTransitionPending();
   const menus = Array.from(document.querySelectorAll<HTMLElement>(MENU_SELECTOR));
+  const introFadeGroups = INTRO_FADE_SELECTORS.map((selector) =>
+    introFadeTargets.filter((element) => element.matches(selector)));
+  const menuDelay = introFadeGroups.reduce((delay, targets, index) => targets.length
+    ? INTRO_FADE_DELAY + index * INTRO_FADE_STAGGER + INTRO_FADE_DURATION + INTRO_MENU_GAP
+    : delay, 0);
   const revealMenus = (): void => {
     menus.forEach((menu) => {
       gsap.fromTo(menu, {
@@ -181,7 +190,7 @@ function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []):
         autoAlpha: 1,
       }, {
         y: 0,
-        delay: introFadeTargets.length ? 0.12 : 0,
+        delay: menuDelay,
         duration: 0.55,
         ease: 'power3.out',
         clearProps: 'transform,opacity,visibility',
@@ -190,13 +199,12 @@ function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []):
   };
 
   const revealIntroDetails = (): void => {
-    INTRO_FADE_SELECTORS.forEach((selector, index) => {
-      const targets = introFadeTargets.filter((element) => element.matches(selector));
+    introFadeGroups.forEach((targets, index) => {
       if (!targets.length) return;
       gsap.to(targets, {
         autoAlpha: 1,
-        delay: 0.18 + index * 0.1,
-        duration: 0.7,
+        delay: INTRO_FADE_DELAY + index * INTRO_FADE_STAGGER,
+        duration: INTRO_FADE_DURATION,
         ease: 'power2.out',
         clearProps: 'opacity,visibility',
       });
@@ -212,8 +220,8 @@ function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []):
 
   if (!hasPendingTransition) {
     gsap.set(overlay, { yPercent: -100, y: 0 });
-    revealMenus();
     revealIntroDetails();
+    revealMenus();
     return;
   }
 
@@ -227,8 +235,8 @@ function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []):
       ease: PAGE_TRANSITION.ease,
       onComplete: () => {
         gsap.set(overlay, { yPercent: -100, y: 0 });
-        revealMenus();
         revealIntroDetails();
+        revealMenus();
       },
     },
   );
