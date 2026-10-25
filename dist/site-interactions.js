@@ -2011,23 +2011,22 @@ function co(e, t) {
 			var r;
 			if (!n.isConnected) return;
 			let i = so(n, t);
-			i && (lo(i, (r = i.parentElement) == null ? e : r, t), $.refresh());
+			i && lo(i, (r = i.parentElement) == null ? e : r, t);
 		});
 	});
 }
 function lo(e, t, n) {
-	let r = (e) => n * (.5 - e), i = b.quickTo(e, "y", {
-		duration: .5,
-		ease: "power1.out"
-	}), a = $.create({
+	let r = (e) => Math.round(n * (.5 - e) * 10) / 10, i = (t) => {
+		e.style.transform = `translateY(${r(t)}px)`;
+	};
+	i($.create({
 		trigger: t,
 		start: "top bottom",
 		end: "bottom top",
 		invalidateOnRefresh: !0,
-		onUpdate: (e) => i(r(e.progress)),
-		onRefresh: (t) => b.set(e, { y: r(t.progress) })
-	});
-	b.set(e, { y: r(a.progress) });
+		onUpdate: (e) => i(e.progress),
+		onRefresh: (e) => i(e.progress)
+	}).progress);
 }
 function uo(e = document) {
 	let t = o(qa, e).filter((e) => !e.hasAttribute(Ya));

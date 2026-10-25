@@ -180,28 +180,27 @@ function applyParallax(element: HTMLElement, shift: number): void {
       }
 
       connectScroll(inner, inner.parentElement ?? element, shift);
-
-      ScrollTrigger.refresh();
     });
   });
 }
 
 function connectScroll(target: HTMLElement, element: HTMLElement, shift: number): void {
-  // Webflow can register ScrollTrigger on its own GSAP instance first. In that
-  // case a tween's scrollTrigger property is ignored by this bundle's GSAP.
-  // A direct trigger works with either registration order.
-  const position = (progress: number): number => shift * (0.5 - progress);
-  const move = gsap.quickTo(target, 'y', { duration: 0.5, ease: 'power1.out' });
+  // Lenis already smooths the page scroll. Apply the position directly so the
+  // image does not run a second 0.5s tween on every scroll update.
+  const position = (progress: number): number => Math.round(shift * (0.5 - progress) * 10) / 10;
+  const move = (progress: number): void => {
+    target.style.transform = `translateY(${position(progress)}px)`;
+  };
   const scroll = ScrollTrigger.create({
     trigger: element,
     start: 'top bottom',
     end: 'bottom top',
     invalidateOnRefresh: true,
-    onUpdate: (self) => move(position(self.progress)),
-    onRefresh: (self) => gsap.set(target, { y: position(self.progress) }),
+    onUpdate: (self) => move(self.progress),
+    onRefresh: (self) => move(self.progress),
   });
 
-  gsap.set(target, { y: position(scroll.progress) });
+  move(scroll.progress);
 }
 
 export function initParallax(root: ParentNode = document): void {
