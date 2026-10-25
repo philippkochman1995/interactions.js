@@ -56,7 +56,7 @@ export function setPreloaderProgress(overlay: HTMLElement, value: number): void 
     track.dataset.value = target;
     next.textContent = target;
     gsap.set(track, { yPercent: 0, y: 0 });
-    if (window.location.pathname === '/' || prefersReducedMotion() || wasHidden || digit.hidden) {
+    if (prefersReducedMotion() || wasHidden || digit.hidden) {
       current.textContent = target;
       return;
     }

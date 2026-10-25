@@ -14,21 +14,12 @@ main :is(h1, h2, h3, h4, h5, h6, p),
 .home-heading-line-mask { overflow: clip; }
 
 .page-transition-overlay__title,
-.page-transition-word,
-.site-preloader__title,
-.site-preloader__date,
-.site-preloader__progress,
-.site-preloader__name,
-.site-preloader__signature-stage {
+.page-transition-word {
   animation: none !important;
   transition: none !important;
 }
 
-.page-transition-word,
-.site-preloader__title,
-.site-preloader__date { transform: none !important; }
-
-.site-preloader__name { translate: none !important; }
+.page-transition-word { transform: none !important; }
 
 /* Home only: scale the centered signature with the viewport. 136px at 1440px. */
 .top_bar_section .top_bar_center .nav_logo_link {

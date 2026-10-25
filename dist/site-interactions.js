@@ -2673,7 +2673,7 @@ function ac(e, t) {
 			if (b.killTweensOf(r), o.textContent = (n = r.dataset.value) == null ? o.textContent : n, r.dataset.value = c, s.textContent = c, b.set(r, {
 				yPercent: 0,
 				y: 0
-			}), window.location.pathname === "/" || u() || l || e.hidden) {
+			}), u() || l || e.hidden) {
 				o.textContent = c;
 				return;
 			}
