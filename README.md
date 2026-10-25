@@ -679,7 +679,12 @@ und alte Animationsklassen vom Text entfernt. `data-reveal="off"` nimmt ein einz
 Element aus. Die alten `data-splitline`-, Gruppen-, Delay- und Stagger-Attribute
 steuern den neuen Reveal nicht mehr.
 
-Alle Headings und Absätze bleiben ungeteilt und verwenden dieselbe Fade-in/Up-
+Auf der Startseite animiert `src/modules/home-heading-reveal.ts` ausschliesslich
+sichtbare Ueberschriften (`h1`–`h6`) zeilenweise aus einer Maske. Absaetze und
+sonstiger Text bleiben statisch. SplitText passt die Zeilen bei Schrift- oder
+Breitenwechsel an; Ueberschriften mit interaktiven Kindelementen bleiben ungeteilt.
+
+Auf den übrigen Seiten bleiben alle Headings und Absätze ungeteilt und verwenden dieselbe Fade-in/Up-
 Animation: Sie bewegen sich in 0,8 s mit `power2.out` von `y: 12px` und
 `opacity: 0` in den sichtbaren Endzustand.
 Unterhalb des Heros startet jedes Element mit eigenem ScrollTrigger bei `top 90%`.
