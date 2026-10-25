@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import { CustomEase } from 'gsap/CustomEase';
 
 import type { Cleanup } from '../types';
 import { getStringAttr, prefersReducedMotion, qsa, qs } from './utils';
@@ -25,6 +26,9 @@ const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
 const LABEL_SLIDE_DURATION = 0.42;
+gsap.registerPlugin(CustomEase);
+// Matches --preloader-ease on the opening text movement.
+const MENU_PANEL_EASE = CustomEase.create('site-menu-panel', '0.7,0,0.08,1');
 
 interface SiteMenuInstance {
   root: HTMLElement;
@@ -322,7 +326,7 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
     {
       height: toHeight,
       duration: open ? 0.38 : 0.28,
-      ease: open ? 'power3.out' : 'power2.inOut',
+      ease: MENU_PANEL_EASE,
       onComplete: () => {
         gsap.set(instance.panel, { clearProps: 'height' });
       },
@@ -361,7 +365,7 @@ export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined
   return gsap.to(panel, {
     height: 0,
     duration: 0.4,
-    ease: 'power2.inOut',
+    ease: MENU_PANEL_EASE,
   });
 }
 
