@@ -288,6 +288,7 @@
 [data-wm-home].wm-home-ready .map_bg>.map_section_img{opacity:0;}
 [data-wm-home] .wm-home-map{position:absolute;inset:0;z-index:2;pointer-events:none;}
 [data-wm-home] .wm-home-map .mapboxgl-canvas{pointer-events:none;}
+[data-wm-home] .wm-home-map .mapboxgl-ctrl-bottom-left{left:8rem;bottom:4rem;}
 [data-wm-home] .wm-home-map-link{position:absolute;inset:0;z-index:1;cursor:pointer;}
 [data-wm-home] .wm-home-map .mapboxgl-marker,
 [data-wm-home] .wm-home-map .mapboxgl-ctrl-attrib{pointer-events:auto;}
