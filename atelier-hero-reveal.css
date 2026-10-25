@@ -1,0 +1,13 @@
+.atelier_hero_section [data-atelier-hero-reveal-pending] {
+  visibility: hidden;
+}
+
+.atelier_hero_section .atelier-hero-line-mask {
+  overflow: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier_hero_section [data-atelier-hero-reveal-pending] {
+    visibility: visible;
+  }
+}

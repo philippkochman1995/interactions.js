@@ -41,6 +41,7 @@ function isHomePage(): boolean {
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
+  if (element.matches('.atelier_hero_section .atelier_slide_heading')) return false;
   return element.textContent?.trim().length !== 0;
 }
 

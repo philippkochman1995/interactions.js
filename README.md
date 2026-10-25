@@ -684,7 +684,12 @@ sichtbare Ueberschriften (`h1`–`h6`) zeilenweise aus einer Maske. Absaetze und
 sonstiger Text bleiben statisch. SplitText passt die Zeilen bei Schrift- oder
 Breitenwechsel an; Ueberschriften mit interaktiven Kindelementen bleiben ungeteilt.
 
-Auf den übrigen Seiten bleiben alle Headings und Absätze ungeteilt und verwenden dieselbe Fade-in/Up-
+Auf `/atelier` erhalten die Hero-Eyebrow `.atlier_slide_eyebrow` und die H1
+`.atelier_slide_heading` einen separaten Split-Line-Reveal. Beide verwenden die
+Bewegungskurve `cubic-bezier(.02, .9, .03, 1)` der Preloader-Schrift; die H1
+beginnt kurz nach der Eyebrow. Die globale Textanimation ueberspringt diese H1.
+
+Die allgemeine Reveal-Animation lässt Headings und Absätze ungeteilt und verwendet dieselbe Fade-in/Up-
 Animation: Sie bewegen sich in 0,8 s mit `power2.out` von `y: 12px` und
 `opacity: 0` in den sichtbaren Endzustand.
 Unterhalb des Heros startet jedes Element mit eigenem ScrollTrigger bei `top 90%`.
