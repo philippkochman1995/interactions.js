@@ -1906,7 +1906,7 @@ function Wa(e, t, n, r) {
 }
 function Ga() {
 	var e;
-	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
+	if (!((e = window.__sitePreloader) != null && e.active) || u()) return;
 	let t = Sa.map((e) => Array.from(document.querySelectorAll(e))), n = Array.from(document.querySelectorAll("[data-site-menu]"));
 	[...t.flat(), ...n].forEach((e) => {
 		e.style.opacity = "0";

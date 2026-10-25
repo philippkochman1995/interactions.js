@@ -176,7 +176,7 @@ function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleTe
 }
 
 function restorePreloaderIntro(): void {
-  if (!window.__sitePreloader?.active || prefersReducedMotion() || window.location.pathname === '/') return;
+  if (!window.__sitePreloader?.active || prefersReducedMotion()) return;
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
