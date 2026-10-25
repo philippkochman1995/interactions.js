@@ -134,11 +134,11 @@ body.is-lightbox-open {
   --e: cubic-bezier(.7, 0, .08, 1);
   --eo: cubic-bezier(.05, .85, .05, 1);
   --tail: cubic-bezier(.02, .9, .03, 1);
-  --pt-cover-duration: 1.1s;
-  --pt-uncover-duration: 1.2s;
+  --pt-cover-duration: 1.3s;
+  --pt-uncover-duration: 1.3s;
   --pt-content-duration: 1.1s;
-  --pt-title-opacity-duration: 3.5s;
-  --pt-title-travel-duration: 7s;
+  --pt-title-opacity-duration: 4s;
+  --pt-title-travel-duration: 9s;
 }
 
 [data-page-transition-overlay],
@@ -149,7 +149,7 @@ body.is-lightbox-open {
   width: 100%;
   height: 100dvh;
   z-index: 2000;
-  background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+  background: var(--fw_rosa, #ffc7d1);
   pointer-events: none;
   clip-path: inset(100% 0 0 0);
   will-change: clip-path;
@@ -181,15 +181,16 @@ html.is-page-transition-pending .curtain {
   padding: 1.5rem;
   box-sizing: border-box;
   color: var(--fw_dark_purple, #06021a);
-  font-family: 'StyreneA', sans-serif;
-  font-size: clamp(2rem, 5vw, 5rem);
+  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 1.08;
+  line-height: 18px;
+  letter-spacing: 0;
   text-align: center;
   text-transform: uppercase;
   overflow-wrap: anywhere;
   opacity: 0;
-  transform: translate3d(0, 40px, 0);
+  transform: translate3d(0, 44px, 0);
   backface-visibility: hidden;
   will-change: transform, opacity;
   transition:
@@ -209,7 +210,7 @@ html.is-page-transition-pending .curtain {
 
 .curtain.is-resetting .page-transition-overlay__title {
   opacity: 0;
-  transform: translate3d(0, 40px, 0);
+  transform: translate3d(0, 44px, 0);
   transition: none;
 }
 
@@ -254,6 +255,12 @@ main.is-page-transition-entered,
   transform: translate3d(0, 0, 0);
 }
 
+/* The existing animated hero grain should not compete with the curtain. */
+html.is-page-transition-pending #fw-hero-grained::before,
+html.is-page-transition-covering #fw-hero-grained::before {
+  animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .curtain,
   .curtain .page-transition-overlay__title,
@@ -272,7 +279,7 @@ html.is-page-transition-boot::before {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+  background: var(--fw_rosa, #ffc7d1);
   pointer-events: none;
 }
 

@@ -591,6 +591,8 @@ The global `site-interactions.js` bundle adds a vanilla JavaScript page transiti
 for normal same-origin page links. The curtain rises from the bottom, holds the
 destination title while the new page loads, and leaves through the top. Motion
 uses `clip-path`; existing Webflow colors and typography stay in place.
+The title uses the preloader's 16px size, and the curtain uses its timing.
+Media-heavy pages keep their canvas still while the curtain moves.
 
 The script creates the overlay automatically. To reduce the chance of a visible
 flash between Webflow page loads, you may also place this element once in the

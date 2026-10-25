@@ -1,8 +1,7 @@
-import { afterSitePreloader } from './site-preloader-state';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // The matching easing and duration variables live in the curtain CSS block.
-const TIME = { titleStart: 300, navigate: 1200, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
+const TIME = { titleStart: 300, navigate: 1400, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
@@ -81,6 +80,12 @@ function pageContent(): HTMLElement | null {
   return document.querySelector<HTMLElement>('main, [role="main"]');
 }
 
+function canMoveContent(main: HTMLElement | null): main is HTMLElement {
+  // Translating a whole WebGL/video scene while clipping the viewport stalls
+  // compositing on the media-heavy pages. The curtain still carries the handoff.
+  return Boolean(main && !main.querySelector('canvas, iframe, video, [data-animation-type="spline"]'));
+}
+
 // A plain-text h1 can be split without destroying nested Webflow markup.
 function prepareHeading(main: HTMLElement | null): void {
   const heading = main?.querySelector<HTMLElement>('h1');
@@ -119,7 +124,7 @@ function reset(overlay: HTMLElement, main: HTMLElement | null): void {
   overlay.classList.remove('is-covering', 'is-covered', 'is-title-visible', 'is-title-leaving', 'is-uncovering');
   overlay.setAttribute('aria-hidden', 'true');
   main?.classList.remove('is-page-transition-out', 'is-page-transition-in', 'is-page-transition-entered');
-  document.documentElement.classList.remove('is-page-transition-entering');
+  document.documentElement.classList.remove('is-page-transition-entering', 'is-page-transition-covering');
   clearPending();
   busy = false;
   window.requestAnimationFrame(() => overlay.classList.remove('is-resetting'));
@@ -136,7 +141,7 @@ function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
   if (title) title.textContent = storedTitle();
   overlay.setAttribute('aria-hidden', 'false');
   overlay.classList.add('is-covered', 'is-title-visible');
-  main?.classList.add('is-page-transition-in');
+  if (canMoveContent(main)) main.classList.add('is-page-transition-in');
   document.documentElement.classList.add('is-page-transition-entering');
   prepareHeading(main);
   // The head script releases the page if this bundle never starts.
@@ -158,22 +163,12 @@ function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleTe
   if (title) title.textContent = titleText;
   overlay.setAttribute('aria-hidden', 'false');
   try { window.sessionStorage.setItem(STORAGE_KEY, titleText); } catch { /* Continue normally. */ }
+  document.documentElement.classList.add('is-page-transition-covering');
   overlay.classList.add('is-covering');
-  main?.classList.add('is-page-transition-out');
+  if (canMoveContent(main)) main.classList.add('is-page-transition-out');
   later(() => overlay.classList.add('is-title-visible'), TIME.titleStart);
   later(() => { window.location.href = url.href; }, TIME.navigate);
   later(() => { window.location.href = url.href; }, TIME.watchdog);
-}
-
-function revealPreloaderDetails(): void {
-  if (prefersReducedMotion()) return;
-  // Keep the existing first-visit detail entrance in vanilla Web Animations.
-  const targets = document.querySelectorAll<HTMLElement>('.top_bar_section, .werk_hero_dots, .werk_hero_slide .u-slide-info, [data-site-menu]');
-  targets.forEach((element, index) => {
-    element.animate([{ opacity: 0, transform: 'translate3d(0, 12px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }], {
-      duration: 700, delay: 225 + index * 125, easing: 'cubic-bezier(.05, .85, .05, 1)',
-    });
-  });
 }
 
 export function initPageTransitions(): void {
@@ -187,7 +182,6 @@ export function initPageTransitions(): void {
   const main = pageContent();
   const incoming = Boolean(storedTitle()) && document.documentElement.classList.contains(PENDING_CLASS);
   if (incoming) revealIncoming(overlay, main);
-  else afterSitePreloader(revealPreloaderDetails);
 
   document.addEventListener('click', (event) => {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
