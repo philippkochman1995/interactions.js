@@ -1778,7 +1778,11 @@ var ba = {
 	fade: 700,
 	menuGap: 80,
 	menu: 550
-}, Ca = 1.4, wa = "pt", Ta = "[data-page-transition-overlay], .page-transition-overlay", Ea = "is-page-transition-pending", Da = [
+}, Ca = {
+	fade: 1600,
+	menu: 1e3,
+	easing: "ease-in-out"
+}, wa = "pt", Ta = "[data-page-transition-overlay], .page-transition-overlay", Ea = "is-page-transition-pending", Da = [
 	"[data-transition=\"false\"]",
 	"[data-lightbox-src]",
 	".js-lightbox",
@@ -1905,34 +1909,34 @@ function Wa() {
 	[...t.flat(), ...n].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {
-		let e = window.location.pathname === "/" ? Ca : 1, r = Sa.fade * e, i = Sa.menu * e, a = (e, t, n, r) => {
+		let e = window.location.pathname === "/", r = e ? Ca.fade : Sa.fade, i = e ? Ca.menu : Sa.menu, a = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
 			if (!e.animate) {
 				e.style.removeProperty("opacity");
 				return;
 			}
-			let i = e.animate(t, {
+			let a = e.animate(t, {
 				duration: r,
 				delay: n,
-				easing: "cubic-bezier(.05, .85, .05, 1)",
+				easing: i,
 				fill: "forwards"
 			});
-			i.onfinish = () => {
-				e.style.removeProperty("opacity"), i.cancel();
+			a.onfinish = () => {
+				e.style.removeProperty("opacity"), a.cancel();
 			};
 		};
-		t.forEach((e, t) => {
-			e.forEach((e) => a(e, [{ opacity: 0 }, { opacity: 1 }], Sa.delay + t * Sa.stagger, r));
+		t.forEach((t, n) => {
+			t.forEach((t) => a(t, [{ opacity: 0 }, { opacity: 1 }], Sa.delay + n * Sa.stagger, r, e ? Ca.easing : void 0));
 		});
 		let o = t.reduce((e, t, n) => t.length ? n : e, -1), s = o < 0 ? 0 : Sa.delay + o * Sa.stagger + r + Sa.menuGap;
-		n.forEach((e) => {
-			let t = Math.max(0, window.innerHeight - e.getBoundingClientRect().top) + 8;
-			a(e, [{
-				opacity: 1,
-				transform: `translate3d(0, ${t}px, 0)`
+		n.forEach((t) => {
+			let n = Math.max(0, window.innerHeight - t.getBoundingClientRect().top) + 8;
+			a(t, [{
+				opacity: +!e,
+				transform: `translate3d(0, ${n}px, 0)`
 			}, {
 				opacity: 1,
 				transform: "translate3d(0, 0, 0)"
-			}], s, i);
+			}], s, i, e ? Ca.easing : void 0);
 		});
 	});
 }
