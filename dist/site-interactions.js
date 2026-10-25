@@ -1779,7 +1779,7 @@ var ba = {
 	menuGap: 80,
 	menu: 550
 }, Ca = {
-	fade: 1600,
+	fade: 1200,
 	menu: 1e3,
 	easing: "ease-in-out"
 }, wa = "pt", Ta = "[data-page-transition-overlay], .page-transition-overlay", Ea = "is-page-transition-pending", Da = [

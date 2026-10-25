@@ -5,7 +5,7 @@ import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 const TIME = { titleStart: 300, navigate: 900, hold: 800, uncoverStart: 1250, reset: 2750, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
-const HOME_INTRO = { fade: 1600, menu: 1000, easing: 'ease-in-out' };
+const HOME_INTRO = { fade: 1200, menu: 1000, easing: 'ease-in-out' };
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
