@@ -10,6 +10,7 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
     map.fire('load');
     return {
       projection: map.options.projection,
+      localFontFamily: map.options.localFontFamily,
       bounds: map.options.bounds,
       fog: map.fog,
       dragRotate: map.options.dragRotate,
@@ -18,6 +19,7 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
     };
   })).toEqual({
     projection: 'globe',
+    localFontFamily: 'StyreneA',
     bounds: [[-12, 34], [37, 61]],
     fog: {
       color: '#ffffff',

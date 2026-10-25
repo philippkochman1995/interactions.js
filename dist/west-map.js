@@ -17,7 +17,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 	function s(e) {
 		document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", e) : e();
 	}
-	s(function() {
+	s(async function() {
 		var s = document.getElementById("wmMap");
 		if (!s || typeof mapboxgl > "u") return;
 		var c = s.getAttribute("data-mapbox-token");
@@ -25,7 +25,9 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			console.error("West Map: #wmMap benötigt das Attribut data-mapbox-token.");
 			return;
 		}
-		mapboxgl.accessToken = c;
+		mapboxgl.accessToken = c, await document.fonts.load("500 16px \"StyreneA\"").catch(function() {
+			return [];
+		});
 		var l = s.parentElement;
 		l.classList.add("wm-page"), Array.prototype.forEach.call(l.children, function(e) {
 			e.tagName === "DIV" && !e.id && (e.querySelector("a") ? e.classList.add("wm-overview-slot") : e.querySelector("svg") && e.classList.add("wm-scrolldown-slot"));
@@ -45,6 +47,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 		var _ = new mapboxgl.Map({
 			container: "wmMap",
 			style: "mapbox://styles/mapbox/light-v11",
+			localFontFamily: "StyreneA",
 			projection: "globe",
 			bounds: [[-12, 34], [37, 61]],
 			fitBoundsOptions: { padding: 24 },

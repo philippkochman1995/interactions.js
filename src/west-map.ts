@@ -21,7 +21,7 @@ import { markerThumbnail } from './marker-thumbnails';
     }
   }
 
-  ready(function(){
+  ready(async function(){
     var mapEl = document.getElementById('wmMap');
     if(!mapEl || typeof mapboxgl === 'undefined') return;
 
@@ -32,6 +32,10 @@ import { markerThumbnail } from './marker-thumbnails';
     }
 
     mapboxgl.accessToken = mapboxToken;
+
+    // Mapbox rasterizes local glyphs when the map is created. Wait for Webflow's
+    // StyreneA face so place names do not get cached in the browser fallback.
+    await document.fonts.load('500 16px "StyreneA"').catch(function(){ return []; });
 
     var root = mapEl.parentElement;
     root.classList.add('wm-page');
@@ -81,6 +85,7 @@ import { markerThumbnail } from './marker-thumbnails';
     var map = new mapboxgl.Map({
       container: 'wmMap',
       style: 'mapbox://styles/mapbox/light-v11',
+      localFontFamily: 'StyreneA',
       projection: 'globe',
       bounds: [[-12, 34], [37, 61]],
       fitBoundsOptions: { padding: 24 },

@@ -59,10 +59,11 @@ function p(e) {
 	async function w() {
 		try {
 			let t = await u();
-			t.accessToken = r;
+			await document.fonts.load("500 16px \"StyreneA\"").catch(() => []), t.accessToken = r;
 			let n = new t.Map({
 				container: h,
 				style: "mapbox://styles/mapbox/light-v11",
+				localFontFamily: "StyreneA",
 				projection: "globe",
 				bounds: o,
 				fitBoundsOptions: { padding: s },

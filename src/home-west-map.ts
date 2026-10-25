@@ -125,10 +125,13 @@ function initHomeMap(root: HTMLElement): void {
   async function start(): Promise<void> {
     try {
       const mapbox = await loadMapbox();
+      // Let Mapbox generate its label glyphs from the site's loaded font.
+      await document.fonts.load('500 16px "StyreneA"').catch(() => []);
       mapbox.accessToken = token;
       const map = new mapbox.Map({
         container: mount,
         style: 'mapbox://styles/mapbox/light-v11',
+        localFontFamily: 'StyreneA',
         projection: 'globe',
         bounds: EUROPE_BOUNDS,
         fitBoundsOptions: { padding: EUROPE_PADDING },

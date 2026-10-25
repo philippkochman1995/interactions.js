@@ -186,6 +186,9 @@ window.SiteInteractions.openContentModal({
 ## West Map
 
 The West Map is delivered by `west-map.css` and `dist/west-map.js`. Webflow keeps only the Mapbox dependencies and these pinned GitHub imports; map behavior and styling must not be copied into Page Custom Code.
+Both the full map and the Home preview use Mapbox GL's `localFontFamily` to render
+basemap labels with Webflow's existing `StyreneA` font. The font is loaded before
+the map is created so the first glyphs use Styrene rather than a fallback.
 
 ### Home preview
 
