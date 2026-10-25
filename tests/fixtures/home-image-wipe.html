@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    body { margin: 0; }
+    .hero { height: 110vh; }
+    .news_event, .about_section, [data-insta-feed] { min-height: 100vh; padding: 5vh; }
+    .intro_img, .about_img, [data-insta-track] > div { display: block; width: 240px; height: 180px; }
+    [data-insta-track] { display: flex; gap: 20px; }
+    img { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+  <script>
+    sessionStorage.setItem('site-preloader-seen', '4');
+  </script>
+</head>
+<body>
+  <div class="hero werk_hero_section"></div>
+  <section class="news_event"><img class="intro_img" data-testid="news-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='180'%3E%3Crect width='240' height='180' fill='red'/%3E%3C/svg%3E" alt="News"></section>
+  <section class="about_section"><div class="about_img" data-testid="about-image"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='180'%3E%3Crect width='240' height='180' fill='blue'/%3E%3C/svg%3E" alt="About"></div></section>
+  <section data-insta-feed><div data-insta-track></div></section>
+  <script type="module" src="/dist/site-interactions.js"></script>
+</body>
+</html>

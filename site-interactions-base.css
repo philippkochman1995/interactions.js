@@ -31,6 +31,15 @@
   --fw-button-reduced-duration: 0.01s;
 }
 
+/* Home editorial images and Instagram cards reveal with the button easing. */
+[data-home-image-wipe] {
+  clip-path: inset(100% 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-home-image-wipe] { clip-path: none; }
+}
+
 /* Aus dem Site-Head-Custom-Code hierher gezogen (04.09.2026). Diese Datei
    laedt nach der Webflow-CSS, gewinnt bei gleicher Spezifitaet und ersetzt den
    Inline-Block damit eins zu eins.

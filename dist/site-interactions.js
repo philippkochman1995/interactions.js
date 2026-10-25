@@ -2776,14 +2776,62 @@ function fc() {
 	}), t(), uc || window.addEventListener("site:lenis-ready", t, { once: !0 });
 }
 //#endregion
+//#region src/modules/home-image-wipe.ts
+var pc = ".news_event .intro_img, .about_section .about_img", mc = "[data-insta-feed] [data-insta-track]", hc = "data-home-image-wipe", gc = 1300;
+function _c() {
+	var e;
+	if (!document.querySelector(".werk_hero_section") || !document.querySelector(".about_section") || u()) return;
+	let t = getComputedStyle(document.documentElement).getPropertyValue("--eo").trim() || "cubic-bezier(.05, .85, .05, 1)", n = /* @__PURE__ */ new WeakSet(), r = /* @__PURE__ */ new Set(), i = !((e = window.__sitePreloader) != null && e.active), a = new IntersectionObserver((e) => {
+		e.forEach((e) => {
+			if (!i || !e.isIntersecting) return;
+			let n = e.target;
+			a.unobserve(n);
+			let o = () => {
+				if (!n.isConnected || !n.hasAttribute(hc)) return;
+				if (!n.animate) {
+					n.removeAttribute(hc);
+					return;
+				}
+				let e = n.animate([{ clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0 0 0 0)" }], {
+					duration: gc,
+					easing: t,
+					fill: "forwards"
+				});
+				r.add(e), e.onfinish = () => {
+					n.removeAttribute(hc), e.cancel(), r.delete(e);
+				};
+			}, s = n instanceof HTMLImageElement ? n : n.querySelector("img");
+			s && !s.complete ? (s.addEventListener("load", o, { once: !0 }), s.addEventListener("error", o, { once: !0 })) : o();
+		});
+	}, {
+		rootMargin: "0px 0px -10% 0px",
+		threshold: 0
+	}), o = (e) => {
+		n.has(e) || e.closest("[aria-hidden=\"true\"]") || (n.add(e), e.setAttribute(hc, ""), a.observe(e));
+	};
+	document.querySelectorAll(pc).forEach(o);
+	let s = document.querySelector(mc), c = () => {
+		s == null || s.querySelectorAll(":scope > div, :scope > a").forEach(o);
+	};
+	c();
+	let l = s && new MutationObserver(c);
+	s && l && l.observe(s, { childList: !0 }), S(() => {
+		i = !0, document.querySelectorAll(`[${hc}]`).forEach((e) => {
+			a.unobserve(e), a.observe(e);
+		});
+	}), window.addEventListener("pagehide", () => {
+		a.disconnect(), l == null || l.disconnect(), r.forEach((e) => e.cancel()), document.querySelectorAll(`[${hc}]`).forEach((e) => e.removeAttribute(hc));
+	}, { once: !0 });
+}
+//#endregion
 //#region src/main.ts
-var pc = !1;
+var vc = !1;
 lc(), Ga(), jr(), fc();
-function mc() {
-	if (pc) return;
-	pc = !0;
+function yc() {
+	if (vc) return;
+	vc = !0;
 	let e = ee();
-	ya({ i18n: e }), Ci({ i18n: e }), lo(), ks(), ie(), _(), E(), Ns(), Fs(), window.SiteInteractions = {
+	ya({ i18n: e }), Ci({ i18n: e }), lo(), ks(), ie(), _(), E(), Ns(), Fs(), _c(), window.SiteInteractions = {
 		openModal: ha,
 		openContentModal: ma,
 		closeModal: ga,
@@ -2791,7 +2839,7 @@ function mc() {
 		closeLightbox: bi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", mc, { once: !0 }) : mc();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", yc, { once: !0 }) : yc();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

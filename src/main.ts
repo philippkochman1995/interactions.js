@@ -12,6 +12,7 @@ import { initMoreArrows } from './modules/more-arrows';
 import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
+import { initHomeImageWipe } from './modules/home-image-wipe';
 
 let booted = false;
 initSitePreloader();
@@ -44,6 +45,7 @@ function boot(): void {
   initLogoVariants();
   initMoreArrows();
   initOutlinedButtons();
+  initHomeImageWipe();
 
   window.SiteInteractions = {
     openModal,
