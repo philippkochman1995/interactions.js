@@ -6,8 +6,31 @@
   overflow: clip;
 }
 
+.atelier_about_section.u-theme-dark5 [data-atelier-story-pending] {
+  visibility: hidden;
+}
+
+.atelier_about_section.u-theme-dark5 .atelier-story-word-mask {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  padding-bottom: .14em;
+  margin-bottom: -.14em;
+}
+
+.atelier_about_section.u-theme-dark5 .atelier-story-line-mask {
+  display: block;
+  overflow: clip;
+  padding-bottom: .12em;
+  margin-bottom: -.12em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .atelier_hero_section [data-atelier-hero-reveal-pending] {
+    visibility: visible;
+  }
+
+  .atelier_about_section.u-theme-dark5 [data-atelier-story-pending] {
     visibility: visible;
   }
 }

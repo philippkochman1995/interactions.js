@@ -1140,7 +1140,7 @@ function Cr() {
 }
 function wr(e) {
 	var t;
-	return e.closest(hr) || e.closest("[hidden]") || e.matches(".atelier_hero_section .atelier_slide_heading") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
+	return e.closest(hr) || e.closest("[hidden]") || e.matches(".atelier_hero_section .atelier_slide_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
 }
 function Tr(e) {
 	if (e.closest(gr)) return !0;
@@ -3001,12 +3001,73 @@ function Ac() {
 	}, { once: !0 });
 }
 //#endregion
+//#region src/modules/atelier-story-reveal.ts
+var jc = ".atelier_about_section.u-theme-dark5", Mc = "data-atelier-story-pending", Nc = "0.05,0.85,0.05,1", Pc = !1;
+function Fc() {
+	var e, t, n;
+	if (Pc || !/^\/atelier\/?$/i.test(window.location.pathname) || u()) return;
+	let r = document.querySelector(jc), i = r == null ? void 0 : r.querySelector(".atelier_about_h2"), a = r == null ? void 0 : r.querySelector(".atelier_story_p");
+	if (!i || !a) return;
+	Pc = !0, i.setAttribute(Mc, ""), a.setAttribute(Mc, "");
+	let o = !1, s = [], c = (e = (t = document.fonts) == null ? void 0 : t.ready) == null ? Promise.resolve() : e;
+	Promise.all([
+		import("./site-interactions-CacQO3xR.js"),
+		c,
+		(n = window.__sitePreloader) == null ? void 0 : n.ready
+	]).then(([{ SplitText: e }]) => {
+		if (o || !i.isConnected || !a.isConnected) return;
+		b.registerPlugin(zo, $, e);
+		let t = zo.create("atelier-story-text", Nc), n = (n, r, i, a, o) => {
+			let c = !1, l, u, d = e.create(n, {
+				type: r,
+				mask: r,
+				autoSplit: r === "lines",
+				wordsClass: "atelier-story-word",
+				linesClass: "atelier-story-line",
+				onSplit(e) {
+					u == null || u.kill(), l == null || l.kill();
+					let s = r === "words" ? e.words : e.lines;
+					c || !s.length || (b.set(s, { yPercent: r === "words" ? 108 : 106 }), l = b.to(s, {
+						yPercent: 0,
+						duration: i,
+						stagger: a,
+						delay: o,
+						ease: t,
+						paused: !0,
+						onComplete: () => b.set(s, { clearProps: "transform" })
+					}), u = $.create({
+						trigger: n,
+						start: "top 80%",
+						once: !0,
+						animation: l,
+						onEnter: () => {
+							c = !0;
+						}
+					}));
+				}
+			});
+			s.push(() => {
+				u == null || u.kill(), l == null || l.kill(), d.revert();
+			}), n.removeAttribute(Mc);
+		};
+		try {
+			n(i, "words", 2.4, .14, 0), n(a, "lines", 2.6, .07, .2), $.refresh();
+		} catch (e) {
+			s.forEach((e) => e());
+		}
+	}).catch(() => void 0).finally(() => {
+		i.removeAttribute(Mc), a.removeAttribute(Mc);
+	}), window.addEventListener("pagehide", () => {
+		o = !0, s.forEach((e) => e());
+	}, { once: !0 });
+}
+//#endregion
 //#region src/main.ts
-var jc = !1;
-uc(), Ka(), Mr(), Cc(), Ac(), pc();
-function Mc() {
-	if (jc) return;
-	jc = !0;
+var Ic = !1;
+uc(), Ka(), Mr(), Cc(), Ac(), Fc(), pc();
+function Lc() {
+	if (Ic) return;
+	Ic = !0;
 	let e = ee();
 	ba({ i18n: e }), wi({ i18n: e }), uo(), As(), ie(), _(), E(), Ps(), Is(), _c(), window.SiteInteractions = {
 		openModal: ga,
@@ -3016,7 +3077,7 @@ function Mc() {
 		closeLightbox: xi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Mc, { once: !0 }) : Mc();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Lc, { once: !0 }) : Lc();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

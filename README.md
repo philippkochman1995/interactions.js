@@ -689,6 +689,10 @@ Auf `/atelier` erhalten die Hero-Eyebrow `.atlier_slide_eyebrow` und die H1
 Bewegungskurve `cubic-bezier(.02, .9, .03, 1)` der Preloader-Schrift; die H1
 beginnt kurz nach der Eyebrow. Die globale Textanimation ueberspringt diese H1.
 
+Die erste Atelier-About-Section (`Atelier 1994–2012`) uebernimmt aus
+`atelier-animation.html` den Wort-Reveal fuer die H2 und den Zeilen-Reveal fuer
+den Fliesstext beim Scrollen. Bild, Slider und andere Sections bleiben unberuehrt.
+
 Die allgemeine Reveal-Animation lässt Headings und Absätze ungeteilt und verwendet dieselbe Fade-in/Up-
 Animation: Sie bewegen sich in 0,8 s mit `power2.out` von `y: 12px` und
 `opacity: 0` in den sichtbaren Endzustand.
