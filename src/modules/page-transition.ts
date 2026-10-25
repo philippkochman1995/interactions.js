@@ -19,6 +19,11 @@ const TRANSITION_TITLE_STORAGE_KEY = 'site-page-transition-title';
 const TRANSITION_STORAGE_VALUE = 'pending';
 const PENDING_CLASS = 'is-page-transition-pending';
 const MENU_SELECTOR = '[data-site-menu]';
+const INTRO_FADE_SELECTORS = [
+  '.top_bar_section',
+  '.werk_hero_dots',
+  '.werk_hero_slide .u-slide-info',
+] as const;
 const IGNORED_LINK_SELECTOR = [
   '[data-transition="false"]',
   '[data-lightbox-src]',
@@ -166,7 +171,7 @@ function consumeTransitionPending(): boolean {
  * damit komplett ausserhalb des Viewports. Mit y: 0 kommt die Position immer
  * allein aus yPercent.
  */
-function revealPage(overlay: HTMLElement): void {
+function revealPage(overlay: HTMLElement, introFadeTargets: HTMLElement[] = []): void {
   const hasPendingTransition = consumeTransitionPending();
   const menus = Array.from(document.querySelectorAll<HTMLElement>(MENU_SELECTOR));
   const revealMenus = (): void => {
@@ -176,9 +181,24 @@ function revealPage(overlay: HTMLElement): void {
         autoAlpha: 1,
       }, {
         y: 0,
+        delay: introFadeTargets.length ? 0.12 : 0,
         duration: 0.55,
         ease: 'power3.out',
         clearProps: 'transform,opacity,visibility',
+      });
+    });
+  };
+
+  const revealIntroDetails = (): void => {
+    INTRO_FADE_SELECTORS.forEach((selector, index) => {
+      const targets = introFadeTargets.filter((element) => element.matches(selector));
+      if (!targets.length) return;
+      gsap.to(targets, {
+        autoAlpha: 1,
+        delay: 0.18 + index * 0.1,
+        duration: 0.7,
+        ease: 'power2.out',
+        clearProps: 'opacity,visibility',
       });
     });
   };
@@ -193,6 +213,7 @@ function revealPage(overlay: HTMLElement): void {
   if (!hasPendingTransition) {
     gsap.set(overlay, { yPercent: -100, y: 0 });
     revealMenus();
+    revealIntroDetails();
     return;
   }
 
@@ -207,6 +228,7 @@ function revealPage(overlay: HTMLElement): void {
       onComplete: () => {
         gsap.set(overlay, { yPercent: -100, y: 0 });
         revealMenus();
+        revealIntroDetails();
       },
     },
   );
@@ -257,7 +279,7 @@ function navigateWithTransition(url: URL, overlay: HTMLElement, menu: HTMLElemen
   }, coverStart + 0.4);
 }
 
-function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement): void {
+function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement, introFadeTargets: HTMLElement[]): void {
   if (!event.persisted) {
     return;
   }
@@ -270,6 +292,8 @@ function resetOverlayOnPageShow(event: PageTransitionEvent, overlay: HTMLElement
   const menus = document.querySelectorAll<HTMLElement>(MENU_SELECTOR);
   gsap.killTweensOf(menus);
   gsap.set(menus, { clearProps: 'transform,opacity,visibility' });
+  gsap.killTweensOf(introFadeTargets);
+  gsap.set(introFadeTargets, { clearProps: 'opacity,visibility' });
   const panels = document.querySelectorAll<HTMLElement>('[data-site-menu-panel]');
   gsap.killTweensOf(panels);
   gsap.set(panels, { clearProps: 'height' });
@@ -288,7 +312,16 @@ export function initPageTransitions(): void {
   initialized = true;
 
   const overlay = ensureOverlay();
-  afterSitePreloader(() => revealPage(overlay));
+  const hasPreloader = Boolean(window.__sitePreloader?.active);
+  const animateIntro = hasPreloader && !prefersReducedMotion();
+  const introFadeTargets = animateIntro
+    ? Array.from(document.querySelectorAll<HTMLElement>(INTRO_FADE_SELECTORS.join(', ')))
+    : [];
+  if (animateIntro) {
+    gsap.set(document.querySelectorAll<HTMLElement>(MENU_SELECTOR), { autoAlpha: 0 });
+    gsap.set(introFadeTargets, { autoAlpha: 0 });
+  }
+  afterSitePreloader(() => revealPage(overlay, introFadeTargets));
 
   document.addEventListener('click', (event) => {
     const target = event.target;
@@ -322,7 +355,7 @@ export function initPageTransitions(): void {
     navigateWithTransition(url, overlay, link.closest<HTMLElement>(MENU_SELECTOR), getTransitionTitle(url, link));
   }, true);
 
-  window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay));
+  window.addEventListener('pageshow', (event) => resetOverlayOnPageShow(event, overlay, introFadeTargets));
 }
 
 primePendingClass();
