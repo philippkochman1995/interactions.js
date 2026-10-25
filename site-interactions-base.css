@@ -31,7 +31,7 @@
   --fw-button-reduced-duration: 0.01s;
 }
 
-/* Home editorial images and Instagram cards reveal with the button easing. */
+/* Home editorial images reveal with the button easing. */
 [data-home-image-wipe] {
   clip-path: inset(100% 0 0 0);
 }

@@ -1,12 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-test('home images wipe into view with the button easing, including new slider cards', async ({ page }) => {
+test('home editorial images wipe into view with the button easing, but Instagram cards stay visible', async ({ page }) => {
   await page.goto('/tests/fixtures/home-image-wipe.html');
 
   const news = page.getByTestId('news-image');
   const about = page.getByTestId('about-image');
   await expect(news).toHaveAttribute('data-home-image-wipe', '');
   await expect(about).toHaveAttribute('data-home-image-wipe', '');
+  await expect(page.getByTestId('initial-card')).not.toHaveAttribute('data-home-image-wipe');
   await expect(news).toHaveCSS('clip-path', 'inset(100% 0px 0px)');
 
   await news.scrollIntoViewIfNeeded();
@@ -24,9 +25,8 @@ test('home images wipe into view with the button easing, including new slider ca
     track.append(card);
   });
   const card = page.getByTestId('new-card');
-  await expect(card).toHaveAttribute('data-home-image-wipe', '');
-  await card.scrollIntoViewIfNeeded();
   await expect(card).not.toHaveAttribute('data-home-image-wipe');
+  await expect(card).toHaveCSS('clip-path', 'none');
 });
 
 test('reduced motion leaves home images visible', async ({ page }) => {

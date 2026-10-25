@@ -2777,61 +2777,55 @@ function fc() {
 }
 //#endregion
 //#region src/modules/home-image-wipe.ts
-var pc = ".news_event .intro_img, .about_section .about_img", mc = "[data-insta-feed] [data-insta-track]", hc = "data-home-image-wipe", gc = 1300;
-function _c() {
+var pc = ".news_event .intro_img, .about_section .about_img", mc = "data-home-image-wipe", hc = 1300;
+function gc() {
 	var e;
 	if (!document.querySelector(".werk_hero_section") || !document.querySelector(".about_section") || u()) return;
-	let t = getComputedStyle(document.documentElement).getPropertyValue("--eo").trim() || "cubic-bezier(.05, .85, .05, 1)", n = /* @__PURE__ */ new WeakSet(), r = /* @__PURE__ */ new Set(), i = !((e = window.__sitePreloader) != null && e.active), a = new IntersectionObserver((e) => {
+	let t = getComputedStyle(document.documentElement).getPropertyValue("--eo").trim() || "cubic-bezier(.05, .85, .05, 1)", n = /* @__PURE__ */ new Set(), r = !((e = window.__sitePreloader) != null && e.active), i = new IntersectionObserver((e) => {
 		e.forEach((e) => {
-			if (!i || !e.isIntersecting) return;
-			let n = e.target;
-			a.unobserve(n);
+			if (!r || !e.isIntersecting) return;
+			let a = e.target;
+			i.unobserve(a);
 			let o = () => {
-				if (!n.isConnected || !n.hasAttribute(hc)) return;
-				if (!n.animate) {
-					n.removeAttribute(hc);
+				if (!a.isConnected || !a.hasAttribute(mc)) return;
+				if (!a.animate) {
+					a.removeAttribute(mc);
 					return;
 				}
-				let e = n.animate([{ clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0 0 0 0)" }], {
-					duration: gc,
+				let e = a.animate([{ clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0 0 0 0)" }], {
+					duration: hc,
 					easing: t,
 					fill: "forwards"
 				});
-				r.add(e), e.onfinish = () => {
-					n.removeAttribute(hc), e.cancel(), r.delete(e);
+				n.add(e), e.onfinish = () => {
+					a.removeAttribute(mc), e.cancel(), n.delete(e);
 				};
-			}, s = n instanceof HTMLImageElement ? n : n.querySelector("img");
+			}, s = a instanceof HTMLImageElement ? a : a.querySelector("img");
 			s && !s.complete ? (s.addEventListener("load", o, { once: !0 }), s.addEventListener("error", o, { once: !0 })) : o();
 		});
 	}, {
 		rootMargin: "0px 0px -10% 0px",
 		threshold: 0
-	}), o = (e) => {
-		n.has(e) || e.closest("[aria-hidden=\"true\"]") || (n.add(e), e.setAttribute(hc, ""), a.observe(e));
-	};
-	document.querySelectorAll(pc).forEach(o);
-	let s = document.querySelector(mc), c = () => {
-		s == null || s.querySelectorAll(":scope > div, :scope > a").forEach(o);
-	};
-	c();
-	let l = s && new MutationObserver(c);
-	s && l && l.observe(s, { childList: !0 }), S(() => {
-		i = !0, document.querySelectorAll(`[${hc}]`).forEach((e) => {
-			a.unobserve(e), a.observe(e);
+	});
+	document.querySelectorAll(pc).forEach((e) => {
+		e.setAttribute(mc, ""), i.observe(e);
+	}), S(() => {
+		r = !0, document.querySelectorAll(`[${mc}]`).forEach((e) => {
+			i.unobserve(e), i.observe(e);
 		});
 	}), window.addEventListener("pagehide", () => {
-		a.disconnect(), l == null || l.disconnect(), r.forEach((e) => e.cancel()), document.querySelectorAll(`[${hc}]`).forEach((e) => e.removeAttribute(hc));
+		i.disconnect(), n.forEach((e) => e.cancel()), document.querySelectorAll(`[${mc}]`).forEach((e) => e.removeAttribute(mc));
 	}, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var vc = !1;
+var _c = !1;
 lc(), Ga(), jr(), fc();
-function yc() {
-	if (vc) return;
-	vc = !0;
+function vc() {
+	if (_c) return;
+	_c = !0;
 	let e = ee();
-	ya({ i18n: e }), Ci({ i18n: e }), lo(), ks(), ie(), _(), E(), Ns(), Fs(), _c(), window.SiteInteractions = {
+	ya({ i18n: e }), Ci({ i18n: e }), lo(), ks(), ie(), _(), E(), Ns(), Fs(), gc(), window.SiteInteractions = {
 		openModal: ha,
 		openContentModal: ma,
 		closeModal: ga,
@@ -2839,7 +2833,7 @@ function yc() {
 		closeLightbox: bi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", yc, { once: !0 }) : yc();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", vc, { once: !0 }) : vc();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

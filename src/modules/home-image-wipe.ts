@@ -2,7 +2,6 @@ import { afterSitePreloader } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
 const EDITORIAL_SELECTOR = '.news_event .intro_img, .about_section .about_img';
-const TRACK_SELECTOR = '[data-insta-feed] [data-insta-track]';
 const PENDING = 'data-home-image-wipe';
 const DURATION = 1300;
 
@@ -11,7 +10,6 @@ export function initHomeImageWipe(): void {
 
   const easing = getComputedStyle(document.documentElement).getPropertyValue('--eo').trim()
     || 'cubic-bezier(.05, .85, .05, 1)';
-  const prepared = new WeakSet<HTMLElement>();
   const animations = new Set<Animation>();
   let ready = !window.__sitePreloader?.active;
   const observer = new IntersectionObserver((entries) => {
@@ -45,22 +43,10 @@ export function initHomeImageWipe(): void {
     });
   }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
 
-  const observe = (element: HTMLElement): void => {
-    if (prepared.has(element) || element.closest('[aria-hidden="true"]')) return;
-    prepared.add(element);
+  document.querySelectorAll<HTMLElement>(EDITORIAL_SELECTOR).forEach((element) => {
     element.setAttribute(PENDING, '');
     observer.observe(element);
-  };
-
-  document.querySelectorAll<HTMLElement>(EDITORIAL_SELECTOR).forEach(observe);
-
-  const track = document.querySelector<HTMLElement>(TRACK_SELECTOR);
-  const observeSlides = (): void => {
-    track?.querySelectorAll<HTMLElement>(':scope > div, :scope > a').forEach(observe);
-  };
-  observeSlides();
-  const mutations = track && new MutationObserver(observeSlides);
-  if (track && mutations) mutations.observe(track, { childList: true });
+  });
 
   afterSitePreloader(() => {
     ready = true;
@@ -74,7 +60,6 @@ export function initHomeImageWipe(): void {
 
   window.addEventListener('pagehide', () => {
     observer.disconnect();
-    mutations?.disconnect();
     animations.forEach((animation) => animation.cancel());
     document.querySelectorAll<HTMLElement>(`[${PENDING}]`).forEach((element) => element.removeAttribute(PENDING));
   }, { once: true });
