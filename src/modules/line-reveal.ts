@@ -35,6 +35,10 @@ function isNewsPage(): boolean {
   return /(?:^|\/)news(?:\/|$)/i.test(window.location.pathname);
 }
 
+function isHomePage(): boolean {
+  return window.location.pathname === '/';
+}
+
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
   return element.textContent?.trim().length !== 0;
@@ -104,7 +108,7 @@ function waitForFonts(): Promise<void> {
 }
 
 export function initLineReveal(root: ParentNode = document): void {
-  if (initialized || isNewsPage() || prefersReducedMotion()) return;
+  if (initialized || isHomePage() || isNewsPage() || prefersReducedMotion()) return;
 
   const elements = qsa<HTMLElement>(`${TEXT_SELECTOR}, ${HIGHLIGHT_EYEBROW_SELECTOR}`, root).filter(isEligible);
   if (!elements.length) return;

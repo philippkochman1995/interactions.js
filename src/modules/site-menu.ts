@@ -230,7 +230,7 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
 
   const transition = instance.labelTransition;
 
-  if (transition && animate && !prefersReducedMotion()) {
+  if (transition && animate && window.location.pathname !== '/' && !prefersReducedMotion()) {
     if (label === transition.from) {
       transition.timeline.reverse();
       return;
@@ -253,7 +253,7 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
   gsap.set(textLayer, { clearProps: 'transform,opacity' });
   textLayer.removeAttribute('aria-hidden');
 
-  if (prefersReducedMotion() || !animate || !outgoing || outgoing === label) {
+  if (window.location.pathname === '/' || prefersReducedMotion() || !animate || !outgoing || outgoing === label) {
     textLayer.textContent = label;
     return;
   }

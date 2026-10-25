@@ -51,7 +51,7 @@ export function initLogoVariants(): void {
     }
     link.addEventListener('pointerenter', (event) => {
       event.stopImmediatePropagation();
-      if (hovering || reducedMotion.matches) return;
+      if (hovering || reducedMotion.matches || window.location.pathname === '/') return;
       hovering = true;
       reset();
       const order = signatureSequence(active);

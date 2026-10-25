@@ -147,7 +147,7 @@ function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
   overlay.classList.add('is-covered', 'is-title-visible');
   if (canMoveContent(main)) main.classList.add('is-page-transition-in');
   document.documentElement.classList.add('is-page-transition-entering');
-  prepareHeading(main);
+  if (window.location.pathname !== '/') prepareHeading(main);
   // The head script releases the page if this bundle never starts.
   const fonts = document.fonts?.ready ?? Promise.resolve();
   void fonts.catch(() => undefined).then(() => {
@@ -176,7 +176,7 @@ function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleTe
 }
 
 function restorePreloaderIntro(): void {
-  if (!window.__sitePreloader?.active || prefersReducedMotion()) return;
+  if (!window.__sitePreloader?.active || prefersReducedMotion() || window.location.pathname === '/') return;
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.

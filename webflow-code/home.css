@@ -1,4 +1,31 @@
 /* head: Webflow style */
+/* On Home, copy and interface labels appear without typography motion. */
+main :is(h1, h2, h3, h4, h5, h6, p),
+[role="main"] :is(h1, h2, h3, h4, h5, h6, p),
+.news_event .u-text-eyebrow[data-animation-ready] {
+  animation: none !important;
+  transition: none !important;
+}
+
+[data-reveal-pending] { visibility: visible !important; }
+
+.page-transition-overlay__title,
+.page-transition-word,
+.site-preloader__title,
+.site-preloader__date,
+.site-preloader__progress,
+.site-preloader__name,
+.site-preloader__signature-stage {
+  animation: none !important;
+  transition: none !important;
+}
+
+.page-transition-word,
+.site-preloader__title,
+.site-preloader__date { transform: none !important; }
+
+.site-preloader__name { translate: none !important; }
+
 /* Home only: scale the centered signature with the viewport. 136px at 1440px. */
 .top_bar_section .top_bar_center .nav_logo_link {
   width: clamp(6rem, calc(5rem + 3.8888889vw), 10.625rem);
