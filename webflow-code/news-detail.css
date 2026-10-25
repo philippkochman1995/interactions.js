@@ -1,6 +1,14 @@
 /* head: Webflow style */
 .news_detail_hero_section.u-section {
   height: 51.75svh;
+  position: sticky;
+  top: 0;
+  z-index: 0;
+}
+
+.news_detail_color_wrap {
+  position: relative;
+  z-index: 1;
 }
 
 .news_detail_more_section.u-section {
