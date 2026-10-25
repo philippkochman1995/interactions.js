@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/webflow-code/editions.css">
+  <style>
+    body { margin: 0; }
+    .editionen_item { display: flex; gap: 20px; margin-bottom: 40px; }
+    .editionen_media { position: relative; width: 600px; height: 400px; overflow: hidden; }
+    .editionen_track { position: absolute; inset: 0; }
+    .editionen_slide { position: absolute; inset: 0; opacity: 0; transition: opacity .4s; }
+    .editionen_slide.is-active { opacity: 1; }
+    .editionen_img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .editionen_nav, .editionen_dots { position: absolute; z-index: 3; }
+    .editionen_nav { top: 50%; }
+    .editionen_nav.is-next { right: 0; }
+    .editionen_dots { bottom: 0; left: 45%; }
+    .editionen_dot { display: inline-block; width: 12px; height: 12px; margin: 4px; background: #333; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div class="editionen_item" data-testid="editions-item">
+    <div class="editionen_media" data-edition-slider>
+      <div class="editionen_track" data-edition-track>
+        <div class="editionen_slide" data-edition-slide data-edition-color="rosa">
+          <img class="editionen_img" src="/tests/fixtures/image.svg" alt="Rosa Edition">
+        </div>
+        <div class="editionen_slide" data-edition-slide data-edition-color="gelb">
+          <img class="editionen_img" src="/tests/fixtures/image.svg" alt="Gelbe Edition">
+        </div>
+      </div>
+      <button class="editionen_nav is-prev" data-edition-prev aria-label="Vorheriges Bild"></button>
+      <button class="editionen_nav is-next" data-edition-next aria-label="Nächstes Bild"></button>
+      <div class="editionen_dots" data-edition-dots><div class="editionen_dot" data-edition-dot></div></div>
+    </div>
+    <div>
+      <button data-edition-color="rosa">Rosa</button>
+      <button data-edition-color="gelb">Gelb</button>
+    </div>
+  </div>
+  <div class="editionen_item" data-testid="single-item">
+    <div class="editionen_media" data-edition-slider>
+      <div class="editionen_track" data-edition-track>
+        <div class="editionen_slide" data-edition-slide><img class="editionen_img" src="/tests/fixtures/image.svg" alt="Ein Bild"></div>
+      </div>
+      <button class="editionen_nav is-prev" data-edition-prev aria-label="Vorheriges Bild"></button>
+      <button class="editionen_nav is-next" data-edition-next aria-label="Nächstes Bild"></button>
+      <div class="editionen_dots" data-edition-dots><div class="editionen_dot" data-edition-dot></div></div>
+    </div>
+  </div>
+  <div class="editionen_item" data-atelier-slideshow-root data-testid="atelier-item">
+    <div class="editionen_media" data-edition-slider>
+      <div class="editionen_track" data-edition-track>
+        <div class="editionen_slide" data-edition-slide><img class="editionen_img" src="/tests/fixtures/image.svg" alt="Atelier eins"></div>
+        <div class="editionen_slide" data-edition-slide><img class="editionen_img" src="/tests/fixtures/image.svg" alt="Atelier zwei"></div>
+      </div>
+      <button class="editionen_nav is-prev" data-edition-prev aria-label="Vorheriges Bild"></button>
+      <button class="editionen_nav is-next" data-edition-next aria-label="Nächstes Bild"></button>
+      <div class="editionen_dots" data-edition-dots><div class="editionen_dot" data-edition-dot></div></div>
+    </div>
+  </div>
+  <script src="/webflow-code/editions-footer.js"></script>
+</body>
+</html>

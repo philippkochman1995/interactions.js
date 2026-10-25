@@ -86,9 +86,41 @@
       }
 
       var index = 0;
+      var initialized = false;
+      var wipeAnimation = null;
+      var imageAnimation = null;
+      var splitSlider = slides.length > 1 && !root.closest('[data-atelier-slideshow-root]');
+      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (splitSlider) root.classList.add('is-edition-split-slider');
+
+      function finishWipe() {
+        if (wipeAnimation) {
+          wipeAnimation.onfinish = null;
+          wipeAnimation.cancel();
+          wipeAnimation = null;
+        }
+        if (imageAnimation) {
+          imageAnimation.cancel();
+          imageAnimation = null;
+        }
+        slides.forEach(function (slide) {
+          slide.removeAttribute('data-edition-wipe-out');
+          slide.removeAttribute('data-edition-wipe-in');
+        });
+      }
 
       function show(i) {
-        index = (i + slides.length) % slides.length;
+        var nextIndex = (i + slides.length) % slides.length;
+        var previousIndex = index;
+        var changing = initialized && nextIndex !== previousIndex;
+        finishWipe();
+        index = nextIndex;
+        var animateWipe = changing && splitSlider && !reducedMotion.matches
+          && typeof slides[index].animate === 'function';
+        if (animateWipe) {
+          slides[previousIndex].setAttribute('data-edition-wipe-out', '');
+          slides[index].setAttribute('data-edition-wipe-in', '');
+        }
         slides.forEach(function (slide, n) {
           slide.classList.toggle('is-active', n === index);
         });
@@ -103,6 +135,24 @@
             !!color && swatch.getAttribute('data-edition-color') === color
           );
         });
+        initialized = true;
+
+        if (animateWipe) {
+          // The new image travels over the old one behind a vertical edge.
+          var from = index > previousIndex ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
+          wipeAnimation = slides[index].animate(
+            [{ clipPath: from }, { clipPath: 'inset(0 0 0 0)' }],
+            { duration: 850, easing: 'cubic-bezier(.76, 0, .24, 1)', fill: 'both' }
+          );
+          var image = slides[index].querySelector('.editionen_img');
+          if (image && typeof image.animate === 'function') {
+            imageAnimation = image.animate(
+              [{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
+              { duration: 850, easing: 'cubic-bezier(.2, .65, .2, 1)', fill: 'both' }
+            );
+          }
+          wipeAnimation.onfinish = finishWipe;
+        }
       }
 
       function goToColor(color) {
