@@ -2003,33 +2003,31 @@ function so(e, t) {
 function co(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
-		b.fromTo(e, { y: t / 2 }, {
-			y: -t / 2,
-			ease: "none",
-			scrollTrigger: lo(e)
-		});
+		lo(e, e, t);
 		return;
 	}
 	n.forEach((n) => {
 		oo(n).then(() => {
+			var r;
 			if (!n.isConnected) return;
-			let r = so(n, t);
-			r && (b.fromTo(r, { y: t / 2 }, {
-				y: -t / 2,
-				ease: "none",
-				scrollTrigger: lo(e)
-			}), $.refresh());
+			let i = so(n, t);
+			i && (lo(i, (r = i.parentElement) == null ? e : r, t), $.refresh());
 		});
 	});
 }
-function lo(e) {
-	return {
-		trigger: e,
+function lo(e, t, n) {
+	let r = (e) => n * (.5 - e), i = b.quickTo(e, "y", {
+		duration: .5,
+		ease: "power1.out"
+	}), a = $.create({
+		trigger: t,
 		start: "top bottom",
 		end: "bottom top",
-		scrub: .5,
-		invalidateOnRefresh: !0
-	};
+		invalidateOnRefresh: !0,
+		onUpdate: (e) => i(r(e.progress)),
+		onRefresh: (t) => b.set(e, { y: r(t.progress) })
+	});
+	b.set(e, { y: r(a.progress) });
 }
 function uo(e = document) {
 	let t = o(qa, e).filter((e) => !e.hasAttribute(Ya));

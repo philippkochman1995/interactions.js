@@ -163,11 +163,7 @@ function applyParallax(element: HTMLElement, shift: number): void {
   if (images.length === 0) {
     // Kein Bild da: dann wandert das Element selbst. Kein Fenster, aber besser als
     // gar nichts, wenn das Attribut auf einem Textblock landet.
-    gsap.fromTo(
-      element,
-      { y: shift / 2 },
-      { y: -shift / 2, ease: 'none', scrollTrigger: trigger(element) },
-    );
+    connectScroll(element, element, shift);
     return;
   }
 
@@ -183,29 +179,29 @@ function applyParallax(element: HTMLElement, shift: number): void {
         return;
       }
 
-      gsap.fromTo(
-        inner,
-        // y explizit von beiden Seiten: sonst liest GSAP ein vorhandenes inline
-        // transform als Pixelwert zurueck und rechnet den neuen Wert obendrauf.
-        { y: shift / 2 },
-        { y: -shift / 2, ease: 'none', scrollTrigger: trigger(element) },
-      );
+      connectScroll(inner, inner.parentElement ?? element, shift);
 
       ScrollTrigger.refresh();
     });
   });
 }
 
-function trigger(element: HTMLElement): ScrollTrigger.StaticVars {
-  return {
+function connectScroll(target: HTMLElement, element: HTMLElement, shift: number): void {
+  // Webflow can register ScrollTrigger on its own GSAP instance first. In that
+  // case a tween's scrollTrigger property is ignored by this bundle's GSAP.
+  // A direct trigger works with either registration order.
+  const position = (progress: number): number => shift * (0.5 - progress);
+  const move = gsap.quickTo(target, 'y', { duration: 0.5, ease: 'power1.out' });
+  const scroll = ScrollTrigger.create({
     trigger: element,
     start: 'top bottom',
     end: 'bottom top',
-    // Kurzer Nachlauf statt harter Kopplung: macht die Bewegung weich, ohne sie
-    // spuerbar hinterherhinken zu lassen.
-    scrub: 0.5,
     invalidateOnRefresh: true,
-  };
+    onUpdate: (self) => move(position(self.progress)),
+    onRefresh: (self) => gsap.set(target, { y: position(self.progress) }),
+  });
+
+  gsap.set(target, { y: position(scroll.progress) });
 }
 
 export function initParallax(root: ParentNode = document): void {
