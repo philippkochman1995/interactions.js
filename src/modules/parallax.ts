@@ -163,7 +163,11 @@ function applyParallax(element: HTMLElement, shift: number): void {
   if (images.length === 0) {
     // Kein Bild da: dann wandert das Element selbst. Kein Fenster, aber besser als
     // gar nichts, wenn das Attribut auf einem Textblock landet.
-    connectScroll(element, element, shift);
+    gsap.fromTo(
+      element,
+      { y: shift / 2 },
+      { y: -shift / 2, ease: 'none', scrollTrigger: trigger(element) },
+    );
     return;
   }
 
@@ -179,28 +183,29 @@ function applyParallax(element: HTMLElement, shift: number): void {
         return;
       }
 
-      connectScroll(inner, inner.parentElement ?? element, shift);
+      gsap.fromTo(
+        inner,
+        // y explizit von beiden Seiten: sonst liest GSAP ein vorhandenes inline
+        // transform als Pixelwert zurueck und rechnet den neuen Wert obendrauf.
+        { y: shift / 2 },
+        { y: -shift / 2, ease: 'none', scrollTrigger: trigger(element) },
+      );
+
+      ScrollTrigger.refresh();
     });
   });
 }
 
-function connectScroll(target: HTMLElement, element: HTMLElement, shift: number): void {
-  // Lenis already smooths the page scroll. Apply the position directly so the
-  // image does not run a second 0.5s tween on every scroll update.
-  const position = (progress: number): number => Math.round(shift * (0.5 - progress) * 10) / 10;
-  const move = (progress: number): void => {
-    target.style.transform = `translateY(${position(progress)}px)`;
-  };
-  const scroll = ScrollTrigger.create({
+function trigger(element: HTMLElement): ScrollTrigger.StaticVars {
+  return {
     trigger: element,
     start: 'top bottom',
     end: 'bottom top',
+    // Kurzer Nachlauf statt harter Kopplung: macht die Bewegung weich, ohne sie
+    // spuerbar hinterherhinken zu lassen.
+    scrub: 0.5,
     invalidateOnRefresh: true,
-    onUpdate: (self) => move(self.progress),
-    onRefresh: (self) => move(self.progress),
-  });
-
-  move(scroll.progress);
+  };
 }
 
 export function initParallax(root: ParentNode = document): void {

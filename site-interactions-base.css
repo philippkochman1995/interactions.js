@@ -36,32 +36,6 @@
   clip-path: inset(100% 0 0 0);
 }
 
-/* Home news: the original CMS image sizes the grid cell; its copy moves behind
-   a fixed clipping frame. The existing Wipe runs on that frame. */
-.news_event .home-news-parallax-frame {
-  display: block;
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-.news_event .home-news-parallax-frame > .intro_img {
-  display: block;
-  visibility: hidden;
-}
-
-.news_event .home-news-parallax-frame .home-news-parallax-copy {
-  display: block;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  margin: 0;
-  aspect-ratio: auto;
-  object-fit: cover;
-}
-
 @media (prefers-reduced-motion: reduce) {
   [data-home-image-wipe] { clip-path: none; }
 }
@@ -692,15 +666,6 @@ html.is-page-transition-boot::after {
     aspect-ratio: 382 / 250;
     margin-bottom: 1.5rem;
     object-position: center;
-  }
-
-  .news_event .home-news-parallax-frame {
-    order: -1;
-    margin-bottom: 1.5rem;
-  }
-
-  .news_event .home-news-parallax-frame > .intro_img {
-    margin-bottom: 0;
   }
 
   .news_event .intro_content_about > .text-link {

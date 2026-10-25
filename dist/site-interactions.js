@@ -2003,30 +2003,33 @@ function so(e, t) {
 function co(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
-		lo(e, e, t);
+		b.fromTo(e, { y: t / 2 }, {
+			y: -t / 2,
+			ease: "none",
+			scrollTrigger: lo(e)
+		});
 		return;
 	}
 	n.forEach((n) => {
 		oo(n).then(() => {
-			var r;
 			if (!n.isConnected) return;
-			let i = so(n, t);
-			i && lo(i, (r = i.parentElement) == null ? e : r, t);
+			let r = so(n, t);
+			r && (b.fromTo(r, { y: t / 2 }, {
+				y: -t / 2,
+				ease: "none",
+				scrollTrigger: lo(e)
+			}), $.refresh());
 		});
 	});
 }
-function lo(e, t, n) {
-	let r = (e) => Math.round(n * (.5 - e) * 10) / 10, i = (t) => {
-		e.style.transform = `translateY(${r(t)}px)`;
-	};
-	i($.create({
-		trigger: t,
+function lo(e) {
+	return {
+		trigger: e,
 		start: "top bottom",
 		end: "bottom top",
-		invalidateOnRefresh: !0,
-		onUpdate: (e) => i(e.progress),
-		onRefresh: (e) => i(e.progress)
-	}).progress);
+		scrub: .5,
+		invalidateOnRefresh: !0
+	};
 }
 function uo(e = document) {
 	let t = o(qa, e).filter((e) => !e.hasAttribute(Ya));
@@ -2777,7 +2780,7 @@ function pc() {
 }
 //#endregion
 //#region src/modules/home-image-wipe.ts
-var mc = ".news_event .home-news-parallax-frame, .news_event .intro_layout > .intro_img, .about_section .about_img, [data-wm-home] .map_info", hc = "data-home-image-wipe", gc = 1300;
+var mc = ".news_event .intro_img, .about_section .about_img, [data-wm-home] .map_info", hc = "data-home-image-wipe", gc = 1300;
 function _c() {
 	var e;
 	if (!document.querySelector(".werk_hero_section") || !document.querySelector(".about_section") || u()) return;
@@ -2800,7 +2803,7 @@ function _c() {
 				n.add(e), e.onfinish = () => {
 					a.removeAttribute(hc), e.cancel(), n.delete(e);
 				};
-			}, s = a instanceof HTMLImageElement ? a : a.querySelector("img.home-news-parallax-copy, img");
+			}, s = a instanceof HTMLImageElement ? a : a.querySelector("img");
 			s && !s.complete ? (s.addEventListener("load", o, { once: !0 }), s.addEventListener("error", o, { once: !0 })) : o();
 		});
 	}, {
@@ -2818,20 +2821,8 @@ function _c() {
 	}, { once: !0 });
 }
 //#endregion
-//#region src/modules/home-image-parallax.ts
-var vc = 40;
-function yc() {
-	if (!document.querySelector(".werk_hero_section") || u()) return;
-	let e = document.querySelector(".news_event img.intro_img"), t = document.querySelector(".about_section .about_img");
-	if (!e && !t || (t && !t.hasAttribute("data-parallax") && t.setAttribute("data-parallax", String(vc)), !e || e.closest(".home-news-parallax-frame"))) return;
-	let n = document.createElement("span");
-	n.className = "home-news-parallax-frame", e.before(n), n.append(e);
-	let r = e.cloneNode(!0);
-	r.classList.add("home-news-parallax-copy"), r.removeAttribute("id"), r.removeAttribute("data-home-image-wipe"), r.setAttribute("data-parallax", String(vc)), r.setAttribute("alt", ""), r.setAttribute("aria-hidden", "true"), n.append(r);
-}
-//#endregion
 //#region src/modules/home-heading-reveal.ts
-var bc = "h1, h2, h3, h4, h5, h6", xc = [
+var vc = "h1, h2, h3, h4, h5, h6", yc = [
 	"[data-reveal=\"off\"]",
 	"[hidden]",
 	"[role=\"dialog\"]",
@@ -2845,8 +2836,8 @@ var bc = "h1, h2, h3, h4, h5, h6", xc = [
 	".page-transition-overlay",
 	"[data-site-menu]",
 	".top_bar_section"
-].join(", "), Sc = "data-home-heading-pending", Cc = !1;
-function wc() {
+].join(", "), bc = "data-home-heading-pending", xc = !1;
+function Sc() {
 	let e = document.documentElement;
 	return e.classList.contains("is-page-transition-entering") ? new Promise((t) => {
 		let n = new MutationObserver(() => {
@@ -2858,25 +2849,25 @@ function wc() {
 		});
 	}) : Promise.resolve();
 }
-function Tc() {
+function Cc() {
 	var e, t, n;
-	if (Cc || window.location.pathname !== "/" || u()) return;
-	let r = o(bc).filter((e) => {
+	if (xc || window.location.pathname !== "/" || u()) return;
+	let r = o(vc).filter((e) => {
 		var t;
-		return ((t = e.textContent) == null ? void 0 : t.trim()) && !e.closest(xc) && !e.querySelector("a, button, input, select, textarea") && e.getClientRects().length > 0;
+		return ((t = e.textContent) == null ? void 0 : t.trim()) && !e.closest(yc) && !e.querySelector("a, button, input, select, textarea") && e.getClientRects().length > 0;
 	});
 	if (!r.length) return;
-	Cc = !0, r.forEach((e) => e.setAttribute(Sc, ""));
+	xc = !0, r.forEach((e) => e.setAttribute(bc, ""));
 	let i = [], a = (e = (t = document.fonts) == null ? void 0 : t.ready) == null ? Promise.resolve() : e;
 	Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
 		a,
 		(n = window.__sitePreloader) == null ? void 0 : n.ready,
-		wc()
+		Sc()
 	]).then(([{ SplitText: e }]) => {
 		b.registerPlugin($, e), r.forEach((t) => {
 			if (!t.isConnected || t.getClientRects().length === 0) {
-				t.removeAttribute(Sc);
+				t.removeAttribute(bc);
 				return;
 			}
 			let n = !1, r, a;
@@ -2913,16 +2904,16 @@ function Tc() {
 					a == null || a.kill(), r == null || r.kill(), o.revert();
 				});
 			} catch (e) {}
-			t.removeAttribute(Sc);
+			t.removeAttribute(bc);
 		}), $.refresh();
-	}).catch(() => r.forEach((e) => e.removeAttribute(Sc))), window.addEventListener("pagehide", () => {
-		i.forEach((e) => e()), r.forEach((e) => e.removeAttribute(Sc));
+	}).catch(() => r.forEach((e) => e.removeAttribute(bc))), window.addEventListener("pagehide", () => {
+		i.forEach((e) => e()), r.forEach((e) => e.removeAttribute(bc));
 	}, { once: !0 });
 }
 //#endregion
 //#region src/modules/atelier-hero-reveal.ts
-var Ec = ".atelier_hero_section .atlier_slide_eyebrow", Dc = ".atelier_hero_section .atelier_slide_heading", Oc = "data-atelier-hero-reveal-pending", kc = "0.02,0.9,0.03,1", Ac = !1;
-function jc() {
+var wc = ".atelier_hero_section .atlier_slide_eyebrow", Tc = ".atelier_hero_section .atelier_slide_heading", Ec = "data-atelier-hero-reveal-pending", Dc = "0.02,0.9,0.03,1", Oc = !1;
+function kc() {
 	let e = document.documentElement;
 	return e.classList.contains("is-page-transition-entering") ? new Promise((t) => {
 		let n = new MutationObserver(() => {
@@ -2934,22 +2925,22 @@ function jc() {
 		});
 	}) : Promise.resolve();
 }
-function Mc() {
+function Ac() {
 	var e, t, n, r, i;
-	if (Ac || !/^\/atelier\/?$/i.test(window.location.pathname) || u()) return;
-	let a = document.querySelector(Ec), o = document.querySelector(Dc);
+	if (Oc || !/^\/atelier\/?$/i.test(window.location.pathname) || u()) return;
+	let a = document.querySelector(wc), o = document.querySelector(Tc);
 	if (!a || !o || !((e = a.textContent) != null && e.trim()) || !((t = o.textContent) != null && t.trim())) return;
-	Ac = !0, a.setAttribute(Oc, ""), o.setAttribute(Oc, "");
+	Oc = !0, a.setAttribute(Ec, ""), o.setAttribute(Ec, "");
 	let s = !1, c = () => void 0, l = (n = (r = document.fonts) == null ? void 0 : r.ready) == null ? Promise.resolve() : n;
 	Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
 		l,
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
-		jc()
+		kc()
 	]).then(([{ SplitText: e }]) => {
 		if (s || !a.isConnected || !o.isConnected) return;
 		b.registerPlugin(e, zo);
-		let t = zo.create("atelier-preloader-text", kc), n, r, i, l = 0, u = !1, d = () => {
+		let t = zo.create("atelier-preloader-text", Dc), n, r, i, l = 0, u = !1, d = () => {
 			if (!n || !r) return;
 			i == null || i.kill();
 			let e = n.lines, a = r.lines;
@@ -2997,27 +2988,27 @@ function Mc() {
 				linesClass: "atelier-hero-line",
 				autoSplit: !0,
 				onSplit: f
-			}), window.cancelAnimationFrame(l), l = 0, d(), a.removeAttribute(Oc), o.removeAttribute(Oc), i == null || i.play(0), c = () => {
+			}), window.cancelAnimationFrame(l), l = 0, d(), a.removeAttribute(Ec), o.removeAttribute(Ec), i == null || i.play(0), c = () => {
 				window.cancelAnimationFrame(l), i == null || i.kill(), n == null || n.revert(), r == null || r.revert();
 			};
 		} catch (e) {
 			window.cancelAnimationFrame(l), n == null || n.revert(), r == null || r.revert();
 		}
 	}).catch(() => void 0).finally(() => {
-		a.removeAttribute(Oc), o.removeAttribute(Oc);
+		a.removeAttribute(Ec), o.removeAttribute(Ec);
 	}), window.addEventListener("pagehide", () => {
 		s = !0, c();
 	}, { once: !0 });
 }
 //#endregion
 //#region src/modules/atelier-story-reveal.ts
-var Nc = ".atelier_about_section.u-theme-dark5", Pc = "data-atelier-story-pending", Fc = "0.05,0.85,0.05,1", Ic = !1;
-function Lc() {
+var jc = ".atelier_about_section.u-theme-dark5", Mc = "data-atelier-story-pending", Nc = "0.05,0.85,0.05,1", Pc = !1;
+function Fc() {
 	var e, t, n;
-	if (Ic || !/^\/atelier\/?$/i.test(window.location.pathname) || u()) return;
-	let r = document.querySelector(Nc), i = r == null ? void 0 : r.querySelector(".atelier_about_h2"), a = r == null ? void 0 : r.querySelector(".atelier_story_p");
+	if (Pc || !/^\/atelier\/?$/i.test(window.location.pathname) || u()) return;
+	let r = document.querySelector(jc), i = r == null ? void 0 : r.querySelector(".atelier_about_h2"), a = r == null ? void 0 : r.querySelector(".atelier_story_p");
 	if (!i || !a) return;
-	Ic = !0, i.setAttribute(Pc, ""), a.setAttribute(Pc, "");
+	Pc = !0, i.setAttribute(Mc, ""), a.setAttribute(Mc, "");
 	let o = !1, s = [], c = (e = (t = document.fonts) == null ? void 0 : t.ready) == null ? Promise.resolve() : e;
 	Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
@@ -3026,7 +3017,7 @@ function Lc() {
 	]).then(([{ SplitText: e }]) => {
 		if (o || !i.isConnected || !a.isConnected) return;
 		b.registerPlugin(zo, $, e);
-		let t = zo.create("atelier-story-text", Fc), n = (n, r, i, a, o) => {
+		let t = zo.create("atelier-story-text", Nc), n = (n, r, i, a, o) => {
 			let c = !1, l, u, d = e.create(n, {
 				type: r,
 				mask: r,
@@ -3057,7 +3048,7 @@ function Lc() {
 			});
 			s.push(() => {
 				u == null || u.kill(), l == null || l.kill(), d.revert();
-			}), n.removeAttribute(Pc);
+			}), n.removeAttribute(Mc);
 		};
 		try {
 			n(i, "words", 2.4, .14, 0), n(a, "lines", 2.6, .07, .2), $.refresh();
@@ -3065,20 +3056,20 @@ function Lc() {
 			s.forEach((e) => e());
 		}
 	}).catch(() => void 0).finally(() => {
-		i.removeAttribute(Pc), a.removeAttribute(Pc);
+		i.removeAttribute(Mc), a.removeAttribute(Mc);
 	}), window.addEventListener("pagehide", () => {
 		o = !0, s.forEach((e) => e());
 	}, { once: !0 });
 }
 //#endregion
 //#region src/main.ts
-var Rc = !1;
-uc(), Ka(), Mr(), Tc(), Mc(), Lc(), pc();
-function zc() {
-	if (Rc) return;
-	Rc = !0;
+var Ic = !1;
+uc(), Ka(), Mr(), Cc(), Ac(), Fc(), pc();
+function Lc() {
+	if (Ic) return;
+	Ic = !0;
 	let e = ee();
-	ba({ i18n: e }), wi({ i18n: e }), yc(), uo(), As(), ie(), _(), E(), Ps(), Is(), _c(), window.SiteInteractions = {
+	ba({ i18n: e }), wi({ i18n: e }), uo(), As(), ie(), _(), E(), Ps(), Is(), _c(), window.SiteInteractions = {
 		openModal: ga,
 		openContentModal: ha,
 		closeModal: _a,
@@ -3086,7 +3077,7 @@ function zc() {
 		closeLightbox: xi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", zc, { once: !0 }) : zc();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", Lc, { once: !0 }) : Lc();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map
