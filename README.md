@@ -695,15 +695,15 @@ Bewegung in 200 ms linear ein; die H1 faehrt in 600 ms pro Zeile um 50 ms
 versetzt aus der Maske. Sie startet 60 ms nach der Eyebrow und verwendet
 `cubic-bezier(.33, 1, .68, 1)`. Die globale Textanimation ueberspringt diese H1.
 
-Weitere einfache Textueberschriften koennen mit `data-masked-line-reveal`
+Weitere Ueberschriften koennen mit `data-masked-line-reveal`
 denselben Effekt nutzen. `data-masked-line-reveal="viewport"` startet erst beim
 Einscrollen. Ein optionales Begleitelement mit `data-masked-reveal-label`
 blendet in 200 ms linear ein. CSS-Variablen am Heading konfigurieren
 `--masked-reveal-duration` (Standard `600ms`), `--masked-reveal-ease`
 (`cubic-bezier(.33, 1, .68, 1)`), `--masked-reveal-stagger` (`50ms`) und
 `--masked-reveal-delay` (`0ms`). Die Zeilen werden nach dem Laden der Schriften
-ermittelt und bei Breitenwechsel neu umbrochen. Headings mit eingebettetem
-Markup werden zum Schutz der vorhandenen Gestaltung unveraendert angezeigt.
+ermittelt und bei Breitenwechsel neu umbrochen. Formatiertes Inline-Markup
+bleibt erhalten; interaktive oder mediale Kindelemente bleiben unveraendert.
 
 Die erste Atelier-About-Section (`Atelier 1994–2012`) uebernimmt aus
 `atelier-animation.html` den Wort-Reveal fuer die H2 und den Zeilen-Reveal fuer

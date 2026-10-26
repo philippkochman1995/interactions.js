@@ -10,6 +10,7 @@ const COMPLETE = 'data-masked-reveal-complete';
 interface HeadingState {
   element: HTMLElement;
   text: string;
+  markup: string;
   width: number;
   played: boolean;
   resizeObserver: ResizeObserver;
@@ -49,20 +50,22 @@ function play(state: HeadingState): void {
 }
 
 function rebuild(state: HeadingState, replay = false): void {
-  const { element, text } = state;
+  const { element, text, markup } = state;
   if (!element.isConnected || !SplitTextClass) return;
   const wasPlayed = state.played && !replay;
   element.classList.remove('is-masked-reveal-playing');
   element.removeAttribute(COMPLETE);
-  element.textContent = text;
+  element.innerHTML = markup;
 
   try {
     const split = SplitTextClass.create(element, { type: 'lines' });
-    const lines = split.lines.map((line) => line.textContent ?? '').filter((line) => line.trim());
+    const lines = split.lines.filter((line) => line.textContent?.trim())
+      .map((line) => Array.from(line.childNodes, (node) => node.cloneNode(true)));
     split.revert();
     if (!lines.length) throw new Error('No text lines found');
 
     const fragment = document.createDocumentFragment();
+    const stagger = staggerMs(element);
     lines.forEach((line, index) => {
       if (index) fragment.append(document.createTextNode(' '));
       const mask = document.createElement('span');
@@ -70,8 +73,8 @@ function rebuild(state: HeadingState, replay = false): void {
       mask.setAttribute('aria-hidden', 'true');
       const inner = document.createElement('span');
       inner.className = 'masked-reveal-line__text';
-      inner.style.setProperty('--masked-reveal-line-delay', `${index * staggerMs(element)}ms`);
-      inner.textContent = line;
+      inner.style.setProperty('--masked-reveal-line-delay', `${index * stagger}ms`);
+      inner.append(...line);
       mask.append(inner);
       fragment.append(mask);
     });
@@ -97,7 +100,7 @@ function rebuild(state: HeadingState, replay = false): void {
       play(state);
     }
   } catch {
-    element.textContent = text;
+    element.innerHTML = markup;
     element.removeAttribute(READY);
     element.setAttribute(COMPLETE, '');
   }
@@ -105,14 +108,15 @@ function rebuild(state: HeadingState, replay = false): void {
 
 function addHeading(element: HTMLElement): void {
   if (headings.has(element) || !element.textContent?.trim()) return;
-  // Inline Webflow markup may carry its own styling or links; leave it intact.
-  if (element.children.length) {
+  // Interactive or media children keep their original DOM and behavior.
+  if (element.querySelector('a, button, input, select, textarea, svg, img, canvas, video, iframe')) {
     element.setAttribute(COMPLETE, '');
     return;
   }
   const state: HeadingState = {
     element,
-    text: element.textContent,
+    text: element.innerText?.replace(/\s+/g, ' ').trim() || element.textContent,
+    markup: element.innerHTML,
     width: 0,
     played: false,
     resizeObserver: new ResizeObserver(() => {

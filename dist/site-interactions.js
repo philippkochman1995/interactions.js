@@ -3024,60 +3024,61 @@ function qc(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"));
 }
 function Jc(e, t = !1) {
-	let { element: n, text: r } = e;
+	let { element: n, text: r, markup: i } = e;
 	if (!n.isConnected || !Hc) return;
-	let i = e.played && !t;
-	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(zc), n.textContent = r;
+	let a = e.played && !t;
+	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(zc), n.innerHTML = i;
 	try {
-		let t = Hc.create(n, { type: "lines" }), o = t.lines.map((e) => {
+		let t = Hc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
 			var t;
-			return (t = e.textContent) == null ? "" : t;
-		}).filter((e) => e.trim());
-		if (t.revert(), !o.length) throw Error("No text lines found");
-		let s = document.createDocumentFragment();
-		if (o.forEach((e, t) => {
+			return (t = e.textContent) == null ? void 0 : t.trim();
+		}).map((e) => Array.from(e.childNodes, (e) => e.cloneNode(!0)));
+		if (t.revert(), !i.length) throw Error("No text lines found");
+		let s = document.createDocumentFragment(), c = Gc(n);
+		if (i.forEach((e, t) => {
 			t && s.append(document.createTextNode(" "));
+			let n = document.createElement("span");
+			n.className = "masked-reveal-line", n.setAttribute("aria-hidden", "true");
 			let r = document.createElement("span");
-			r.className = "masked-reveal-line", r.setAttribute("aria-hidden", "true");
-			let i = document.createElement("span");
-			i.className = "masked-reveal-line__text", i.style.setProperty("--masked-reveal-line-delay", `${t * Gc(n)}ms`), i.textContent = e, r.append(i), s.append(r);
-		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Rc, ""), e.width = n.getBoundingClientRect().width, i) {
+			r.className = "masked-reveal-line__text", r.style.setProperty("--masked-reveal-line-delay", `${t * c}ms`), r.append(...e), n.append(r), s.append(n);
+		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Rc, ""), e.width = n.getBoundingClientRect().width, a) {
 			e.played = !0, n.setAttribute(zc, "");
 			return;
 		}
 		if (e.played = !1, n.getAttribute("data-masked-line-reveal") === "viewport" && "IntersectionObserver" in window) {
-			var a;
-			(a = e.intersectionObserver) == null || a.disconnect(), e.intersectionObserver = new IntersectionObserver((t, n) => {
+			var o;
+			(o = e.intersectionObserver) == null || o.disconnect(), e.intersectionObserver = new IntersectionObserver((t, n) => {
 				t.some((e) => e.isIntersecting) && (n.disconnect(), qc(e));
 			}, { threshold: .1 }), e.intersectionObserver.observe(n);
 		} else qc(e);
 	} catch (e) {
-		n.textContent = r, n.removeAttribute(Rc), n.setAttribute(zc, "");
+		n.innerHTML = i, n.removeAttribute(Rc), n.setAttribute(zc, "");
 	}
 }
 function Yc(e) {
-	var t, n, r;
+	var t, n, r, i;
 	if (Bc.has(e) || !((t = e.textContent) != null && t.trim())) return;
-	if (e.children.length) {
+	if (e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
 		e.setAttribute(zc, "");
 		return;
 	}
-	let i = {
+	let a = {
 		element: e,
-		text: e.textContent,
+		text: ((n = e.innerText) == null ? void 0 : n.replace(/\s+/g, " ").trim()) || e.textContent,
+		markup: e.innerHTML,
 		width: 0,
 		played: !1,
 		resizeObserver: new ResizeObserver(() => {
-			!i.width || Math.abs(e.getBoundingClientRect().width - i.width) < 1 || Jc(i);
+			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || Jc(a);
 		})
 	};
-	Bc.set(e, i), i.resizeObserver.observe(e), Promise.all([
+	Bc.set(e, a), a.resizeObserver.observe(e), Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
-		(n = document.fonts) == null ? void 0 : n.ready,
-		(r = window.__sitePreloader) == null ? void 0 : r.ready,
+		(r = document.fonts) == null ? void 0 : r.ready,
+		(i = window.__sitePreloader) == null ? void 0 : i.ready,
 		Kc()
 	]).then(([{ SplitText: t }]) => {
-		b.registerPlugin(t), Hc = t, e.isConnected && Jc(i);
+		b.registerPlugin(t), Hc = t, e.isConnected && Jc(a);
 	}).catch(() => {
 		e.setAttribute(zc, "");
 	});
