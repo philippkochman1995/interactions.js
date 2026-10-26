@@ -2109,7 +2109,7 @@ function Ko(e) {
 function qo(e, t = !0) {
 	var n, i;
 	let a = r(e.root, yo) || To, o = r(e.root, bo) || Eo, s = Uo(e), c = e.isOpen ? a : e.isHovered ? o : s || o, l = (n = e.toggleLabel) == null ? e.toggle : n, d = Go(l), f = (i = d.textContent) == null ? "" : i, p = e.labelTransition;
-	if (p && t && window.location.pathname !== "/" && !u()) {
+	if (p && t && !u()) {
 		if (c === p.from) {
 			p.timeline.reverse();
 			return;
@@ -2121,7 +2121,7 @@ function qo(e, t = !0) {
 	}
 	if (f === c && !p) return;
 	let m = p && p.timeline.progress() < .5 ? p.from : f;
-	if (p == null || p.timeline.kill(), e.labelTransition = void 0, b.killTweensOf(d), Ko(l), b.set(d, { clearProps: "transform,opacity" }), d.removeAttribute("aria-hidden"), window.location.pathname === "/" || u() || !t || !m || m === c) {
+	if (p == null || p.timeline.kill(), e.labelTransition = void 0, b.killTweensOf(d), Ko(l), b.set(d, { clearProps: "transform,opacity" }), d.removeAttribute("aria-hidden"), u() || !t || !m || m === c) {
 		d.textContent = c;
 		return;
 	}
