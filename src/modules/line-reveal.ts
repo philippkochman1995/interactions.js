@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { prefersReducedMotion, qsa } from './utils';
 
-const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block';
+const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block, .news_event .intro_date_infos > .u-p-small, .news_highlight_section .intro_date_infos > .u-p-small';
 const RICH_TEXT_SELECTOR = '.w-richtext, .rich-text';
 const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
@@ -38,6 +38,8 @@ let initialized = false;
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
+  if (element.closest('.editionen_button_wrap')) return false;
+  if (element.matches('p') && element.closest('.intro_date_infos > .u-p-small')) return false;
   if (element.closest('.quote-block') && !element.matches('.quote-block')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading')) return false;
   if (element.matches('.bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub')) return false;
@@ -87,7 +89,10 @@ function buildScrollReveal(state: RevealState): void {
   const elements = targets(state);
   if (!elements.length || state.played) return;
 
-  const timeline = gsap.timeline({ paused: true, onComplete: () => { state.played = true; } });
+  const timeline = gsap.timeline({ paused: true, onComplete: () => {
+    state.played = true;
+    state.targets.forEach((target, index) => { target.style.transform = state.originals[index].transform; });
+  } });
   timeline.fromTo(elements, FADE_UP_FROM, FADE_UP_TO);
   state.timeline = timeline;
   state.trigger = ScrollTrigger.create({
@@ -107,6 +112,11 @@ function buildHeroReveal(states: RevealState[], intro: gsap.core.Timeline): void
     const priceDelay = state.element.matches('.hero-price') ? 0.42 : 0;
     intro.fromTo(elements, FADE_UP_FROM, FADE_UP_TO, 0.6 + index * 0.12 + priceDelay);
   });
+  intro.call(() => {
+    states.forEach((state) => state.targets.forEach((target, index) => {
+      target.style.transform = state.originals[index].transform;
+    }));
+  });
 }
 
 function waitForFonts(): Promise<void> {
@@ -116,34 +126,56 @@ function waitForFonts(): Promise<void> {
 
 export function initLineReveal(root: ParentNode = document): void {
   if (initialized || prefersReducedMotion()) return;
-
-  const elements = qsa<HTMLElement>(TEXT_SELECTOR, root).filter(isEligible);
-  if (!elements.length) return;
   initialized = true;
   gsap.registerPlugin(ScrollTrigger, CustomEase);
   CustomEase.create('atelier-fade-up', '.33,1,.68,1');
 
-  const groups = new Map<HTMLElement, HTMLElement[]>();
-  elements.forEach((element) => {
-    const richText = element.matches('p') ? element.closest<HTMLElement>(RICH_TEXT_SELECTOR) : null;
-    const key = richText ?? element;
-    groups.set(key, [...(groups.get(key) ?? []), element]);
-  });
-  const states = Array.from(groups, ([element, groupedTargets]): RevealState => ({
-    element,
-    targets: groupedTargets,
-    hero: isHero(element),
-    played: false,
-    signature: '',
-    originals: groupedTargets.map((target) => ({ opacity: target.style.opacity, transform: target.style.transform })),
-  }));
-  states.forEach((state) => state.targets.forEach((target) => target.setAttribute(PENDING, '')));
-
+  const states: RevealState[] = [];
+  const seen = new WeakSet<HTMLElement>();
   let intro: gsap.core.Timeline | undefined;
   let observer: ResizeObserver | undefined;
   let refreshFrame = 0;
+  let scanFrame = 0;
   let ready = false;
   let heroStarted = false;
+
+  const scan = (): void => {
+    const groups = new Map<HTMLElement, HTMLElement[]>();
+    qsa<HTMLElement>(TEXT_SELECTOR, root).filter(isEligible).forEach((element) => {
+      const richText = element.matches('p') ? element.closest<HTMLElement>(RICH_TEXT_SELECTOR) : null;
+      const key = richText ?? element;
+      if (seen.has(key)) return;
+      groups.set(key, [...(groups.get(key) ?? []), element]);
+    });
+    groups.forEach((groupedTargets, element) => {
+      seen.add(element);
+      const state: RevealState = {
+        element,
+        targets: groupedTargets,
+        hero: !ready && isHero(element),
+        played: false,
+        signature: '',
+        originals: groupedTargets.map((target) => ({ opacity: target.style.opacity, transform: target.style.transform })),
+      };
+      states.push(state);
+      state.targets.forEach((target) => target.setAttribute(PENDING, ''));
+      if (ready) {
+        buildScrollReveal(state);
+        observer?.observe(state.element);
+      }
+    });
+    if (ready && groups.size) ScrollTrigger.refresh();
+  };
+
+  scan();
+  const mutationObserver = new MutationObserver(() => {
+    if (scanFrame) return;
+    scanFrame = requestAnimationFrame(() => {
+      scanFrame = 0;
+      scan();
+    });
+  });
+  mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
 
   const rebuild = (): void => {
     if (!ready) return;
@@ -176,6 +208,7 @@ export function initLineReveal(root: ParentNode = document): void {
   };
 
   void Promise.all([waitForFonts(), window.__sitePreloader?.ready]).then(() => {
+    scan();
     ready = true;
     rebuild();
     observer = new ResizeObserver(scheduleRebuild);
@@ -185,6 +218,8 @@ export function initLineReveal(root: ParentNode = document): void {
   });
 
   window.addEventListener('pagehide', () => {
+    mutationObserver.disconnect();
+    window.cancelAnimationFrame(scanFrame);
     window.cancelAnimationFrame(refreshFrame);
     observer?.disconnect();
     intro?.kill();

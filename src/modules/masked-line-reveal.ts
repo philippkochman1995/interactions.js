@@ -66,10 +66,18 @@ function play(state: HeadingState): void {
   }
 }
 
+function revealEditionContent(heading: HTMLElement): void {
+  if (!heading.matches('.editionen_title')) return;
+  heading.closest('.editionen_item')?.querySelectorAll<HTMLElement>('[data-edition-content-reveal]')
+    .forEach((element) => element.classList.add('is-edition-content-in'));
+}
+
 function rebuild(state: HeadingState, replay = false): void {
   const { element, text, markup } = state;
   if (!element.isConnected || !SplitTextClass) return;
-  const wasPlayed = state.played && !replay;
+  // A font or width change can arrive while the CSS reveal is still running.
+  // Only preserve the finished state; otherwise rebuild and replay the lines.
+  const wasPlayed = state.played && element.hasAttribute(COMPLETE) && !replay;
   element.classList.remove('is-masked-reveal-playing');
   element.removeAttribute(COMPLETE);
   element.innerHTML = markup;
@@ -102,6 +110,7 @@ function rebuild(state: HeadingState, replay = false): void {
     if (wasPlayed) {
       state.played = true;
       element.setAttribute(COMPLETE, '');
+      revealEditionContent(element);
       return;
     }
     state.played = false;
@@ -120,6 +129,7 @@ function rebuild(state: HeadingState, replay = false): void {
     element.innerHTML = markup;
     element.removeAttribute(READY);
     element.setAttribute(COMPLETE, '');
+    revealEditionContent(element);
   }
 }
 
@@ -184,6 +194,17 @@ function scan(): void {
   activePath = window.location.pathname;
   document.querySelectorAll<HTMLElement>(HEADING_SELECTOR).forEach(addHeading);
   document.querySelectorAll<HTMLElement>(LABEL_SELECTOR).forEach(addLabel);
+  document.querySelectorAll<HTMLElement>('.editionen_item').forEach((item) => {
+    item.querySelectorAll<HTMLElement>('.editionen_meta, .editionen_note, .editionen_button_wrap')
+      .forEach((element, index) => {
+        if (element.hasAttribute('data-edition-content-reveal')) return;
+        element.setAttribute('data-edition-content-reveal', '');
+        element.style.setProperty('--edition-content-delay', `${index * 90}ms`);
+        if (item.querySelector('.editionen_title')?.hasAttribute(COMPLETE)) {
+          element.classList.add('is-edition-content-in');
+        }
+      });
+  });
   if (lineObserver) {
     document.querySelectorAll<HTMLElement>('.accordion_section .accordion_item').forEach((item, index) => {
       if (observedLines.has(item)) return;
@@ -234,5 +255,6 @@ export function initMaskedLineReveal(): void {
     if (!element || target !== element.querySelector('.masked-reveal-line:last-of-type > .masked-reveal-line__text')) return;
     element.classList.remove('is-masked-reveal-playing');
     element.setAttribute(COMPLETE, '');
+    revealEditionContent(element);
   });
 }

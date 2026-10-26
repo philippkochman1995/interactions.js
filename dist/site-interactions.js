@@ -1256,7 +1256,7 @@ $.sort = function(e) {
 }, Yt() && J.registerPlugin($);
 //#endregion
 //#region src/modules/line-reveal.ts
-var Vr = "h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block", Hr = ".w-richtext, .rich-text", Ur = [
+var Vr = "h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block, .news_event .intro_date_infos > .u-p-small, .news_highlight_section .intro_date_infos > .u-p-small", Hr = ".w-richtext, .rich-text", Ur = [
 	".fwm-modal",
 	"[data-modal]",
 	"[data-site-modal]",
@@ -1291,7 +1291,7 @@ var Vr = "h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-
 }, Yr = !1;
 function Xr(e) {
 	var t;
-	return e.closest(Ur) || e.closest("[hidden]") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
+	return e.closest(Ur) || e.closest("[hidden]") || e.closest(".editionen_button_wrap") || e.matches("p") && e.closest(".intro_date_infos > .u-p-small") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
 }
 function Zr(e) {
 	if (e.closest(Wr)) return !0;
@@ -1329,7 +1329,9 @@ function ti(e) {
 	let n = b.timeline({
 		paused: !0,
 		onComplete: () => {
-			e.played = !0;
+			e.played = !0, e.targets.forEach((t, n) => {
+				t.style.transform = e.originals[n].transform;
+			});
 		}
 	});
 	n.fromTo(t, qr, Jr), e.timeline = n, e.trigger = $.create({
@@ -1349,6 +1351,10 @@ function ni(e, t) {
 		if (!r.length || e.played) return;
 		let i = e.element.matches(".hero-price") ? .42 : 0;
 		t.fromTo(r, qr, Jr, .6 + n * .12 + i);
+	}), t.call(() => {
+		e.forEach((e) => e.targets.forEach((t, n) => {
+			t.style.transform = e.originals[n].transform;
+		}));
 	});
 }
 function ri() {
@@ -1357,44 +1363,56 @@ function ri() {
 function ii(e = document) {
 	var t;
 	if (Yr || u()) return;
-	let n = o(Vr, e).filter(Xr);
-	if (!n.length) return;
 	Yr = !0, b.registerPlugin($, U), U.create("atelier-fade-up", ".33,1,.68,1");
-	let r = /* @__PURE__ */ new Map();
-	n.forEach((e) => {
-		var t;
-		let n = e.matches("p") ? e.closest(Hr) : null, i = n == null ? e : n;
-		r.set(i, [...(t = r.get(i)) == null ? [] : t, e]);
+	let n = [], r = /* @__PURE__ */ new WeakSet(), i, a, s = 0, c = 0, l = !1, d = !1, f = () => {
+		let t = /* @__PURE__ */ new Map();
+		o(Vr, e).filter(Xr).forEach((e) => {
+			var n;
+			let i = e.matches("p") ? e.closest(Hr) : null, a = i == null ? e : i;
+			r.has(a) || t.set(a, [...(n = t.get(a)) == null ? [] : n, e]);
+		}), t.forEach((e, t) => {
+			r.add(t);
+			let i = {
+				element: t,
+				targets: e,
+				hero: !l && Zr(t),
+				played: !1,
+				signature: "",
+				originals: e.map((e) => ({
+					opacity: e.style.opacity,
+					transform: e.style.transform
+				}))
+			};
+			n.push(i), i.targets.forEach((e) => e.setAttribute(Gr, "")), l && (ti(i), a == null || a.observe(i.element));
+		}), l && t.size && $.refresh();
+	};
+	f();
+	let p = new MutationObserver(() => {
+		c || (c = requestAnimationFrame(() => {
+			c = 0, f();
+		}));
 	});
-	let i = Array.from(r, ([e, t]) => ({
-		element: e,
-		targets: t,
-		hero: Zr(e),
-		played: !1,
-		signature: "",
-		originals: t.map((e) => ({
-			opacity: e.style.opacity,
-			transform: e.style.transform
-		}))
-	}));
-	i.forEach((e) => e.targets.forEach((e) => e.setAttribute(Gr, "")));
-	let a, s, c = 0, l = !1, d = !1, f = () => {
-		l && (a && a.progress() > 0 && (d = !0, i.filter((e) => e.hero).forEach((e) => {
+	p.observe(document.documentElement, {
+		childList: !0,
+		subtree: !0
+	});
+	let m = () => {
+		l && (i && i.progress() > 0 && (d = !0, n.filter((e) => e.hero).forEach((e) => {
 			e.played = !0;
-		})), a == null || a.kill(), i.forEach($r), a = b.timeline({ paused: !0 }), ni(i.filter((e) => e.hero && e.element.isConnected), a), i.filter((e) => !e.hero && e.element.isConnected).forEach(ti), !d && a.duration() > 0 && (a.call(() => {
+		})), i == null || i.kill(), n.forEach($r), i = b.timeline({ paused: !0 }), ni(n.filter((e) => e.hero && e.element.isConnected), i), n.filter((e) => !e.hero && e.element.isConnected).forEach(ti), !d && i.duration() > 0 && (i.call(() => {
 			d = !0;
-		}, void 0, .6), a.play(0)), $.refresh());
-	}, p = () => {
-		c || (c = window.requestAnimationFrame(() => {
-			c = 0, i.some((e) => e.element.isConnected && Qr(e.element) !== e.signature) && f();
+		}, void 0, .6), i.play(0)), $.refresh());
+	}, h = () => {
+		s || (s = window.requestAnimationFrame(() => {
+			s = 0, n.some((e) => e.element.isConnected && Qr(e.element) !== e.signature) && m();
 		}));
 	};
 	Promise.all([ri(), (t = window.__sitePreloader) == null ? void 0 : t.ready]).then(() => {
 		var e;
-		l = !0, f(), s = new ResizeObserver(p), i.forEach((e) => s == null ? void 0 : s.observe(e.element)), window.addEventListener("resize", p, { passive: !0 }), (e = document.fonts) == null || e.addEventListener("loadingdone", f);
+		f(), l = !0, m(), a = new ResizeObserver(h), n.forEach((e) => a == null ? void 0 : a.observe(e.element)), window.addEventListener("resize", h, { passive: !0 }), (e = document.fonts) == null || e.addEventListener("loadingdone", m);
 	}), window.addEventListener("pagehide", () => {
 		var e;
-		window.cancelAnimationFrame(c), s == null || s.disconnect(), a == null || a.kill(), i.forEach($r), window.removeEventListener("resize", p), (e = document.fonts) == null || e.removeEventListener("loadingdone", f), i.forEach((e) => e.targets.forEach((e) => e.removeAttribute(Gr)));
+		p.disconnect(), window.cancelAnimationFrame(c), window.cancelAnimationFrame(s), a == null || a.disconnect(), i == null || i.kill(), n.forEach($r), window.removeEventListener("resize", h), (e = document.fonts) == null || e.removeEventListener("loadingdone", m), n.forEach((e) => e.targets.forEach((e) => e.removeAttribute(Gr)));
 	}, { once: !0 });
 }
 //#endregion
@@ -2939,6 +2957,8 @@ var jc = "data-site-image-reveal", Mc = "is-site-image-in", Nc = ".news_event im
 	".bio_hero_section",
 	".bio_photo",
 	".news_event",
+	".news_highlight_section",
+	".contact_img",
 	"[data-insta-feed]",
 	"[data-edition-slider]",
 	"[data-atelier-slideshow-root]",
@@ -2997,19 +3017,26 @@ function zc() {
 				a(n, e, "bio");
 			});
 		}
-		/^\/atelier\/?$/i.test(e) || (document.querySelectorAll(Nc).forEach((e) => {
-			o(e);
-		}), document.querySelectorAll(".editionen_media[data-edition-slider]").forEach((e, t) => {
-			let n = e.querySelector("img.editionen_img");
-			n && a(e, n, "slider", t % 4 * 90);
-		}), document.querySelectorAll("[data-insta-track] > :is(div, a):not([aria-hidden=\"true\"])").forEach((e, t) => {
-			let n = e.querySelector("img");
-			n && a(e, n, "instagram", Math.min(t, 4) * 85);
-		}), document.querySelectorAll("body img").forEach((e, t) => {
-			if (e.closest(Ic) || e.closest(`[${jc}]`) || !e.getAttribute("src") && !e.getAttribute("srcset")) return;
-			let n = e.closest(".site-lightbox-trigger, .news_img, .contact_img, .about_img, .image-absolute-full-wrapper");
-			a(n == null ? e : n, e, n ? "media" : "plain", t % 4 * 70);
-		}));
+		if (!/^\/atelier\/?$/i.test(e)) {
+			if (document.querySelectorAll(Nc).forEach((e) => {
+				o(e);
+			}), /^\/kontakt\/?$/i.test(e)) {
+				let e = document.querySelector(".contact_img img.is-contact-image"), t = e == null ? void 0 : e.closest(".site-lightbox-trigger");
+				e && t && a(t, e, "contact");
+			}
+			let t = /^\/(?:editionen|werk-ueberblick|werke(?:\/.*)?)\/?$/i.test(e);
+			t || document.querySelectorAll(".editionen_media[data-edition-slider]").forEach((e, t) => {
+				let n = e.querySelector("img.editionen_img");
+				n && a(e, n, "slider", t % 4 * 90);
+			}), document.querySelectorAll("[data-insta-track] > :is(div, a):not([aria-hidden=\"true\"])").forEach((e, t) => {
+				let n = e.querySelector("img");
+				n && a(e, n, "instagram", Math.min(t, 4) * 85);
+			}), document.querySelectorAll("body img").forEach((e, n) => {
+				if (t || e.closest(Ic) || e.closest(`[${jc}]`) || !e.getAttribute("src") && !e.getAttribute("srcset")) return;
+				let r = e.closest(".site-lightbox-trigger, .news_img, .contact_img, .about_img, .image-absolute-full-wrapper");
+				a(r == null ? e : r, e, r ? "media" : "plain", n % 4 * 70);
+			});
+		}
 	};
 	s();
 	let c = new MutationObserver(() => {
@@ -3050,10 +3077,14 @@ async function $c(e) {
 function el(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"), /^\/atelier\/?$/i.test(window.location.pathname) && e.element.matches(".atelier_hero_section .atelier_slide_heading") && document.dispatchEvent(new Event("atelier:hero-line-reveal")));
 }
-function tl(e, t = !1) {
+function tl(e) {
+	var t;
+	e.matches(".editionen_title") && ((t = e.closest(".editionen_item")) == null || t.querySelectorAll("[data-edition-content-reveal]").forEach((e) => e.classList.add("is-edition-content-in")));
+}
+function nl(e, t = !1) {
 	let { element: n, text: r, markup: i } = e;
 	if (!n.isConnected || !qc) return;
-	let a = e.played && !t;
+	let a = e.played && n.hasAttribute(Wc) && !t;
 	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Wc), n.innerHTML = i;
 	try {
 		let t = qc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
@@ -3069,7 +3100,7 @@ function tl(e, t = !1) {
 			let r = document.createElement("span");
 			r.className = "masked-reveal-line__text", r.style.setProperty("--masked-reveal-line-delay", `${t * c}ms`), r.append(...e), n.append(r), s.append(n);
 		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Uc, ""), e.width = n.getBoundingClientRect().width, a) {
-			e.played = !0, n.setAttribute(Wc, "");
+			e.played = !0, n.setAttribute(Wc, ""), tl(n);
 			return;
 		}
 		if (e.played = !1, n.getAttribute("data-masked-line-reveal") === "viewport" && "IntersectionObserver" in window) {
@@ -3079,10 +3110,10 @@ function tl(e, t = !1) {
 			}, { threshold: .1 }), e.intersectionObserver.observe(n);
 		} else el(e);
 	} catch (e) {
-		n.innerHTML = i, n.removeAttribute(Uc), n.setAttribute(Wc, "");
+		n.innerHTML = i, n.removeAttribute(Uc), n.setAttribute(Wc, ""), tl(n);
 	}
 }
-function nl(e) {
+function rl(e) {
 	var t, n, r, i;
 	if (Gc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
 	if (e.matches(Bc) && !e.hasAttribute("data-masked-line-reveal") && e.setAttribute("data-masked-line-reveal", "viewport"), e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
@@ -3096,7 +3127,7 @@ function nl(e) {
 		width: 0,
 		played: !1,
 		resizeObserver: new ResizeObserver(() => {
-			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || tl(a);
+			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || nl(a);
 		})
 	};
 	Gc.set(e, a), a.resizeObserver.observe(e), Promise.all([
@@ -3105,12 +3136,12 @@ function nl(e) {
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
 		$c(e)
 	]).then(([{ SplitText: t }]) => {
-		b.registerPlugin(t), qc = t, e.isConnected && tl(a);
+		b.registerPlugin(t), qc = t, e.isConnected && nl(a);
 	}).catch(() => {
 		e.setAttribute(Wc, "");
 	});
 }
-function rl(e) {
+function il(e) {
 	var t, n, r;
 	Kc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Kc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
@@ -3122,25 +3153,30 @@ function rl(e) {
 		e.setAttribute(Wc, "");
 	}));
 }
-function il() {
+function al() {
 	Gc.forEach((e) => {
-		tl(e, !0);
+		nl(e, !0);
 	}), Kc.forEach((e) => {
 		e.classList.remove("is-masked-reveal-playing"), requestAnimationFrame(() => e.classList.add("is-masked-reveal-playing"));
 	});
 }
-function al() {
+function ol() {
 	let e = Yc !== window.location.pathname;
-	Yc = window.location.pathname, document.querySelectorAll(Vc).forEach(nl), document.querySelectorAll(Hc).forEach(rl), Xc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
+	Yc = window.location.pathname, document.querySelectorAll(Vc).forEach(rl), document.querySelectorAll(Hc).forEach(il), document.querySelectorAll(".editionen_item").forEach((e) => {
+		e.querySelectorAll(".editionen_meta, .editionen_note, .editionen_button_wrap").forEach((t, n) => {
+			var r;
+			t.hasAttribute("data-edition-content-reveal") || (t.setAttribute("data-edition-content-reveal", ""), t.style.setProperty("--edition-content-delay", `${n * 90}ms`), (r = e.querySelector(".editionen_title")) != null && r.hasAttribute(Wc) && t.classList.add("is-edition-content-in"));
+		});
+	}), Xc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
 		Zc.has(e) || (Zc.add(e), e.style.setProperty("--accordion-line-index", String(t)), e.setAttribute("data-accordion-line-ready", ""), Xc == null || Xc.observe(e));
 	}), Gc.forEach((e, t) => {
 		var n;
 		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Gc.delete(t));
 	}), Kc.forEach((e) => {
 		e.isConnected || Kc.delete(e);
-	}), e && il();
+	}), e && al();
 }
-function ol() {
+function sl() {
 	var e;
 	Jc || u() || (Jc = !0, "IntersectionObserver" in window && (Xc = new IntersectionObserver((e, t) => {
 		e.forEach((e) => {
@@ -3151,29 +3187,29 @@ function ol() {
 	}, {
 		threshold: 0,
 		rootMargin: "0px 0px -5% 0px"
-	})), al(), new MutationObserver(al).observe(document.documentElement, {
+	})), ol(), new MutationObserver(ol).observe(document.documentElement, {
 		childList: !0,
 		subtree: !0
 	}), (e = document.fonts) == null || e.addEventListener("loadingdone", () => {
 		Gc.forEach((e) => {
-			tl(e);
+			nl(e);
 		});
-	}), window.addEventListener("popstate", al), window.addEventListener("pageshow", (e) => {
-		e.persisted && (il(), al());
+	}), window.addEventListener("popstate", ol), window.addEventListener("pageshow", (e) => {
+		e.persisted && (al(), ol());
 	}), document.addEventListener("animationend", (e) => {
 		let t = e.target;
 		if (!(t instanceof HTMLElement) || !t.classList.contains("masked-reveal-line__text")) return;
 		let n = t.closest(Vc);
-		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Wc, ""));
+		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Wc, ""), tl(n));
 	}));
 }
 //#endregion
 //#region src/main.ts
-var sl = !1;
-Dc(), ks(), ii(), ol(), Ac();
-function cl() {
-	if (sl) return;
-	sl = !0;
+var cl = !1;
+Dc(), ks(), ii(), sl(), Ac();
+function ll() {
+	if (cl) return;
+	cl = !0;
 	let e = ee();
 	if (io({ i18n: e }), /^\/kontakt\/?$/i.test(window.location.pathname)) {
 		var t;
@@ -3187,7 +3223,7 @@ function cl() {
 		closeLightbox: qi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", cl, { once: !0 }) : cl();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ll, { once: !0 }) : ll();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

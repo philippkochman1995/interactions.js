@@ -9,12 +9,13 @@ const IMAGE_EXCLUSIONS = [
   '.top_bar_section', '[data-site-menu]', '.site-preloader', '[data-site-lightbox]',
   '.fwm-modal', '.modal_registry', '[data-modal-content]', '[hidden]',
   '.hm_cms', '.works_source', '.werk_hero_section',
-  '.bio_hero_section', '.bio_photo', '.news_event',
+  '.bio_hero_section', '.bio_photo', '.news_event', '.news_highlight_section',
+  '.contact_img',
   '[data-insta-feed]', '[data-edition-slider]', '[data-atelier-slideshow-root]',
   '[aria-hidden="true"]',
 ].join(', ');
 
-type RevealType = 'hero' | 'bio' | 'event' | 'media' | 'plain' | 'slider' | 'instagram';
+type RevealType = 'hero' | 'bio' | 'event' | 'contact' | 'media' | 'plain' | 'slider' | 'instagram';
 
 let initialized = false;
 
@@ -134,10 +135,19 @@ export function initSiteImageReveal(): void {
         registerEvent(image);
       });
 
-      document.querySelectorAll<HTMLElement>('.editionen_media[data-edition-slider]').forEach((media, index) => {
-        const firstImage = media.querySelector<HTMLImageElement>('img.editionen_img');
-        if (firstImage) register(media, firstImage, 'slider', (index % 4) * 90);
-      });
+      if (/^\/kontakt\/?$/i.test(path)) {
+        const image = document.querySelector<HTMLImageElement>('.contact_img img.is-contact-image');
+        const frame = image?.closest<HTMLElement>('.site-lightbox-trigger');
+        if (image && frame) register(frame, image, 'contact');
+      }
+
+      const staticWorkImages = /^\/(?:editionen|werk-ueberblick|werke(?:\/.*)?)\/?$/i.test(path);
+      if (!staticWorkImages) {
+        document.querySelectorAll<HTMLElement>('.editionen_media[data-edition-slider]').forEach((media, index) => {
+          const firstImage = media.querySelector<HTMLImageElement>('img.editionen_img');
+          if (firstImage) register(media, firstImage, 'slider', (index % 4) * 90);
+        });
+      }
 
       document.querySelectorAll<HTMLElement>('[data-insta-track] > :is(div, a):not([aria-hidden="true"])').forEach((card, index) => {
         const image = card.querySelector<HTMLImageElement>('img');
@@ -145,6 +155,7 @@ export function initSiteImageReveal(): void {
       });
 
       document.querySelectorAll<HTMLImageElement>('body img').forEach((image, index) => {
+        if (staticWorkImages) return;
         if (image.closest(IMAGE_EXCLUSIONS) || image.closest(`[${REVEAL_ATTR}]`)) return;
         if (!image.getAttribute('src') && !image.getAttribute('srcset')) return;
         const frame = image.closest<HTMLElement>('.site-lightbox-trigger, .news_img, .contact_img, .about_img, .image-absolute-full-wrapper');

@@ -7,6 +7,19 @@
   background: var(--FW_Off_White, var(--fw_off_white, #f7f7f8));
 }
 
+/* Related event images use their own proportions inside the reveal mask. */
+.news_detail_more_section .news_event .img-zoom[data-site-image-reveal="event"],
+.news_detail_more_section .news_event [data-site-event-zoom] {
+  height: auto;
+}
+
+.news_detail_more_section .news_event .img-zoom[data-site-image-reveal="event"] img.intro_img {
+  width: 100%;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  object-fit: contain;
+}
+
 /* Align the recommendation card's date divider with the article divider above. */
 @media (min-width: 992px) {
   body:has(.news_detail_more_section) .news_event .intro_layout {
