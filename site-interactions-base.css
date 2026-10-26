@@ -669,30 +669,10 @@ html.is-page-transition-boot::after {
     );
 }
 
-/* Abdunklung hinter dem Menue, direkt unter dem Menue (z-index 1800). */
-[data-site-menu-dim] {
-  position: fixed;
-  inset: 0;
-  z-index: 1799;
-  background: #010101;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s cubic-bezier(0.76, 0, 0.24, 1);
-}
-
-[data-site-menu-dim].is-open {
-  opacity: 0.3;
-  transition-duration: 0.45s;
-}
-
 @media (prefers-reduced-motion: reduce) {
   [data-site-menu].is-ready .site-menu__line-in,
   [data-site-menu].is-ready .site-menu__divider {
     transform: none;
-    transition: none;
-  }
-
-  [data-site-menu-dim] {
     transition: none;
   }
 }

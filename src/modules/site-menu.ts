@@ -33,7 +33,6 @@ const REVEAL_SMALL_SELECTOR = '.site-menu__link--small, .site-menu__footer-link'
 const REVEAL_SKIP_SELECTOR = '[data-site-menu-toggle], .site-menu__language, .site-menu__languages';
 const REVEAL_MASK_CLASS = 'site-menu__line';
 const REVEAL_INNER_CLASS = 'site-menu__line-in';
-const DIM_ATTR = 'data-site-menu-dim';
 const PANEL_DURATION = { open: 0.513, close: 0.378, transition: 0.54 } as const;
 gsap.registerPlugin(CustomEase);
 // Matches --preloader-ease on the opening text movement.
@@ -48,7 +47,6 @@ interface SiteMenuInstance {
   isOpen: boolean;
   isHovered: boolean;
   labelTransition?: { timeline: gsap.core.Timeline; from: string; to: string };
-  dim: HTMLElement | null;
   cleanup: Cleanup[];
 }
 
@@ -356,25 +354,6 @@ function prepareReveal(instance: SiteMenuInstance): Cleanup {
   };
 }
 
-/* Abdunklung der Seite hinter dem offenen Menue. Liegt direkt unter dem Menue
-   (z-index) und faengt keine Klicks ab: Schliessen per Klick daneben laeuft
-   weiter ueber den Document-Click-Handler. */
-function createDim(): HTMLElement {
-  const existing = document.querySelector<HTMLElement>(`[${DIM_ATTR}]`);
-
-  if (existing) {
-    return existing;
-  }
-
-  const dim = document.createElement('div');
-
-  dim.setAttribute(DIM_ATTR, '');
-  dim.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(dim);
-
-  return dim;
-}
-
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
   instance.links.forEach((link) => {
     if (enabled) {
@@ -403,11 +382,15 @@ function setPanelState(instance: SiteMenuInstance, open: boolean, animateLabel =
   instance.toggle.setAttribute('aria-expanded', String(open));
   instance.panel.setAttribute('aria-hidden', String(!open));
   setLinksFocusable(instance, open);
-  instance.dim?.classList.toggle(OPEN_CLASS, open);
   setLabel(instance, animateLabel);
 }
 
-function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): gsap.core.Tween | undefined {
+function animatePanel(
+  instance: SiteMenuInstance,
+  open: boolean,
+  fromHeight: number,
+  onComplete?: () => void,
+): gsap.core.Tween | undefined {
   gsap.killTweensOf(instance.panel);
 
   gsap.set(instance.panel, { clearProps: 'height' });
@@ -426,6 +409,7 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
       ease: MENU_PANEL_EASE,
       onComplete: () => {
         gsap.set(instance.panel, { clearProps: 'height' });
+        onComplete?.();
       },
     },
   );
@@ -441,14 +425,23 @@ function openMenu(instance: SiteMenuInstance): void {
   animatePanel(instance, true, fromHeight);
 }
 
-function closeMenu(instance: SiteMenuInstance): gsap.core.Tween | undefined {
+function closeMenu(instance: SiteMenuInstance, onComplete?: () => void): gsap.core.Tween | undefined {
   if (!instance.isOpen) {
     return;
   }
 
   const fromHeight = instance.panel.getBoundingClientRect().height;
   setPanelState(instance, false);
-  return animatePanel(instance, false, fromHeight);
+  const tween = animatePanel(instance, false, fromHeight, onComplete);
+  if (!tween) onComplete?.();
+  return tween;
+}
+
+export function closeSiteMenuBeforeTransition(root: HTMLElement, onClosed: () => void): boolean {
+  const instance = instances.find((item) => item.root === root && item.isOpen);
+  if (!instance) return false;
+  closeMenu(instance, onClosed);
+  return true;
 }
 
 export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined {
@@ -509,7 +502,6 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
     links: qsa<HTMLElement>(LINK_SELECTOR, root),
     isOpen: root.classList.contains(OPEN_CLASS),
     isHovered: false,
-    dim: null,
     cleanup: [],
   };
 
@@ -522,7 +514,6 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   }
 
   toggle.setAttribute('aria-controls', panel.id);
-  instance.dim = createDim();
   instance.cleanup.push(prepareReveal(instance));
   updateActiveLinks(instance);
   setPanelState(instance, instance.isOpen, false);
@@ -555,7 +546,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   const onLinkClick = (event: Event): void => {
     const target = event.target;
 
-    // Der Seitenuebergang klappt das gesamte Panel direkt auf Hoehe 0.
+    // Navigationsklicks mit Seitentransition schliesst deren Capture-Handler.
     if (event.defaultPrevented || !(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
       return;
     }
@@ -611,7 +602,6 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
     createdInstances.forEach((instance) => {
       instance.cleanup.forEach((cleanup) => cleanup());
       instance.root.classList.remove(READY_CLASS, OPEN_CLASS);
-      instance.dim?.classList.remove(OPEN_CLASS);
       const labelTarget = instance.toggleLabel ?? instance.toggle;
       const labelTextLayer = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, labelTarget);
 

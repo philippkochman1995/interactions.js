@@ -1,4 +1,5 @@
 import { afterSitePreloader } from './site-preloader-state';
+import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // The matching easing and duration variables live in the curtain CSS block.
@@ -239,7 +240,14 @@ export function initPageTransitions(): void {
     const url = getNavigableUrl(link);
     if (!url || url.hash || prefersReducedMotion() || window.__sitePreloader?.active) return;
     event.preventDefault();
-    leave(url, overlay, main, titleFor(url, link));
+    const title = titleFor(url, link);
+    const menu = link.closest<HTMLElement>('[data-site-menu]');
+    if (menu) {
+      // Die Menue-Schliessanimation endet, bevor der Vorhang loslaeuft.
+      busy = true;
+      if (closeSiteMenuBeforeTransition(menu, () => leave(url, overlay, main, title))) return;
+    }
+    leave(url, overlay, main, title);
   }, true);
 
   window.addEventListener('pageshow', (event) => {
