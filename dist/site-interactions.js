@@ -1291,7 +1291,7 @@ var Vr = "h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-
 }, Yr = !1;
 function Xr(e) {
 	var t;
-	return e.closest(Ur) || e.closest("[hidden]") || e.matches("p") && e.closest(".intro_date_infos > .u-p-small") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
+	return e.closest(Ur) || e.closest("[hidden]") || /^\/news\/?$/i.test(window.location.pathname) && e.closest(".news_event") || e.matches("p") && e.closest(".intro_date_infos > .u-p-small") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
 }
 function Zr(e) {
 	if (e.closest(Wr)) return !0;
@@ -1370,6 +1370,11 @@ function ii(e = document) {
 			var n;
 			let i = e.matches("p") ? e.closest(Hr) : null, a = i == null ? e : i;
 			r.has(a) || t.set(a, [...(n = t.get(a)) == null ? [] : n, e]);
+		}), /^\/news\/?$/i.test(window.location.pathname) && o(".news_event", e).forEach((e) => {
+			var n;
+			if (r.has(e)) return;
+			let i = e.querySelector(".intro_content_about"), a = e.querySelector(".intro_date"), o = [...Array.from((n = i == null ? void 0 : i.children) == null ? [] : n).filter((e) => e instanceof HTMLElement), ...a ? [a] : []];
+			i && a && o.length && t.set(e, o);
 		}), t.forEach((e, t) => {
 			r.add(t);
 			let i = {

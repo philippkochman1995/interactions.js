@@ -38,6 +38,7 @@ let initialized = false;
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
+  if (/^\/news\/?$/i.test(window.location.pathname) && element.closest('.news_event')) return false;
   if (element.matches('p') && element.closest('.intro_date_infos > .u-p-small')) return false;
   if (element.closest('.quote-block') && !element.matches('.quote-block')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading')) return false;
@@ -146,6 +147,20 @@ export function initLineReveal(root: ParentNode = document): void {
       if (seen.has(key)) return;
       groups.set(key, [...(groups.get(key) ?? []), element]);
     });
+    if (/^\/news\/?$/i.test(window.location.pathname)) {
+      qsa<HTMLElement>('.news_event', root).forEach((card) => {
+        if (seen.has(card)) return;
+        const content = card.querySelector<HTMLElement>('.intro_content_about');
+        const date = card.querySelector<HTMLElement>('.intro_date');
+        // Animate all card information together. Target children because the
+        // content wrapper becomes display: contents on mobile.
+        const targets = [
+          ...Array.from(content?.children ?? []).filter((child): child is HTMLElement => child instanceof HTMLElement),
+          ...(date ? [date] : []),
+        ];
+        if (content && date && targets.length) groups.set(card, targets);
+      });
+    }
     groups.forEach((groupedTargets, element) => {
       seen.add(element);
       const state: RevealState = {

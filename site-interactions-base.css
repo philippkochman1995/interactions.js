@@ -1236,31 +1236,13 @@ html.is-page-transition-boot::after {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
-/* The News highlight has its own image treatment. Event cards use the Atelier
-   mask and zoom below, instead of this older image clipping. */
-.news_img img {
-  transform: scale(1) !important;
-  transition:
-    transform var(--fw-news-image-duration, 0.3s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
-    clip-path var(--fw-news-image-duration, 0.3s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
-}
-
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :is(.news_highlight_section:hover .news_img img, .news_img:hover img) {
-    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
-    clip-path: inset(var(--fw-news-image-inset, 2.05%));
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .news_img img {
-    clip-path: inset(0);
-  }
-
-  .news_highlight_section:focus-within .news_img img {
-    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
-    clip-path: inset(var(--fw-news-image-inset, 2.05%));
-  }
+/* The leading News highlight keeps a fixed image on hover and focus. Event
+   cards below it retain their separate Atelier mask and image hover. */
+.news_highlight_section .news_img img {
+  scale: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  transition: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
