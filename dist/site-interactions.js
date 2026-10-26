@@ -3010,15 +3010,18 @@ function Gc(e) {
 }
 function Kc() {
 	let e = document.documentElement;
-	return e.classList.contains("is-page-transition-entering") ? new Promise((t) => {
-		let n = new MutationObserver(() => {
-			e.classList.contains("is-page-transition-entering") || (n.disconnect(), t());
+	if (!e.classList.contains("is-page-transition-entering")) return Promise.resolve();
+	let t = /^\/atelier\/?$/i.test(window.location.pathname);
+	return t && document.querySelector(".page-transition-overlay.is-uncovering") ? Promise.resolve() : new Promise((n) => {
+		let r = new MutationObserver(() => {
+			e.classList.contains("is-page-transition-entering") && (!t || !document.querySelector(".page-transition-overlay.is-uncovering")) || (r.disconnect(), n());
 		});
-		n.observe(e, {
+		r.observe(e, {
 			attributes: !0,
-			attributeFilter: ["class"]
+			attributeFilter: ["class"],
+			subtree: t
 		});
-	}) : Promise.resolve();
+	});
 }
 function qc(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"));

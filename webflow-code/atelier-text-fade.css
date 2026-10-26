@@ -10,7 +10,7 @@
 [data-fade-group].is-in [data-fade] {
   opacity: 1;
   transform: none;
-  transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 120ms));
+  transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 55ms));
 }
 
 /* The top bar enters when the existing hero line reveal starts. */

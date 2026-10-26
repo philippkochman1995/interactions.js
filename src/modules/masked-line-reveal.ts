@@ -33,13 +33,16 @@ function staggerMs(element: HTMLElement): number {
 function waitForPageTransition(): Promise<void> {
   const root = document.documentElement;
   if (!root.classList.contains('is-page-transition-entering')) return Promise.resolve();
+  const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
+  if (atelier && document.querySelector('.page-transition-overlay.is-uncovering')) return Promise.resolve();
   return new Promise((resolve) => {
     const observer = new MutationObserver(() => {
-      if (root.classList.contains('is-page-transition-entering')) return;
+      if (root.classList.contains('is-page-transition-entering') &&
+        (!atelier || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
       observer.disconnect();
       resolve();
     });
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: atelier });
   });
 }
 
