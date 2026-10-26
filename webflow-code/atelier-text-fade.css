@@ -13,16 +13,16 @@
   transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 55ms));
 }
 
-/* This stylesheet is loaded only on Atelier. Translate keeps Webflow's transforms intact. */
+/* Match the Atelier hero eyebrow's 200ms linear fade. */
 .top_bar_section:not(.work-overlay__header) .top_bar_left_layout,
 .top_bar_section:not(.work-overlay__header) .top_bar_center {
-  translate: 0 -110dvh;
-  transition: translate var(--atelier-header-duration, 700ms) cubic-bezier(.33, 1, .68, 1);
+  opacity: 0;
 }
 
-.top_bar_section.is-atelier-header-in .top_bar_left_layout,
-.top_bar_section.is-atelier-header-in .top_bar_center {
-  translate: 0 0;
+.top_bar_section.is-atelier-header-in:not(.work-overlay__header) .top_bar_left_layout,
+.top_bar_section.is-atelier-header-in:not(.work-overlay__header) .top_bar_center {
+  opacity: 1;
+  animation: masked-reveal-fade 200ms linear both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -35,7 +35,7 @@
 
   .top_bar_section .top_bar_left_layout,
   .top_bar_section .top_bar_center {
-    translate: 0 0 !important;
-    transition: none !important;
+    opacity: 1 !important;
+    animation: none !important;
   }
 }

@@ -28,41 +28,26 @@
     transitionObserver.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
   }
 
-  function revealHeaderWithHero() {
+  function revealHeaderWithSubhead() {
     var header = document.querySelector('.top_bar_section:not(.work-overlay__header)');
     if (!header || header.classList.contains('is-atelier-header-in')) return;
     if (reduced.matches) { header.classList.add('is-atelier-header-in'); return; }
-    var heading = document.querySelector('.atelier_hero_section .atelier_slide_heading');
-    var headingObserver = null;
-    function milliseconds(value) {
-      var time = (value || '').split(',')[0].trim();
-      var amount = parseFloat(time);
-      if (!Number.isFinite(amount)) return 0;
-      return time.endsWith('ms') ? amount : amount * 1000;
-    }
+    var subhead = document.querySelector('.atelier_hero_section .atlier_slide_eyebrow');
+    var subheadObserver = null;
     function start() {
-      document.removeEventListener('atelier:hero-line-reveal', start);
-      if (headingObserver) headingObserver.disconnect();
-      if (!header.isConnected) return;
-      var lastLine = heading && heading.querySelector('.masked-reveal-line:last-of-type > .masked-reveal-line__text');
-      if (lastLine) {
-        var lineStyle = window.getComputedStyle(lastLine);
-        var duration = milliseconds(lineStyle.animationDuration) + milliseconds(lineStyle.animationDelay);
-        if (duration > 0) header.style.setProperty('--atelier-header-duration', duration + 'ms');
-      }
-      header.classList.add('is-atelier-header-in');
+      if (subheadObserver) subheadObserver.disconnect();
+      if (header.isConnected) header.classList.add('is-atelier-header-in');
     }
-    document.addEventListener('atelier:hero-line-reveal', start);
-    if (!heading) { afterPageEntrance(start); return; }
+    if (!subhead) { afterPageEntrance(start); return; }
     function hasStarted() {
-      return heading.classList.contains('is-masked-reveal-playing') ||
-        heading.hasAttribute('data-masked-reveal-complete');
+      return subhead.classList.contains('is-masked-reveal-playing') ||
+        subhead.hasAttribute('data-masked-reveal-complete');
     }
     if (hasStarted()) { start(); return; }
-    headingObserver = new MutationObserver(function () {
+    subheadObserver = new MutationObserver(function () {
       if (hasStarted()) start();
     });
-    headingObserver.observe(heading, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
+    subheadObserver.observe(subhead, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
   }
 
   function enter(group) {
@@ -105,7 +90,7 @@
   }
 
   scan();
-  revealHeaderWithHero();
+  revealHeaderWithSubhead();
   mutations = new MutationObserver(scheduleScan);
   mutations.observe(document.body, { childList: true, subtree: true });
   window.addEventListener('pageshow', scheduleScan);
