@@ -13,6 +13,7 @@ import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 import { initHomeImageWipe } from './modules/home-image-wipe';
+import { initSiteImageReveal } from './modules/site-image-reveal';
 import { initHomeHeadingReveal } from './modules/home-heading-reveal';
 import { initMaskedLineReveal } from './modules/masked-line-reveal';
 
@@ -49,6 +50,7 @@ function boot(): void {
   initLogoVariants();
   initMoreArrows();
   initOutlinedButtons();
+  initSiteImageReveal();
   initHomeImageWipe();
 
   window.SiteInteractions = {

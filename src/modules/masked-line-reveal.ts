@@ -2,8 +2,8 @@ import { gsap } from 'gsap';
 
 import { prefersReducedMotion } from './utils';
 
-const HEADING_SELECTOR = '[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading';
-const LABEL_SELECTOR = '[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow';
+const HEADING_SELECTOR = '[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading';
+const LABEL_SELECTOR = '[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub';
 const READY = 'data-masked-reveal-ready';
 const COMPLETE = 'data-masked-reveal-complete';
 
@@ -32,21 +32,22 @@ function staggerMs(element: HTMLElement): number {
 
 async function waitForPageTransition(element: HTMLElement): Promise<void> {
   const root = document.documentElement;
-  const atelierHero = /^\/atelier\/?$/i.test(window.location.pathname) &&
-    Boolean(element.closest('.atelier_hero_section'));
+  const pageHero =
+    (/^\/atelier\/?$/i.test(window.location.pathname) && Boolean(element.closest('.atelier_hero_section'))) ||
+    (/^\/biografie\/?$/i.test(window.location.pathname) && Boolean(element.closest('.bio_hero_section')));
   if (root.classList.contains('is-page-transition-entering') &&
-    !(atelierHero && document.querySelector('.page-transition-overlay.is-uncovering'))) {
+    !(pageHero && document.querySelector('.page-transition-overlay.is-uncovering'))) {
     await new Promise<void>((resolve) => {
       const observer = new MutationObserver(() => {
         if (root.classList.contains('is-page-transition-entering') &&
-          (!atelierHero || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
+          (!pageHero || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
         observer.disconnect();
         resolve();
       });
-      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: atelierHero });
+      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: pageHero });
     });
   }
-  if (atelierHero) {
+  if (pageHero) {
     await window.__sitePreloader?.ready;
     await new Promise<void>((resolve) => { window.setTimeout(resolve, 200); });
   }

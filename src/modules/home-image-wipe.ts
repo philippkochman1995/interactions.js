@@ -1,7 +1,7 @@
 import { afterSitePreloader } from './site-preloader-state';
 import { prefersReducedMotion } from './utils';
 
-const REVEAL_SELECTOR = '.news_event .intro_img, .about_section .about_img, [data-wm-home] .map_info';
+const REVEAL_SELECTOR = '.about_section .about_img, [data-wm-home] .map_info';
 const PENDING = 'data-home-image-wipe';
 const DURATION = 1300;
 

@@ -1284,6 +1284,114 @@ html.is-page-transition-boot::after {
   }
 }
 
+/* Biography uses Atelier's image entrance: the hero settles without fading,
+   while each later photo appears when its image has loaded in the viewport. */
+.bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"] {
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
+}
+
+.bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"].is-site-image-in {
+  transform: scale(1) !important;
+}
+
+.bio_photo .bio_image_reveal.bio_fade {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.bio_photo [data-site-image-reveal="bio"] {
+  overflow: hidden;
+  opacity: 0;
+  clip-path: inset(10px);
+  transition: opacity .4s ease-out;
+}
+
+.bio_photo [data-site-image-reveal="bio"].is-site-image-in {
+  opacity: 1;
+  clip-path: inset(0);
+}
+
+.bio_photo [data-site-image-reveal="bio"] img {
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1) !important;
+}
+
+.bio_photo [data-site-image-reveal="bio"].is-site-image-in img {
+  transform: scale(1) !important;
+}
+
+/* The Atelier Event-card entrance and hover motion also apply on Home, News
+   and any other page using the same card markup. Atelier keeps its own masks. */
+:is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"] {
+  opacity: 0;
+  /* Compensate the initial scale while the image has no separate mask. */
+  clip-path: inset(3.5%);
+  transform: scale(1.075) !important;
+  transition:
+    opacity .4s ease-out,
+    clip-path .6s cubic-bezier(0, 0, .2, 1),
+    transform 1.2s cubic-bezier(0, 0, .2, 1);
+}
+
+:is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"].is-site-image-in {
+  opacity: 1;
+  clip-path: inset(0);
+  transform: scale(1) !important;
+}
+
+:is(.news_event, .news_highlight_section) a.text-link {
+  transition: transform .6s cubic-bezier(0, 0, .2, 1);
+}
+
+:is(.news_event, .news_highlight_section) a.text-link .arrow :is(.arrow-dot, .arrow-arrow),
+:is(.news_event, .news_highlight_section) a.text-link .more-arrow :is([data-more-arrow-dot], [data-more-arrow-head]) {
+  transition-timing-function: cubic-bezier(0, 0, .2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .bio_photo [data-site-image-reveal="bio"].is-site-image-in:hover img {
+    transform: scale(1.045) !important;
+  }
+
+  :is(.news_event, .news_highlight_section):hover img.intro_img[data-site-image-reveal="event"].is-site-image-in {
+    transform: scale(1.045) !important;
+    clip-path: inset(2.2%);
+  }
+
+  :is(.news_event, .news_highlight_section):hover a.text-link {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bio_photo [data-site-image-reveal="bio"].is-site-image-in:focus-visible img {
+    transform: scale(1.045) !important;
+  }
+
+  :is(.news_event, .news_highlight_section):focus-within img.intro_img[data-site-image-reveal="event"].is-site-image-in {
+    transform: scale(1.045) !important;
+    clip-path: inset(2.2%);
+  }
+
+  :is(.news_event, .news_highlight_section):focus-within a.text-link {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"],
+  .bio_photo [data-site-image-reveal="bio"],
+  .bio_photo [data-site-image-reveal="bio"] img,
+  :is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"],
+  :is(.news_event, .news_highlight_section) a.text-link {
+    opacity: 1;
+    clip-path: none;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 /*
   z-index, damit kein positioniertes Geschwister das Icon verdeckt: Webflow gibt
   formatfuellenden Bildern gern selbst eins mit (`.image-absolute-full` steht auf
@@ -1908,12 +2016,12 @@ footer a.w--current:focus-visible::after,
   visibility: hidden;
 }
 
-/* Opt-in line reveal; the Atelier hero uses the same hook by selector. */
-:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+/* Opt-in line reveal; Atelier and Biography use the same hero timing. */
+:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
   visibility: hidden;
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow):not([data-masked-reveal-complete]) {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub):not([data-masked-reveal-complete]) {
   opacity: 0;
 }
 
@@ -1935,16 +2043,22 @@ footer a.w--current:focus-visible::after,
   animation-delay: calc(var(--masked-reveal-delay, 0ms) + var(--masked-reveal-line-delay, 0ms));
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow).is-masked-reveal-playing {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub).is-masked-reveal-playing {
   animation: masked-reveal-fade 200ms linear both;
+  animation-delay: var(--masked-label-delay, 0ms);
 }
 
 [data-masked-reveal-complete] .masked-reveal-line__text {
   transform: none;
 }
 
-.atelier_hero_section .atelier_slide_heading {
+.atelier_hero_section .atelier_slide_heading,
+.bio_hero_section .bio_hero_heading {
   --masked-reveal-delay: 60ms;
+}
+
+.bio_hero_section .bio_hero_sub {
+  --masked-label-delay: 760ms;
 }
 
 @keyframes masked-reveal-rise {
@@ -1962,11 +2076,11 @@ footer a.w--current:focus-visible::after,
     visibility: visible;
   }
 
-  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading) {
+  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading) {
     visibility: visible;
   }
 
-  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow) {
+  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub) {
     opacity: 1;
     animation: none;
   }

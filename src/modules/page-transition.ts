@@ -94,7 +94,7 @@ function canMoveContent(main: HTMLElement | null): main is HTMLElement {
 // A plain-text h1 can be split without destroying nested Webflow markup.
 function prepareHeading(main: HTMLElement | null): void {
   const heading = main?.querySelector<HTMLElement>('h1');
-  if (!heading || heading.matches('[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading')
+  if (!heading || heading.matches('[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading')
     || heading.children.length || !heading.textContent?.trim()) return;
   const words = heading.textContent.trim().split(/\s+/);
   heading.setAttribute('data-reveal', 'off');

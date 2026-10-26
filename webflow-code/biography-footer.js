@@ -11,7 +11,7 @@
   var allFades = document.querySelectorAll('.bio_fade');
   var fades = [];
   for (var f = 0; f < allFades.length; f++) {
-    if (allFades[f].querySelector('h1, h2, h3, h4, h5, h6, p')) {
+    if (allFades[f].closest('.bio_photo') || allFades[f].querySelector('h1, h2, h3, h4, h5, h6, p')) {
       allFades[f].style.opacity = '1';
       allFades[f].style.transform = 'none';
     } else {

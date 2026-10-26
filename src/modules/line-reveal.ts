@@ -43,6 +43,7 @@ function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
   if (/^\/atelier\/?$/i.test(window.location.pathname) && element.closest('[data-fade]')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading')) return false;
+  if (element.matches('.bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub')) return false;
   if (element.matches('[data-masked-line-reveal], [data-masked-reveal-label]')) return false;
   if (element.matches('.atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p')) return false;
   return element.textContent?.trim().length !== 0;
