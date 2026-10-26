@@ -512,9 +512,10 @@ Layout bleibt unveraendert. Die Staerke haengt an `--fw-lightbox-zoom`:
 Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bliebe er
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
 Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt. Event-Bilder in
-`.news_event` und `.news_img` zoomen beim Hover in 0,35 s um 2,36 % und werden
-zugleich an allen Seiten um 2,27 % beschnitten. Sichtbar rueckt die Bildkante dadurch
-um etwa 1,14 % nach innen, ohne das Kartenlayout zu verschieben. Der Effekt gilt auch fuer
+`.news_event` und `.news_img` zoomen beim Hover in 0,245 s um 1,89 % und werden
+zugleich an allen Seiten um 2,05 % beschnitten. Sichtbar rueckt die Bildkante dadurch
+um etwa 1,14 % nach innen, ohne das Kartenlayout zu verschieben. Die CSS-Transformation
+hat Vorrang vor Webflows Inline-Hover-Zoom, damit der Bildrand nicht springt. Der Effekt gilt auch fuer
 das Startseiten-Highlight und Open Studio im Atelier, startet nach dem Home-Wipe
 und ist per Tastaturfokus erreichbar. Die Werte lassen sich am Kartencontainer mit
 `--fw-news-image-duration`, `--fw-news-image-zoom` und `--fw-news-image-inset` anpassen.

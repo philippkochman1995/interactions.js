@@ -1171,19 +1171,20 @@ html.is-page-transition-boot::after {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
-/* Event cards: the picture moves inward while its contents zoom slightly.
-   Clipping the image itself works for the direct .intro_img grid item as well as
-   images inside .news_img, without changing the card's layout or click target. */
+/* Event cards: Webflow also writes a 5% hover scale inline. Keep the image's
+   transform in CSS so the zoom and inward crop stay in sync on entry and exit.
+   Clipping the image itself works for direct .intro_img grid items and .news_img. */
 :is(.news_event img.intro_img, .news_img img) {
+  transform: scale(1) !important;
   transition:
-    transform var(--fw-news-image-duration, 0.35s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
-    clip-path var(--fw-news-image-duration, 0.35s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
+    transform var(--fw-news-image-duration, 0.245s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
+    clip-path var(--fw-news-image-duration, 0.245s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img):not([data-home-image-wipe]) {
-    transform: scale(var(--fw-news-image-zoom, 1.0236));
-    clip-path: inset(var(--fw-news-image-inset, 2.27%));
+    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
+    clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }
 }
 
@@ -1194,8 +1195,8 @@ html.is-page-transition-boot::after {
   }
 
   :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img):not([data-home-image-wipe]) {
-    transform: scale(var(--fw-news-image-zoom, 1.0236));
-    clip-path: inset(var(--fw-news-image-inset, 2.27%));
+    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
+    clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }
 }
 
@@ -1204,6 +1205,10 @@ html.is-page-transition-boot::after {
   .site-lightbox-trigger__image,
   .fwm-modal__work-image {
     transition: none;
+  }
+
+  :is(.news_event img.intro_img, .news_img img) {
+    transform: none !important;
   }
 
   .site-lightbox-trigger:hover .site-lightbox-trigger__image,
