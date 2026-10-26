@@ -7,7 +7,14 @@
     transform var(--fade-duration, 1s) var(--fade-ease, cubic-bezier(.33, 1, .68, 1));
 }
 
-[data-fade-group].is-in [data-fade] {
+/* A Rich Text wrapper stays in place while its paragraphs reveal separately. */
+[data-fade-group] [data-fade][data-fade-richtext] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+[data-fade-group] [data-fade].is-in {
   opacity: 1;
   transform: none;
   transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 55ms));

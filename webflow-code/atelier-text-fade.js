@@ -1,4 +1,4 @@
-/* Grouped fade-up for existing Atelier text; no splitting or text replacement. */
+/* Individual fade-up for existing Atelier text; no splitting or text replacement. */
 (function () {
   if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
 
@@ -50,12 +50,12 @@
     subheadObserver.observe(subhead, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
   }
 
-  function enter(group) {
-    if (group.classList.contains('is-in')) return;
-    if (observer) observer.unobserve(group);
+  function enter(element) {
+    if (element.classList.contains('is-in')) return;
+    if (observer) observer.unobserve(element);
     afterPageEntrance(function () {
-      if (group.isConnected && /^\/atelier\/?$/i.test(window.location.pathname)) {
-        group.classList.add('is-in');
+      if (element.isConnected && /^\/atelier\/?$/i.test(window.location.pathname)) {
+        element.classList.add('is-in');
       }
     });
   }
@@ -72,14 +72,28 @@
     scheduled = false;
     if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
     document.querySelectorAll(GROUP).forEach(function (group) {
-      if (seen.has(group)) return;
-      seen.add(group);
-      group.querySelectorAll('[data-fade]').forEach(function (element, index) {
-        element.style.setProperty('--fade-index', index);
+      group.querySelectorAll('div[data-fade]').forEach(function (wrapper) {
+        var children = wrapper.children;
+        if (children.length === 1 && children[0].matches('.w-richtext')) {
+          children = children[0].children;
+        }
+        var blocks = Array.from(children).filter(function (child) {
+          return child.matches('p, h2, h3, h4, ul, ol, blockquote');
+        });
+        if (!blocks.length) return;
+        if (!wrapper.hasAttribute('data-fade-richtext')) wrapper.setAttribute('data-fade-richtext', '');
+        blocks.forEach(function (block) {
+          if (!block.hasAttribute('data-fade')) block.setAttribute('data-fade', '');
+        });
       });
-      if (group.classList.contains('is-in')) return;
-      if (reduced.matches || !observer) group.classList.add('is-in');
-      else observer.observe(group);
+      group.querySelectorAll('[data-fade]:not([data-fade-richtext])').forEach(function (element, index) {
+        if (seen.has(element)) return;
+        seen.add(element);
+        element.style.setProperty('--fade-index', index);
+        if (element.classList.contains('is-in')) return;
+        if (reduced.matches || !observer) element.classList.add('is-in');
+        else observer.observe(element);
+      });
     });
   }
 
