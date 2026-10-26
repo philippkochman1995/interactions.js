@@ -52,8 +52,42 @@ async function waitForPageTransition(element: HTMLElement): Promise<void> {
   }
   if (pageHero) {
     await window.__sitePreloader?.ready;
+    if (element.closest('.bio_hero_section')) {
+      const covered = (): boolean => {
+        if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
+        const transitioning = root.classList.contains('is-page-transition-pending') ||
+          root.classList.contains('is-page-transition-entering');
+        return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
+      };
+      if (covered()) {
+        await new Promise<void>((resolve) => {
+          const observer = new MutationObserver(() => {
+            if (covered()) return;
+            observer.disconnect();
+            resolve();
+          });
+          observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+        });
+      }
+    }
     await new Promise<void>((resolve) => { window.setTimeout(resolve, 200); });
   }
+}
+
+function waitForBiographyHeading(): Promise<void> {
+  const heading = document.querySelector<HTMLElement>('.bio_hero_section .bio_hero_heading');
+  if (!heading || heading.classList.contains('is-masked-reveal-playing') || heading.hasAttribute(COMPLETE)) {
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (!heading.isConnected ||
+        (!heading.classList.contains('is-masked-reveal-playing') && !heading.hasAttribute(COMPLETE))) return;
+      observer.disconnect();
+      resolve();
+    });
+    observer.observe(heading, { attributes: true, attributeFilter: ['class', COMPLETE] });
+  });
 }
 
 function play(state: HeadingState): void {
@@ -153,6 +187,7 @@ function addHeading(element: HTMLElement): void {
     played: false,
     resizeObserver: new ResizeObserver(() => {
       if (!state.width || Math.abs(element.getBoundingClientRect().width - state.width) < 1) return;
+      if (element.matches('.bio_hero_heading') && state.played && !element.hasAttribute(COMPLETE)) return;
       rebuild(state);
     }),
   };
@@ -173,7 +208,9 @@ function addLabel(element: HTMLElement): void {
     (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
   labels.add(element);
-  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition(element)])
+  const biographyHero = Boolean(element.closest('.bio_hero_section'));
+  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready,
+    biographyHero ? waitForBiographyHeading() : waitForPageTransition(element)])
     .then(() => {
       if (!element.isConnected) return;
       element.classList.add('is-masked-reveal-playing');
@@ -240,7 +277,10 @@ export function initMaskedLineReveal(): void {
   scan();
   new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   document.fonts?.addEventListener('loadingdone', () => {
-    headings.forEach((state) => { rebuild(state); });
+    headings.forEach((state) => {
+      if (state.element.matches('.bio_hero_heading') && state.played && !state.element.hasAttribute(COMPLETE)) return;
+      rebuild(state);
+    });
   });
   window.addEventListener('popstate', scan);
   window.addEventListener('pageshow', (event) => {
