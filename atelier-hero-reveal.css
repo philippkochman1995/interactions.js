@@ -4,6 +4,8 @@
 
 .atelier_hero_section .atelier-hero-line-mask {
   overflow: clip;
+  padding-bottom: .12em;
+  margin-bottom: -.12em;
 }
 
 .atelier_about_section.u-theme-dark5 [data-atelier-story-pending] {

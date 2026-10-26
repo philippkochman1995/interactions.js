@@ -3034,13 +3034,16 @@ function Hc() {
 		let t = Zo.create("atelier-preloader-text", zc), n, r, i, l = 0, u = !1, d = () => {
 			if (!n || !r) return;
 			i == null || i.kill();
-			let e = n.lines, a = r.lines;
+			let e = n.lines, a = r.words;
 			if (u) {
 				b.set([...e, ...a], { clearProps: "transform,opacity" });
 				return;
 			}
-			b.set([...e, ...a], {
+			b.set(e, {
 				yPercent: 105,
+				opacity: 0
+			}), b.set(a, {
+				yPercent: 110,
 				opacity: 0
 			}), i = b.timeline({
 				paused: !0,
@@ -3050,17 +3053,17 @@ function Hc() {
 			}), i.to(e, {
 				yPercent: 0,
 				opacity: 1,
-				duration: 1.3,
+				duration: 1.15,
 				stagger: .12,
 				ease: t
 			}, 0), i.to(a, {
 				yPercent: 0,
 				opacity: 1,
-				duration: 1.65,
-				stagger: .16,
+				duration: 1.45,
+				stagger: .085,
 				ease: t,
 				onComplete: () => b.set([...e, ...a], { clearProps: "transform,opacity" })
-			}, .22);
+			}, .2);
 		}, f = () => {
 			l || (l = window.requestAnimationFrame(() => {
 				l = 0, d();
@@ -3074,9 +3077,10 @@ function Hc() {
 				autoSplit: !0,
 				onSplit: f
 			}), r = e.create(o, {
-				type: "lines",
+				type: "lines,words",
 				mask: "lines",
 				linesClass: "atelier-hero-line",
+				wordsClass: "atelier-hero-word",
 				autoSplit: !0,
 				onSplit: f
 			}), window.cancelAnimationFrame(l), l = 0, d(), a.removeAttribute(Rc), o.removeAttribute(Rc), i == null || i.play(0), c = () => {

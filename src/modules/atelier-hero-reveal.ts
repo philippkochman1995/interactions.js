@@ -52,20 +52,21 @@ export function initAtelierHeroReveal(): void {
         if (!eyebrowSplit || !headingSplit) return;
         timeline?.kill();
         const eyebrowLines = eyebrowSplit.lines;
-        const headingLines = headingSplit.lines;
+        const headingWords = headingSplit.words;
         if (started) {
-          gsap.set([...eyebrowLines, ...headingLines], { clearProps: 'transform,opacity' });
+          gsap.set([...eyebrowLines, ...headingWords], { clearProps: 'transform,opacity' });
           return;
         }
-        gsap.set([...eyebrowLines, ...headingLines], { yPercent: 105, opacity: 0 });
+        gsap.set(eyebrowLines, { yPercent: 105, opacity: 0 });
+        gsap.set(headingWords, { yPercent: 110, opacity: 0 });
         timeline = gsap.timeline({ paused: true, onStart: () => { started = true; } });
         timeline.to(eyebrowLines, {
-          yPercent: 0, opacity: 1, duration: 1.3, stagger: 0.12, ease,
+          yPercent: 0, opacity: 1, duration: 1.15, stagger: 0.12, ease,
         }, 0);
-        timeline.to(headingLines, {
-          yPercent: 0, opacity: 1, duration: 1.65, stagger: 0.16, ease,
-          onComplete: () => gsap.set([...eyebrowLines, ...headingLines], { clearProps: 'transform,opacity' }),
-        }, 0.22);
+        timeline.to(headingWords, {
+          yPercent: 0, opacity: 1, duration: 1.45, stagger: 0.085, ease,
+          onComplete: () => gsap.set([...eyebrowLines, ...headingWords], { clearProps: 'transform,opacity' }),
+        }, 0.2);
       };
 
       const scheduleRebuild = (): void => {
@@ -82,7 +83,8 @@ export function initAtelierHeroReveal(): void {
           onSplit: scheduleRebuild,
         });
         headingSplit = SplitText.create(heading, {
-          type: 'lines', mask: 'lines', linesClass: 'atelier-hero-line', autoSplit: true,
+          type: 'lines,words', mask: 'lines', linesClass: 'atelier-hero-line',
+          wordsClass: 'atelier-hero-word', autoSplit: true,
           onSplit: scheduleRebuild,
         });
         window.cancelAnimationFrame(refreshFrame);
