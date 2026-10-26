@@ -69,7 +69,7 @@ function f() {
 			d !== null && window.clearInterval(d), d = null, p(r);
 		}
 		a.addEventListener("pointerenter", (t) => {
-			if (t.stopImmediatePropagation(), f || e.matches || window.location.pathname === "/") return;
+			if (t.stopImmediatePropagation(), f || e.matches) return;
 			f = !0, m();
 			let n = l(r), i = 0;
 			d = window.setInterval(() => {
@@ -106,4 +106,4 @@ function f() {
 //#endregion
 export { r as a, t as i, e as n, n as r, f as t };
 
-//# sourceMappingURL=site-interactions-HQKELVCL.js.map
+//# sourceMappingURL=site-interactions-vwiAXl0u.js.map

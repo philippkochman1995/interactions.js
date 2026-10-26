@@ -5,6 +5,16 @@ const IN_CLASS = 'is-site-image-in';
 const EVENT_IMAGE_SELECTOR = '.news_event img.intro_img';
 const BIO_IMAGE_SELECTOR = '.bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img';
 const BIO_HERO_SELECTOR = '.bio_hero_section > img.bio_hero_img';
+const IMAGE_EXCLUSIONS = [
+  '.top_bar_section', '[data-site-menu]', '.site-preloader', '[data-site-lightbox]',
+  '.fwm-modal', '.modal_registry', '[data-modal-content]', '[hidden]',
+  '.hm_cms', '.works_source', '.werk_hero_section',
+  '.bio_hero_section', '.bio_photo', '.news_event',
+  '[data-insta-feed]', '[data-edition-slider]', '[data-atelier-slideshow-root]',
+  '[aria-hidden="true"]',
+].join(', ');
+
+type RevealType = 'hero' | 'bio' | 'event' | 'media' | 'plain' | 'slider' | 'instagram';
 
 let initialized = false;
 
@@ -76,9 +86,10 @@ export function initSiteImageReveal(): void {
     });
   }, { threshold: 0 });
 
-  const register = (target: HTMLElement, image: HTMLImageElement, type: 'hero' | 'bio' | 'event'): void => {
+  const register = (target: HTMLElement, image: HTMLImageElement, type: RevealType, delay = 0): void => {
     if (target.hasAttribute(REVEAL_ATTR)) return;
     target.setAttribute(REVEAL_ATTR, type);
+    if (delay) target.style.setProperty('--site-image-delay', `${delay}ms`);
     images.set(target, image);
     if (type === 'hero') {
       image.loading = 'eager';
@@ -107,7 +118,8 @@ export function initSiteImageReveal(): void {
 
   const scan = (): void => {
     scanFrame = 0;
-    if (/^\/biografie\/?$/i.test(window.location.pathname)) {
+    const path = window.location.pathname;
+    if (/^\/biografie\/?$/i.test(path)) {
       const hero = document.querySelector<HTMLImageElement>(BIO_HERO_SELECTOR);
       if (hero) register(hero, hero, 'hero');
       document.querySelectorAll<HTMLImageElement>(BIO_IMAGE_SELECTOR).forEach((image) => {
@@ -117,9 +129,26 @@ export function initSiteImageReveal(): void {
     }
 
     // Atelier keeps its existing page-specific masks and hover choreography.
-    if (!/^\/atelier\/?$/i.test(window.location.pathname)) {
+    if (!/^\/atelier\/?$/i.test(path)) {
       document.querySelectorAll<HTMLImageElement>(EVENT_IMAGE_SELECTOR).forEach((image) => {
         registerEvent(image);
+      });
+
+      document.querySelectorAll<HTMLElement>('.editionen_media[data-edition-slider]').forEach((media, index) => {
+        const firstImage = media.querySelector<HTMLImageElement>('img.editionen_img');
+        if (firstImage) register(media, firstImage, 'slider', (index % 4) * 90);
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-insta-track] > :is(div, a):not([aria-hidden="true"])').forEach((card, index) => {
+        const image = card.querySelector<HTMLImageElement>('img');
+        if (image) register(card, image, 'instagram', Math.min(index, 4) * 85);
+      });
+
+      document.querySelectorAll<HTMLImageElement>('body img').forEach((image, index) => {
+        if (image.closest(IMAGE_EXCLUSIONS) || image.closest(`[${REVEAL_ATTR}]`)) return;
+        if (!image.getAttribute('src') && !image.getAttribute('srcset')) return;
+        const frame = image.closest<HTMLElement>('.site-lightbox-trigger, .news_img, .contact_img, .about_img, .image-absolute-full-wrapper');
+        register(frame ?? image, image, frame ? 'media' : 'plain', (index % 4) * 70);
       });
     }
   };

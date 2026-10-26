@@ -37,6 +37,9 @@ function boot(): void {
   const i18n = initI18n();
 
   initModals({ i18n });
+  if (/^\/kontakt\/?$/i.test(window.location.pathname)) {
+    document.querySelector<HTMLImageElement>('.contact_img img.is-contact-image')?.classList.add('js-lightbox');
+  }
   initLightbox({ i18n });
   // Nach initLightbox: der Wrapper, der bei Lightbox-Bildern zum Fenster wird,
   // entsteht erst dort.

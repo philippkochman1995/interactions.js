@@ -2,7 +2,8 @@ import { gsap } from 'gsap';
 
 import { prefersReducedMotion } from './utils';
 
-const HEADING_SELECTOR = '[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading';
+const SECTION_HEADING_SELECTOR = '.work_about_heading, .editionen_title, .accordion_heading';
+const HEADING_SELECTOR = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading, ${SECTION_HEADING_SELECTOR}`;
 const LABEL_SELECTOR = '[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub';
 const READY = 'data-masked-reveal-ready';
 const COMPLETE = 'data-masked-reveal-complete';
@@ -22,6 +23,8 @@ const labels = new Set<HTMLElement>();
 let SplitTextClass: typeof import('gsap/SplitText').SplitText | undefined;
 let initialized = false;
 let activePath = window.location.pathname;
+let lineObserver: IntersectionObserver | undefined;
+const observedLines = new WeakSet<HTMLElement>();
 
 function staggerMs(element: HTMLElement): number {
   const value = getComputedStyle(element).getPropertyValue('--masked-reveal-stagger').trim() || '50ms';
@@ -124,6 +127,9 @@ function addHeading(element: HTMLElement): void {
   if (headings.has(element) ||
     (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
+  if (element.matches(SECTION_HEADING_SELECTOR) && !element.hasAttribute('data-masked-line-reveal')) {
+    element.setAttribute('data-masked-line-reveal', 'viewport');
+  }
   // Interactive or media children keep their original DOM and behavior.
   if (element.querySelector('a, button, input, select, textarea, svg, img, canvas, video, iframe')) {
     element.setAttribute(COMPLETE, '');
@@ -178,6 +184,15 @@ function scan(): void {
   activePath = window.location.pathname;
   document.querySelectorAll<HTMLElement>(HEADING_SELECTOR).forEach(addHeading);
   document.querySelectorAll<HTMLElement>(LABEL_SELECTOR).forEach(addLabel);
+  if (lineObserver) {
+    document.querySelectorAll<HTMLElement>('.accordion_section .accordion_item').forEach((item, index) => {
+      if (observedLines.has(item)) return;
+      observedLines.add(item);
+      item.style.setProperty('--accordion-line-index', String(index));
+      item.setAttribute('data-accordion-line-ready', '');
+      lineObserver?.observe(item);
+    });
+  }
   headings.forEach((state, element) => {
     if (element.isConnected) return;
     state.resizeObserver.disconnect();
@@ -191,6 +206,16 @@ function scan(): void {
 export function initMaskedLineReveal(): void {
   if (initialized || prefersReducedMotion()) return;
   initialized = true;
+  if ('IntersectionObserver' in window) {
+    lineObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const item = entry.target as HTMLElement;
+        item.classList.add('is-accordion-line-in');
+        observer.unobserve(item);
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -5% 0px' });
+  }
   scan();
   new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   document.fonts?.addEventListener('loadingdone', () => {

@@ -1,50 +1,48 @@
 import { gsap } from 'gsap';
+import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { prefersReducedMotion, qsa } from './utils';
 
-const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p';
-const HIGHLIGHT_EYEBROW_SELECTOR = '.news_event .u-text-eyebrow[data-animation-ready]';
+const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block';
+const RICH_TEXT_SELECTOR = '.w-richtext, .rich-text';
 const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
   '[data-modal-rich-text]', '[data-modal-body]',
   '.site-lightbox', '[data-site-lightbox]', '[role="dialog"]',
-  '[data-reveal="off"]',
+  '[data-reveal="off"]', '[data-fade]',
+  '.top_bar_section', '[data-site-menu]', '.site-preloader',
+  '.werk_hero_section', '.editionen_media', '[data-insta-feed]',
+  '.accordion_body', '.bio_era_years', '.bio_era_title',
+  '.modal_registry', '.hm_cms', '.works_source',
 ].join(', ');
 const HERO_CONTAINER = '[data-reveal-hero], [class*="_hero"], [class*="-hero"]';
 const PENDING = 'data-reveal-pending';
 const READY = 'data-reveal-ready';
 
-const FADE_UP_FROM = { y: 12, opacity: 0 };
-const FADE_UP_TO = { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' };
+const FADE_UP_FROM = { y: 20, opacity: 0 };
+const FADE_UP_TO = { y: 0, opacity: 1, duration: 1, ease: 'atelier-fade-up' };
 
 interface RevealState {
   element: HTMLElement;
+  targets: HTMLElement[];
   hero: boolean;
   played: boolean;
   timeline?: gsap.core.Timeline;
   trigger?: ScrollTrigger;
   signature: string;
-  originalOpacity: string;
-  originalTransform: string;
+  originals: Array<{ opacity: string; transform: string }>;
 }
 
 let initialized = false;
 
-function isNewsPage(): boolean {
-  return /(?:^|\/)news(?:\/|$)/i.test(window.location.pathname);
-}
-
-function isHomePage(): boolean {
-  return window.location.pathname === '/';
-}
-
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
-  if (/^\/atelier\/?$/i.test(window.location.pathname) && element.closest('[data-fade]')) return false;
-  if (element.matches('.atelier_hero_section .atelier_slide_heading')) return false;
+  if (element.closest('.quote-block') && !element.matches('.quote-block')) return false;
+  if (element.matches('.atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading')) return false;
   if (element.matches('.bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub')) return false;
   if (element.matches('[data-masked-line-reveal], [data-masked-reveal-label]')) return false;
+  if (element.matches('.work_about_heading, .editionen_title, .accordion_heading')) return false;
   if (element.matches('.atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p')) return false;
   return element.textContent?.trim().length !== 0;
 }
@@ -68,17 +66,21 @@ function signature(element: HTMLElement): string {
 function clear(state: RevealState): void {
   state.trigger?.kill();
   state.timeline?.kill();
-  state.element.style.opacity = state.played ? '1' : state.originalOpacity;
-  state.element.style.transform = state.originalTransform;
+  state.targets.forEach((target, index) => {
+    target.style.opacity = state.played ? '1' : state.originals[index].opacity;
+    target.style.transform = state.originals[index].transform;
+  });
   state.trigger = undefined;
   state.timeline = undefined;
 }
 
 function targets(state: RevealState): Element[] {
   state.signature = signature(state.element);
-  state.element.removeAttribute(PENDING);
-  state.element.setAttribute(READY, '');
-  return [state.element];
+  state.targets.forEach((target) => {
+    target.removeAttribute(PENDING);
+    target.setAttribute(READY, '');
+  });
+  return state.targets;
 }
 
 function buildScrollReveal(state: RevealState): void {
@@ -113,22 +115,29 @@ function waitForFonts(): Promise<void> {
 }
 
 export function initLineReveal(root: ParentNode = document): void {
-  if (initialized || isHomePage() || isNewsPage() || prefersReducedMotion()) return;
+  if (initialized || prefersReducedMotion()) return;
 
-  const elements = qsa<HTMLElement>(`${TEXT_SELECTOR}, ${HIGHLIGHT_EYEBROW_SELECTOR}`, root).filter(isEligible);
+  const elements = qsa<HTMLElement>(TEXT_SELECTOR, root).filter(isEligible);
   if (!elements.length) return;
   initialized = true;
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, CustomEase);
+  CustomEase.create('atelier-fade-up', '.33,1,.68,1');
 
-  const states = elements.map<RevealState>((element) => ({
+  const groups = new Map<HTMLElement, HTMLElement[]>();
+  elements.forEach((element) => {
+    const richText = element.matches('p') ? element.closest<HTMLElement>(RICH_TEXT_SELECTOR) : null;
+    const key = richText ?? element;
+    groups.set(key, [...(groups.get(key) ?? []), element]);
+  });
+  const states = Array.from(groups, ([element, groupedTargets]): RevealState => ({
     element,
+    targets: groupedTargets,
     hero: isHero(element),
     played: false,
     signature: '',
-    originalOpacity: element.style.opacity,
-    originalTransform: element.style.transform,
+    originals: groupedTargets.map((target) => ({ opacity: target.style.opacity, transform: target.style.transform })),
   }));
-  states.forEach(({ element }) => element.setAttribute(PENDING, ''));
+  states.forEach((state) => state.targets.forEach((target) => target.setAttribute(PENDING, '')));
 
   let intro: gsap.core.Timeline | undefined;
   let observer: ResizeObserver | undefined;
@@ -182,6 +191,6 @@ export function initLineReveal(root: ParentNode = document): void {
     states.forEach(clear);
     window.removeEventListener('resize', scheduleRebuild);
     document.fonts?.removeEventListener('loadingdone', rebuild);
-    states.forEach(({ element }) => element.removeAttribute(PENDING));
+    states.forEach((state) => state.targets.forEach((target) => target.removeAttribute(PENDING)));
   }, { once: true });
 }
