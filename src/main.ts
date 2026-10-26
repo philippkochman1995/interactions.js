@@ -14,7 +14,7 @@ import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 import { initHomeImageWipe } from './modules/home-image-wipe';
 import { initHomeHeadingReveal } from './modules/home-heading-reveal';
-import { initAtelierHeroReveal } from './modules/atelier-hero-reveal';
+import { initMaskedLineReveal } from './modules/masked-line-reveal';
 import { initAtelierStoryReveal } from './modules/atelier-story-reveal';
 
 let booted = false;
@@ -27,7 +27,7 @@ initPageTransitions();
 // Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.
 initLineReveal();
 initHomeHeadingReveal();
-initAtelierHeroReveal();
+initMaskedLineReveal();
 initAtelierStoryReveal();
 initSmoothScrollSync();
 

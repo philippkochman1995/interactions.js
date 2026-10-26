@@ -1843,9 +1843,72 @@ footer a.w--current:focus-visible::after,
   visibility: hidden;
 }
 
+/* Opt-in line reveal; the Atelier hero uses the same hook by selector. */
+:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+  visibility: hidden;
+}
+
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow):not([data-masked-reveal-complete]) {
+  opacity: 0;
+}
+
+.masked-reveal-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: .14em;
+  margin-bottom: -.14em;
+}
+
+.masked-reveal-line__text {
+  display: block;
+  transform: translateY(100%);
+}
+
+.is-masked-reveal-playing .masked-reveal-line__text {
+  animation: masked-reveal-rise var(--masked-reveal-duration, 600ms)
+    var(--masked-reveal-ease, cubic-bezier(.33, 1, .68, 1)) both;
+  animation-delay: calc(var(--masked-reveal-delay, 0ms) + var(--masked-reveal-line-delay, 0ms));
+}
+
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow).is-masked-reveal-playing {
+  animation: masked-reveal-fade 200ms linear both;
+}
+
+[data-masked-reveal-complete] .masked-reveal-line__text {
+  transform: none;
+}
+
+.atelier_hero_section .atelier_slide_heading {
+  --masked-reveal-delay: 60ms;
+}
+
+@keyframes masked-reveal-rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes masked-reveal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal-pending] {
     visibility: visible;
+  }
+
+  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading) {
+    visibility: visible;
+  }
+
+  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow) {
+    opacity: 1;
+    animation: none;
+  }
+
+  .masked-reveal-line__text {
+    transform: none;
+    animation: none !important;
   }
 }
 
