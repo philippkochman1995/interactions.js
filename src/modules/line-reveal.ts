@@ -9,7 +9,7 @@ const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
   '[data-modal-rich-text]', '[data-modal-body]',
   '.site-lightbox', '[data-site-lightbox]', '[role="dialog"]',
-  '[data-reveal="off"]', '[data-fade]',
+  '[data-reveal="off"]',
 ].join(', ');
 const HERO_CONTAINER = '[data-reveal-hero], [class*="_hero"], [class*="-hero"]';
 const PENDING = 'data-reveal-pending';
@@ -41,6 +41,7 @@ function isHomePage(): boolean {
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
+  if (/^\/atelier\/?$/i.test(window.location.pathname) && element.closest('[data-fade]')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading')) return false;
   if (element.matches('[data-masked-line-reveal], [data-masked-reveal-label]')) return false;
   if (element.matches('.atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p')) return false;

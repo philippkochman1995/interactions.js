@@ -107,7 +107,9 @@ function rebuild(state: HeadingState, replay = false): void {
 }
 
 function addHeading(element: HTMLElement): void {
-  if (headings.has(element) || element.hasAttribute('data-fade') || !element.textContent?.trim()) return;
+  if (headings.has(element) ||
+    (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
+    !element.textContent?.trim()) return;
   // Interactive or media children keep their original DOM and behavior.
   if (element.querySelector('a, button, input, select, textarea, svg, img, canvas, video, iframe')) {
     element.setAttribute(COMPLETE, '');
@@ -137,7 +139,9 @@ function addHeading(element: HTMLElement): void {
 }
 
 function addLabel(element: HTMLElement): void {
-  if (labels.has(element) || element.hasAttribute('data-fade') || !element.textContent?.trim()) return;
+  if (labels.has(element) ||
+    (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
+    !element.textContent?.trim()) return;
   labels.add(element);
   void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition()])
     .then(() => {

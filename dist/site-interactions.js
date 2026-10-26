@@ -1122,8 +1122,7 @@ var pr = "h1, h2, h3, h4, h5, h6, p", mr = ".news_event .u-text-eyebrow[data-ani
 	".site-lightbox",
 	"[data-site-lightbox]",
 	"[role=\"dialog\"]",
-	"[data-reveal=\"off\"]",
-	"[data-fade]"
+	"[data-reveal=\"off\"]"
 ].join(", "), gr = "[data-reveal-hero], [class*=\"_hero\"], [class*=\"-hero\"]", _r = "data-reveal-pending", vr = "data-reveal-ready", yr = {
 	y: 12,
 	opacity: 0
@@ -1141,7 +1140,7 @@ function Cr() {
 }
 function wr(e) {
 	var t;
-	return e.closest(hr) || e.closest("[hidden]") || e.matches(".atelier_hero_section .atelier_slide_heading") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
+	return e.closest(hr) || e.closest("[hidden]") || /^\/atelier\/?$/i.test(window.location.pathname) && e.closest("[data-fade]") || e.matches(".atelier_hero_section .atelier_slide_heading") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
 }
 function Tr(e) {
 	if (e.closest(gr)) return !0;
@@ -3058,7 +3057,7 @@ function Jc(e, t = !1) {
 }
 function Yc(e) {
 	var t, n, r, i;
-	if (Bc.has(e) || e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
+	if (Bc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
 	if (e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
 		e.setAttribute(zc, "");
 		return;
@@ -3086,7 +3085,7 @@ function Yc(e) {
 }
 function Xc(e) {
 	var t, n, r;
-	Vc.has(e) || e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Vc.add(e), Promise.all([
+	Vc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Vc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
 		(r = window.__sitePreloader) == null ? void 0 : r.ready,
 		Kc()
