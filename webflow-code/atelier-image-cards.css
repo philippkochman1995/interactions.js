@@ -1,4 +1,18 @@
-/* Loaded only on /atelier. The image remains inside its existing card/lightbox. */
+/* The full-bleed hero keeps its original position and has reveal motion only. */
+.atelier_hero_section > img.atelier_hero_img {
+  opacity: 0;
+  clip-path: inset(10px);
+  transform: scale(1.075) !important;
+  transition: opacity .4s ease-out, transform 1.2s cubic-bezier(0, 0, .2, 1);
+}
+
+.atelier_hero_section > img.atelier_hero_img.in {
+  opacity: 1;
+  clip-path: inset(0px);
+  transform: scale(1) !important;
+}
+
+/* Loaded only on /atelier. Card images remain inside their existing lightboxes. */
 body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask] {
   position: relative;
   display: block;
@@ -89,6 +103,13 @@ body[data-atelier-image-page] .news_event .intro_content_about > a.text-link .mo
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .atelier_hero_section > img.atelier_hero_img {
+    opacity: 1;
+    clip-path: inset(0px);
+    transform: none !important;
+    transition: none !important;
+  }
+
   body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask] {
     opacity: 1;
     clip-path: inset(0px);

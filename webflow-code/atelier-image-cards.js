@@ -1,9 +1,10 @@
-/* Atelier image cards: one viewport reveal and a separate, slower image hover. */
+/* Atelier images: one viewport reveal; hover motion stays on cards only. */
 (function () {
   var PAGE = /^\/atelier\/?$/i;
   var CARD = 'data-atelier-image-card';
   var MASK = 'data-atelier-image-mask';
   var ZOOM = 'data-atelier-image-zoom';
+  var HERO = 'data-atelier-hero-image-reveal';
   var pending = new WeakSet();
   var observer = null;
   var mutationObserver = null;
@@ -12,17 +13,17 @@
   if (!PAGE.test(window.location.pathname)) return;
   document.body.setAttribute('data-atelier-image-page', '');
 
-  function reveal(mask) {
-    if (!mask.isConnected || mask.classList.contains('in') || pending.has(mask)) return;
-    var image = mask.querySelector('img');
+  function reveal(target) {
+    if (!target.isConnected || target.classList.contains('in') || pending.has(target)) return;
+    var image = target instanceof HTMLImageElement ? target : target.querySelector('img');
     if (!image) return;
-    pending.add(mask);
+    pending.add(target);
 
     function finish() {
-      pending.delete(mask);
-      if (!mask.isConnected || !image.naturalWidth) return;
-      mask.classList.add('in');
-      if (observer) observer.unobserve(mask);
+      pending.delete(target);
+      if (!target.isConnected || !image.naturalWidth) return;
+      target.classList.add('in');
+      if (observer) observer.unobserve(target);
     }
 
     if (image.complete) {
@@ -36,7 +37,7 @@
         if (image.decode) image.decode().then(finish, finish);
         else finish();
       }, { once: true });
-      image.addEventListener('error', function () { pending.delete(mask); }, { once: true });
+      image.addEventListener('error', function () { pending.delete(target); }, { once: true });
     }
   }
 
@@ -59,6 +60,16 @@
     }
   }
 
+  function registerHero(image) {
+    if (image.hasAttribute(HERO)) return;
+    image.setAttribute(HERO, '');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !observer) {
+      image.classList.add('in');
+    } else {
+      observer.observe(image);
+    }
+  }
+
   function wrapImage(image, card, existingMask) {
     if (image.closest('[' + MASK + ']')) return;
     var mask = existingMask || document.createElement('span');
@@ -78,6 +89,8 @@
       if (observer) observer.disconnect();
       return;
     }
+
+    document.querySelectorAll('.atelier_hero_section > img.atelier_hero_img').forEach(registerHero);
 
     document.querySelectorAll('.news_event .img-zoom > img.intro_img').forEach(function (image) {
       var mask = image.parentElement;
