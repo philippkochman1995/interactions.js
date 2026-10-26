@@ -13,6 +13,11 @@
   height: auto;
 }
 
+/* Keep the frame's visible edges fixed while the image fades and settles. */
+.news_detail_more_section .news_event .img-zoom[data-site-image-reveal="event"] {
+  clip-path: none !important;
+}
+
 .news_detail_more_section .news_event .img-zoom[data-site-image-reveal="event"] img.intro_img {
   width: 100%;
   height: auto !important;
