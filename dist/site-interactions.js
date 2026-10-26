@@ -3031,63 +3031,53 @@ function Hc() {
 	]).then(([{ SplitText: e }]) => {
 		if (s || !a.isConnected || !o.isConnected) return;
 		b.registerPlugin(e, Zo);
-		let t = Zo.create("atelier-preloader-text", zc), n, r, i, l = 0, u = !1, d = () => {
-			if (!n || !r) return;
-			i == null || i.kill();
-			let e = n.lines, a = r.words;
-			if (u) {
-				b.set([...e, ...a], { clearProps: "transform,opacity" });
+		let t = Zo.create("atelier-preloader-text", zc), n, r, i = 0, l = !1, u = () => {
+			if (!n) return;
+			r == null || r.kill();
+			let e = n.lines;
+			if (l) {
+				b.set(a, { clearProps: "opacity" }), b.set(e, { clearProps: "transform,opacity" });
 				return;
 			}
-			b.set(e, {
+			b.set(a, { opacity: 0 }), b.set(e, {
 				yPercent: 105,
 				opacity: 0
-			}), b.set(a, {
-				yPercent: 110,
-				opacity: 0
-			}), i = b.timeline({
+			}), r = b.timeline({
 				paused: !0,
 				onStart: () => {
-					u = !0;
+					l = !0;
 				}
-			}), i.to(e, {
+			}), r.to(a, {
+				opacity: 1,
+				duration: .85,
+				ease: "power2.out"
+			}, 0), r.to(e, {
 				yPercent: 0,
 				opacity: 1,
-				duration: 1.15,
-				stagger: .12,
-				ease: t
-			}, 0), i.to(a, {
-				yPercent: 0,
-				opacity: 1,
-				duration: 1.45,
-				stagger: .085,
+				duration: 1.65,
+				stagger: .16,
 				ease: t,
-				onComplete: () => b.set([...e, ...a], { clearProps: "transform,opacity" })
+				onComplete: () => {
+					b.set(a, { clearProps: "opacity" }), b.set(e, { clearProps: "transform,opacity" });
+				}
 			}, .2);
-		}, f = () => {
-			l || (l = window.requestAnimationFrame(() => {
-				l = 0, d();
+		}, d = () => {
+			i || (i = window.requestAnimationFrame(() => {
+				i = 0, u();
 			}));
 		};
 		try {
-			n = e.create(a, {
+			n = e.create(o, {
 				type: "lines",
 				mask: "lines",
 				linesClass: "atelier-hero-line",
 				autoSplit: !0,
-				onSplit: f
-			}), r = e.create(o, {
-				type: "lines,words",
-				mask: "lines",
-				linesClass: "atelier-hero-line",
-				wordsClass: "atelier-hero-word",
-				autoSplit: !0,
-				onSplit: f
-			}), window.cancelAnimationFrame(l), l = 0, d(), a.removeAttribute(Rc), o.removeAttribute(Rc), i == null || i.play(0), c = () => {
-				window.cancelAnimationFrame(l), i == null || i.kill(), n == null || n.revert(), r == null || r.revert();
+				onSplit: d
+			}), window.cancelAnimationFrame(i), i = 0, u(), a.removeAttribute(Rc), o.removeAttribute(Rc), r == null || r.play(0), c = () => {
+				window.cancelAnimationFrame(i), r == null || r.kill(), b.set(a, { clearProps: "opacity" }), n == null || n.revert();
 			};
 		} catch (e) {
-			window.cancelAnimationFrame(l), n == null || n.revert(), r == null || r.revert();
+			window.cancelAnimationFrame(i), b.set(a, { clearProps: "opacity" }), n == null || n.revert();
 		}
 	}).catch(() => void 0).finally(() => {
 		a.removeAttribute(Rc), o.removeAttribute(Rc);

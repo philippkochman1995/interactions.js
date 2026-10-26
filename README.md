@@ -690,11 +690,10 @@ sonstiger Text bleiben statisch. SplitText passt die Zeilen bei Schrift- oder
 Breitenwechsel an; Ueberschriften mit interaktiven Kindelementen bleiben ungeteilt.
 
 Auf `/atelier` erhalten die Hero-Eyebrow `.atlier_slide_eyebrow` und die H1
-`.atelier_slide_heading` einen separaten Reveal. Die Eyebrow schiebt sich als
-Zeile nach oben; die H1 folgt Wort fuer Wort aus maskierten Zeilen, wie beim
-Intro auf der MAD-Teamseite. Beide verwenden die Bewegungskurve
-`cubic-bezier(.02, .9, .03, 1)` der Preloader-Schrift. Die globale
-Textanimation ueberspringt diese H1.
+`.atelier_slide_heading` einen separaten Reveal. Die Eyebrow blendet ohne
+Bewegung ein; die H1 folgt Zeile fuer Zeile aus maskierten Zeilen mit der
+Bewegungskurve `cubic-bezier(.02, .9, .03, 1)` der Preloader-Schrift. Die
+globale Textanimation ueberspringt diese H1.
 
 Die erste Atelier-About-Section (`Atelier 1994–2012`) uebernimmt aus
 `atelier-animation.html` den Wort-Reveal fuer die H2 und den Zeilen-Reveal fuer

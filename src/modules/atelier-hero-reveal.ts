@@ -42,30 +42,32 @@ export function initAtelierHeroReveal(): void {
       if (disposed || !eyebrow.isConnected || !heading.isConnected) return;
       gsap.registerPlugin(SplitText, CustomEase);
       const ease = CustomEase.create('atelier-preloader-text', PRELOADER_TEXT_EASE);
-      let eyebrowSplit: InstanceType<typeof SplitText> | undefined;
       let headingSplit: InstanceType<typeof SplitText> | undefined;
       let timeline: gsap.core.Timeline | undefined;
       let refreshFrame = 0;
       let started = false;
 
       const rebuild = (): void => {
-        if (!eyebrowSplit || !headingSplit) return;
+        if (!headingSplit) return;
         timeline?.kill();
-        const eyebrowLines = eyebrowSplit.lines;
-        const headingWords = headingSplit.words;
+        const headingLines = headingSplit.lines;
         if (started) {
-          gsap.set([...eyebrowLines, ...headingWords], { clearProps: 'transform,opacity' });
+          gsap.set(eyebrow, { clearProps: 'opacity' });
+          gsap.set(headingLines, { clearProps: 'transform,opacity' });
           return;
         }
-        gsap.set(eyebrowLines, { yPercent: 105, opacity: 0 });
-        gsap.set(headingWords, { yPercent: 110, opacity: 0 });
+        gsap.set(eyebrow, { opacity: 0 });
+        gsap.set(headingLines, { yPercent: 105, opacity: 0 });
         timeline = gsap.timeline({ paused: true, onStart: () => { started = true; } });
-        timeline.to(eyebrowLines, {
-          yPercent: 0, opacity: 1, duration: 1.15, stagger: 0.12, ease,
+        timeline.to(eyebrow, {
+          opacity: 1, duration: 0.85, ease: 'power2.out',
         }, 0);
-        timeline.to(headingWords, {
-          yPercent: 0, opacity: 1, duration: 1.45, stagger: 0.085, ease,
-          onComplete: () => gsap.set([...eyebrowLines, ...headingWords], { clearProps: 'transform,opacity' }),
+        timeline.to(headingLines, {
+          yPercent: 0, opacity: 1, duration: 1.65, stagger: 0.16, ease,
+          onComplete: () => {
+            gsap.set(eyebrow, { clearProps: 'opacity' });
+            gsap.set(headingLines, { clearProps: 'transform,opacity' });
+          },
         }, 0.2);
       };
 
@@ -78,13 +80,8 @@ export function initAtelierHeroReveal(): void {
       };
 
       try {
-        eyebrowSplit = SplitText.create(eyebrow, {
-          type: 'lines', mask: 'lines', linesClass: 'atelier-hero-line', autoSplit: true,
-          onSplit: scheduleRebuild,
-        });
         headingSplit = SplitText.create(heading, {
-          type: 'lines,words', mask: 'lines', linesClass: 'atelier-hero-line',
-          wordsClass: 'atelier-hero-word', autoSplit: true,
+          type: 'lines', mask: 'lines', linesClass: 'atelier-hero-line', autoSplit: true,
           onSplit: scheduleRebuild,
         });
         window.cancelAnimationFrame(refreshFrame);
@@ -96,12 +93,12 @@ export function initAtelierHeroReveal(): void {
         cleanup = () => {
           window.cancelAnimationFrame(refreshFrame);
           timeline?.kill();
-          eyebrowSplit?.revert();
+          gsap.set(eyebrow, { clearProps: 'opacity' });
           headingSplit?.revert();
         };
       } catch {
         window.cancelAnimationFrame(refreshFrame);
-        eyebrowSplit?.revert();
+        gsap.set(eyebrow, { clearProps: 'opacity' });
         headingSplit?.revert();
       }
     })
