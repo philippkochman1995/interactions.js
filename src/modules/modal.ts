@@ -1,6 +1,6 @@
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
 import { getCmsImageOriginalSource, getCmsImageSource as getImageSource } from './cms-image';
-import { modalWorkThumbnailSource, setModalPreview } from './modal-image';
+import { modalPreviewSource, modalWorkThumbnailSource, prepareModalImage, readyModalImageSource, setModalPreview } from './modal-image';
 import {
   delegate,
   dispatchSiteEvent,
@@ -76,6 +76,7 @@ let elements: SingletonElements | null = null;
 let activeModalId = '';
 let previouslyFocusedElement: HTMLElement | null = null;
 let closeTimer: number | null = null;
+let openingVersion = 0;
 const contentRegistry = new Map<string, ContentModalData>();
 
 function getModalIdFromHashLink(link: HTMLElement): string {
@@ -392,9 +393,9 @@ function renderWork(work: ContentModalWork): HTMLElement {
 
     image.className = 'fwm-modal__work-image';
     image.alt = work.thumbnailAlt;
-    image.loading = 'lazy';
+    image.loading = 'eager';
     image.decoding = 'async';
-    const preview = modalWorkThumbnailSource(work.thumbnail, work.thumbnailSrcset);
+    const preview = readyModalImageSource(modalWorkThumbnailSource(work.thumbnail, work.thumbnailSrcset), work.thumbnail);
     image.onerror = preview === work.thumbnail ? null : () => {
       image.onerror = null;
       image.src = work.thumbnail;
@@ -433,7 +434,7 @@ function renderWork(work: ContentModalWork): HTMLElement {
   return card;
 }
 
-function renderGalleryItem(item: ContentModalGalleryItem, index: number): HTMLElement {
+function renderGalleryItem(item: ContentModalGalleryItem): HTMLElement {
   const link = document.createElement('a');
   const image = document.createElement('img');
   const lightboxIcon = document.createElement('span');
@@ -448,7 +449,7 @@ function renderGalleryItem(item: ContentModalGalleryItem, index: number): HTMLEl
 
   image.className = 'fwm-modal__image';
   image.alt = item.alt;
-  image.loading = index === 0 ? 'eager' : 'lazy';
+  image.loading = 'eager';
   image.decoding = 'async';
   setModalPreview(image, item.src, item.srcset, 500);
 
@@ -514,7 +515,7 @@ function renderDefaultContent(singleton: SingletonElements, content: ContentModa
   clearContextContent(singleton);
   const extraImages = content.gallery?.slice(1).filter((item) => item.src) ?? [];
   singleton.gallery.hidden = extraImages.length === 0;
-  extraImages.forEach((item, index) => singleton.gallery.append(renderGalleryItem(item, index)));
+  extraImages.forEach((item) => singleton.gallery.append(renderGalleryItem(item)));
 }
 
 function renderContextContent(singleton: SingletonElements, content: ContentModalData): void {
@@ -552,8 +553,8 @@ function renderContextContent(singleton: SingletonElements, content: ContentModa
     singleton.work.append(renderWork(content.work));
   }
 
-  gallery.forEach((item, index) => {
-    singleton.gallery.append(renderGalleryItem(item, index));
+  gallery.forEach((item) => {
+    singleton.gallery.append(renderGalleryItem(item));
   });
 }
 
@@ -567,6 +568,54 @@ function renderContent(content: ContentModalData): SingletonElements {
   }
 
   return singleton;
+}
+
+function prepareContentImages(content: ContentModalData): Promise<string>[] {
+  const pending: Promise<string>[] = [];
+  const prepareGalleryItem = (item: ContentModalGalleryItem, width: number): void => {
+    pending.push(prepareModalImage(modalPreviewSource(item.src, item.srcset, width), item.src));
+  };
+
+  if (content.layout === 'context') {
+    if (content.work?.thumbnail) {
+      pending.push(prepareModalImage(
+        modalWorkThumbnailSource(content.work.thumbnail, content.work.thumbnailSrcset),
+        content.work.thumbnail,
+      ));
+    }
+    const gallery = content.gallery?.length ? content.gallery : content.image
+      ? [{ src: content.image, srcset: content.imageSrcset, alt: content.imageAlt, caption: content.caption }]
+      : [];
+    gallery.filter((item) => item.src && item.src !== content.work?.thumbnail)
+      .forEach((item) => prepareGalleryItem(item, 500));
+  } else {
+    if (content.image) {
+      pending.push(prepareModalImage(
+        modalPreviewSource(content.image, content.imageSrcset ?? content.gallery?.[0]?.srcset, 1080),
+        content.image,
+      ));
+    }
+    content.gallery?.slice(1).filter((item) => item.src)
+      .forEach((item) => prepareGalleryItem(item, 500));
+  }
+
+  return pending;
+}
+
+function waitForRenderedImages(singleton: SingletonElements): Promise<void> | null {
+  const images = Array.from(singleton.panel.querySelectorAll<HTMLImageElement>('img[src]'))
+    .filter((image) => image.getAttribute('src'));
+  if (!images.length) return null;
+
+  return Promise.all(images.map((image) => {
+    image.loading = 'eager';
+    if (typeof image.decode === 'function') return image.decode().catch(() => undefined);
+    if (image.complete) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      image.addEventListener('load', () => resolve(), { once: true });
+      image.addEventListener('error', () => resolve(), { once: true });
+    });
+  })).then(() => undefined);
 }
 
 function focusModal(singleton: SingletonElements): void {
@@ -619,7 +668,7 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
     gallery: content.gallery?.length
       ? content.gallery
       : content.image
-        ? [{ src: content.image, alt: content.imageAlt ?? '', caption: content.caption ?? '' }]
+        ? [{ src: content.image, srcset: content.imageSrcset, alt: content.imageAlt ?? '', caption: content.caption ?? '' }]
         : [],
   };
 
@@ -632,20 +681,39 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
   }
 
   contentRegistry.set(normalizedContent.id, normalizedContent);
-  previouslyFocusedElement = trigger ?? getActiveHTMLElement();
-  activeModalId = normalizedContent.id;
-
-  const singleton = renderContent(normalizedContent);
-  showModal(singleton);
-  lockScroll();
-  focusModal(singleton);
-
-  dispatchSiteEvent(singleton.root, 'site:modal-open', {
-    id: activeModalId,
-    modal: singleton.root,
-    content: normalizedContent,
-    trigger: trigger ?? null,
-  });
+  const version = ++openingVersion;
+  const focusTarget = trigger ?? getActiveHTMLElement();
+  const reveal = (): void => {
+    if (version !== openingVersion) return;
+    const singleton = ensureSingleton();
+    if (closeTimer !== null) {
+      window.clearTimeout(closeTimer);
+      closeTimer = null;
+      singleton.root.hidden = true;
+      singleton.root.classList.remove('is-active', 'is-visible');
+    }
+    renderContent(normalizedContent);
+    const display = (): void => {
+      if (version !== openingVersion) return;
+      previouslyFocusedElement = focusTarget;
+      activeModalId = normalizedContent.id;
+      showModal(singleton);
+      lockScroll();
+      focusModal(singleton);
+      dispatchSiteEvent(singleton.root, 'site:modal-open', {
+        id: activeModalId,
+        modal: singleton.root,
+        content: normalizedContent,
+        trigger: trigger ?? null,
+      });
+    };
+    const imagesReady = waitForRenderedImages(singleton);
+    if (imagesReady) void imagesReady.then(display);
+    else display();
+  };
+  const images = prepareContentImages(normalizedContent);
+  if (images.length) void Promise.all(images).then(reveal);
+  else reveal();
 }
 
 export function openModal(id: string, trigger?: HTMLElement): void {
@@ -657,6 +725,7 @@ export function openModal(id: string, trigger?: HTMLElement): void {
 }
 
 export function closeModal(): void {
+  openingVersion++;
   if (!activeModalId || !elements) {
     return;
   }
@@ -717,6 +786,20 @@ export function initModals(options: ModalInitOptions): ModalApi {
   ensureSingleton();
 
   if (!initialized) {
+    const warmTrigger = (trigger: HTMLElement): void => {
+      const id = trigger.matches(MODAL_OPEN_SELECTOR)
+        ? getDataId(trigger, 'data-modal-open')
+        : getModalIdFromHashLink(trigger);
+      const content = resolveContent(id);
+      if (content) prepareContentImages(content);
+    };
+
+    for (const type of ['pointerover', 'pointerdown', 'focusin'] as const) {
+      delegate(document, type, `${MODAL_OPEN_SELECTOR}, ${MODAL_HASH_LINK_SELECTOR}`, (_event, trigger) => {
+        warmTrigger(trigger);
+      });
+    }
+
     delegate(document, 'click', MODAL_OPEN_SELECTOR, (event, trigger) => {
       event.preventDefault();
       openModal(getDataId(trigger, 'data-modal-open'), trigger);

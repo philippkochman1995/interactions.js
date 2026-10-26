@@ -55,3 +55,87 @@ test('context work card uses a real 500px preview for Webflow AVIF images', asyn
   await expect(image).toHaveJSProperty('naturalWidth', 500);
   expect(originalRequests).toBe(0);
 });
+
+test('modal stays hidden until its preview has loaded and decoded', async ({ page }) => {
+  const original = 'https://cdn.prod.website-files.com/test/slow.jpg';
+  const preview = 'https://cdn.prod.website-files.com/test/slow-p-1080.jpg';
+  let releasePreview!: () => void;
+  const previewGate = new Promise<void>((resolve) => { releasePreview = resolve; });
+  await page.route(preview, async (route) => {
+    await previewGate;
+    await route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720"/>',
+    });
+  });
+  await page.goto('/tests/fixtures/modal.html');
+  await page.evaluate(({ original, preview }) => {
+    window.SiteInteractions!.openContentModal({
+      id: 'slow-modal', address: '', image: original,
+      imageSrcset: `${preview} 1080w`, imageAlt: '', caption: '', html: '',
+    });
+  }, { original, preview });
+
+  const modal = page.locator('[data-site-modal]');
+  await expect(modal).toBeHidden();
+  releasePreview();
+  await expect(modal).toBeVisible();
+  await expect(modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img')).toHaveJSProperty('naturalWidth', 1080);
+});
+
+test('a failed preview falls back before the modal appears', async ({ page }) => {
+  const original = 'https://cdn.prod.website-files.com/test/fallback.jpg';
+  const preview = 'https://cdn.prod.website-files.com/test/fallback-p-1080.jpg';
+  let releaseOriginal!: () => void;
+  const originalGate = new Promise<void>((resolve) => { releaseOriginal = resolve; });
+  await page.route(preview, (route) => route.abort());
+  await page.route(original, async (route) => {
+    await originalGate;
+    await route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1500"/>',
+    });
+  });
+  await page.goto('/tests/fixtures/modal.html');
+  await page.evaluate(({ original, preview }) => {
+    window.SiteInteractions!.openContentModal({
+      id: 'fallback-modal', address: '', image: original,
+      imageSrcset: `${preview} 1080w`, imageAlt: '', caption: '', html: '',
+    });
+  }, { original, preview });
+
+  const modal = page.locator('[data-site-modal]');
+  await expect(modal).toBeHidden();
+  releaseOriginal();
+  await expect(modal).toBeVisible();
+  await expect(modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img')).toHaveAttribute('src', original);
+});
+
+test('an older image load cannot replace a newer modal', async ({ page }) => {
+  const first = 'https://cdn.prod.website-files.com/test/first-slow.jpg';
+  const second = 'https://cdn.prod.website-files.com/test/second-fast.jpg';
+  let releaseFirst!: () => void;
+  const firstGate = new Promise<void>((resolve) => { releaseFirst = resolve; });
+  await page.route(/https:\/\/cdn\.prod\.website-files\.com\/test\/(first-slow|second-fast)-p-1080\.jpg/, async (route) => {
+    if (route.request().url().includes('first-slow')) await firstGate;
+    await route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720"/>',
+    });
+  });
+  await page.goto('/tests/fixtures/modal.html');
+  await page.evaluate(({ first, second }) => {
+    const open = (id: string, image: string) => window.SiteInteractions!.openContentModal({
+      id, address: '', image, imageAlt: '', caption: '', html: '',
+    });
+    open('first-slow', first);
+    open('second-fast', second);
+  }, { first, second });
+
+  const modal = page.locator('[data-site-modal]');
+  await expect(modal).toHaveAttribute('data-modal-id', 'second-fast');
+  await expect(modal).toBeVisible();
+  releaseFirst();
+  await expect(modal).toHaveAttribute('data-modal-id', 'second-fast');
+  await expect(modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img')).toHaveAttribute('src', /second-fast-p-1080\.jpg$/);
+});

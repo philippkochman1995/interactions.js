@@ -21,8 +21,48 @@ export function modalPreviewSource(original: string, srcset: string | undefined,
   }
 }
 
+const preparedImages = new Map<string, Promise<string>>();
+const readyImages = new Map<string, string>();
+
+function imageKey(preview: string, original: string): string {
+  return `${preview}\n${original}`;
+}
+
+function loadAndDecode(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.loading = 'eager';
+    image.onload = () => {
+      if (typeof image.decode === 'function') image.decode().then(() => resolve(true), () => resolve(false));
+      else resolve(true);
+    };
+    image.onerror = () => resolve(false);
+    image.src = src;
+  });
+}
+
+/** Fetch and decode before a modal starts revealing its content. */
+export function prepareModalImage(preview: string, original: string): Promise<string> {
+  const key = imageKey(preview, original);
+  const existing = preparedImages.get(key);
+  if (existing) return existing;
+
+  const prepared = (async () => {
+    const source = await loadAndDecode(preview) ? preview : original;
+    if (source !== preview) await loadAndDecode(original);
+    readyImages.set(key, source);
+    return source;
+  })();
+  preparedImages.set(key, prepared);
+  return prepared;
+}
+
+export function readyModalImageSource(preview: string, original: string): string {
+  return readyImages.get(imageKey(preview, original)) ?? preview;
+}
+
 export function setModalPreview(image: HTMLImageElement, original: string, srcset: string | undefined, width: number): void {
-  const preview = modalPreviewSource(original, srcset, width);
+  const preview = readyModalImageSource(modalPreviewSource(original, srcset, width), original);
   image.onerror = preview === original ? null : () => {
     image.onerror = null;
     image.src = original;
