@@ -2904,7 +2904,7 @@ function Mc() {
 }
 //#endregion
 //#region src/modules/site-image-reveal.ts
-var Nc = "data-site-image-reveal", Pc = "is-site-image-in", Fc = ".news_event img.intro_img, .news_highlight_section img.intro_img", Ic = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Lc = ".bio_hero_section > img.bio_hero_img", Rc = !1;
+var Nc = "data-site-image-reveal", Pc = "is-site-image-in", Fc = ".news_event img.intro_img", Ic = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Lc = ".bio_hero_section > img.bio_hero_img", Rc = !1;
 function zc(e) {
 	let t = document.documentElement, n = () => t.classList.contains("is-site-preloading") || t.classList.contains("is-site-preloader-exiting") ? !0 : (t.classList.contains("is-page-transition-pending") || t.classList.contains("is-page-transition-entering")) && !document.querySelector(".page-transition-overlay.is-uncovering");
 	if (!n()) {
@@ -2941,7 +2941,13 @@ function Bc() {
 		});
 	}, { threshold: 0 }), a = (t, n, r) => {
 		t.hasAttribute(Nc) || (t.setAttribute(Nc, r), e.set(t, n), r === "hero" && (n.loading = "eager", n.setAttribute("fetchpriority", "high")), i.observe(t));
-	}, o = () => {
+	}, o = (e) => {
+		if (e.closest("[data-site-image-reveal=\"event\"]")) return;
+		let t = e.parentElement;
+		t != null && t.classList.contains("img-zoom") || (t = document.createElement("div"), t.className = "img-zoom", e.before(t));
+		let n = document.createElement("span");
+		n.className = "zoom", n.setAttribute("data-site-event-zoom", ""), t.append(n), n.append(e), a(t, e, "event");
+	}, s = () => {
 		if (n = 0, /^\/biografie\/?$/i.test(window.location.pathname)) {
 			let e = document.querySelector(Lc);
 			e && a(e, e, "hero"), document.querySelectorAll(Ic).forEach((e) => {
@@ -2951,18 +2957,18 @@ function Bc() {
 			});
 		}
 		/^\/atelier\/?$/i.test(window.location.pathname) || document.querySelectorAll(Fc).forEach((e) => {
-			a(e, e, "event");
+			o(e);
 		});
 	};
-	o();
-	let s = new MutationObserver(() => {
-		n || (n = requestAnimationFrame(o));
+	s();
+	let c = new MutationObserver(() => {
+		n || (n = requestAnimationFrame(s));
 	});
-	s.observe(document.body, {
+	c.observe(document.body, {
 		childList: !0,
 		subtree: !0
 	}), window.addEventListener("pagehide", () => {
-		i.disconnect(), s.disconnect(), n && cancelAnimationFrame(n);
+		i.disconnect(), c.disconnect(), n && cancelAnimationFrame(n);
 	}, { once: !0 });
 }
 //#endregion

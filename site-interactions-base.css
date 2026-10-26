@@ -724,6 +724,11 @@ html.is-page-transition-boot::after {
     object-position: center;
   }
 
+  .news_event .img-zoom:is([data-site-image-reveal="event"], [data-atelier-image-mask]) {
+    order: -1;
+    margin-bottom: 1.5rem;
+  }
+
   .news_event .intro_content_about > .text-link {
     margin-bottom: 1rem;
   }
@@ -1227,10 +1232,9 @@ html.is-page-transition-boot::after {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
-/* Event cards: Webflow also writes a 5% hover scale inline. Keep the image's
-   transform in CSS so the zoom and inward crop stay in sync on entry and exit.
-   Clipping the image itself works for direct .intro_img grid items and .news_img. */
-:is(.news_event img.intro_img, .news_img img) {
+/* The News highlight has its own image treatment. Event cards use the Atelier
+   mask and zoom below, instead of this older image clipping. */
+.news_img img {
   transform: scale(1) !important;
   transition:
     transform var(--fw-news-image-duration, 0.3s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
@@ -1238,31 +1242,31 @@ html.is-page-transition-boot::after {
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img) {
+  :is(.news_highlight_section:hover .news_img img, .news_img:hover img) {
     transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
     clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :is(.news_event img.intro_img, .news_img img) {
+  .news_img img {
     clip-path: inset(0);
   }
 
-  :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img) {
+  .news_highlight_section:focus-within .news_img img {
     transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
     clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.news_event img.intro_img, .news_img img),
+  .news_img img,
   .site-lightbox-trigger__image,
   .fwm-modal__work-image {
     transition: none;
   }
 
-  :is(.news_event img.intro_img, .news_img img) {
+  .news_img img {
     transform: none !important;
   }
 
@@ -1311,22 +1315,47 @@ html.is-page-transition-boot::after {
   transform: scale(1) !important;
 }
 
-/* The Atelier Event-card entrance and hover motion also apply on Home, News
-   and any other page using the same card markup. Atelier keeps its own masks. */
-:is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"] {
+/* Event cards outside Atelier get its two-layer mask and hover motion. The
+   existing .img-zoom is reused where Webflow already provides one. */
+.news_event .img-zoom[data-site-image-reveal="event"] {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 0 !important;
   opacity: 0;
-  /* Compensate the initial scale while the image has no separate mask. */
-  clip-path: inset(3.5%);
-  transform: scale(1.075) !important;
-  transition:
-    opacity .4s ease-out,
-    clip-path .6s cubic-bezier(0, 0, .2, 1),
-    transform 1.2s cubic-bezier(0, 0, .2, 1);
+  clip-path: inset(10px);
+  transition: opacity .4s ease-out;
 }
 
-:is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"].is-site-image-in {
+.news_event .img-zoom[data-site-image-reveal="event"].is-site-image-in {
   opacity: 1;
   clip-path: inset(0);
+}
+
+.news_event [data-site-event-zoom] {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: transform .6s cubic-bezier(0, 0, .2, 1);
+}
+
+.news_event .img-zoom[data-site-image-reveal="event"] [data-site-event-zoom] > img.intro_img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1) !important;
+}
+
+.news_event .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
   transform: scale(1) !important;
 }
 
@@ -1344,9 +1373,12 @@ html.is-page-transition-boot::after {
     transform: scale(1.045) !important;
   }
 
-  :is(.news_event, .news_highlight_section):hover img.intro_img[data-site-image-reveal="event"].is-site-image-in {
-    transform: scale(1.045) !important;
-    clip-path: inset(2.2%);
+  .news_event:hover .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] {
+    transform: scale(1.03);
+  }
+
+  .news_event:hover .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
+    transform: scale(1.015) !important;
   }
 
   :is(.news_event, .news_highlight_section):hover a.text-link {
@@ -1359,9 +1391,12 @@ html.is-page-transition-boot::after {
     transform: scale(1.045) !important;
   }
 
-  :is(.news_event, .news_highlight_section):focus-within img.intro_img[data-site-image-reveal="event"].is-site-image-in {
-    transform: scale(1.045) !important;
-    clip-path: inset(2.2%);
+  .news_event:focus-within .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] {
+    transform: scale(1.03);
+  }
+
+  .news_event:focus-within .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
+    transform: scale(1.015) !important;
   }
 
   :is(.news_event, .news_highlight_section):focus-within a.text-link {
@@ -1373,7 +1408,9 @@ html.is-page-transition-boot::after {
   .bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"],
   .bio_photo [data-site-image-reveal="bio"],
   .bio_photo [data-site-image-reveal="bio"] img,
-  :is(.news_event, .news_highlight_section) img.intro_img[data-site-image-reveal="event"],
+  .news_event .img-zoom[data-site-image-reveal="event"],
+  .news_event [data-site-event-zoom],
+  .news_event .img-zoom[data-site-image-reveal="event"] [data-site-event-zoom] > img.intro_img,
   :is(.news_event, .news_highlight_section) a.text-link {
     opacity: 1;
     clip-path: none;

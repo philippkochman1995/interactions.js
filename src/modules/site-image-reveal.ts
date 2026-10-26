@@ -2,7 +2,7 @@ import { prefersReducedMotion } from './utils';
 
 const REVEAL_ATTR = 'data-site-image-reveal';
 const IN_CLASS = 'is-site-image-in';
-const EVENT_IMAGE_SELECTOR = '.news_event img.intro_img, .news_highlight_section img.intro_img';
+const EVENT_IMAGE_SELECTOR = '.news_event img.intro_img';
 const BIO_IMAGE_SELECTOR = '.bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img';
 const BIO_HERO_SELECTOR = '.bio_hero_section > img.bio_hero_img';
 
@@ -87,6 +87,24 @@ export function initSiteImageReveal(): void {
     observer.observe(target);
   };
 
+  const registerEvent = (image: HTMLImageElement): void => {
+    if (image.closest('[data-site-image-reveal="event"]')) return;
+    // Atelier uses its existing .img-zoom as the mask. Other pages put the
+    // image directly in the grid, so give it the same two-layer structure.
+    let mask = image.parentElement;
+    if (!mask?.classList.contains('img-zoom')) {
+      mask = document.createElement('div');
+      mask.className = 'img-zoom';
+      image.before(mask);
+    }
+    const zoom = document.createElement('span');
+    zoom.className = 'zoom';
+    zoom.setAttribute('data-site-event-zoom', '');
+    mask.append(zoom);
+    zoom.append(image);
+    register(mask, image, 'event');
+  };
+
   const scan = (): void => {
     scanFrame = 0;
     if (/^\/biografie\/?$/i.test(window.location.pathname)) {
@@ -101,7 +119,7 @@ export function initSiteImageReveal(): void {
     // Atelier keeps its existing page-specific masks and hover choreography.
     if (!/^\/atelier\/?$/i.test(window.location.pathname)) {
       document.querySelectorAll<HTMLImageElement>(EVENT_IMAGE_SELECTOR).forEach((image) => {
-        register(image, image, 'event');
+        registerEvent(image);
       });
     }
   };
