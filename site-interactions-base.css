@@ -612,6 +612,91 @@ html.is-page-transition-boot::after {
   }
 }
 
+/* Menue-Reveal (Split-Line): Jeder Punkt hat eine Maske, der Text faehrt von
+   unten ein, die Trennlinien zeichnen sich von links nach rechts. Staffelung:
+   --i = Reihenfolge in der Welle, --g = Welle (0 = Ueberschriften, 1 = kleine
+   Links und Footer), gesetzt in site-menu.ts. Der Ausgangszustand gilt erst mit
+   .is-ready, ohne JavaScript bleibt das Menue normal sichtbar. */
+[data-site-menu] {
+  --site-menu-reveal-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --site-menu-reveal-start: 300ms;
+  --site-menu-reveal-step: 50ms;
+  --site-menu-reveal-dur: 700ms;
+  --site-menu-reveal-gap: 320ms;
+  --site-menu-reveal-reset: 0.55s;
+}
+
+.site-menu__line {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  /* Luft fuer Unterlaengen, ohne den Zeilenabstand zu aendern. */
+  padding: 0.14em 0;
+  margin: -0.14em 0;
+}
+
+.site-menu__line-in {
+  display: block;
+}
+
+[data-site-menu].is-ready .site-menu__line-in {
+  transform: translateY(110%);
+  /* Zuruecksetzen erst, wenn das Panel eingefahren ist. */
+  transition: transform 0s linear var(--site-menu-reveal-reset);
+}
+
+[data-site-menu].is-ready.is-open .site-menu__line-in {
+  transform: translateY(0);
+  transition: transform var(--site-menu-reveal-dur) var(--site-menu-reveal-ease)
+    calc(
+      var(--site-menu-reveal-start) + var(--g, 0) * var(--site-menu-reveal-gap) +
+        var(--i, 0) * var(--site-menu-reveal-step)
+    );
+}
+
+[data-site-menu].is-ready .site-menu__divider {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0s linear var(--site-menu-reveal-reset);
+}
+
+[data-site-menu].is-ready.is-open .site-menu__divider {
+  transform: scaleX(1);
+  transition: transform calc(var(--site-menu-reveal-dur) * 0.9) var(--site-menu-reveal-ease)
+    calc(
+      var(--site-menu-reveal-start) + var(--g, 0) * var(--site-menu-reveal-gap) +
+        var(--i, 0) * var(--site-menu-reveal-step) + 60ms
+    );
+}
+
+/* Abdunklung hinter dem Menue, direkt unter dem Menue (z-index 1800). */
+[data-site-menu-dim] {
+  position: fixed;
+  inset: 0;
+  z-index: 1799;
+  background: #010101;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+[data-site-menu-dim].is-open {
+  opacity: 0.3;
+  transition-duration: 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site-menu].is-ready .site-menu__line-in,
+  [data-site-menu].is-ready .site-menu__divider {
+    transform: none;
+    transition: none;
+  }
+
+  [data-site-menu-dim] {
+    transition: none;
+  }
+}
+
 @media (max-width: 767px) {
   /* Der spaeter geladene Head-Style begrenzt .site-menu ebenfalls in der Breite.
      Die kombinierte Klasse setzt das Menue auf Mobil bis an alle Seitenraender. */
