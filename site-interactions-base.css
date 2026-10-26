@@ -2036,6 +2036,13 @@ footer a.w--current:focus-visible::after,
   overflow: visible;
 }
 
+/* Match the link's direct-hover color as soon as the whole event card is hovered. */
+@media (hover: hover) and (pointer: fine) {
+  :is(.news_event, .news_highlight_section):hover a.text-link {
+    color: var(--fw_dark_purple, #06021a);
+  }
+}
+
 .more-arrow [data-more-arrow-dot],
 .more-arrow [data-more-arrow-head] {
   fill: currentColor;

@@ -30,3 +30,17 @@ test('event images stay still with reduced motion', async ({ page }) => {
   await expect(page.getByTestId('news-image')).toHaveCSS('transform', 'none');
   await expect(page.getByTestId('news-image')).toHaveCSS('clip-path', 'none');
 });
+
+test('the learn-more link uses its direct-hover color when the card is hovered', async ({ page }) => {
+  await page.goto('/tests/fixtures/news-card-hover.html');
+
+  for (const cardId of ['news-card', 'highlight-card', 'atelier-card']) {
+    const card = page.getByTestId(cardId);
+    const link = card.locator('a.text-link');
+    await expect(link).toHaveCSS('color', 'rgb(130, 128, 140)');
+    await card.locator('img').hover();
+    await expect(link).toHaveCSS('color', 'rgb(6, 2, 26)');
+    await page.locator('body').hover({ position: { x: 700, y: 5 } });
+    await expect(link).toHaveCSS('color', 'rgb(130, 128, 140)');
+  }
+});
