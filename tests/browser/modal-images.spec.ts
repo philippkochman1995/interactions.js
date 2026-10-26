@@ -56,7 +56,7 @@ test('context work card uses a real 500px preview for Webflow AVIF images', asyn
   expect(originalRequests).toBe(0);
 });
 
-test('modal stays hidden until its preview has loaded and decoded', async ({ page }) => {
+test('modal opens immediately and fades in a slow image', async ({ page }) => {
   const original = 'https://cdn.prod.website-files.com/test/slow.jpg';
   const preview = 'https://cdn.prod.website-files.com/test/slow-p-1080.jpg';
   let releasePreview!: () => void;
@@ -69,21 +69,27 @@ test('modal stays hidden until its preview has loaded and decoded', async ({ pag
     });
   });
   await page.goto('/tests/fixtures/modal.html');
-  await page.evaluate(({ original, preview }) => {
+  const openedImmediately = await page.evaluate(({ original, preview }) => {
     window.SiteInteractions!.openContentModal({
       id: 'slow-modal', address: '', image: original,
       imageSrcset: `${preview} 1080w`, imageAlt: '', caption: '', html: '',
     });
+    return document.querySelector('[data-site-modal]')?.classList.contains('is-visible');
   }, { original, preview });
 
   const modal = page.locator('[data-site-modal]');
-  await expect(modal).toBeHidden();
-  releasePreview();
+  const image = modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img');
+  expect(openedImmediately).toBe(true);
   await expect(modal).toBeVisible();
-  await expect(modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img')).toHaveJSProperty('naturalWidth', 1080);
+  await expect(image).toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '0');
+  releasePreview();
+  await expect(image).toHaveJSProperty('naturalWidth', 1080);
+  await expect(image).not.toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '1');
 });
 
-test('a failed preview falls back before the modal appears', async ({ page }) => {
+test('a failed preview stays transparent until the original image loads', async ({ page }) => {
   const original = 'https://cdn.prod.website-files.com/test/fallback.jpg';
   const preview = 'https://cdn.prod.website-files.com/test/fallback-p-1080.jpg';
   let releaseOriginal!: () => void;
@@ -97,18 +103,60 @@ test('a failed preview falls back before the modal appears', async ({ page }) =>
     });
   });
   await page.goto('/tests/fixtures/modal.html');
-  await page.evaluate(({ original, preview }) => {
+  const openedImmediately = await page.evaluate(({ original, preview }) => {
     window.SiteInteractions!.openContentModal({
       id: 'fallback-modal', address: '', image: original,
       imageSrcset: `${preview} 1080w`, imageAlt: '', caption: '', html: '',
     });
+    return document.querySelector('[data-site-modal]')?.classList.contains('is-visible');
   }, { original, preview });
 
   const modal = page.locator('[data-site-modal]');
-  await expect(modal).toBeHidden();
-  releaseOriginal();
+  const image = modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img');
+  expect(openedImmediately).toBe(true);
   await expect(modal).toBeVisible();
-  await expect(modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img')).toHaveAttribute('src', original);
+  await expect(image).toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '0');
+  releaseOriginal();
+  await expect(image).toHaveAttribute('src', original);
+  await expect(image).not.toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '1');
+});
+
+test('reusing the modal never shows the previous image while the next one loads', async ({ page }) => {
+  const first = 'https://cdn.prod.website-files.com/test/reuse-first.jpg';
+  const second = 'https://cdn.prod.website-files.com/test/reuse-second.jpg';
+  let releaseSecond!: () => void;
+  const secondGate = new Promise<void>((resolve) => { releaseSecond = resolve; });
+  await page.route(/https:\/\/cdn\.prod\.website-files\.com\/test\/reuse-(first|second)-p-1080\.jpg/, async (route) => {
+    if (route.request().url().includes('reuse-second')) await secondGate;
+    await route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720"/>',
+    });
+  });
+  await page.goto('/tests/fixtures/modal.html');
+  await page.evaluate((src) => window.SiteInteractions!.openContentModal({
+    id: 'reuse-first', address: '', image: src, imageAlt: '', caption: '', html: '',
+  }), first);
+
+  const modal = page.locator('[data-site-modal]');
+  const image = modal.locator('> .fwm-modal__panel > .fwm-modal__image-link img');
+  await expect(image).not.toHaveClass(/is-image-pending/);
+  const openedImmediately = await page.evaluate((src) => {
+    window.SiteInteractions!.openContentModal({
+      id: 'reuse-second', address: '', image: src, imageAlt: '', caption: '', html: '',
+    });
+    return document.querySelector('[data-site-modal]')?.classList.contains('is-visible');
+  }, second);
+
+  expect(openedImmediately).toBe(true);
+  await expect(image).toHaveAttribute('src', /reuse-second-p-1080\.jpg$/);
+  await expect(image).toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '0');
+  releaseSecond();
+  await expect(image).not.toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '1');
 });
 
 test('an older image load cannot replace a newer modal', async ({ page }) => {

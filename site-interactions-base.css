@@ -1449,6 +1449,16 @@ footer a.w--current:focus-visible::after,
   display: block;
 }
 
+.fwm-modal__image,
+.fwm-modal__text img {
+  transition: opacity 260ms ease;
+}
+
+.fwm-modal__panel img.is-image-pending {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
 .fwm-modal__lightbox-icon {
   /* Share the image's grid cell, so captions never affect the icon position. */
   grid-area: 1 / 1;
@@ -1653,7 +1663,7 @@ footer a.w--current:focus-visible::after,
   width: 100%;
   height: auto;
   transform-origin: center center;
-  transition: transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
+  transition: opacity 260ms ease, transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .fwm-modal__work-footer {
@@ -1802,6 +1812,8 @@ footer a.w--current:focus-visible::after,
   .fwm-modal__text,
   .fwm-modal__work,
   .fwm-modal__gallery,
+  .fwm-modal__text img,
+  .fwm-modal__image,
   .fwm-modal__work-image,
   .fwm-modal__work-eye-pupil {
     transition-duration: 0.01ms;

@@ -61,13 +61,47 @@ export function readyModalImageSource(preview: string, original: string): string
   return readyImages.get(imageKey(preview, original)) ?? preview;
 }
 
+const imageVersions = new WeakMap<HTMLImageElement, number>();
+
+/** Keep old pixels invisible while a new source loads, then fade in the decoded image. */
+export function revealModalImage(image: HTMLImageElement, source?: string, fallback?: string): void {
+  const version = (imageVersions.get(image) ?? 0) + 1;
+  imageVersions.set(image, version);
+  image.classList.add('is-image-pending');
+  image.loading = 'eager';
+  image.decoding = 'async';
+
+  const reveal = (): void => {
+    const decoded = typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
+    void decoded.then(() => {
+      if (imageVersions.get(image) === version && image.naturalWidth > 0) {
+        image.classList.remove('is-image-pending');
+      }
+    });
+  };
+
+  image.onload = reveal;
+  image.onerror = () => {
+    if (imageVersions.get(image) !== version || !fallback) return;
+    const next = fallback;
+    fallback = undefined;
+    image.src = next;
+  };
+  if (source !== undefined) image.src = source;
+  if (image.complete && image.naturalWidth > 0 && image.currentSrc === image.src) reveal();
+}
+
+export function clearModalImage(image: HTMLImageElement): void {
+  imageVersions.set(image, (imageVersions.get(image) ?? 0) + 1);
+  image.onload = null;
+  image.onerror = null;
+  image.classList.remove('is-image-pending');
+  image.removeAttribute('src');
+}
+
 export function setModalPreview(image: HTMLImageElement, original: string, srcset: string | undefined, width: number): void {
   const preview = readyModalImageSource(modalPreviewSource(original, srcset, width), original);
-  image.onerror = preview === original ? null : () => {
-    image.onerror = null;
-    image.src = original;
-  };
-  image.src = preview;
+  revealModalImage(image, preview, preview === original ? undefined : original);
 }
 
 // Webflow does not provide responsive candidates for these AVIF CMS images.
