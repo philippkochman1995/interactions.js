@@ -3027,7 +3027,7 @@ async function Kc(e) {
 	}
 }
 function qc(e) {
-	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"));
+	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"), /^\/atelier\/?$/i.test(window.location.pathname) && e.element.matches(".atelier_hero_section .atelier_slide_heading") && document.dispatchEvent(new Event("atelier:hero-line-reveal")));
 }
 function Jc(e, t = !1) {
 	let { element: n, text: r, markup: i } = e;

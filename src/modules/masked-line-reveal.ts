@@ -56,6 +56,10 @@ function play(state: HeadingState): void {
   if (state.played || !state.element.isConnected) return;
   state.played = true;
   state.element.classList.add('is-masked-reveal-playing');
+  if (/^\/atelier\/?$/i.test(window.location.pathname) &&
+    state.element.matches('.atelier_hero_section .atelier_slide_heading')) {
+    document.dispatchEvent(new Event('atelier:hero-line-reveal'));
+  }
 }
 
 function rebuild(state: HeadingState, replay = false): void {

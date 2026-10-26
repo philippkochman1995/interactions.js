@@ -32,11 +32,24 @@
     var header = document.querySelector('.top_bar_section:not(.work-overlay__header)');
     if (!header || header.classList.contains('is-atelier-header-in')) return;
     if (reduced.matches) { header.classList.add('is-atelier-header-in'); return; }
-    afterPageEntrance(function () {
-      window.setTimeout(function () {
-        if (header.isConnected) header.classList.add('is-atelier-header-in');
-      }, 200);
+    var heading = document.querySelector('.atelier_hero_section .atelier_slide_heading');
+    var headingObserver = null;
+    function start() {
+      document.removeEventListener('atelier:hero-line-reveal', start);
+      if (headingObserver) headingObserver.disconnect();
+      if (header.isConnected) header.classList.add('is-atelier-header-in');
+    }
+    document.addEventListener('atelier:hero-line-reveal', start);
+    if (!heading) { afterPageEntrance(start); return; }
+    function hasStarted() {
+      return heading.classList.contains('is-masked-reveal-playing') ||
+        heading.hasAttribute('data-masked-reveal-complete');
+    }
+    if (hasStarted()) { start(); return; }
+    headingObserver = new MutationObserver(function () {
+      if (hasStarted()) start();
     });
+    headingObserver.observe(heading, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
   }
 
   function enter(group) {
