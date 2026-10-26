@@ -26,6 +26,14 @@ const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
 const LABEL_SLIDE_DURATION = 0.42;
+// Reveal der Menuepunkte (Split-Line-Reveal): Maske + Innenebene, Timing steht im CSS.
+const REVEAL_ITEM_SELECTOR = '.site-menu__brand, [data-site-menu-item], .site-menu__divider';
+const REVEAL_DIVIDER_CLASS = 'site-menu__divider';
+const REVEAL_SMALL_SELECTOR = '.site-menu__link--small, .site-menu__footer-link';
+const REVEAL_SKIP_SELECTOR = '[data-site-menu-toggle], .site-menu__language, .site-menu__languages';
+const REVEAL_MASK_CLASS = 'site-menu__line';
+const REVEAL_INNER_CLASS = 'site-menu__line-in';
+const DIM_ATTR = 'data-site-menu-dim';
 const PANEL_DURATION = { open: 0.513, close: 0.378, transition: 0.54 } as const;
 gsap.registerPlugin(CustomEase);
 // Matches --preloader-ease on the opening text movement.
@@ -40,6 +48,7 @@ interface SiteMenuInstance {
   isOpen: boolean;
   isHovered: boolean;
   labelTransition?: { timeline: gsap.core.Timeline; from: string; to: string };
+  dim: HTMLElement | null;
   cleanup: Cleanup[];
 }
 
@@ -280,6 +289,92 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
   instance.labelTransition = { timeline, from: outgoing, to: label };
 }
 
+/* Split-Line-Reveal: Der Text jedes Menuepunkts sitzt in einer Maske
+   (overflow hidden) und faehrt per CSS von unten ein. Hier wird nur das Markup
+   vorbereitet und die Staffelung (--i, Welle --g) gesetzt. Welle 1 sind Marke,
+   Ueberschriften, grosse Links und Trennlinien, Welle 2 die kleinen Links und
+   der Footer. Trennlinien erben den Index der Ueberschrift davor. */
+function prepareReveal(instance: SiteMenuInstance): Cleanup {
+  const wrapped: HTMLElement[] = [];
+  let first = 0;
+  let second = 0;
+  let lastBig = 0;
+
+  qsa<HTMLElement>(REVEAL_ITEM_SELECTOR, instance.panel).forEach((item) => {
+    if (item.closest(REVEAL_SKIP_SELECTOR)) {
+      return;
+    }
+
+    if (item.classList.contains(REVEAL_DIVIDER_CLASS)) {
+      item.style.setProperty('--i', String(lastBig));
+      item.style.setProperty('--g', '0');
+      return;
+    }
+
+    if (item.querySelector(`:scope > .${REVEAL_MASK_CLASS}`)) {
+      return;
+    }
+
+    const nodes = Array.from(item.childNodes).filter(
+      (node) => !(node instanceof HTMLElement && node.hasAttribute('data-site-menu-indicator')),
+    );
+
+    if (!nodes.some((node) => node.textContent?.trim())) {
+      return;
+    }
+
+    const mask = document.createElement('span');
+    const inner = document.createElement('span');
+
+    mask.className = REVEAL_MASK_CLASS;
+    inner.className = REVEAL_INNER_CLASS;
+    item.insertBefore(mask, nodes[0]);
+    nodes.forEach((node) => inner.appendChild(node));
+    mask.appendChild(inner);
+    wrapped.push(mask);
+
+    if (item.matches(REVEAL_SMALL_SELECTOR)) {
+      item.style.setProperty('--g', '1');
+      item.style.setProperty('--i', String(second++));
+    } else {
+      lastBig = first;
+      item.style.setProperty('--g', '0');
+      item.style.setProperty('--i', String(first++));
+    }
+  });
+
+  return () => {
+    wrapped.forEach((mask) => {
+      const inner = mask.firstElementChild;
+
+      while (inner?.firstChild) {
+        mask.parentNode?.insertBefore(inner.firstChild, mask);
+      }
+
+      mask.remove();
+    });
+  };
+}
+
+/* Abdunklung der Seite hinter dem offenen Menue. Liegt direkt unter dem Menue
+   (z-index) und faengt keine Klicks ab: Schliessen per Klick daneben laeuft
+   weiter ueber den Document-Click-Handler. */
+function createDim(): HTMLElement {
+  const existing = document.querySelector<HTMLElement>(`[${DIM_ATTR}]`);
+
+  if (existing) {
+    return existing;
+  }
+
+  const dim = document.createElement('div');
+
+  dim.setAttribute(DIM_ATTR, '');
+  dim.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(dim);
+
+  return dim;
+}
+
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
   instance.links.forEach((link) => {
     if (enabled) {
@@ -308,6 +403,7 @@ function setPanelState(instance: SiteMenuInstance, open: boolean, animateLabel =
   instance.toggle.setAttribute('aria-expanded', String(open));
   instance.panel.setAttribute('aria-hidden', String(!open));
   setLinksFocusable(instance, open);
+  instance.dim?.classList.toggle(OPEN_CLASS, open);
   setLabel(instance, animateLabel);
 }
 
@@ -413,6 +509,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
     links: qsa<HTMLElement>(LINK_SELECTOR, root),
     isOpen: root.classList.contains(OPEN_CLASS),
     isHovered: false,
+    dim: null,
     cleanup: [],
   };
 
@@ -425,6 +522,8 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   }
 
   toggle.setAttribute('aria-controls', panel.id);
+  instance.dim = createDim();
+  instance.cleanup.push(prepareReveal(instance));
   updateActiveLinks(instance);
   setPanelState(instance, instance.isOpen, false);
   instance.cleanup.push(reserveLabelWidth(instance));
@@ -512,6 +611,7 @@ export function initSiteMenu(root: Document | HTMLElement = document): Cleanup {
     createdInstances.forEach((instance) => {
       instance.cleanup.forEach((cleanup) => cleanup());
       instance.root.classList.remove(READY_CLASS, OPEN_CLASS);
+      instance.dim?.classList.remove(OPEN_CLASS);
       const labelTarget = instance.toggleLabel ?? instance.toggle;
       const labelTextLayer = qs<HTMLElement>(TOGGLE_LABEL_TEXT_SELECTOR, labelTarget);
 
