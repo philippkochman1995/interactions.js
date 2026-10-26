@@ -1283,13 +1283,11 @@ html.is-page-transition-boot::after {
 .bio_photo [data-site-image-reveal="bio"] {
   overflow: hidden;
   opacity: 0;
-  clip-path: inset(10px);
   transition: opacity .4s ease-out;
 }
 
 .bio_photo [data-site-image-reveal="bio"].is-site-image-in {
   opacity: 1;
-  clip-path: inset(0);
 }
 
 .bio_photo [data-site-image-reveal="bio"] img {
@@ -1311,13 +1309,11 @@ html.is-page-transition-boot::after {
   overflow: hidden;
   border-radius: 0 !important;
   opacity: 0;
-  clip-path: inset(10px);
   transition: opacity .4s ease-out;
 }
 
 .news_event .img-zoom[data-site-image-reveal="event"].is-site-image-in {
   opacity: 1;
-  clip-path: inset(0);
 }
 
 .news_event [data-site-event-zoom] {
@@ -2649,35 +2645,32 @@ html.site-mobile-hero-spline #fw-hero-grained::before {
   animation: none !important;
 }
 
-/* Shared image entrance. Slider tracks and controls keep their own motion. */
+/* Shared image entrance: the visible frame stays fixed while the image settles.
+   Slider tracks and controls keep their own motion. */
 @media (prefers-reduced-motion: no-preference) {
   [data-site-image-reveal="media"],
   [data-site-image-reveal="plain"],
   [data-site-image-reveal="slider"] {
     opacity: 0;
-    clip-path: inset(10px);
-    transition: opacity .4s ease-out, clip-path 1.2s cubic-bezier(0, 0, .2, 1);
+    transition: opacity .4s ease-out;
     transition-delay: var(--site-image-delay, 0ms);
   }
 
   :is([data-site-image-reveal="media"], [data-site-image-reveal="plain"], [data-site-image-reveal="slider"]).is-site-image-in {
     opacity: 1;
-    clip-path: inset(0);
   }
 
   [data-site-image-reveal="media"] {
     overflow: hidden;
   }
 
-  [data-site-image-reveal="media"] img,
-  img[data-site-image-reveal="plain"] {
+  [data-site-image-reveal="media"] img {
     scale: 1.075;
     transition: scale 1.2s cubic-bezier(0, 0, .2, 1), transform .62s cubic-bezier(.33, 1, .68, 1);
     transition-delay: var(--site-image-delay, 0ms);
   }
 
-  [data-site-image-reveal="media"].is-site-image-in img,
-  img[data-site-image-reveal="plain"].is-site-image-in {
+  [data-site-image-reveal="media"].is-site-image-in img {
     scale: 1;
   }
 

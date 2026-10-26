@@ -16,13 +16,11 @@ body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask
   height: 100%;
   overflow: hidden;
   border-radius: 0 !important;
-  clip-path: inset(10px);
   opacity: 0;
   transition: opacity .4s ease-out;
 }
 
 body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask].in {
-  clip-path: inset(0px);
   opacity: 1;
 }
 
@@ -129,7 +127,6 @@ body[data-atelier-image-page] .news_event .intro_content_about > a.text-link .mo
 
   body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask] {
     opacity: 1;
-    clip-path: inset(0px);
     transition: none;
   }
 
