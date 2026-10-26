@@ -3,8 +3,10 @@ import { gsap } from 'gsap';
 import { prefersReducedMotion } from './utils';
 
 const SECTION_HEADING_SELECTOR = '.work_about_heading, .editionen_title, .accordion_heading';
-const HEADING_SELECTOR = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading, ${SECTION_HEADING_SELECTOR}`;
-const LABEL_SELECTOR = '[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub';
+// The Biography headline is visually .bio_hero_sub; its H1 is the small lead-in.
+const BIO_HERO_LINE = '.bio_hero_section .bio_hero_sub';
+const HEADING_SELECTOR = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, ${BIO_HERO_LINE}, ${SECTION_HEADING_SELECTOR}`;
+const LABEL_SELECTOR = '[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading';
 const READY = 'data-masked-reveal-ready';
 const COMPLETE = 'data-masked-reveal-complete';
 
@@ -76,22 +78,6 @@ async function waitForPageTransition(element: HTMLElement): Promise<void> {
     }
     await new Promise<void>((resolve) => { window.setTimeout(resolve, 200); });
   }
-}
-
-function waitForBiographyHeading(): Promise<void> {
-  const heading = document.querySelector<HTMLElement>('.bio_hero_section .bio_hero_heading');
-  if (!heading || heading.classList.contains('is-masked-reveal-playing') || heading.hasAttribute(COMPLETE)) {
-    return Promise.resolve();
-  }
-  return new Promise<void>((resolve) => {
-    const observer = new MutationObserver(() => {
-      if (!heading.isConnected ||
-        (!heading.classList.contains('is-masked-reveal-playing') && !heading.hasAttribute(COMPLETE))) return;
-      observer.disconnect();
-      resolve();
-    });
-    observer.observe(heading, { attributes: true, attributeFilter: ['class', COMPLETE] });
-  });
 }
 
 function play(state: HeadingState): void {
@@ -191,7 +177,7 @@ function addHeading(element: HTMLElement): void {
     played: false,
     resizeObserver: new ResizeObserver(() => {
       if (!state.width || Math.abs(element.getBoundingClientRect().width - state.width) < 1) return;
-      if (element.matches('.bio_hero_heading') && state.played && !element.hasAttribute(COMPLETE)) return;
+      if (element.matches(BIO_HERO_LINE) && state.played && !element.hasAttribute(COMPLETE)) return;
       rebuild(state);
     }),
   };
@@ -212,9 +198,7 @@ function addLabel(element: HTMLElement): void {
     (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
   labels.add(element);
-  const biographyHero = Boolean(element.closest('.bio_hero_section'));
-  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready,
-    biographyHero ? waitForBiographyHeading() : waitForPageTransition(element)])
+  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition(element)])
     .then(() => {
       if (!element.isConnected) return;
       element.classList.add('is-masked-reveal-playing');
@@ -285,7 +269,7 @@ export function initMaskedLineReveal(): void {
   new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   document.fonts?.addEventListener('loadingdone', () => {
     headings.forEach((state) => {
-      if (state.element.matches('.bio_hero_heading') && state.played && !state.element.hasAttribute(COMPLETE)) return;
+      if (state.element.matches(BIO_HERO_LINE) && state.played && !state.element.hasAttribute(COMPLETE)) return;
       rebuild(state);
     });
   });

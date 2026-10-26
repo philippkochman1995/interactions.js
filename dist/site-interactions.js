@@ -3053,12 +3053,12 @@ function zc() {
 }
 //#endregion
 //#region src/modules/masked-line-reveal.ts
-var Bc = ".work_about_heading, .editionen_title, .accordion_heading", Vc = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading, ${Bc}`, Hc = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub", Uc = "data-masked-reveal-ready", Wc = "data-masked-reveal-complete", Gc = /* @__PURE__ */ new Map(), Kc = /* @__PURE__ */ new Set(), qc, Jc = !1, Yc = window.location.pathname, Xc, Zc = /* @__PURE__ */ new WeakSet();
-function Qc(e) {
+var Bc = ".work_about_heading, .editionen_title, .accordion_heading", Vc = ".bio_hero_section .bio_hero_sub", Hc = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, ${Vc}, ${Bc}`, Uc = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading", Wc = "data-masked-reveal-ready", Gc = "data-masked-reveal-complete", Kc = /* @__PURE__ */ new Map(), qc = /* @__PURE__ */ new Set(), Jc, Yc = !1, Xc = window.location.pathname, Zc, Qc = /* @__PURE__ */ new WeakSet();
+function $c(e) {
 	let t = getComputedStyle(e).getPropertyValue("--masked-reveal-stagger").trim() || "50ms", n = Number.parseFloat(t);
 	return Number.isFinite(n) ? t.endsWith("s") && !t.endsWith("ms") ? n * 1e3 : n : 50;
 }
-async function $c(e) {
+async function el(e) {
 	let t = document.documentElement, n = /^\/atelier\/?$/i.test(window.location.pathname) && !!e.closest(".atelier_hero_section") || /^\/biografie\/?$/i.test(window.location.pathname) && !!e.closest(".bio_hero_section"), r = /^\/editionen\/?$/i.test(window.location.pathname) && e.matches(".editionen_title") && e.closest(".editionen_item") === document.querySelector(".editionen_item"), i = n || r;
 	if (t.classList.contains("is-page-transition-entering") && !(i && document.querySelector(".page-transition-overlay.is-uncovering")) && await new Promise((e) => {
 		let n = new MutationObserver(() => {
@@ -3089,18 +3089,6 @@ async function $c(e) {
 		});
 	}
 }
-function el() {
-	let e = document.querySelector(".bio_hero_section .bio_hero_heading");
-	return !e || e.classList.contains("is-masked-reveal-playing") || e.hasAttribute(Wc) ? Promise.resolve() : new Promise((t) => {
-		let n = new MutationObserver(() => {
-			!e.isConnected || !e.classList.contains("is-masked-reveal-playing") && !e.hasAttribute(Wc) || (n.disconnect(), t());
-		});
-		n.observe(e, {
-			attributes: !0,
-			attributeFilter: ["class", Wc]
-		});
-	});
-}
 function tl(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"), /^\/atelier\/?$/i.test(window.location.pathname) && e.element.matches(".atelier_hero_section .atelier_slide_heading") && document.dispatchEvent(new Event("atelier:hero-line-reveal")));
 }
@@ -3110,24 +3098,24 @@ function nl(e) {
 }
 function rl(e, t = !1) {
 	let { element: n, text: r, markup: i } = e;
-	if (!n.isConnected || !qc) return;
-	let a = e.played && n.hasAttribute(Wc) && !t;
-	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Wc), n.innerHTML = i;
+	if (!n.isConnected || !Jc) return;
+	let a = e.played && n.hasAttribute(Gc) && !t;
+	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Gc), n.innerHTML = i;
 	try {
-		let t = qc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
+		let t = Jc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
 			var t;
 			return (t = e.textContent) == null ? void 0 : t.trim();
 		}).map((e) => Array.from(e.childNodes, (e) => e.cloneNode(!0)));
 		if (t.revert(), !i.length) throw Error("No text lines found");
-		let s = document.createDocumentFragment(), c = Qc(n);
+		let s = document.createDocumentFragment(), c = $c(n);
 		if (i.forEach((e, t) => {
 			t && s.append(document.createTextNode(" "));
 			let n = document.createElement("span");
 			n.className = "masked-reveal-line", n.setAttribute("aria-hidden", "true");
 			let r = document.createElement("span");
 			r.className = "masked-reveal-line__text", r.style.setProperty("--masked-reveal-line-delay", `${t * c}ms`), r.append(...e), n.append(r), s.append(n);
-		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Uc, ""), e.width = n.getBoundingClientRect().width, a) {
-			e.played = !0, n.setAttribute(Wc, ""), nl(n);
+		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Wc, ""), e.width = n.getBoundingClientRect().width, a) {
+			e.played = !0, n.setAttribute(Gc, ""), nl(n);
 			return;
 		}
 		if (e.played = !1, n.getAttribute("data-masked-line-reveal") === "viewport" && "IntersectionObserver" in window) {
@@ -3137,14 +3125,14 @@ function rl(e, t = !1) {
 			}, { threshold: .1 }), e.intersectionObserver.observe(n);
 		} else tl(e);
 	} catch (e) {
-		n.innerHTML = i, n.removeAttribute(Uc), n.setAttribute(Wc, ""), nl(n);
+		n.innerHTML = i, n.removeAttribute(Wc), n.setAttribute(Gc, ""), nl(n);
 	}
 }
 function il(e) {
 	var t, n, r, i;
-	if (Gc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
+	if (Kc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
 	if (e.matches(Bc) && !e.hasAttribute("data-masked-line-reveal") && e.setAttribute("data-masked-line-reveal", "viewport"), e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
-		e.setAttribute(Wc, "");
+		e.setAttribute(Gc, "");
 		return;
 	}
 	let a = {
@@ -3154,65 +3142,62 @@ function il(e) {
 		width: 0,
 		played: !1,
 		resizeObserver: new ResizeObserver(() => {
-			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || e.matches(".bio_hero_heading") && a.played && !e.hasAttribute(Wc) || rl(a);
+			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || e.matches(Vc) && a.played && !e.hasAttribute(Gc) || rl(a);
 		})
 	};
-	Gc.set(e, a), a.resizeObserver.observe(e), Promise.all([
+	Kc.set(e, a), a.resizeObserver.observe(e), Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
 		(r = document.fonts) == null ? void 0 : r.ready,
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
-		$c(e)
+		el(e)
 	]).then(([{ SplitText: t }]) => {
-		b.registerPlugin(t), qc = t, e.isConnected && rl(a);
+		b.registerPlugin(t), Jc = t, e.isConnected && rl(a);
 	}).catch(() => {
-		e.setAttribute(Wc, "");
+		e.setAttribute(Gc, "");
 	});
 }
 function al(e) {
 	var t, n, r;
-	if (Kc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
-	Kc.add(e);
-	let i = !!e.closest(".bio_hero_section");
-	Promise.all([
+	qc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (qc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
 		(r = window.__sitePreloader) == null ? void 0 : r.ready,
-		i ? el() : $c(e)
+		el(e)
 	]).then(() => {
 		e.isConnected && e.classList.add("is-masked-reveal-playing");
 	}).catch(() => {
-		e.setAttribute(Wc, "");
-	});
+		e.setAttribute(Gc, "");
+	}));
 }
 function ol() {
-	Gc.forEach((e) => {
+	Kc.forEach((e) => {
 		rl(e, !0);
-	}), Kc.forEach((e) => {
+	}), qc.forEach((e) => {
 		e.classList.remove("is-masked-reveal-playing"), requestAnimationFrame(() => e.classList.add("is-masked-reveal-playing"));
 	});
 }
 function sl() {
-	let e = Yc !== window.location.pathname;
-	if (Yc = window.location.pathname, /^\/editionen\/?$/i.test(Yc)) {
+	let e = Xc !== window.location.pathname;
+	if (Xc = window.location.pathname, /^\/editionen\/?$/i.test(Xc)) {
 		var t;
 		(t = document.querySelector(".editionen_item")) == null || t.setAttribute("data-edition-first", "");
 	}
-	document.querySelectorAll(Vc).forEach(il), document.querySelectorAll(Hc).forEach(al), document.querySelectorAll(".editionen_item").forEach((e) => {
+	document.querySelectorAll(Hc).forEach(il), document.querySelectorAll(Uc).forEach(al), document.querySelectorAll(".editionen_item").forEach((e) => {
 		e.querySelectorAll(".editionen_meta, .editionen_note").forEach((t, n) => {
 			var r;
-			t.hasAttribute("data-edition-content-reveal") || (t.setAttribute("data-edition-content-reveal", ""), t.style.setProperty("--edition-content-delay", `${n * 90}ms`), (r = e.querySelector(".editionen_title")) != null && r.hasAttribute(Wc) && t.classList.add("is-edition-content-in"));
+			t.hasAttribute("data-edition-content-reveal") || (t.setAttribute("data-edition-content-reveal", ""), t.style.setProperty("--edition-content-delay", `${n * 90}ms`), (r = e.querySelector(".editionen_title")) != null && r.hasAttribute(Gc) && t.classList.add("is-edition-content-in"));
 		});
-	}), Xc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
-		Zc.has(e) || (Zc.add(e), e.style.setProperty("--accordion-line-index", String(t)), e.setAttribute("data-accordion-line-ready", ""), Xc == null || Xc.observe(e));
-	}), Gc.forEach((e, t) => {
+	}), Zc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
+		Qc.has(e) || (Qc.add(e), e.style.setProperty("--accordion-line-index", String(t)), e.setAttribute("data-accordion-line-ready", ""), Zc == null || Zc.observe(e));
+	}), Kc.forEach((e, t) => {
 		var n;
-		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Gc.delete(t));
-	}), Kc.forEach((e) => {
-		e.isConnected || Kc.delete(e);
+		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Kc.delete(t));
+	}), qc.forEach((e) => {
+		e.isConnected || qc.delete(e);
 	}), e && ol();
 }
 function cl() {
 	var e;
-	Jc || u() || (Jc = !0, "IntersectionObserver" in window && (Xc = new IntersectionObserver((e, t) => {
+	Yc || u() || (Yc = !0, "IntersectionObserver" in window && (Zc = new IntersectionObserver((e, t) => {
 		e.forEach((e) => {
 			if (!e.isIntersecting) return;
 			let n = e.target;
@@ -3225,16 +3210,16 @@ function cl() {
 		childList: !0,
 		subtree: !0
 	}), (e = document.fonts) == null || e.addEventListener("loadingdone", () => {
-		Gc.forEach((e) => {
-			e.element.matches(".bio_hero_heading") && e.played && !e.element.hasAttribute(Wc) || rl(e);
+		Kc.forEach((e) => {
+			e.element.matches(Vc) && e.played && !e.element.hasAttribute(Gc) || rl(e);
 		});
 	}), window.addEventListener("popstate", sl), window.addEventListener("pageshow", (e) => {
 		e.persisted && (ol(), sl());
 	}), document.addEventListener("animationend", (e) => {
 		let t = e.target;
 		if (!(t instanceof HTMLElement) || !t.classList.contains("masked-reveal-line__text")) return;
-		let n = t.closest(Vc);
-		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Wc, ""), nl(n));
+		let n = t.closest(Hc);
+		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Gc, ""), nl(n));
 	}));
 }
 //#endregion

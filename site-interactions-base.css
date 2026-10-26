@@ -2074,11 +2074,11 @@ footer a.w--current:focus-visible::after,
 }
 
 /* Opt-in line reveal; Atelier and Biography use the same hero timing. */
-:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_sub):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
   visibility: hidden;
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub):not([data-masked-reveal-complete]) {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading):not([data-masked-reveal-complete]) {
   opacity: 0;
 }
 
@@ -2100,7 +2100,7 @@ footer a.w--current:focus-visible::after,
   animation-delay: calc(var(--masked-reveal-delay, 0ms) + var(--masked-reveal-line-delay, 0ms));
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub).is-masked-reveal-playing {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading).is-masked-reveal-playing {
   animation: masked-reveal-fade 200ms linear both;
   animation-delay: var(--masked-label-delay, 0ms);
 }
@@ -2110,12 +2110,8 @@ footer a.w--current:focus-visible::after,
 }
 
 .atelier_hero_section .atelier_slide_heading,
-.bio_hero_section .bio_hero_heading {
-  --masked-reveal-delay: 60ms;
-}
-
 .bio_hero_section .bio_hero_sub {
-  --masked-label-delay: 760ms;
+  --masked-reveal-delay: 60ms;
 }
 
 /* Edition text follows its H2 line reveal; slider motion is independent. */
@@ -2149,11 +2145,11 @@ footer a.w--current:focus-visible::after,
     visibility: visible;
   }
 
-  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading) {
+  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_sub) {
     visibility: visible;
   }
 
-  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub) {
+  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading) {
     opacity: 1;
     animation: none;
   }
