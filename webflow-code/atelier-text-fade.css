@@ -10,11 +10,19 @@
 [data-fade-group].is-in [data-fade] {
   opacity: 1;
   transform: none;
+  transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 120ms));
 }
 
-/* The older global Atelier hero CSS still contains its former hide selectors. */
-.atelier_hero_section .atelier_slide_heading[data-fade] {
-  visibility: visible;
+/* The top bar enters when the existing hero line reveal starts. */
+.top_bar_section.Atelier .top_bar_left_layout,
+.top_bar_section.Atelier .top_bar_center {
+  transform: translateY(-110vh);
+  transition: transform 1s cubic-bezier(.33, 1, .68, 1);
+}
+
+.top_bar_section.Atelier.is-atelier-header-in .top_bar_left_layout,
+.top_bar_section.Atelier.is-atelier-header-in .top_bar_center {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -23,5 +31,11 @@
     transform: none !important;
     transition: none !important;
     visibility: visible !important;
+  }
+
+  .top_bar_section.Atelier .top_bar_left_layout,
+  .top_bar_section.Atelier .top_bar_center {
+    transform: none !important;
+    transition: none !important;
   }
 }

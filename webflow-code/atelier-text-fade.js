@@ -9,6 +9,24 @@
   var mutations = null;
   var scheduled = false;
 
+  function revealHeaderWithHero() {
+    var header = document.querySelector('.top_bar_section.Atelier');
+    var heading = document.querySelector('.atelier_hero_section .atelier_slide_heading');
+    if (!header || !heading || header.classList.contains('is-atelier-header-in')) return;
+    if (reduced.matches || heading.classList.contains('is-masked-reveal-playing') ||
+        heading.hasAttribute('data-masked-reveal-complete')) {
+      header.classList.add('is-atelier-header-in');
+      return;
+    }
+    var lineReveal = new MutationObserver(function () {
+      if (!heading.classList.contains('is-masked-reveal-playing') &&
+          !heading.hasAttribute('data-masked-reveal-complete')) return;
+      lineReveal.disconnect();
+      header.classList.add('is-atelier-header-in');
+    });
+    lineReveal.observe(heading, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
+  }
+
   function afterPageEntrance(callback) {
     var root = document.documentElement;
     function isCovered() {
@@ -52,6 +70,9 @@
     document.querySelectorAll(GROUP).forEach(function (group) {
       if (seen.has(group)) return;
       seen.add(group);
+      group.querySelectorAll('[data-fade]').forEach(function (element, index) {
+        element.style.setProperty('--fade-index', index);
+      });
       if (group.classList.contains('is-in')) return;
       if (reduced.matches || !observer) group.classList.add('is-in');
       else observer.observe(group);
@@ -65,6 +86,7 @@
   }
 
   scan();
+  revealHeaderWithHero();
   mutations = new MutationObserver(scheduleScan);
   mutations.observe(document.body, { childList: true, subtree: true });
   window.addEventListener('pageshow', scheduleScan);
