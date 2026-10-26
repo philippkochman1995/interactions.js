@@ -691,8 +691,8 @@ Breitenwechsel an; Ueberschriften mit interaktiven Kindelementen bleiben ungetei
 
 Auf `/atelier` erhalten die Hero-Eyebrow `.atlier_slide_eyebrow` und die H1
 `.atelier_slide_heading` einen separaten Reveal. Die Eyebrow blendet ohne
-Bewegung ein; die H1 folgt Zeile fuer Zeile aus maskierten Zeilen mit der
-Bewegungskurve `cubic-bezier(.02, .9, .03, 1)` der Preloader-Schrift. Die
+Bewegung ein; die H1 folgt Zeile fuer Zeile aus maskierten Zeilen. Beide nutzen
+die MAD-Bewegungskurve `cubic-bezier(.33, 1, .68, 1)`. Die
 globale Textanimation ueberspringt diese H1.
 
 Die erste Atelier-About-Section (`Atelier 1994–2012`) uebernimmt aus

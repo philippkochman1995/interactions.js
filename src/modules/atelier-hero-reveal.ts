@@ -6,8 +6,8 @@ import { prefersReducedMotion } from './utils';
 const EYEBROW_SELECTOR = '.atelier_hero_section .atlier_slide_eyebrow';
 const HEADING_SELECTOR = '.atelier_hero_section .atelier_slide_heading';
 const PENDING = 'data-atelier-hero-reveal-pending';
-// Matches the title/date movement in site-interactions-base.css.
-const PRELOADER_TEXT_EASE = '0.02,0.9,0.03,1';
+// Matches the text reveal on i-mad.com/team.
+const MAD_TEXT_EASE = '0.33,1,0.68,1';
 
 let initialized = false;
 
@@ -41,7 +41,7 @@ export function initAtelierHeroReveal(): void {
     .then(([{ SplitText }]) => {
       if (disposed || !eyebrow.isConnected || !heading.isConnected) return;
       gsap.registerPlugin(SplitText, CustomEase);
-      const ease = CustomEase.create('atelier-preloader-text', PRELOADER_TEXT_EASE);
+      const ease = CustomEase.create('atelier-mad-text', MAD_TEXT_EASE);
       let headingSplit: InstanceType<typeof SplitText> | undefined;
       let timeline: gsap.core.Timeline | undefined;
       let refreshFrame = 0;
@@ -60,7 +60,7 @@ export function initAtelierHeroReveal(): void {
         gsap.set(headingLines, { yPercent: 105, opacity: 0 });
         timeline = gsap.timeline({ paused: true, onStart: () => { started = true; } });
         timeline.to(eyebrow, {
-          opacity: 1, duration: 0.85, ease: 'power2.out',
+          opacity: 1, duration: 0.85, ease,
         }, 0);
         timeline.to(headingLines, {
           yPercent: 0, opacity: 1, duration: 1.65, stagger: 0.16, ease,

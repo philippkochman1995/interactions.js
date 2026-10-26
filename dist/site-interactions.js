@@ -3003,7 +3003,7 @@ function Fc() {
 }
 //#endregion
 //#region src/modules/atelier-hero-reveal.ts
-var Ic = ".atelier_hero_section .atlier_slide_eyebrow", Lc = ".atelier_hero_section .atelier_slide_heading", Rc = "data-atelier-hero-reveal-pending", zc = "0.02,0.9,0.03,1", Bc = !1;
+var Ic = ".atelier_hero_section .atlier_slide_eyebrow", Lc = ".atelier_hero_section .atelier_slide_heading", Rc = "data-atelier-hero-reveal-pending", zc = "0.33,1,0.68,1", Bc = !1;
 function Vc() {
 	let e = document.documentElement;
 	return e.classList.contains("is-page-transition-entering") ? new Promise((t) => {
@@ -3031,7 +3031,7 @@ function Hc() {
 	]).then(([{ SplitText: e }]) => {
 		if (s || !a.isConnected || !o.isConnected) return;
 		b.registerPlugin(e, Zo);
-		let t = Zo.create("atelier-preloader-text", zc), n, r, i = 0, l = !1, u = () => {
+		let t = Zo.create("atelier-mad-text", zc), n, r, i = 0, l = !1, u = () => {
 			if (!n) return;
 			r == null || r.kill();
 			let e = n.lines;
@@ -3050,7 +3050,7 @@ function Hc() {
 			}), r.to(a, {
 				opacity: 1,
 				duration: .85,
-				ease: "power2.out"
+				ease: t
 			}, 0), r.to(e, {
 				yPercent: 0,
 				opacity: 1,
