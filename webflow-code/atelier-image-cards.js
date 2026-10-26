@@ -16,13 +16,14 @@
   function afterPageEntrance(callback) {
     var root = document.documentElement;
     function isCovered() {
-      return root.classList.contains('is-page-transition-pending') ||
-        root.classList.contains('is-page-transition-entering') ||
-        root.classList.contains('is-site-preloading') ||
-        root.classList.contains('is-site-preloader-exiting');
+      if (root.classList.contains('is-site-preloading') ||
+          root.classList.contains('is-site-preloader-exiting')) return true;
+      var transitioning = root.classList.contains('is-page-transition-pending') ||
+        root.classList.contains('is-page-transition-entering');
+      return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
     }
     function start() {
-      requestAnimationFrame(function () { requestAnimationFrame(callback); });
+      requestAnimationFrame(callback);
     }
     if (!isCovered()) { start(); return; }
     var transitionObserver = new MutationObserver(function () {
@@ -30,7 +31,7 @@
       transitionObserver.disconnect();
       start();
     });
-    transitionObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
+    transitionObserver.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
   }
 
   function reveal(target) {

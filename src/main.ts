@@ -15,7 +15,6 @@ import { initSmoothScrollSync } from './modules/smooth-scroll';
 import { initHomeImageWipe } from './modules/home-image-wipe';
 import { initHomeHeadingReveal } from './modules/home-heading-reveal';
 import { initMaskedLineReveal } from './modules/masked-line-reveal';
-import { initAtelierStoryReveal } from './modules/atelier-story-reveal';
 
 let booted = false;
 initSitePreloader();
@@ -28,7 +27,6 @@ initPageTransitions();
 initLineReveal();
 initHomeHeadingReveal();
 initMaskedLineReveal();
-initAtelierStoryReveal();
 initSmoothScrollSync();
 
 function boot(): void {

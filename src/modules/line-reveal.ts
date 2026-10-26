@@ -9,7 +9,7 @@ const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
   '[data-modal-rich-text]', '[data-modal-body]',
   '.site-lightbox', '[data-site-lightbox]', '[role="dialog"]',
-  '[data-reveal="off"]',
+  '[data-reveal="off"]', '[data-fade]',
 ].join(', ');
 const HERO_CONTAINER = '[data-reveal-hero], [class*="_hero"], [class*="-hero"]';
 const PENDING = 'data-reveal-pending';

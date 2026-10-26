@@ -1,0 +1,27 @@
+/* Page-scoped opt-in text reveal. Attributes live on Atelier's Webflow elements. */
+[data-fade-group] [data-fade] {
+  opacity: 0;
+  transform: translateY(var(--fade-distance, 20px));
+  transition:
+    opacity var(--fade-duration, 1s) var(--fade-ease, cubic-bezier(.33, 1, .68, 1)),
+    transform var(--fade-duration, 1s) var(--fade-ease, cubic-bezier(.33, 1, .68, 1));
+}
+
+[data-fade-group].is-in [data-fade] {
+  opacity: 1;
+  transform: none;
+}
+
+/* The older global Atelier hero CSS still contains its former hide selectors. */
+.atelier_hero_section .atelier_slide_heading[data-fade] {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fade-group] [data-fade] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    visibility: visible !important;
+  }
+}
