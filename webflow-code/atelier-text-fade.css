@@ -17,7 +17,7 @@
 .top_bar_section:not(.work-overlay__header) .top_bar_left_layout,
 .top_bar_section:not(.work-overlay__header) .top_bar_center {
   translate: 0 -110dvh;
-  transition: translate 1s cubic-bezier(.33, 1, .68, 1);
+  transition: translate var(--atelier-header-duration, 700ms) cubic-bezier(.33, 1, .68, 1);
 }
 
 .top_bar_section.is-atelier-header-in .top_bar_left_layout,
