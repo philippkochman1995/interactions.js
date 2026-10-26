@@ -650,6 +650,10 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
     return;
   }
 
+  if (trigger && activeModalId === normalizedContent.id && trigger === previouslyFocusedElement) {
+    return;
+  }
+
   if (activeModalId) {
     closeModal();
   }
@@ -760,14 +764,12 @@ export function initModals(options: ModalInitOptions): ModalApi {
       });
     }
 
-    delegate(document, 'click', MODAL_OPEN_SELECTOR, (event, trigger) => {
+    delegate(document, 'click', `${MODAL_OPEN_SELECTOR}, ${MODAL_HASH_LINK_SELECTOR}`, (event, trigger) => {
       event.preventDefault();
-      openModal(getDataId(trigger, 'data-modal-open'), trigger);
-    });
-
-    delegate(document, 'click', MODAL_HASH_LINK_SELECTOR, (event, trigger) => {
-      event.preventDefault();
-      openModal(getModalIdFromHashLink(trigger), trigger);
+      const id = trigger.matches(MODAL_OPEN_SELECTOR)
+        ? getDataId(trigger, 'data-modal-open')
+        : getModalIdFromHashLink(trigger);
+      openModal(id, trigger);
     });
 
     delegate(document, 'click', MODAL_CLOSE_SELECTOR, (event, closeButton) => {

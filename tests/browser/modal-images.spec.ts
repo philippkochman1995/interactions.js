@@ -159,6 +159,43 @@ test('reusing the modal never shows the previous image while the next one loads'
   await expect(image).toHaveCSS('opacity', '1');
 });
 
+test('reopening a decoded image does not hide or request it again', async ({ page }) => {
+  const original = 'https://cdn.prod.website-files.com/test/reopen.jpg';
+  let requests = 0;
+  await page.route('https://cdn.prod.website-files.com/test/reopen-p-1080.jpg', (route) => {
+    requests++;
+    return route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720"/>',
+    });
+  });
+  await page.goto('/tests/fixtures/modal.html');
+  await page.evaluate((image) => window.SiteInteractions!.openContentModal({
+    id: 'reopen', address: '', image, imageAlt: '', caption: '', html: '',
+  }), original);
+  const image = page.locator('[data-site-modal] > .fwm-modal__panel > .fwm-modal__image-link img');
+  await expect(image).not.toHaveClass(/is-image-pending/);
+  await expect(image).toHaveCSS('opacity', '1');
+
+  const result = await page.evaluate(async (src) => {
+    const target = document.querySelector<HTMLImageElement>('.fwm-modal__panel > .fwm-modal__image-link img')!;
+    const changes: string[] = [];
+    const observer = new MutationObserver((records) => records.forEach((record) => {
+      changes.push(`${record.attributeName}:${target.getAttribute(record.attributeName!)}`);
+    }));
+    observer.observe(target, { attributes: true, attributeFilter: ['class', 'src'] });
+    window.SiteInteractions!.openContentModal({
+      id: 'reopen', address: '', image: src, imageAlt: '', caption: '', html: '',
+    });
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    observer.disconnect();
+    return { changes, pending: target.classList.contains('is-image-pending'), opacity: getComputedStyle(target).opacity };
+  }, original);
+
+  expect(result).toEqual({ changes: [], pending: false, opacity: '1' });
+  expect(requests).toBe(1);
+});
+
 test('an older image load cannot replace a newer modal', async ({ page }) => {
   const first = 'https://cdn.prod.website-files.com/test/first-slow.jpg';
   const second = 'https://cdn.prod.website-files.com/test/second-fast.jpg';

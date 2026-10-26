@@ -23,6 +23,12 @@ export function modalPreviewSource(original: string, srcset: string | undefined,
 
 const preparedImages = new Map<string, Promise<string>>();
 const readyImages = new Map<string, string>();
+const decodedSources = new Set<string>();
+
+function absoluteImageSource(source: string): string {
+  try { return new URL(source, document.baseURI).href; }
+  catch { return source; }
+}
 
 function imageKey(preview: string, original: string): string {
   return `${preview}\n${original}`;
@@ -33,8 +39,14 @@ function loadAndDecode(src: string): Promise<boolean> {
     const image = new Image();
     image.loading = 'eager';
     image.onload = () => {
-      if (typeof image.decode === 'function') image.decode().then(() => resolve(true), () => resolve(false));
-      else resolve(true);
+      if (typeof image.decode === 'function') image.decode().then(() => {
+        decodedSources.add(absoluteImageSource(src));
+        resolve(true);
+      }, () => resolve(false));
+      else {
+        decodedSources.add(absoluteImageSource(src));
+        resolve(true);
+      }
     };
     image.onerror = () => resolve(false);
     image.src = src;
@@ -67,14 +79,24 @@ const imageVersions = new WeakMap<HTMLImageElement, number>();
 export function revealModalImage(image: HTMLImageElement, source?: string, fallback?: string): void {
   const version = (imageVersions.get(image) ?? 0) + 1;
   imageVersions.set(image, version);
-  image.classList.add('is-image-pending');
   image.loading = 'eager';
   image.decoding = 'async';
+  const target = absoluteImageSource(source ?? image.currentSrc ?? image.src);
+  const sameReadyImage = image.currentSrc === target && image.complete && image.naturalWidth > 0
+    && !image.classList.contains('is-image-pending');
+  const alreadyDecoded = sameReadyImage || decodedSources.has(target);
+
+  if (alreadyDecoded) {
+    if (image.classList.contains('is-image-pending')) image.classList.remove('is-image-pending');
+  } else {
+    image.classList.add('is-image-pending');
+  }
 
   const reveal = (): void => {
     const decoded = typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
     void decoded.then(() => {
       if (imageVersions.get(image) === version && image.naturalWidth > 0) {
+        decodedSources.add(image.currentSrc || image.src);
         image.classList.remove('is-image-pending');
       }
     });
@@ -83,12 +105,13 @@ export function revealModalImage(image: HTMLImageElement, source?: string, fallb
   image.onload = reveal;
   image.onerror = () => {
     if (imageVersions.get(image) !== version || !fallback) return;
+    image.classList.add('is-image-pending');
     const next = fallback;
     fallback = undefined;
     image.src = next;
   };
-  if (source !== undefined) image.src = source;
-  if (image.complete && image.naturalWidth > 0 && image.currentSrc === image.src) reveal();
+  if (source !== undefined && image.src !== target) image.src = source;
+  if (!alreadyDecoded && image.complete && image.naturalWidth > 0 && image.currentSrc === target) reveal();
 }
 
 export function clearModalImage(image: HTMLImageElement): void {
