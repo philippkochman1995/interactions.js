@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/site-interactions-base.css">
+  <style>
+    body { display: grid; gap: 2rem; padding: 2rem; }
+    .news_event, .news_highlight_section { width: 440px; padding: 1rem; background: #eee; }
+    .news_event img, .news_img img { display: block; width: 400px; height: 240px; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <article class="news_event" data-testid="news-card">
+    <img class="intro_img" data-testid="news-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="News">
+    <a href="#news">Mehr erfahren</a>
+  </article>
+  <section class="news_highlight_section" data-testid="highlight-card">
+    <div class="news_img"><img data-testid="highlight-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="Highlight"></div>
+    <a href="#highlight">Mehr erfahren</a>
+  </section>
+  <article class="news_event" data-testid="atelier-card">
+    <img class="intro_img" data-testid="atelier-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="Open Studio">
+    <a href="#atelier">Mehr erfahren</a>
+  </article>
+</body>
+</html>

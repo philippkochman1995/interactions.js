@@ -1171,24 +1171,36 @@ html.is-page-transition-boot::after {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
-/* News images stay static. The exception belongs here with the shared interaction CSS,
-   not in Webflow Page/Site Custom Code. */
-.news_img img,
-.news_event img,
-.news_img .site-lightbox-trigger__image,
-.news_event .site-lightbox-trigger__image {
-  transform: none !important;
-  transition: none !important;
+/* Event cards: the picture moves inward while its contents zoom slightly.
+   Clipping the image itself works for the direct .intro_img grid item as well as
+   images inside .news_img, without changing the card's layout or click target. */
+:is(.news_event img.intro_img, .news_img img) {
+  transition:
+    transform var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
+    clip-path var(--fw-image-zoom-duration, 0.62s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
-.news_img .site-lightbox-trigger:hover .site-lightbox-trigger__image,
-.news_img .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image,
-.news_event .site-lightbox-trigger:hover .site-lightbox-trigger__image,
-.news_event .site-lightbox-trigger:focus-visible .site-lightbox-trigger__image {
-  transform: none !important;
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img):not([data-home-image-wipe]) {
+    transform: scale(var(--fw-news-image-zoom, var(--fw-image-zoom, 1.035)));
+    clip-path: inset(var(--fw-news-image-inset, 3%));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The home image reveal owns clip-path until its first viewport wipe finishes. */
+  :is(.news_event img.intro_img, .news_img img):not([data-home-image-wipe]) {
+    clip-path: inset(0);
+  }
+
+  :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img):not([data-home-image-wipe]) {
+    transform: scale(var(--fw-news-image-zoom, var(--fw-image-zoom, 1.035)));
+    clip-path: inset(var(--fw-news-image-inset, 3%));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :is(.news_event img.intro_img, .news_img img),
   .site-lightbox-trigger__image,
   .fwm-modal__work-image {
     transition: none;
