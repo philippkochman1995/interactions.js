@@ -2953,6 +2953,7 @@ var jc = "data-site-image-reveal", Mc = "is-site-image-in", Nc = ".news_event im
 	"[hidden]",
 	".hm_cms",
 	".works_source",
+	".cms-canvas",
 	".werk_hero_section",
 	".bio_hero_section",
 	".bio_photo",

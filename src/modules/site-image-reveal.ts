@@ -8,7 +8,7 @@ const BIO_HERO_SELECTOR = '.bio_hero_section > img.bio_hero_img';
 const IMAGE_EXCLUSIONS = [
   '.top_bar_section', '[data-site-menu]', '.site-preloader', '[data-site-lightbox]',
   '.fwm-modal', '.modal_registry', '[data-modal-content]', '[hidden]',
-  '.hm_cms', '.works_source', '.werk_hero_section',
+  '.hm_cms', '.works_source', '.cms-canvas', '.werk_hero_section',
   '.bio_hero_section', '.bio_photo', '.news_event', '.news_highlight_section',
   '.contact_img',
   '[data-insta-feed]', '[data-edition-slider]', '[data-atelier-slideshow-root]',
