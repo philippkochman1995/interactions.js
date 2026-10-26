@@ -13,17 +13,42 @@
   if (!PAGE.test(window.location.pathname)) return;
   document.body.setAttribute('data-atelier-image-page', '');
 
+  function afterPageEntrance(callback) {
+    var root = document.documentElement;
+    function isCovered() {
+      return root.classList.contains('is-page-transition-pending') ||
+        root.classList.contains('is-page-transition-entering') ||
+        root.classList.contains('is-site-preloading') ||
+        root.classList.contains('is-site-preloader-exiting');
+    }
+    function start() {
+      requestAnimationFrame(function () { requestAnimationFrame(callback); });
+    }
+    if (!isCovered()) { start(); return; }
+    var transitionObserver = new MutationObserver(function () {
+      if (isCovered()) return;
+      transitionObserver.disconnect();
+      start();
+    });
+    transitionObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
+  }
+
   function reveal(target) {
     if (!target.isConnected || target.classList.contains('in') || pending.has(target)) return;
     var image = target instanceof HTMLImageElement ? target : target.querySelector('img');
     if (!image) return;
     pending.add(target);
 
-    function finish() {
+    function complete() {
       pending.delete(target);
       if (!target.isConnected || !image.naturalWidth) return;
       target.classList.add('in');
       if (observer) observer.unobserve(target);
+    }
+
+    function finish() {
+      if (target.hasAttribute(HERO)) afterPageEntrance(complete);
+      else complete();
     }
 
     if (image.complete) {
