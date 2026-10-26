@@ -51,9 +51,32 @@ body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask
   transform: scale(1) !important;
 }
 
-/* Reserve the same frame dimensions before lazy images arrive. */
+/* Event images keep Webflow's original frame dimensions. The zoom layers stay
+   in flow so the animation does not impose an aspect ratio. */
 body[data-atelier-image-page] .news_event .img-zoom[data-atelier-image-mask] {
-  aspect-ratio: 4 / 3;
+  height: 100%;
+}
+
+body[data-atelier-image-page] .news_event [data-atelier-image-zoom] {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+}
+
+body[data-atelier-image-page] .news_event [data-atelier-image-mask] [data-atelier-image-zoom] > img.intro_img {
+  position: relative;
+  inset: auto;
+}
+
+@media (max-width: 991px) {
+  body[data-atelier-image-page] .news_event .img-zoom[data-atelier-image-mask] {
+    height: auto;
+  }
+
+  body[data-atelier-image-page] .news_event [data-atelier-image-mask] [data-atelier-image-zoom] > img.intro_img {
+    height: auto;
+  }
 }
 
 body[data-atelier-image-page] .atelier_about_section .site-lightbox-trigger:has(> [data-atelier-image-mask]) {

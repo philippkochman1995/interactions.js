@@ -50,19 +50,51 @@ test('the separate News highlight keeps its existing image treatment', async ({ 
   await expect(image).toHaveCSS('clip-path', 'inset(2.05%)');
 });
 
-test('the wrapped image keeps the Atelier frame and mobile card order', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/tests/fixtures/news-card-hover.html');
-  const card = page.getByTestId('home-card');
-  const mask = card.locator('.img-zoom[data-site-image-reveal="event"]');
+test('the animation preserves the original event image size at every layout', async ({ page }) => {
+  for (const width of [1728, 800, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/tests/fixtures/news-card-hover.html?nojs');
+    const original = await page.getByTestId('home-image').evaluate((image) => ({
+      width: image.clientWidth,
+      height: image.clientHeight,
+    }));
 
-  await expect(mask).toHaveCSS('order', '-1');
-  await expect(mask).toHaveCSS('aspect-ratio', '4 / 3');
-  await expect(mask).toHaveCSS('margin-bottom', '24px');
-  const box = await mask.boundingBox();
-  expect(box).not.toBeNull();
-  expect(box!.width / box!.height).toBeCloseTo(4 / 3, 2);
-  expect(box!.width).toBeLessThanOrEqual((await card.boundingBox())!.width);
+    await page.goto('/tests/fixtures/news-card-hover.html');
+    const mask = page.getByTestId('home-card').locator('.img-zoom[data-site-image-reveal="event"]');
+    await expect(mask).toHaveCount(1);
+    const wrapped = await mask.evaluate((element) => ({
+      width: element.clientWidth,
+      height: element.clientHeight,
+    }));
+
+    expect(wrapped.width).toBeCloseTo(original.width, 0);
+    expect(wrapped.height).toBeCloseTo(original.height, 0);
+    await expect(mask).toHaveCSS('aspect-ratio', 'auto');
+    if (width === 390) {
+      await expect(mask).toHaveCSS('order', '-1');
+      await expect(mask).toHaveCSS('margin-bottom', '24px');
+    }
+  }
+});
+
+test('the Atelier mask also preserves its event image dimensions', async ({ page }) => {
+  for (const width of [1728, 800, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/tests/fixtures/atelier-event-ratio.html');
+    const original = await page.getByTestId('original-image').evaluate((image) => ({
+      width: image.clientWidth,
+      height: image.clientHeight,
+    }));
+    const mask = page.getByTestId('animated-card').locator('[data-atelier-image-mask]');
+    const wrapped = await mask.evaluate((element) => ({
+      width: element.clientWidth,
+      height: element.clientHeight,
+    }));
+
+    expect(wrapped.width).toBeCloseTo(original.width, 0);
+    expect(wrapped.height).toBeCloseTo(original.height, 0);
+    await expect(mask).toHaveCSS('aspect-ratio', 'auto');
+  }
 });
 
 test('event images and links stay still with reduced motion', async ({ page }) => {

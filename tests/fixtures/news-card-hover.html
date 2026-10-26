@@ -7,17 +7,22 @@
     body { display: grid; gap: 2rem; padding: 2rem; }
     .news_event, .news_highlight_section { width: 700px; padding: 1rem; background: #eee; }
     .intro_layout { display: grid; grid-template-columns: 400px 1fr; gap: 1rem; }
-    .news_event img, .news_img img { display: block; width: 400px; height: 300px; object-fit: cover; }
+    .news_event img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .news_img img { display: block; width: 400px; height: 300px; object-fit: cover; }
+    .intro_content_about { min-height: 300px; }
     .text-link { color: #82808c; }
     .text-link:hover { color: #06021a; }
+    @media (max-width: 991px) {
+      .intro_layout { grid-template-columns: 1fr; }
+    }
     @media (max-width: 767px) {
       .news_event, .news_highlight_section { width: auto; }
-      .intro_layout { grid-template-columns: 1fr; }
+      .news_event img { height: auto; }
     }
   </style>
   <script type="module">
     import { initSiteImageReveal } from '/src/modules/site-image-reveal.ts';
-    initSiteImageReveal();
+    if (!new URLSearchParams(location.search).has('nojs')) initSiteImageReveal();
   </script>
 </head>
 <body>
