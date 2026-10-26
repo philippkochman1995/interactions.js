@@ -1,13 +1,21 @@
-/* Individual fade-up for existing Atelier text; no splitting or text replacement. */
+/* Three fade-up tiers per Atelier text block; no splitting or text replacement. */
 (function () {
   if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
 
   var GROUP = '[data-fade-group]';
   var seen = new WeakSet();
+  var pending = new WeakSet();
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   var observer = null;
   var mutations = null;
   var scheduled = false;
+
+  function tier(element) {
+    if (element.matches('a, button, .atelier_button_wrap') ||
+        element.querySelector(':scope > a, :scope > button')) return 2;
+    if (element.matches('h1, h2, h3, h4, h5, h6, .u-text-eyebrow, .atlier_slide_eyebrow')) return 0;
+    return 1;
+  }
 
   function afterPageEntrance(callback) {
     var root = document.documentElement;
@@ -51,12 +59,21 @@
   }
 
   function enter(element) {
-    if (element.classList.contains('is-in')) return;
-    if (observer) observer.unobserve(element);
+    var group = element.closest(GROUP);
+    if (!group || element.classList.contains('is-in') || pending.has(element)) return;
+    var level = tier(element);
+    var peers = Array.from(group.querySelectorAll('[data-fade]')).filter(function (peer) {
+      return tier(peer) === level && !peer.classList.contains('is-in');
+    });
+    peers.forEach(function (peer) {
+      pending.add(peer);
+      if (observer) observer.unobserve(peer);
+    });
     afterPageEntrance(function () {
-      if (element.isConnected && /^\/atelier\/?$/i.test(window.location.pathname)) {
-        element.classList.add('is-in');
-      }
+      if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
+      peers.forEach(function (peer) {
+        if (peer.isConnected) peer.classList.add('is-in');
+      });
     });
   }
 
@@ -72,24 +89,10 @@
     scheduled = false;
     if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
     document.querySelectorAll(GROUP).forEach(function (group) {
-      group.querySelectorAll('div[data-fade]').forEach(function (wrapper) {
-        var children = wrapper.children;
-        if (children.length === 1 && children[0].matches('.w-richtext')) {
-          children = children[0].children;
-        }
-        var blocks = Array.from(children).filter(function (child) {
-          return child.matches('p, h2, h3, h4, ul, ol, blockquote');
-        });
-        if (!blocks.length) return;
-        if (!wrapper.hasAttribute('data-fade-richtext')) wrapper.setAttribute('data-fade-richtext', '');
-        blocks.forEach(function (block) {
-          if (!block.hasAttribute('data-fade')) block.setAttribute('data-fade', '');
-        });
-      });
-      group.querySelectorAll('[data-fade]:not([data-fade-richtext])').forEach(function (element, index) {
+      group.querySelectorAll('[data-fade]').forEach(function (element) {
         if (seen.has(element)) return;
         seen.add(element);
-        element.style.setProperty('--fade-index', index);
+        element.style.setProperty('--fade-index', tier(element));
         if (element.classList.contains('is-in')) return;
         if (reduced.matches || !observer) element.classList.add('is-in');
         else observer.observe(element);
