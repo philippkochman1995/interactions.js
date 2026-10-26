@@ -13,7 +13,7 @@ test('news, highlight and atelier event images zoom inward on card hover', async
     const cardWidth = (await card.boundingBox())?.width;
 
     await card.locator('a').hover();
-    await expect(image).toHaveCSS('transition-duration', '0.245s, 0.245s');
+    await expect(image).toHaveCSS('transition-duration', '0.3s, 0.3s');
     await image.evaluate((element) => { element.style.transform = 'scale3d(1.05, 1.05, 1)'; });
     await expect(image).toHaveCSS('transform', 'matrix(1.0189, 0, 0, 1.0189, 0, 0)');
     await expect(image).toHaveCSS('clip-path', 'inset(2.05%)');

@@ -512,7 +512,7 @@ Layout bleibt unveraendert. Die Staerke haengt an `--fw-lightbox-zoom`:
 Der Effekt laeuft nur auf Geraeten mit echtem Zeiger (`hover: hover`), sonst bliebe er
 nach einem Tap kleben, und entfaellt bei `prefers-reduced-motion: reduce`. Das
 Lupen-Icon zoomt nicht mit; es behaelt seinen eigenen Hover-Effekt. Event-Bilder in
-`.news_event` und `.news_img` zoomen beim Hover in 0,245 s um 1,89 % und werden
+`.news_event` und `.news_img` zoomen beim Hover in 0,3 s um 1,89 % und werden
 zugleich an allen Seiten um 2,05 % beschnitten. Sichtbar rueckt die Bildkante dadurch
 um etwa 1,14 % nach innen, ohne das Kartenlayout zu verschieben. Die CSS-Transformation
 hat Vorrang vor Webflows Inline-Hover-Zoom, damit der Bildrand nicht springt. Der Effekt gilt auch fuer
