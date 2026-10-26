@@ -15,7 +15,7 @@ const IMAGE_EXCLUSIONS = [
   '[aria-hidden="true"]',
 ].join(', ');
 
-type RevealType = 'hero' | 'bio' | 'event' | 'contact' | 'media' | 'plain' | 'slider' | 'instagram';
+type RevealType = 'hero' | 'bio' | 'event' | 'contact' | 'media' | 'plain' | 'edition' | 'instagram';
 
 let initialized = false;
 
@@ -141,11 +141,13 @@ export function initSiteImageReveal(): void {
         if (image && frame) register(frame, image, 'contact');
       }
 
-      const staticWorkImages = /^\/(?:editionen|werk-ueberblick|werke(?:\/.*)?)\/?$/i.test(path);
-      if (!staticWorkImages) {
+      const staticWorkImages = /^\/(?:werk-ueberblick|werke(?:\/.*)?)\/?$/i.test(path);
+      if (/^\/editionen\/?$/i.test(path)) {
         document.querySelectorAll<HTMLElement>('.editionen_media[data-edition-slider]').forEach((media, index) => {
-          const firstImage = media.querySelector<HTMLImageElement>('img.editionen_img');
-          if (firstImage) register(media, firstImage, 'slider', (index % 4) * 90);
+          const track = media.querySelector<HTMLElement>('[data-edition-track]');
+          const firstImage = track?.querySelector<HTMLImageElement>('.editionen_slide.is-active img.editionen_img') ??
+            track?.querySelector<HTMLImageElement>('img.editionen_img');
+          if (track && firstImage) register(track, firstImage, 'edition', (index % 4) * 90);
         });
       }
 

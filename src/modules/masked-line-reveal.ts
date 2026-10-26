@@ -38,16 +38,20 @@ async function waitForPageTransition(element: HTMLElement): Promise<void> {
   const pageHero =
     (/^\/atelier\/?$/i.test(window.location.pathname) && Boolean(element.closest('.atelier_hero_section'))) ||
     (/^\/biografie\/?$/i.test(window.location.pathname) && Boolean(element.closest('.bio_hero_section')));
+  const firstEditionHeading = /^\/editionen\/?$/i.test(window.location.pathname) &&
+    element.matches('.editionen_title') &&
+    element.closest('.editionen_item') === document.querySelector('.editionen_item');
+  const revealWithCurtain = pageHero || firstEditionHeading;
   if (root.classList.contains('is-page-transition-entering') &&
-    !(pageHero && document.querySelector('.page-transition-overlay.is-uncovering'))) {
+    !(revealWithCurtain && document.querySelector('.page-transition-overlay.is-uncovering'))) {
     await new Promise<void>((resolve) => {
       const observer = new MutationObserver(() => {
         if (root.classList.contains('is-page-transition-entering') &&
-          (!pageHero || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
+          (!revealWithCurtain || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
         observer.disconnect();
         resolve();
       });
-      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: pageHero });
+      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: revealWithCurtain });
     });
   }
   if (pageHero) {
@@ -229,10 +233,13 @@ function replayAll(): void {
 function scan(): void {
   const routeChanged = activePath !== window.location.pathname;
   activePath = window.location.pathname;
+  if (/^\/editionen\/?$/i.test(activePath)) {
+    document.querySelector<HTMLElement>('.editionen_item')?.setAttribute('data-edition-first', '');
+  }
   document.querySelectorAll<HTMLElement>(HEADING_SELECTOR).forEach(addHeading);
   document.querySelectorAll<HTMLElement>(LABEL_SELECTOR).forEach(addLabel);
   document.querySelectorAll<HTMLElement>('.editionen_item').forEach((item) => {
-    item.querySelectorAll<HTMLElement>('.editionen_meta, .editionen_note, .editionen_button_wrap')
+    item.querySelectorAll<HTMLElement>('.editionen_meta, .editionen_note')
       .forEach((element, index) => {
         if (element.hasAttribute('data-edition-content-reveal')) return;
         element.setAttribute('data-edition-content-reveal', '');

@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { prefersReducedMotion, qsa } from './utils';
 
-const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .quote-block, .news_event .intro_date_infos > .u-p-small, .news_highlight_section .intro_date_infos > .u-p-small';
+const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .editionen_button_wrap a, .quote-block, .news_event .intro_date_infos > .u-p-small, .news_highlight_section .intro_date_infos > .u-p-small';
 const RICH_TEXT_SELECTOR = '.w-richtext, .rich-text';
 const EXCLUDED = [
   '.fwm-modal', '[data-modal]', '[data-site-modal]', '[data-modal-content]',
@@ -38,7 +38,6 @@ let initialized = false;
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
-  if (element.closest('.editionen_button_wrap')) return false;
   if (element.matches('p') && element.closest('.intro_date_infos > .u-p-small')) return false;
   if (element.closest('.quote-block') && !element.matches('.quote-block')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading')) return false;
