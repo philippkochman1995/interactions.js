@@ -12,9 +12,7 @@ import { initMoreArrows } from './modules/more-arrows';
 import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
-import { initHomeImageWipe } from './modules/home-image-wipe';
 import { initSiteImageReveal } from './modules/site-image-reveal';
-import { initHomeHeadingReveal } from './modules/home-heading-reveal';
 import { initMaskedLineReveal } from './modules/masked-line-reveal';
 
 let booted = false;
@@ -26,7 +24,6 @@ initPageTransitions();
 
 // Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.
 initLineReveal();
-initHomeHeadingReveal();
 initMaskedLineReveal();
 initSmoothScrollSync();
 
@@ -51,7 +48,6 @@ function boot(): void {
   initMoreArrows();
   initOutlinedButtons();
   initSiteImageReveal();
-  initHomeImageWipe();
 
   window.SiteInteractions = {
     openModal,

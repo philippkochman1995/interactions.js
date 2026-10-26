@@ -9,10 +9,6 @@ main :is(h1, h2, h3, h4, h5, h6, p),
 
 [data-reveal-pending] { visibility: visible !important; }
 
-[data-home-heading-pending] { visibility: hidden; }
-
-.home-heading-line-mask { overflow: clip; }
-
 .page-transition-overlay__title,
 .page-transition-word {
   animation: none !important;

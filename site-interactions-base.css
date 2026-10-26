@@ -31,15 +31,6 @@
   --fw-button-reduced-duration: 0.01s;
 }
 
-/* Home editorial images and the West Map info card reveal with the button easing. */
-[data-home-image-wipe] {
-  clip-path: inset(100% 0 0 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-home-image-wipe] { clip-path: none; }
-}
-
 /* Aus dem Site-Head-Custom-Code hierher gezogen (04.09.2026). Diese Datei
    laedt nach der Webflow-CSS, gewinnt bei gleicher Spezifitaet und ersetzt den
    Inline-Block damit eins zu eins.
@@ -1247,19 +1238,18 @@ html.is-page-transition-boot::after {
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img):not([data-home-image-wipe]) {
+  :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img) {
     transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
     clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* The home image reveal owns clip-path until its first viewport wipe finishes. */
-  :is(.news_event img.intro_img, .news_img img):not([data-home-image-wipe]) {
+  :is(.news_event img.intro_img, .news_img img) {
     clip-path: inset(0);
   }
 
-  :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img):not([data-home-image-wipe]) {
+  :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img) {
     transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
     clip-path: inset(var(--fw-news-image-inset, 2.05%));
   }

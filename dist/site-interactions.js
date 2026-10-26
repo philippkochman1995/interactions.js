@@ -2263,10 +2263,7 @@ var ss = {
 	fade: 700,
 	menuGap: 80,
 	menu: 550
-}, us = {
-	fade: 1200,
-	easing: "ease-in-out"
-}, ds = "pt", fs = "[data-page-transition-overlay], .page-transition-overlay", ps = "is-page-transition-pending", ms = [
+}, us = "pt", ds = "[data-page-transition-overlay], .page-transition-overlay", fs = "is-page-transition-pending", ps = [
 	"[data-transition=\"false\"]",
 	"[data-lightbox-src]",
 	".js-lightbox",
@@ -2275,37 +2272,37 @@ var ss = {
 	"[data-back-button]",
 	"[data-work-overlay-trigger]",
 	"[download]"
-].join(","), hs = !1, gs = !1, _s = [];
-function vs(e, t) {
-	_s.push(window.setTimeout(e, t));
+].join(","), ms = !1, hs = !1, gs = [];
+function _s(e, t) {
+	gs.push(window.setTimeout(e, t));
+}
+function vs() {
+	gs.forEach((e) => window.clearTimeout(e)), gs = [];
 }
 function ys() {
-	_s.forEach((e) => window.clearTimeout(e)), _s = [];
-}
-function bs() {
 	try {
 		var e;
-		return (e = window.sessionStorage.getItem(ds)) == null ? "" : e;
+		return (e = window.sessionStorage.getItem(us)) == null ? "" : e;
 	} catch (e) {
 		return "";
 	}
 }
-function xs() {
+function bs() {
 	try {
-		window.sessionStorage.removeItem(ds);
+		window.sessionStorage.removeItem(us);
 	} catch (e) {}
-	document.documentElement.classList.remove(ps, "is-page-transition-boot");
+	document.documentElement.classList.remove(fs, "is-page-transition-boot");
 }
-function Ss() {
+function xs() {
 	var e;
-	let t = document.querySelector(fs);
+	let t = document.querySelector(ds);
 	if (t || (t = document.createElement("div"), document.body.append(t)), t.classList.add("curtain", "page-transition-overlay"), t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), !t.querySelector(".page-transition-overlay__title")) {
 		let e = document.createElement("span");
 		e.className = "page-transition-overlay__title", t.append(e);
 	}
 	return (e = t.querySelector(".page-transition-overlay__title")) == null || e.setAttribute("aria-live", "polite"), t;
 }
-function Cs(e, t) {
+function Ss(e, t) {
 	var n, r, i, a;
 	let o = (e) => {
 		var t;
@@ -2332,13 +2329,13 @@ function Cs(e, t) {
 		return m.replace(/[-_]+/g, " ");
 	}
 }
-function ws() {
+function Cs() {
 	return document.querySelector("main, [role=\"main\"]");
 }
-function Ts(e) {
+function ws(e) {
 	return !!(e && !e.querySelector("canvas, iframe, video, [data-animation-type=\"spline\"]"));
 }
-function Es(e) {
+function Ts(e) {
 	var t;
 	let n = e == null ? void 0 : e.querySelector("h1");
 	if (!n || n.matches("[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading") || n.children.length || !((t = n.textContent) != null && t.trim())) return;
@@ -2351,49 +2348,49 @@ function Es(e) {
 		i.className = "page-transition-word", i.style.setProperty("--word-index", String(t)), i.textContent = e, r.append(i), n.append(r);
 	}), n.classList.add("is-page-transition-heading");
 }
-function Ds(e) {
+function Es(e) {
 	e && (e.hasAttribute("tabindex") || (e.setAttribute("tabindex", "-1"), e.addEventListener("blur", () => e.removeAttribute("tabindex"), { once: !0 })), e.focus({ preventScroll: !0 }));
 }
-function Os(e, t) {
-	ys(), e.classList.add("is-resetting"), e.classList.remove("is-covering", "is-covered", "is-title-visible", "is-title-leaving", "is-uncovering"), e.setAttribute("aria-hidden", "true"), t == null || t.classList.remove("is-page-transition-out", "is-page-transition-in", "is-page-transition-entered"), document.documentElement.classList.remove("is-page-transition-entering", "is-page-transition-covering"), xs(), gs = !1, window.requestAnimationFrame(() => e.classList.remove("is-resetting"));
+function Ds(e, t) {
+	vs(), e.classList.add("is-resetting"), e.classList.remove("is-covering", "is-covered", "is-title-visible", "is-title-leaving", "is-uncovering"), e.setAttribute("aria-hidden", "true"), t == null || t.classList.remove("is-page-transition-out", "is-page-transition-in", "is-page-transition-entered"), document.documentElement.classList.remove("is-page-transition-entering", "is-page-transition-covering"), bs(), hs = !1, window.requestAnimationFrame(() => e.classList.remove("is-resetting"));
 }
-function ks(e, t) {
+function Os(e, t) {
 	var n, r;
-	if (gs = !0, u()) {
-		Ds(t), Os(e, t);
+	if (hs = !0, u()) {
+		Es(t), Ds(e, t);
 		return;
 	}
 	let i = e.querySelector(".page-transition-overlay__title");
-	i && (i.textContent = bs()), e.setAttribute("aria-hidden", "false"), e.classList.add("is-covered", "is-title-visible"), Ts(t) && t.classList.add("is-page-transition-in"), document.documentElement.classList.add("is-page-transition-entering"), window.location.pathname !== "/" && Es(t), ((n = (r = document.fonts) == null ? void 0 : r.ready) == null ? Promise.resolve() : n).catch(() => void 0).then(() => {
-		vs(() => e.classList.add("is-title-leaving"), ss.hold), vs(() => {
+	i && (i.textContent = ys()), e.setAttribute("aria-hidden", "false"), e.classList.add("is-covered", "is-title-visible"), ws(t) && t.classList.add("is-page-transition-in"), document.documentElement.classList.add("is-page-transition-entering"), window.location.pathname !== "/" && Ts(t), ((n = (r = document.fonts) == null ? void 0 : r.ready) == null ? Promise.resolve() : n).catch(() => void 0).then(() => {
+		_s(() => e.classList.add("is-title-leaving"), ss.hold), _s(() => {
 			var n;
 			e.classList.add("is-uncovering"), t == null || t.classList.add("is-page-transition-entered"), t == null || (n = t.querySelector(".is-page-transition-heading")) == null || n.classList.add("is-revealing");
-		}, ss.uncoverStart), vs(() => {
-			Ds(t), Os(e, t);
+		}, ss.uncoverStart), _s(() => {
+			Es(t), Ds(e, t);
 		}, ss.reset);
 	});
 }
-function As(e, t, n, r) {
-	gs = !0;
+function ks(e, t, n, r) {
+	hs = !0;
 	let i = t.querySelector(".page-transition-overlay__title");
 	i && (i.textContent = r), t.setAttribute("aria-hidden", "false");
 	try {
-		window.sessionStorage.setItem(ds, r);
+		window.sessionStorage.setItem(us, r);
 	} catch (e) {}
-	document.documentElement.classList.add("is-page-transition-covering"), t.classList.add("is-covering"), Ts(n) && n.classList.add("is-page-transition-out"), vs(() => t.classList.add("is-title-visible"), ss.titleStart), vs(() => {
+	document.documentElement.classList.add("is-page-transition-covering"), t.classList.add("is-covering"), ws(n) && n.classList.add("is-page-transition-out"), _s(() => t.classList.add("is-title-visible"), ss.titleStart), _s(() => {
 		window.location.href = e.href;
-	}, ss.navigate), vs(() => {
+	}, ss.navigate), _s(() => {
 		window.location.href = e.href;
 	}, ss.watchdog);
 }
-function js() {
+function As() {
 	var e;
-	if (!((e = window.__sitePreloader) != null && e.active) || u()) return;
+	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
 	let t = cs.map((e) => Array.from(document.querySelectorAll(e))), n = Array.from(document.querySelectorAll("[data-site-menu]"));
 	[...t.flat(), ...n].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {
-		let e = window.location.pathname === "/", r = e ? us.fade : ls.fade, i = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
+		let e = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
 			if (!e.animate) {
 				e.style.removeProperty("opacity");
 				return;
@@ -2409,60 +2406,60 @@ function js() {
 			};
 		};
 		t.forEach((t, n) => {
-			t.forEach((t) => i(t, [{ opacity: 0 }, { opacity: 1 }], ls.delay + n * ls.stagger, r, e ? us.easing : void 0));
+			t.forEach((t) => e(t, [{ opacity: 0 }, { opacity: 1 }], ls.delay + n * ls.stagger, ls.fade));
 		});
-		let a = t.reduce((e, t, n) => t.length ? n : e, -1), o = a < 0 ? 0 : ls.delay + a * ls.stagger + r + ls.menuGap;
-		n.forEach((e) => {
-			let t = Math.max(0, window.innerHeight - e.getBoundingClientRect().top) + 8;
-			i(e, [{
+		let r = t.reduce((e, t, n) => t.length ? n : e, -1), i = r < 0 ? 0 : ls.delay + r * ls.stagger + ls.fade + ls.menuGap;
+		n.forEach((t) => {
+			let n = Math.max(0, window.innerHeight - t.getBoundingClientRect().top) + 8;
+			e(t, [{
 				opacity: 1,
-				transform: `translate3d(0, ${t}px, 0)`
+				transform: `translate3d(0, ${n}px, 0)`
 			}, {
 				opacity: 1,
 				transform: "translate3d(0, 0, 0)"
-			}], o, ls.menu);
+			}], i, ls.menu);
 		});
 	});
 }
-function Ms() {
-	if (hs) return;
+function js() {
+	if (ms) return;
 	if (!document.body) {
-		document.addEventListener("DOMContentLoaded", Ms, { once: !0 });
+		document.addEventListener("DOMContentLoaded", js, { once: !0 });
 		return;
 	}
-	hs = !0;
-	let e = Ss(), t = ws();
-	bs() && document.documentElement.classList.contains(ps) ? ks(e, t) : js(), document.addEventListener("click", (n) => {
+	ms = !0;
+	let e = xs(), t = Cs();
+	ys() && document.documentElement.classList.contains(fs) ? Os(e, t) : As(), document.addEventListener("click", (n) => {
 		var r;
 		let i = n.target instanceof Element ? n.target.closest("a[href]") : null;
 		if (!i || n.defaultPrevented || l(n)) return;
-		if (gs) {
+		if (hs) {
 			n.preventDefault();
 			return;
 		}
-		if (i.closest(ms) || i.target && i.target !== "_self") return;
+		if (i.closest(ps) || i.target && i.target !== "_self") return;
 		let a = h(i);
 		if (!a || a.hash || u() || (r = window.__sitePreloader) != null && r.active) return;
 		n.preventDefault();
-		let o = Cs(a, i), s = i.closest("[data-site-menu]");
-		s && (gs = !0, ns(s, () => As(a, e, t, o))) || As(a, e, t, o);
+		let o = Ss(a, i), s = i.closest("[data-site-menu]");
+		s && (hs = !0, ns(s, () => ks(a, e, t, o))) || ks(a, e, t, o);
 	}, !0), window.addEventListener("pageshow", (n) => {
-		n.persisted && Os(e, t);
+		n.persisted && Ds(e, t);
 	});
 }
 //#endregion
 //#region src/modules/parallax.ts
-var Ns = "[data-parallax]", Ps = "data-parallax", Fs = "data-parallax-ready", Is = "fw-parallax-window", Ls = "fw-parallax-window--self-sized", Rs = "fw-parallax-inner", zs = 60, Bs = 160, Vs = ".site-lightbox-trigger", Hs = 1, Us = !1;
-function Ws() {
-	Us || (Us = !0, b.registerPlugin($));
+var Ms = "[data-parallax]", Ns = "data-parallax", Ps = "data-parallax-ready", Fs = "fw-parallax-window", Is = "fw-parallax-window--self-sized", Ls = "fw-parallax-inner", Rs = 60, zs = 160, Bs = ".site-lightbox-trigger", Vs = 1, Hs = !1;
+function Us() {
+	Hs || (Hs = !0, b.registerPlugin($));
+}
+function Ws(e) {
+	let t = e.getAttribute(Ns);
+	if (t === null || t.trim() === "") return Rs;
+	let n = Number.parseFloat(t);
+	return Number.isFinite(n) ? Math.sign(n) * Math.min(Math.abs(n), zs) : Rs;
 }
 function Gs(e) {
-	let t = e.getAttribute(Ps);
-	if (t === null || t.trim() === "") return zs;
-	let n = Number.parseFloat(t);
-	return Number.isFinite(n) ? Math.sign(n) * Math.min(Math.abs(n), Bs) : zs;
-}
-function Ks(e) {
 	return e.complete && e.naturalWidth > 0 ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			e.removeEventListener("load", n), e.removeEventListener("error", n), t();
@@ -2470,44 +2467,44 @@ function Ks(e) {
 		e.addEventListener("load", n, { once: !0 }), e.addEventListener("error", n, { once: !0 });
 	});
 }
-function qs(e, t) {
+function Ks(e, t) {
 	var n;
-	let r = (n = e.closest(Vs)) == null ? e.parentElement : n;
-	if (!r || r.classList.contains(Is)) return null;
+	let r = (n = e.closest(Bs)) == null ? e.parentElement : n;
+	if (!r || r.classList.contains(Fs)) return null;
 	let i = r.getBoundingClientRect().height;
 	if (i <= 0) return null;
-	r.classList.add(Is);
-	let a = document.createElement("span"), o = Math.abs(t) / 2 + Hs;
-	if (a.className = Rs, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
+	r.classList.add(Fs);
+	let a = document.createElement("span"), o = Math.abs(t) / 2 + Vs;
+	if (a.className = Ls, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
 		let t = e.naturalWidth / e.naturalHeight;
-		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Is), null;
-		r.classList.add(Ls), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
+		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Fs), null;
+		r.classList.add(Is), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
 	}
 	return a;
 }
-function Js(e, t) {
+function qs(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
 		b.fromTo(e, { y: t / 2 }, {
 			y: -t / 2,
 			ease: "none",
-			scrollTrigger: Ys(e)
+			scrollTrigger: Js(e)
 		});
 		return;
 	}
 	n.forEach((n) => {
-		Ks(n).then(() => {
+		Gs(n).then(() => {
 			if (!n.isConnected) return;
-			let r = qs(n, t);
+			let r = Ks(n, t);
 			r && (b.fromTo(r, { y: t / 2 }, {
 				y: -t / 2,
 				ease: "none",
-				scrollTrigger: Ys(e)
+				scrollTrigger: Js(e)
 			}), $.refresh());
 		});
 	});
 }
-function Ys(e) {
+function Js(e) {
 	return {
 		trigger: e,
 		start: "top bottom",
@@ -2516,28 +2513,28 @@ function Ys(e) {
 		invalidateOnRefresh: !0
 	};
 }
-function Xs(e = document) {
-	let t = o(Ns, e).filter((e) => !e.hasAttribute(Fs));
-	t.length === 0 || u() || (Ws(), t.forEach((e) => {
-		let t = Gs(e);
-		t !== 0 && (e.setAttribute(Fs, ""), Js(e, t));
+function Ys(e = document) {
+	let t = o(Ms, e).filter((e) => !e.hasAttribute(Ps));
+	t.length === 0 || u() || (Us(), t.forEach((e) => {
+		let t = Ws(e);
+		t !== 0 && (e.setAttribute(Ps, ""), qs(e, t));
 	}));
 }
 //#endregion
 //#region src/modules/more-arrows.ts
-var Zs = "\n  <path data-more-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\" fill=\"currentColor\"/>\n  <path data-more-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\" fill=\"currentColor\"/>\n";
-function Qs(e) {
+var Xs = "\n  <path data-more-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\" fill=\"currentColor\"/>\n  <path data-more-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\" fill=\"currentColor\"/>\n";
+function Zs(e) {
 	var t, n;
 	if (!/^mehr\s+erfahren$/i.test((t = (n = e.textContent) == null ? void 0 : n.trim()) == null ? "" : t)) return;
 	let r = e.querySelector("svg.arrow");
-	r != null && r.hasAttribute("data-more-arrow") || (r || (r = document.createElementNS("http://www.w3.org/2000/svg", "svg"), r.classList.add("arrow"), e.appendChild(r)), r.classList.add("more-arrow"), r.setAttribute("data-more-arrow", ""), r.setAttribute("viewBox", "40 49 19 15"), r.setAttribute("aria-hidden", "true"), r.setAttribute("focusable", "false"), r.innerHTML = Zs);
+	r != null && r.hasAttribute("data-more-arrow") || (r || (r = document.createElementNS("http://www.w3.org/2000/svg", "svg"), r.classList.add("arrow"), e.appendChild(r)), r.classList.add("more-arrow"), r.setAttribute("data-more-arrow", ""), r.setAttribute("viewBox", "40 49 19 15"), r.setAttribute("aria-hidden", "true"), r.setAttribute("focusable", "false"), r.innerHTML = Xs);
 }
-function $s(e) {
-	e instanceof Element && e.matches("a, button, [role=\"button\"]") && Qs(e), e.querySelectorAll("a, button, [role=\"button\"]").forEach(Qs);
+function Qs(e) {
+	e instanceof Element && e.matches("a, button, [role=\"button\"]") && Zs(e), e.querySelectorAll("a, button, [role=\"button\"]").forEach(Zs);
 }
-function ec() {
-	$s(document), new MutationObserver((e) => {
-		for (let t of e) for (let e of t.addedNodes) e instanceof Element && $s(e);
+function $s() {
+	Qs(document), new MutationObserver((e) => {
+		for (let t of e) for (let e of t.addedNodes) e instanceof Element && Qs(e);
 	}).observe(document.body, {
 		childList: !0,
 		subtree: !0
@@ -2545,8 +2542,8 @@ function ec() {
 }
 //#endregion
 //#region src/modules/outlined-buttons.ts
-var tc = ".btn, .button-outlined";
-function nc() {
+var ec = ".btn, .button-outlined";
+function tc() {
 	let e = /* @__PURE__ */ new WeakSet();
 	function t(t) {
 		if (!e.has(t)) {
@@ -2563,7 +2560,7 @@ function nc() {
 		}
 	}
 	function n(e) {
-		e instanceof HTMLElement && e.matches(tc) && t(e), e.querySelectorAll(tc).forEach(t);
+		e instanceof HTMLElement && e.matches(ec) && t(e), e.querySelectorAll(ec).forEach(t);
 	}
 	n(document), new MutationObserver((e) => {
 		for (let t of e) for (let e of t.addedNodes) e instanceof HTMLElement && n(e);
@@ -2574,30 +2571,30 @@ function nc() {
 }
 //#endregion
 //#region src/modules/spline-slider.ts
-var rc = ".werk_hero_slider", ic = ".werk_hero_track";
-function ac(e, t) {
+var nc = ".werk_hero_slider", rc = ".werk_hero_track";
+function ic(e, t) {
 	let n = e.parentElement;
 	for (; n && n.parentElement !== t;) n = n.parentElement;
 	return (n == null ? void 0 : n.parentElement) === t ? n : null;
 }
-function oc(e) {
+function ac(e) {
 	var t, n;
 	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
 	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
 }
-function sc(e) {
-	let t = e.closest(rc), n = t == null ? void 0 : t.querySelector(ic);
+function oc(e) {
+	let t = e.closest(nc), n = t == null ? void 0 : t.querySelector(rc);
 	if (!n) return !1;
 	if (typeof getComputedStyle == "function") {
 		let t = getComputedStyle(e);
 		if (t.display === "none" || t.visibility === "hidden") return !0;
 	}
-	let r = ac(e, n), i = oc(n);
+	let r = ic(e, n), i = ac(n);
 	return !!(r && i && r !== i);
 }
 //#endregion
 //#region src/modules/site-preloader-assets.ts
-function cc(e, t) {
+function sc(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -2606,7 +2603,7 @@ function cc(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function lc(e, t) {
+function cc(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -2617,7 +2614,7 @@ function lc(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function uc(e, t) {
+function lc(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -2626,7 +2623,7 @@ function uc(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function dc(e) {
+function uc(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -2635,16 +2632,16 @@ function dc(e) {
 		return null;
 	}
 }
-function fc(e) {
+function dc(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function pc(e) {
+function fc(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function mc(e, t) {
+function pc(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -2663,7 +2660,7 @@ function mc(e, t) {
 		}
 	});
 }
-function hc() {
+function mc() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -2672,45 +2669,45 @@ function hc() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return uc(e, t);
+				if (n === "spline") return lc(e, t);
 				let r = new Image();
-				return r.src = e, lc(r, t);
+				return r.src = e, cc(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], [data-modal-content], [data-modal], #wmCmsSource, template")) continue;
-		let i = fc(n);
+		let i = dc(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
 		let a = n.getBoundingClientRect(), o = a.top > window.innerHeight * 2 || a.bottom < -window.innerHeight;
 		if (!i && !n.closest("[data-site-preloader]") && o) {
 			n.loading = "lazy";
 			continue;
 		}
-		let s = dc(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let s = uc(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!s && !c || t({
 			key: s ? `image:${s}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || pc(n) ? "critical" : "warm" : i,
-			load: (e) => lc(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || fc(n) ? "critical" : "warm" : i,
+			load: (e) => cc(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		if (r.matches("[data-animation-type=\"spline\"]") && sc(r)) continue;
-		let i = r instanceof HTMLIFrameElement, o = dc(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && oc(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = uc(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = fc(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = dc(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => mc(r, e)
+			load: (e) => pc(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", mc(r, e))
+			load: (e) => (r.loading = "eager", pc(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -2724,17 +2721,17 @@ function hc() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = dc(e.url);
+			let t = uc(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => cc(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => sc(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function gc(e) {
+function hc(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -2751,13 +2748,13 @@ function gc(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function _c(e) {
+async function gc(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await cc(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await sc(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -2771,11 +2768,11 @@ async function _c(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var vc = /* @__PURE__ */ new WeakSet(), yc = 6800, bc = 600, xc = 500, Sc = 1300;
-function Cc(e) {
+var _c = /* @__PURE__ */ new WeakSet(), vc = 6800, yc = 600, bc = 500, xc = 1300;
+function Sc(e) {
 	return e < .5 ? 4 * e * e * e : 1 - (-2 * e + 2) ** 3 / 2;
 }
-function wc(e) {
+function Cc(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -2787,7 +2784,7 @@ function wc(e) {
 		});
 	});
 }
-function Tc(e, t) {
+function wc(e, t) {
 	var n, r;
 	if (!Number.isFinite(t)) return;
 	let i = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.round(t))));
@@ -2819,17 +2816,17 @@ function Tc(e, t) {
 		}
 	});
 }
-function Ec(e) {
+function Tc(e) {
 	let t = u(), n = !1, r = !1, i = 0, a = 0, o, s = new Promise((e) => {
 		o = e;
 	}), c = (t) => {
 		if (n) return;
-		let r = Math.min(1, (t - a) / yc);
-		Tc(e, (.6 * r + .4 * Cc(r)) * 100), r === 1 ? o() : i = window.requestAnimationFrame(c);
+		let r = Math.min(1, (t - a) / vc);
+		wc(e, (.6 * r + .4 * Sc(r)) * 100), r === 1 ? o() : i = window.requestAnimationFrame(c);
 	};
 	return {
 		start: () => {
-			r || n || (r = !0, a = performance.now(), t ? (Tc(e, 100), o()) : i = window.requestAnimationFrame(c));
+			r || n || (r = !0, a = performance.now(), t ? (wc(e, 100), o()) : i = window.requestAnimationFrame(c));
 		},
 		complete: s,
 		stop: () => {
@@ -2837,7 +2834,7 @@ function Ec(e) {
 		}
 	};
 }
-function Dc(e, t) {
+function Ec(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -2845,7 +2842,7 @@ function Dc(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function Oc(e) {
+function Dc(e) {
 	return document.readyState === "complete" || e.aborted ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			window.removeEventListener("load", n), e.removeEventListener("abort", n), t();
@@ -2853,20 +2850,20 @@ function Oc(e) {
 		window.addEventListener("load", n, { once: !0 }), e.addEventListener("abort", n, { once: !0 });
 	});
 }
-async function kc(e, t) {
-	t.aborted || (document.documentElement.classList.add(w), e.classList.add("is-fading"), await Dc(u() ? 0 : xc, t), !t.aborted && (e.classList.add("is-curtain"), await Dc(u() ? 0 : Sc, t)));
+async function Oc(e, t) {
+	t.aborted || (document.documentElement.classList.add(w), e.classList.add("is-fading"), await Ec(u() ? 0 : bc, t), !t.aborted && (e.classList.add("is-curtain"), await Ec(u() ? 0 : xc, t)));
 }
-function Ac() {
+function kc() {
 	var e, t;
 	let n = window.__sitePreloader;
-	if (!(n != null && n.active) || vc.has(n)) return;
-	vc.add(n);
+	if (!(n != null && n.active) || _c.has(n)) return;
+	_c.add(n);
 	let r = document.querySelector(C);
 	if (!r) {
 		n.release();
 		return;
 	}
-	let i = new AbortController(), a = Ec(r);
+	let i = new AbortController(), a = Tc(r);
 	(e = n.allowExit) == null || e.call(n), ((t = n.introReady) == null ? Promise.resolve() : t).then(() => {
 		n.active && a.start();
 	}), n.cleanup.push(() => {
@@ -2875,11 +2872,11 @@ function Ac() {
 		e.length && b.killTweensOf(e);
 	});
 	let o = async () => {
-		if (await gc(i.signal), !n.active) return;
-		let e = hc(), t = e.filter((e) => e.priority === "critical");
+		if (await hc(i.signal), !n.active) return;
+		let e = mc(), t = e.filter((e) => e.priority === "critical");
 		await Promise.all(t.map(async (e) => {
-			await cc(Promise.resolve().then(() => e.load(i.signal)), i.signal);
-		})), n.active && (await wc(i.signal), n.active && (await n.introReady, n.active && (await Promise.all([a.complete, Oc(i.signal)]), n.active && (await Dc(u() ? 0 : Math.max(0, T - (Date.now() - n.startedAt)), i.signal), n.active && (await Dc(u() ? 0 : bc, i.signal), n.active && (await kc(r, i.signal), n.active && (n.release(), _c(e))))))));
+			await sc(Promise.resolve().then(() => e.load(i.signal)), i.signal);
+		})), n.active && (await Cc(i.signal), n.active && (await n.introReady, n.active && (await Promise.all([a.complete, Dc(i.signal)]), n.active && (await Ec(u() ? 0 : Math.max(0, T - (Date.now() - n.startedAt)), i.signal), n.active && (await Ec(u() ? 0 : yc, i.signal), n.active && (await Oc(r, i.signal), n.active && (n.release(), gc(e))))))));
 	}, s = () => {
 		o().catch(n.release);
 	};
@@ -2887,70 +2884,28 @@ function Ac() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var jc = !1, Mc = !1;
-function Nc() {
-	if (Mc || u()) return;
-	Mc = !0;
+var Ac = !1, jc = !1;
+function Mc() {
+	if (jc || u()) return;
+	jc = !0;
 	let e, t = () => {
 		let t = window.lenis;
-		if (jc || !window.__siteLenisManaged || !t) return;
-		jc = !0, b.registerPlugin($), t.on("scroll", $.update);
+		if (Ac || !window.__siteLenisManaged || !t) return;
+		Ac = !0, b.registerPlugin($), t.on("scroll", $.update);
 		let n = (e) => t.raf(e * 1e3);
 		b.ticker.add(n), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), $.refresh(), e = () => {
-			b.ticker.remove(n), t.off("scroll", $.update), jc = !1, window.__siteLenisTickerConnected = !1, e = void 0;
+			b.ticker.remove(n), t.off("scroll", $.update), Ac = !1, window.__siteLenisTickerConnected = !1, e = void 0;
 		};
 	};
 	window.addEventListener("pagehide", () => e == null ? void 0 : e()), window.addEventListener("pageshow", (e) => {
 		var n;
 		e.persisted && (t(), (n = window.lenis) == null || n.resize());
-	}), t(), jc || window.addEventListener("site:lenis-ready", t, { once: !0 });
-}
-//#endregion
-//#region src/modules/home-image-wipe.ts
-var Pc = ".about_section .about_img, [data-wm-home] .map_info", Fc = "data-home-image-wipe", Ic = 1300;
-function Lc() {
-	var e;
-	if (!document.querySelector(".werk_hero_section") || !document.querySelector(".about_section") || u()) return;
-	let t = getComputedStyle(document.documentElement).getPropertyValue("--eo").trim() || "cubic-bezier(.05, .85, .05, 1)", n = /* @__PURE__ */ new Set(), r = !((e = window.__sitePreloader) != null && e.active), i = new IntersectionObserver((e) => {
-		e.forEach((e) => {
-			if (!r || !e.isIntersecting) return;
-			let a = e.target;
-			i.unobserve(a);
-			let o = () => {
-				if (!a.isConnected || !a.hasAttribute(Fc)) return;
-				if (!a.animate) {
-					a.removeAttribute(Fc);
-					return;
-				}
-				let e = a.animate([{ clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0 0 0 0)" }], {
-					duration: Ic,
-					easing: t,
-					fill: "forwards"
-				});
-				n.add(e), e.onfinish = () => {
-					a.removeAttribute(Fc), e.cancel(), n.delete(e);
-				};
-			}, s = a instanceof HTMLImageElement ? a : a.querySelector("img");
-			s && !s.complete ? (s.addEventListener("load", o, { once: !0 }), s.addEventListener("error", o, { once: !0 })) : o();
-		});
-	}, {
-		rootMargin: "0px 0px -10% 0px",
-		threshold: 0
-	});
-	document.querySelectorAll(Pc).forEach((e) => {
-		e.setAttribute(Fc, ""), i.observe(e);
-	}), S(() => {
-		r = !0, document.querySelectorAll(`[${Fc}]`).forEach((e) => {
-			i.unobserve(e), i.observe(e);
-		});
-	}), window.addEventListener("pagehide", () => {
-		i.disconnect(), n.forEach((e) => e.cancel()), document.querySelectorAll(`[${Fc}]`).forEach((e) => e.removeAttribute(Fc));
-	}, { once: !0 });
+	}), t(), Ac || window.addEventListener("site:lenis-ready", t, { once: !0 });
 }
 //#endregion
 //#region src/modules/site-image-reveal.ts
-var Rc = "data-site-image-reveal", zc = "is-site-image-in", Bc = ".news_event img.intro_img, .news_highlight_section img.intro_img", Vc = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Hc = ".bio_hero_section > img.bio_hero_img", Uc = !1;
-function Wc(e) {
+var Nc = "data-site-image-reveal", Pc = "is-site-image-in", Fc = ".news_event img.intro_img, .news_highlight_section img.intro_img", Ic = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Lc = ".bio_hero_section > img.bio_hero_img", Rc = !1;
+function zc(e) {
 	let t = document.documentElement, n = () => t.classList.contains("is-site-preloading") || t.classList.contains("is-site-preloader-exiting") ? !0 : (t.classList.contains("is-page-transition-pending") || t.classList.contains("is-page-transition-entering")) && !document.querySelector(".page-transition-overlay.is-uncovering");
 	if (!n()) {
 		requestAnimationFrame(e);
@@ -2965,17 +2920,17 @@ function Wc(e) {
 		subtree: !0
 	}), window.addEventListener("pagehide", () => r.disconnect(), { once: !0 });
 }
-function Gc() {
-	if (Uc || u() || !("IntersectionObserver" in window)) return;
-	Uc = !0;
+function Bc() {
+	if (Rc || u() || !("IntersectionObserver" in window)) return;
+	Rc = !0;
 	let e = /* @__PURE__ */ new WeakMap(), t = /* @__PURE__ */ new WeakSet(), n = 0, r = (n) => {
 		let r = e.get(n);
-		if (!r || n.classList.contains(zc) || t.has(n)) return;
+		if (!r || n.classList.contains(Pc) || t.has(n)) return;
 		t.add(n);
 		let a = () => {
-			t.delete(n), n.isConnected && (n.classList.add(zc), i.unobserve(n));
+			t.delete(n), n.isConnected && (n.classList.add(Pc), i.unobserve(n));
 		}, o = () => {
-			n.getAttribute(Rc) === "hero" ? Wc(() => window.setTimeout(a, 200)) : a();
+			n.getAttribute(Nc) === "hero" ? zc(() => window.setTimeout(a, 200)) : a();
 		};
 		r.complete ? r.naturalWidth && r.decode ? r.decode().then(o, o) : o() : (r.addEventListener("load", () => {
 			r.decode ? r.decode().then(o, o) : o();
@@ -2985,17 +2940,17 @@ function Gc() {
 			e.isIntersecting && r(e.target);
 		});
 	}, { threshold: 0 }), a = (t, n, r) => {
-		t.hasAttribute(Rc) || (t.setAttribute(Rc, r), e.set(t, n), r === "hero" && (n.loading = "eager", n.setAttribute("fetchpriority", "high")), i.observe(t));
+		t.hasAttribute(Nc) || (t.setAttribute(Nc, r), e.set(t, n), r === "hero" && (n.loading = "eager", n.setAttribute("fetchpriority", "high")), i.observe(t));
 	}, o = () => {
 		if (n = 0, /^\/biografie\/?$/i.test(window.location.pathname)) {
-			let e = document.querySelector(Hc);
-			e && a(e, e, "hero"), document.querySelectorAll(Vc).forEach((e) => {
+			let e = document.querySelector(Lc);
+			e && a(e, e, "hero"), document.querySelectorAll(Ic).forEach((e) => {
 				var t;
 				let n = (t = e.closest(".site-lightbox-trigger, .bio_video_trigger")) == null ? e : t;
 				a(n, e, "bio");
 			});
 		}
-		/^\/atelier\/?$/i.test(window.location.pathname) || document.querySelectorAll(Bc).forEach((e) => {
+		/^\/atelier\/?$/i.test(window.location.pathname) || document.querySelectorAll(Fc).forEach((e) => {
 			a(e, e, "event");
 		});
 	};
@@ -3011,103 +2966,13 @@ function Gc() {
 	}, { once: !0 });
 }
 //#endregion
-//#region src/modules/home-heading-reveal.ts
-var Kc = "h1, h2, h3, h4, h5, h6", qc = [
-	"[data-reveal=\"off\"]",
-	"[hidden]",
-	"[role=\"dialog\"]",
-	".fwm-modal",
-	"[data-modal]",
-	"[data-site-modal]",
-	"[data-modal-content]",
-	".site-lightbox",
-	"[data-site-lightbox]",
-	".site-preloader",
-	".page-transition-overlay",
-	"[data-site-menu]",
-	".top_bar_section"
-].join(", "), Jc = "data-home-heading-pending", Yc = !1;
-function Xc() {
-	let e = document.documentElement;
-	return e.classList.contains("is-page-transition-entering") ? new Promise((t) => {
-		let n = new MutationObserver(() => {
-			e.classList.contains("is-page-transition-entering") || (n.disconnect(), t());
-		});
-		n.observe(e, {
-			attributes: !0,
-			attributeFilter: ["class"]
-		});
-	}) : Promise.resolve();
-}
-function Zc() {
-	var e, t, n;
-	if (Yc || window.location.pathname !== "/" || u()) return;
-	let r = o(Kc).filter((e) => {
-		var t;
-		return ((t = e.textContent) == null ? void 0 : t.trim()) && !e.closest(qc) && !e.querySelector("a, button, input, select, textarea") && e.getClientRects().length > 0;
-	});
-	if (!r.length) return;
-	Yc = !0, r.forEach((e) => e.setAttribute(Jc, ""));
-	let i = [], a = (e = (t = document.fonts) == null ? void 0 : t.ready) == null ? Promise.resolve() : e;
-	Promise.all([
-		import("./site-interactions-CacQO3xR.js"),
-		a,
-		(n = window.__sitePreloader) == null ? void 0 : n.ready,
-		Xc()
-	]).then(([{ SplitText: e }]) => {
-		b.registerPlugin($, e), r.forEach((t) => {
-			if (!t.isConnected || t.getClientRects().length === 0) {
-				t.removeAttribute(Jc);
-				return;
-			}
-			let n = !1, r, a;
-			try {
-				let o = e.create(t, {
-					type: "lines",
-					mask: "lines",
-					linesClass: "home-heading-line",
-					autoSplit: !0,
-					onSplit(e) {
-						a == null || a.kill(), r == null || r.kill(), !(n || !e.lines.length) && (b.set(e.lines, {
-							yPercent: 105,
-							opacity: 0
-						}), r = b.to(e.lines, {
-							yPercent: 0,
-							opacity: 1,
-							duration: 1.15,
-							stagger: .12,
-							ease: "power4.out",
-							paused: !0,
-							onComplete: () => b.set(e.lines, { clearProps: "transform,opacity" })
-						}), a = $.create({
-							trigger: t,
-							start: "top 88%",
-							once: !0,
-							animation: r,
-							onEnter: () => {
-								n = !0;
-							}
-						}));
-					}
-				});
-				i.push(() => {
-					a == null || a.kill(), r == null || r.kill(), o.revert();
-				});
-			} catch (e) {}
-			t.removeAttribute(Jc);
-		}), $.refresh();
-	}).catch(() => r.forEach((e) => e.removeAttribute(Jc))), window.addEventListener("pagehide", () => {
-		i.forEach((e) => e()), r.forEach((e) => e.removeAttribute(Jc));
-	}, { once: !0 });
-}
-//#endregion
 //#region src/modules/masked-line-reveal.ts
-var Qc = "[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading", $c = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub", el = "data-masked-reveal-ready", tl = "data-masked-reveal-complete", nl = /* @__PURE__ */ new Map(), rl = /* @__PURE__ */ new Set(), il, al = !1, ol = window.location.pathname;
-function sl(e) {
+var Vc = "[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading", Hc = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub", Uc = "data-masked-reveal-ready", Wc = "data-masked-reveal-complete", Gc = /* @__PURE__ */ new Map(), Kc = /* @__PURE__ */ new Set(), qc, Jc = !1, Yc = window.location.pathname;
+function Xc(e) {
 	let t = getComputedStyle(e).getPropertyValue("--masked-reveal-stagger").trim() || "50ms", n = Number.parseFloat(t);
 	return Number.isFinite(n) ? t.endsWith("s") && !t.endsWith("ms") ? n * 1e3 : n : 50;
 }
-async function cl(e) {
+async function Zc(e) {
 	let t = document.documentElement, n = /^\/atelier\/?$/i.test(window.location.pathname) && !!e.closest(".atelier_hero_section") || /^\/biografie\/?$/i.test(window.location.pathname) && !!e.closest(".bio_hero_section");
 	if (t.classList.contains("is-page-transition-entering") && !(n && document.querySelector(".page-transition-overlay.is-uncovering")) && await new Promise((e) => {
 		let r = new MutationObserver(() => {
@@ -3125,46 +2990,46 @@ async function cl(e) {
 		});
 	}
 }
-function ll(e) {
+function Qc(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"), /^\/atelier\/?$/i.test(window.location.pathname) && e.element.matches(".atelier_hero_section .atelier_slide_heading") && document.dispatchEvent(new Event("atelier:hero-line-reveal")));
 }
-function ul(e, t = !1) {
+function $c(e, t = !1) {
 	let { element: n, text: r, markup: i } = e;
-	if (!n.isConnected || !il) return;
+	if (!n.isConnected || !qc) return;
 	let a = e.played && !t;
-	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(tl), n.innerHTML = i;
+	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Wc), n.innerHTML = i;
 	try {
-		let t = il.create(n, { type: "lines" }), i = t.lines.filter((e) => {
+		let t = qc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
 			var t;
 			return (t = e.textContent) == null ? void 0 : t.trim();
 		}).map((e) => Array.from(e.childNodes, (e) => e.cloneNode(!0)));
 		if (t.revert(), !i.length) throw Error("No text lines found");
-		let s = document.createDocumentFragment(), c = sl(n);
+		let s = document.createDocumentFragment(), c = Xc(n);
 		if (i.forEach((e, t) => {
 			t && s.append(document.createTextNode(" "));
 			let n = document.createElement("span");
 			n.className = "masked-reveal-line", n.setAttribute("aria-hidden", "true");
 			let r = document.createElement("span");
 			r.className = "masked-reveal-line__text", r.style.setProperty("--masked-reveal-line-delay", `${t * c}ms`), r.append(...e), n.append(r), s.append(n);
-		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(el, ""), e.width = n.getBoundingClientRect().width, a) {
-			e.played = !0, n.setAttribute(tl, "");
+		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Uc, ""), e.width = n.getBoundingClientRect().width, a) {
+			e.played = !0, n.setAttribute(Wc, "");
 			return;
 		}
 		if (e.played = !1, n.getAttribute("data-masked-line-reveal") === "viewport" && "IntersectionObserver" in window) {
 			var o;
 			(o = e.intersectionObserver) == null || o.disconnect(), e.intersectionObserver = new IntersectionObserver((t, n) => {
-				t.some((e) => e.isIntersecting) && (n.disconnect(), ll(e));
+				t.some((e) => e.isIntersecting) && (n.disconnect(), Qc(e));
 			}, { threshold: .1 }), e.intersectionObserver.observe(n);
-		} else ll(e);
+		} else Qc(e);
 	} catch (e) {
-		n.innerHTML = i, n.removeAttribute(el), n.setAttribute(tl, "");
+		n.innerHTML = i, n.removeAttribute(Uc), n.setAttribute(Wc, "");
 	}
 }
-function dl(e) {
+function el(e) {
 	var t, n, r, i;
-	if (nl.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
+	if (Gc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
 	if (e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
-		e.setAttribute(tl, "");
+		e.setAttribute(Wc, "");
 		return;
 	}
 	let a = {
@@ -3174,75 +3039,75 @@ function dl(e) {
 		width: 0,
 		played: !1,
 		resizeObserver: new ResizeObserver(() => {
-			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || ul(a);
+			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || $c(a);
 		})
 	};
-	nl.set(e, a), a.resizeObserver.observe(e), Promise.all([
+	Gc.set(e, a), a.resizeObserver.observe(e), Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
 		(r = document.fonts) == null ? void 0 : r.ready,
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
-		cl(e)
+		Zc(e)
 	]).then(([{ SplitText: t }]) => {
-		b.registerPlugin(t), il = t, e.isConnected && ul(a);
+		b.registerPlugin(t), qc = t, e.isConnected && $c(a);
 	}).catch(() => {
-		e.setAttribute(tl, "");
+		e.setAttribute(Wc, "");
 	});
 }
-function fl(e) {
+function tl(e) {
 	var t, n, r;
-	rl.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (rl.add(e), Promise.all([
+	Kc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Kc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
 		(r = window.__sitePreloader) == null ? void 0 : r.ready,
-		cl(e)
+		Zc(e)
 	]).then(() => {
 		e.isConnected && e.classList.add("is-masked-reveal-playing");
 	}).catch(() => {
-		e.setAttribute(tl, "");
+		e.setAttribute(Wc, "");
 	}));
 }
-function pl() {
-	nl.forEach((e) => {
-		ul(e, !0);
-	}), rl.forEach((e) => {
+function nl() {
+	Gc.forEach((e) => {
+		$c(e, !0);
+	}), Kc.forEach((e) => {
 		e.classList.remove("is-masked-reveal-playing"), requestAnimationFrame(() => e.classList.add("is-masked-reveal-playing"));
 	});
 }
-function ml() {
-	let e = ol !== window.location.pathname;
-	ol = window.location.pathname, document.querySelectorAll(Qc).forEach(dl), document.querySelectorAll($c).forEach(fl), nl.forEach((e, t) => {
+function rl() {
+	let e = Yc !== window.location.pathname;
+	Yc = window.location.pathname, document.querySelectorAll(Vc).forEach(el), document.querySelectorAll(Hc).forEach(tl), Gc.forEach((e, t) => {
 		var n;
-		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), nl.delete(t));
-	}), rl.forEach((e) => {
-		e.isConnected || rl.delete(e);
-	}), e && pl();
+		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Gc.delete(t));
+	}), Kc.forEach((e) => {
+		e.isConnected || Kc.delete(e);
+	}), e && nl();
 }
-function hl() {
+function il() {
 	var e;
-	al || u() || (al = !0, ml(), new MutationObserver(ml).observe(document.documentElement, {
+	Jc || u() || (Jc = !0, rl(), new MutationObserver(rl).observe(document.documentElement, {
 		childList: !0,
 		subtree: !0
 	}), (e = document.fonts) == null || e.addEventListener("loadingdone", () => {
-		nl.forEach((e) => {
-			ul(e);
+		Gc.forEach((e) => {
+			$c(e);
 		});
-	}), window.addEventListener("popstate", ml), window.addEventListener("pageshow", (e) => {
-		e.persisted && (pl(), ml());
+	}), window.addEventListener("popstate", rl), window.addEventListener("pageshow", (e) => {
+		e.persisted && (nl(), rl());
 	}), document.addEventListener("animationend", (e) => {
 		let t = e.target;
 		if (!(t instanceof HTMLElement) || !t.classList.contains("masked-reveal-line__text")) return;
-		let n = t.closest(Qc);
-		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(tl, ""));
+		let n = t.closest(Vc);
+		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Wc, ""));
 	}));
 }
 //#endregion
 //#region src/main.ts
-var gl = !1;
-Ac(), Ms(), Mr(), Zc(), hl(), Nc();
-function _l() {
-	if (gl) return;
-	gl = !0;
+var al = !1;
+kc(), js(), Mr(), il(), Mc();
+function ol() {
+	if (al) return;
+	al = !0;
 	let e = ee();
-	Ma({ i18n: e }), wi({ i18n: e }), Xs(), os(), ie(), _(), E(), ec(), nc(), Gc(), Lc(), window.SiteInteractions = {
+	Ma({ i18n: e }), wi({ i18n: e }), Ys(), os(), ie(), _(), E(), $s(), tc(), Bc(), window.SiteInteractions = {
 		openModal: Oa,
 		openContentModal: Da,
 		closeModal: ka,
@@ -3250,7 +3115,7 @@ function _l() {
 		closeLightbox: xi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", _l, { once: !0 }) : _l();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ol, { once: !0 }) : ol();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

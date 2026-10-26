@@ -6,7 +6,6 @@ import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 const TIME = { titleStart: 240, navigate: 720, hold: 416, uncoverStart: 776, reset: 1976, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
-const HOME_INTRO = { fade: 1200, easing: 'ease-in-out' };
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
@@ -178,7 +177,7 @@ function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleTe
 }
 
 function restorePreloaderIntro(): void {
-  if (!window.__sitePreloader?.active || prefersReducedMotion()) return;
+  if (!window.__sitePreloader?.active || prefersReducedMotion() || window.location.pathname === '/') return;
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
@@ -188,8 +187,6 @@ function restorePreloaderIntro(): void {
   [...groups.flat(), ...menus].forEach((element) => { element.style.opacity = '0'; });
 
   afterSitePreloader(() => {
-    const isHome = window.location.pathname === '/';
-    const fadeDuration = isHome ? HOME_INTRO.fade : INTRO.fade;
     const animate = (element: HTMLElement, keyframes: Keyframe[], delay: number, duration: number,
       easing = 'cubic-bezier(.05, .85, .05, 1)'): void => {
       if (!element.animate) { element.style.removeProperty('opacity'); return; }
@@ -203,12 +200,11 @@ function restorePreloaderIntro(): void {
     };
     groups.forEach((elements, index) => {
       elements.forEach((element) => animate(element, [{ opacity: 0 }, { opacity: 1 }],
-        INTRO.delay + index * INTRO.stagger, fadeDuration,
-        isHome ? HOME_INTRO.easing : undefined));
+        INTRO.delay + index * INTRO.stagger, INTRO.fade));
     });
     const lastGroup = groups.reduce((last, elements, index) => elements.length ? index : last, -1);
     const menuDelay = lastGroup < 0 ? 0
-      : INTRO.delay + lastGroup * INTRO.stagger + fadeDuration + INTRO.menuGap;
+      : INTRO.delay + lastGroup * INTRO.stagger + INTRO.fade + INTRO.menuGap;
     menus.forEach((menu) => {
       const distance = Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8;
       animate(menu, [
