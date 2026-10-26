@@ -48,7 +48,9 @@
     }
 
     function finish() {
-      if (target.hasAttribute(HERO)) afterPageEntrance(complete);
+      if (target.hasAttribute(HERO)) afterPageEntrance(function () {
+        window.setTimeout(complete, 200);
+      });
       else complete();
     }
 

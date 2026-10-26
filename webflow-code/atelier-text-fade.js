@@ -9,24 +9,6 @@
   var mutations = null;
   var scheduled = false;
 
-  function revealHeaderWithHero() {
-    var header = document.querySelector('.top_bar_section.Atelier');
-    var heading = document.querySelector('.atelier_hero_section .atelier_slide_heading');
-    if (!header || !heading || header.classList.contains('is-atelier-header-in')) return;
-    if (reduced.matches || heading.classList.contains('is-masked-reveal-playing') ||
-        heading.hasAttribute('data-masked-reveal-complete')) {
-      header.classList.add('is-atelier-header-in');
-      return;
-    }
-    var lineReveal = new MutationObserver(function () {
-      if (!heading.classList.contains('is-masked-reveal-playing') &&
-          !heading.hasAttribute('data-masked-reveal-complete')) return;
-      lineReveal.disconnect();
-      header.classList.add('is-atelier-header-in');
-    });
-    lineReveal.observe(heading, { attributes: true, attributeFilter: ['class', 'data-masked-reveal-complete'] });
-  }
-
   function afterPageEntrance(callback) {
     var root = document.documentElement;
     function isCovered() {
@@ -44,6 +26,17 @@
       start();
     });
     transitionObserver.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+  }
+
+  function revealHeaderWithHero() {
+    var header = document.querySelector('.top_bar_section:not(.work-overlay__header)');
+    if (!header || header.classList.contains('is-atelier-header-in')) return;
+    if (reduced.matches) { header.classList.add('is-atelier-header-in'); return; }
+    afterPageEntrance(function () {
+      window.setTimeout(function () {
+        if (header.isConnected) header.classList.add('is-atelier-header-in');
+      }, 200);
+    });
   }
 
   function enter(group) {

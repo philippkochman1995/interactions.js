@@ -30,20 +30,26 @@ function staggerMs(element: HTMLElement): number {
   return value.endsWith('s') && !value.endsWith('ms') ? amount * 1000 : amount;
 }
 
-function waitForPageTransition(): Promise<void> {
+async function waitForPageTransition(element: HTMLElement): Promise<void> {
   const root = document.documentElement;
-  if (!root.classList.contains('is-page-transition-entering')) return Promise.resolve();
-  const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
-  if (atelier && document.querySelector('.page-transition-overlay.is-uncovering')) return Promise.resolve();
-  return new Promise((resolve) => {
-    const observer = new MutationObserver(() => {
-      if (root.classList.contains('is-page-transition-entering') &&
-        (!atelier || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
-      observer.disconnect();
-      resolve();
+  const atelierHero = /^\/atelier\/?$/i.test(window.location.pathname) &&
+    Boolean(element.closest('.atelier_hero_section'));
+  if (root.classList.contains('is-page-transition-entering') &&
+    !(atelierHero && document.querySelector('.page-transition-overlay.is-uncovering'))) {
+    await new Promise<void>((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (root.classList.contains('is-page-transition-entering') &&
+          (!atelierHero || !document.querySelector('.page-transition-overlay.is-uncovering'))) return;
+        observer.disconnect();
+        resolve();
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: atelierHero });
     });
-    observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: atelier });
-  });
+  }
+  if (atelierHero) {
+    await window.__sitePreloader?.ready;
+    await new Promise<void>((resolve) => { window.setTimeout(resolve, 200); });
+  }
 }
 
 function play(state: HeadingState): void {
@@ -132,7 +138,7 @@ function addHeading(element: HTMLElement): void {
   headings.set(element, state);
   state.resizeObserver.observe(element);
   void Promise.all([import('gsap/SplitText'), document.fonts?.ready, window.__sitePreloader?.ready,
-    waitForPageTransition()])
+    waitForPageTransition(element)])
     .then(([{ SplitText }]) => {
       gsap.registerPlugin(SplitText);
       SplitTextClass = SplitText;
@@ -146,7 +152,7 @@ function addLabel(element: HTMLElement): void {
     (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
   labels.add(element);
-  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition()])
+  void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition(element)])
     .then(() => {
       if (!element.isConnected) return;
       element.classList.add('is-masked-reveal-playing');

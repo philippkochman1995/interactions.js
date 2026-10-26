@@ -3008,20 +3008,23 @@ function Gc(e) {
 	let t = getComputedStyle(e).getPropertyValue("--masked-reveal-stagger").trim() || "50ms", n = Number.parseFloat(t);
 	return Number.isFinite(n) ? t.endsWith("s") && !t.endsWith("ms") ? n * 1e3 : n : 50;
 }
-function Kc() {
-	let e = document.documentElement;
-	if (!e.classList.contains("is-page-transition-entering")) return Promise.resolve();
-	let t = /^\/atelier\/?$/i.test(window.location.pathname);
-	return t && document.querySelector(".page-transition-overlay.is-uncovering") ? Promise.resolve() : new Promise((n) => {
+async function Kc(e) {
+	let t = document.documentElement, n = /^\/atelier\/?$/i.test(window.location.pathname) && !!e.closest(".atelier_hero_section");
+	if (t.classList.contains("is-page-transition-entering") && !(n && document.querySelector(".page-transition-overlay.is-uncovering")) && await new Promise((e) => {
 		let r = new MutationObserver(() => {
-			e.classList.contains("is-page-transition-entering") && (!t || !document.querySelector(".page-transition-overlay.is-uncovering")) || (r.disconnect(), n());
+			t.classList.contains("is-page-transition-entering") && (!n || !document.querySelector(".page-transition-overlay.is-uncovering")) || (r.disconnect(), e());
 		});
-		r.observe(e, {
+		r.observe(t, {
 			attributes: !0,
 			attributeFilter: ["class"],
-			subtree: t
+			subtree: n
 		});
-	});
+	}), n) {
+		var r;
+		await ((r = window.__sitePreloader) == null ? void 0 : r.ready), await new Promise((e) => {
+			window.setTimeout(e, 200);
+		});
+	}
 }
 function qc(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"));
@@ -3079,7 +3082,7 @@ function Yc(e) {
 		import("./site-interactions-CacQO3xR.js"),
 		(r = document.fonts) == null ? void 0 : r.ready,
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
-		Kc()
+		Kc(e)
 	]).then(([{ SplitText: t }]) => {
 		b.registerPlugin(t), Hc = t, e.isConnected && Jc(a);
 	}).catch(() => {
@@ -3091,7 +3094,7 @@ function Xc(e) {
 	Vc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Vc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
 		(r = window.__sitePreloader) == null ? void 0 : r.ready,
-		Kc()
+		Kc(e)
 	]).then(() => {
 		e.isConnected && e.classList.add("is-masked-reveal-playing");
 	}).catch(() => {

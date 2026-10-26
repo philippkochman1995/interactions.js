@@ -13,16 +13,18 @@
   transition-delay: calc(var(--fade-index, 0) * var(--fade-stagger, 55ms));
 }
 
-/* The top bar enters when the existing hero line reveal starts. */
-.top_bar_section.Atelier .top_bar_left_layout,
-.top_bar_section.Atelier .top_bar_center {
-  transform: translateY(-110vh);
-  transition: transform 1s cubic-bezier(.33, 1, .68, 1);
+/* This stylesheet is loaded only on Atelier. Translate keeps Webflow's transforms intact. */
+.top_bar_section:not(.work-overlay__header) .top_bar_left_layout,
+.top_bar_section:not(.work-overlay__header) .top_bar_center,
+.top_bar_section:not(.work-overlay__header) .top_bar_right {
+  translate: 0 -110dvh;
+  transition: translate 1s cubic-bezier(.33, 1, .68, 1);
 }
 
-.top_bar_section.Atelier.is-atelier-header-in .top_bar_left_layout,
-.top_bar_section.Atelier.is-atelier-header-in .top_bar_center {
-  transform: none;
+.top_bar_section.is-atelier-header-in .top_bar_left_layout,
+.top_bar_section.is-atelier-header-in .top_bar_center,
+.top_bar_section.is-atelier-header-in .top_bar_right {
+  translate: 0 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -33,9 +35,10 @@
     visibility: visible !important;
   }
 
-  .top_bar_section.Atelier .top_bar_left_layout,
-  .top_bar_section.Atelier .top_bar_center {
-    transform: none !important;
+  .top_bar_section .top_bar_left_layout,
+  .top_bar_section .top_bar_center,
+  .top_bar_section .top_bar_right {
+    translate: 0 0 !important;
     transition: none !important;
   }
 }
