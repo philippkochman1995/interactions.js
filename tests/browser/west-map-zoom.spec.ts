@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('map opens over Europe, becomes a globe when zoomed out, and does not rotate', async ({ page }) => {
+test('map opens over Europe and wraps horizontally while latitude stays below the poles', async ({ page }) => {
   await page.goto('/tests/fixtures/west-map-zoom.html');
   await page.waitForFunction(() => Boolean((window as any).westMapTest));
 
@@ -15,6 +15,10 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
       fog: map.fog,
       dragRotate: map.options.dragRotate,
       dragPan: map.options.dragPan,
+      maxBounds: map.options.maxBounds,
+      latitude: [map.transform.minLat, map.transform.maxLat],
+      latitudeConstrained: map.latitudeConstrained,
+      zoomRates: [map.trackpadZoomRate, map.wheelZoomRate],
       touchRotationDisabled: map.touchRotationDisabled,
       animated: Boolean(map.lastEase)
     };
@@ -30,7 +34,11 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
       'star-intensity': 0
     },
     dragRotate: false,
-    dragPan: { linearity: 0.22, maxSpeed: 1000, deceleration: 2200 },
+    dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1700 },
+    maxBounds: undefined,
+    latitude: [-80, 80],
+    latitudeConstrained: true,
+    zoomRates: [1 / 140, 1 / 650],
     touchRotationDisabled: true,
     animated: false
   });
@@ -104,8 +112,26 @@ test('zoom buttons take two levels near Europe and stop at the overview before c
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls.at(-1))).toBe(4);
   await page.getByRole('button', { name: 'Reinzoomen' }).click();
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls.at(-1))).toBe(6);
+  expect(await page.evaluate(() => (window as any).westMapTest.lastZoomOptions.duration)).toBe(0);
 
   expect(await page.evaluate(() => (window as any).westMapTest.lastBounds)).toEqual([[-12, 34], [36, 72]]);
+});
+
+test('large cluster zoom flies continuously without a white jump', async ({ page }) => {
+  await page.goto('/tests/fixtures/west-map-zoom.html?motion=full');
+  await page.waitForFunction(() => Boolean((window as any).westMapTest));
+  await page.evaluate(() => {
+    const map = (window as any).westMapTest;
+    map.zoom = 17;
+    map.fire('load');
+    map.fire('render');
+  });
+
+  await page.locator('.wm-cluster').click();
+  expect(await page.evaluate(() => {
+    const map = (window as any).westMapTest;
+    return { zoom: map.lastFly?.zoom, duration: map.lastFly?.duration, fade: !!document.querySelector('.wm-map-fade') };
+  })).toEqual({ zoom: 8.2, duration: 1300, fade: false });
 });
 
 test('the Europe boundary follows the mobile viewport and zoom stays within map limits', async ({ page }) => {
