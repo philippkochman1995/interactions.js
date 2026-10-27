@@ -24,40 +24,55 @@ function primePageTransition(): void {
   }, 6000);
 }
 
+function afterPageUncovered(callback: () => void): void {
+  const root = document.documentElement;
+  const covered = (): boolean => {
+    if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
+    const transitioning = root.classList.contains('is-page-transition-pending') ||
+      root.classList.contains('is-page-transition-entering');
+    return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
+  };
+  if (!covered()) { callback(); return; }
+  const observer = new MutationObserver(() => {
+    if (covered()) return;
+    observer.disconnect();
+    callback();
+  });
+  observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+  window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+}
+
 function primePageHero(): void {
   const biography = /^\/biografie\/?$/i.test(window.location.pathname);
   const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
-  if (!biography && !atelier) return;
+  const edition = /^\/editionen\/?$/i.test(window.location.pathname);
+  if (!biography && !atelier && !edition) return;
   const selector = biography
     ? '.bio_hero_section > img.bio_hero_img'
-    : '.atelier_hero_section > img.atelier_hero_img';
-  const revealClass = biography ? 'is-site-image-in' : 'in';
+    : atelier ? '.atelier_hero_section > img.atelier_hero_img'
+      : '.editionen_item:first-child .editionen_slide.is-active img.editionen_img';
+  const revealClass = atelier ? 'in' : 'is-site-image-in';
   const root = document.documentElement;
   const attach = (image: HTMLImageElement): void => {
+    const target = edition ? image.closest<HTMLElement>('.editionen_track') : image;
+    if (!target) return;
+    if (edition) {
+      target.setAttribute('data-site-image-reveal', 'edition');
+      const width = Math.ceil(target.getBoundingClientRect().width);
+      if (width) image.sizes = `${width}px`;
+    }
     image.loading = 'eager';
     image.setAttribute('fetchpriority', 'high');
     const reveal = (): void => {
-      const covered = (): boolean => {
-        if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
-        const transitioning = root.classList.contains('is-page-transition-pending') ||
-          root.classList.contains('is-page-transition-entering');
-        return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
-      };
       const start = (): void => {
         // Let the 107.5% start scale paint once, including on a fast direct load.
         void getComputedStyle(image).transform;
+        if (edition) void getComputedStyle(target).opacity;
         window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => image.classList.add(revealClass));
+          window.requestAnimationFrame(() => target.classList.add(revealClass));
         });
       };
-      if (!covered()) { start(); return; }
-      const observer = new MutationObserver(() => {
-        if (covered()) return;
-        observer.disconnect();
-        start();
-      });
-      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
-      window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+      afterPageUncovered(start);
     };
     if (image.complete && image.naturalWidth) reveal();
     else image.addEventListener('load', reveal, { once: true });
@@ -73,8 +88,28 @@ function primePageHero(): void {
   observer.observe(root, { childList: true, subtree: true });
 }
 
+function primeEditionIntro(): void {
+  if (!/^\/editionen\/?$/i.test(window.location.pathname)) return;
+  const root = document.documentElement;
+  const start = (): void => {
+    afterPageUncovered(() => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => root.classList.add('is-edition-intro-in'));
+      });
+    });
+  };
+  if (document.querySelector('.editionen_intro')) { start(); return; }
+  const observer = new MutationObserver(() => {
+    if (!document.querySelector('.editionen_intro')) return;
+    observer.disconnect();
+    start();
+  });
+  observer.observe(root, { childList: true, subtree: true });
+}
+
 primePageTransition();
 optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();
 primePageHero();
+primeEditionIntro();

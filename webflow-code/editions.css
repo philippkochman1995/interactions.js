@@ -15,6 +15,61 @@
     object-fit: cover;
   }
 
+  /* All entry elements begin hidden before the deferred interactions bundle runs. */
+  html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center {
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+
+  html.w-mod-js.is-edition-intro-in .top_bar_section:not(.work-overlay__header) .top_bar_center {
+    opacity: 1;
+  }
+
+  html.w-mod-js .editionen_intro_label,
+  html.w-mod-js .editionen_intro_note {
+    opacity: 0;
+    transition: opacity 400ms cubic-bezier(.33, 1, .68, 1);
+  }
+
+  html.w-mod-js.is-edition-intro-in .editionen_intro_label,
+  html.w-mod-js.is-edition-intro-in .editionen_intro_note {
+    opacity: 1;
+  }
+
+  html.w-mod-js .editionen_intro_note { transition-delay: 60ms; }
+
+  /* Replace the existing border with a line that draws from left to right. */
+  html.w-mod-js .editionen_intro {
+    position: relative;
+    border-bottom-color: transparent;
+  }
+
+  html.w-mod-js .editionen_intro::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 700ms cubic-bezier(.33, 1, .68, 1) 80ms;
+    pointer-events: none;
+  }
+
+  html.w-mod-js.is-edition-intro-in .editionen_intro::after { transform: scaleX(1); }
+
+  /* The first chair and its description must not flash before registration. */
+  html.w-mod-js .editionen_item:first-child .editionen_title:not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+    visibility: hidden;
+  }
+
+  html.w-mod-js .editionen_item :is(.editionen_meta, .editionen_note):not(.is-edition-content-in) {
+    opacity: 0;
+    translate: 0 20px;
+  }
+
   /* The first heading starts as the page curtain opens and finishes quickly. */
   [data-edition-first] .editionen_title {
     --masked-reveal-duration: 420ms;
@@ -27,24 +82,24 @@
     }
 
     /* Reveal only the picture track; slider controls and slide changes keep their motion. */
-    .editionen_track[data-site-image-reveal="edition"] {
+    :is(.editionen_item:first-child .editionen_track, .editionen_track[data-site-image-reveal="edition"]) {
       opacity: 0;
       transition: opacity 400ms ease-out;
       transition-delay: var(--site-image-delay, 0ms);
     }
 
-    .editionen_track[data-site-image-reveal="edition"].is-site-image-in {
+    :is(.editionen_item:first-child .editionen_track, .editionen_track[data-site-image-reveal="edition"]).is-site-image-in {
       opacity: 1;
     }
 
-    .editionen_track[data-site-image-reveal="edition"] .editionen_img {
+    :is(.editionen_item:first-child .editionen_track, .editionen_track[data-site-image-reveal="edition"]) .editionen_img {
       scale: 1.075;
       transition: scale 1.2s cubic-bezier(0, 0, .2, 1),
         transform var(--fw-image-zoom-duration, .62s) var(--fw-image-zoom-ease, cubic-bezier(.33, 1, .68, 1));
       transition-delay: var(--site-image-delay, 0ms), 0ms;
     }
 
-    .editionen_track[data-site-image-reveal="edition"].is-site-image-in .editionen_img {
+    :is(.editionen_item:first-child .editionen_track, .editionen_track[data-site-image-reveal="edition"]).is-site-image-in .editionen_img {
       scale: 1;
     }
   }
@@ -146,6 +201,22 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center,
+    html.w-mod-js .editionen_intro_label,
+    html.w-mod-js .editionen_intro_note,
+    html.w-mod-js .editionen_item :is(.editionen_meta, .editionen_note),
+    html.w-mod-js .editionen_item:first-child .editionen_track {
+      opacity: 1 !important;
+      translate: none !important;
+      transition: none;
+    }
+
+    html.w-mod-js .editionen_item:first-child .editionen_title:not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+      visibility: visible;
+    }
+
+    html.w-mod-js .editionen_intro::after { transform: none; transition: none; }
+
     .editionen_slide,
     .editionen_swatch,
     .editionen_dot,

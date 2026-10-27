@@ -2381,7 +2381,7 @@ function Es(e, t) {
 function Ds() {
 	var e;
 	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
-	let t = /^\/biografie\/?$/i.test(window.location.pathname), n = os.map((e) => t && e === ".top_bar_section" ? [] : Array.from(document.querySelectorAll(e))), r = Array.from(document.querySelectorAll("[data-site-menu]"));
+	let t = /^\/(?:biografie|editionen)\/?$/i.test(window.location.pathname), n = os.map((e) => t && e === ".top_bar_section" ? [] : Array.from(document.querySelectorAll(e))), r = Array.from(document.querySelectorAll("[data-site-menu]"));
 	[...n.flat(), ...r].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {

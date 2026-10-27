@@ -117,9 +117,9 @@ function restorePreloaderIntro(): void {
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
-  const biography = /^\/biografie\/?$/i.test(window.location.pathname);
+  const customHeader = /^\/(?:biografie|editionen)\/?$/i.test(window.location.pathname);
   const groups = INTRO_FADE_SELECTORS.map((selector) =>
-    biography && selector === '.top_bar_section' ? []
+    customHeader && selector === '.top_bar_section' ? []
       : Array.from(document.querySelectorAll<HTMLElement>(selector)));
   const menus = Array.from(document.querySelectorAll<HTMLElement>('[data-site-menu]'));
   [...groups.flat(), ...menus].forEach((element) => { element.style.opacity = '0'; });
