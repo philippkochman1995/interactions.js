@@ -36,10 +36,59 @@
   }
 }
 
-/* The leading highlight keeps its original image frame on entrance and hover. */
-.news_highlight_section .news_img img {
-  scale: 1 !important;
+/* The highlight, text, and signature are ready before the deferred bundle runs. */
+html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center {
+  opacity: 0;
+  transition: opacity 200ms linear;
+}
+
+html.w-mod-js.is-news-intro-in .top_bar_section:not(.work-overlay__header) .top_bar_center {
+  opacity: 1;
+}
+
+html.w-mod-js .news_highlight_section :is(.news_content, .news_date) {
+  opacity: 0;
+  translate: 0 16px;
+  transition: opacity 550ms cubic-bezier(.33, 1, .68, 1),
+    translate 550ms cubic-bezier(.33, 1, .68, 1);
+}
+
+html.w-mod-js.is-news-intro-in .news_highlight_section :is(.news_content, .news_date) {
+  opacity: 1;
+  translate: none;
+}
+
+html.w-mod-js .news_highlight_section .news_img {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+
+html.w-mod-js .news_highlight_section .news_img.is-site-image-in { opacity: 1; }
+
+/* The image settles once on entrance and stays fixed on hover and focus. */
+html.w-mod-js .news_highlight_section .news_img img {
+  scale: 1.075 !important;
   transform: none !important;
   clip-path: none !important;
-  transition: none !important;
+  transition: scale 1.3s cubic-bezier(0, 0, .2, 1) !important;
+}
+
+html.w-mod-js .news_highlight_section .news_img.is-site-image-in img {
+  scale: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center,
+  html.w-mod-js .news_highlight_section :is(.news_content, .news_date),
+  html.w-mod-js .news_highlight_section .news_img {
+    opacity: 1 !important;
+    translate: none !important;
+    transition: none !important;
+  }
+
+  html.w-mod-js .news_highlight_section .news_img img {
+    scale: 1 !important;
+    transition: none !important;
+  }
 }

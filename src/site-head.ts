@@ -67,39 +67,45 @@ function afterFirstPaint(callback: () => void): void {
   window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
 }
 
-function primePageHero(): void {
+function primeLeadImage(): void {
   const biography = /^\/biografie\/?$/i.test(window.location.pathname);
   const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
   const edition = /^\/editionen\/?$/i.test(window.location.pathname);
-  if (!biography && !atelier && !edition) return;
+  const news = /^\/news\/?$/i.test(window.location.pathname);
+  if (!biography && !atelier && !edition && !news) return;
   const selector = biography
     ? '.bio_hero_section > img.bio_hero_img'
     : atelier ? '.atelier_hero_section > img.atelier_hero_img'
-      : '.editionen_item:first-child .editionen_slide.is-active img.editionen_img';
+      : edition ? '.editionen_item:first-child .editionen_slide.is-active img.editionen_img'
+        : '.news_highlight_section .news_img > img.intro_img';
   const revealClass = atelier ? 'in' : 'is-site-image-in';
   const root = document.documentElement;
   const attach = (image: HTMLImageElement): void => {
-    const target = edition ? image.closest<HTMLElement>('.editionen_track') : image;
+    const target = edition ? image.closest<HTMLElement>('.editionen_track')
+      : news ? image.closest<HTMLElement>('.news_img') : image;
     if (!target) return;
-    if (edition) {
-      target.setAttribute('data-site-image-reveal', 'edition');
+    if (edition || news) {
+      target.setAttribute('data-site-image-reveal', edition ? 'edition' : 'news-highlight');
       const width = Math.ceil(target.getBoundingClientRect().width);
       if (width) image.sizes = `${width}px`;
     }
-    const directEditionLoad = edition && !isIncomingNavigation();
+    const directLoad = (edition || news) && !isIncomingNavigation();
     image.loading = 'eager';
     image.setAttribute('fetchpriority', 'high');
     const reveal = (): void => {
       const start = (): void => {
         // Let the 107.5% start scale paint once, including on a fast direct load.
         void getComputedStyle(image).transform;
-        if (edition) void getComputedStyle(target).opacity;
+        if (edition || news) {
+          void getComputedStyle(image).scale;
+          void getComputedStyle(target).opacity;
+        }
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => target.classList.add(revealClass));
         });
       };
       afterPageUncovered(() => {
-        if (directEditionLoad) afterFirstPaint(start);
+        if (directLoad) afterFirstPaint(start);
         else start();
       });
     };
@@ -117,24 +123,28 @@ function primePageHero(): void {
   observer.observe(root, { childList: true, subtree: true });
 }
 
-function primeEditionIntro(): void {
-  if (!/^\/editionen\/?$/i.test(window.location.pathname)) return;
+function primePageIntro(): void {
+  const edition = /^\/editionen\/?$/i.test(window.location.pathname);
+  const news = /^\/news\/?$/i.test(window.location.pathname);
+  if (!edition && !news) return;
+  const selector = edition ? '.editionen_intro' : '.news_highlight_section';
+  const revealClass = edition ? 'is-edition-intro-in' : 'is-news-intro-in';
   const root = document.documentElement;
   const start = (): void => {
     const directLoad = !isIncomingNavigation();
     afterPageUncovered(() => {
       const reveal = (): void => {
         window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => root.classList.add('is-edition-intro-in'));
+          window.requestAnimationFrame(() => root.classList.add(revealClass));
         });
       };
       if (directLoad) afterFirstPaint(reveal);
       else reveal();
     });
   };
-  if (document.querySelector('.editionen_intro')) { start(); return; }
+  if (document.querySelector(selector)) { start(); return; }
   const observer = new MutationObserver(() => {
-    if (!document.querySelector('.editionen_intro')) return;
+    if (!document.querySelector(selector)) return;
     observer.disconnect();
     start();
   });
@@ -145,5 +155,5 @@ primePageTransition();
 optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();
-primePageHero();
-primeEditionIntro();
+primeLeadImage();
+primePageIntro();
