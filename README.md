@@ -608,7 +608,7 @@ reduce` passiert nichts.
 
 The global `site-interactions.js` bundle adds a vanilla JavaScript page transition
 for normal same-origin page links. A white overlay fades in over the current page
-in 0.24 seconds and fades out over the destination in 0.3 seconds. When a link is
+in 0.16 seconds and fades out over the destination in 0.2 seconds. When a link is
 clicked in the open menu, the fade starts as the menu is roughly half closed.
 The transition shows no destination title.
 On the first visit, the top bar, slider dots, eye info and menu enter after the
@@ -638,7 +638,8 @@ and modifier-clicks. To opt out a specific internal link:
 
 The global head script sets the covered state before first paint; the global
 footer scripts create the overlay on every page. The new page starts fading in
-as soon as its transition script runs. Images and videos can continue loading afterwards.
+from the synchronous body script, before the main interaction bundle runs. Images
+and videos can continue loading afterwards.
 
 ## Werk-Overlay
 

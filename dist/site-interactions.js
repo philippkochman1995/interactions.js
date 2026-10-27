@@ -2293,9 +2293,9 @@ function is(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var as = {
-	navigate: 270,
-	revealStart: 40,
-	reset: 390,
+	navigate: 180,
+	revealStart: 20,
+	reset: 260,
 	watchdog: 6e3
 }, os = [
 	".top_bar_section",
@@ -2416,7 +2416,7 @@ function Es() {
 	}
 	fs = !0;
 	let e = ys(), t = bs();
-	_s() && document.documentElement.classList.contains(us) ? Cs(e, t) : Ts(), document.addEventListener("click", (t) => {
+	_s() && document.documentElement.classList.contains(us) && !e.hasAttribute("data-page-transition-managed") ? Cs(e, t) : Ts(), document.addEventListener("click", (t) => {
 		var n;
 		let r = t.target instanceof Element ? t.target.closest("a[href]") : null;
 		if (!r || t.defaultPrevented || l(t)) return;

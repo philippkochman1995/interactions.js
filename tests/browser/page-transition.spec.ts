@@ -18,13 +18,19 @@ test('transition fades to white and back without a title', async ({ page }) => {
   expect(duringCover).toBeLessThan(1);
   await page.waitForURL('**/page-transition.html?next=direct');
   await expect(page.locator('.page-transition-overlay__title')).toHaveCount(0);
-  await expect(curtain).toHaveClass(/is-uncovering/);
-  await page.waitForTimeout(120);
-  const duringUncover = await curtain.evaluate((element) => Number(getComputedStyle(element).opacity));
-  expect(duringUncover).toBeGreaterThan(0);
-  expect(duringUncover).toBeLessThan(1);
   await expect(curtain).not.toHaveClass(/is-uncovering/);
   await expect(curtain).toHaveCSS('opacity', '0');
+});
+
+test('destination fades in before the main interaction bundle finishes loading', async ({ page }) => {
+  await page.route('**/dist/site-interactions.js', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    await route.continue();
+  });
+  await page.locator('#page-link').click({ noWaitAfter: true });
+  await page.waitForURL('**/page-transition.html?next=direct', { waitUntil: 'commit' });
+  await expect(page.locator('[data-page-transition-overlay]')).toHaveCSS('opacity', '0', { timeout: 600 });
+  expect(await page.evaluate(() => Boolean(window.SiteInteractions))).toBe(false);
 });
 
 test('menu starts closing before the curtain begins', async ({ page }) => {

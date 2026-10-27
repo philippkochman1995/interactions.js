@@ -3,7 +3,7 @@ import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // Keep navigation and reset just after their matching CSS fades finish.
-const TIME = { navigate: 270, revealStart: 40, reset: 390, watchdog: 6000 };
+const TIME = { navigate: 180, revealStart: 20, reset: 260, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const STORAGE_KEY = 'pt';
@@ -149,7 +149,7 @@ export function initPageTransitions(): void {
   const overlay = ensureOverlay();
   const main = pageContent();
   const incoming = hasPendingTransition() && document.documentElement.classList.contains(PENDING_CLASS);
-  if (incoming) revealIncoming(overlay, main);
+  if (incoming && !overlay.hasAttribute('data-page-transition-managed')) revealIncoming(overlay, main);
   else restorePreloaderIntro();
 
   document.addEventListener('click', (event) => {
