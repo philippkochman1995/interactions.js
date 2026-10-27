@@ -2293,9 +2293,9 @@ function is(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var as = {
-	navigate: 110,
+	navigate: 160,
 	revealStart: 0,
-	reset: 155,
+	reset: 180,
 	watchdog: 6e3
 }, os = [
 	".top_bar_section",

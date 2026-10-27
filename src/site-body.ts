@@ -40,7 +40,7 @@ if (transitionOverlay && root.classList.contains('is-page-transition-pending')) 
       }
       transitionOverlay.removeAttribute('data-page-transition-managed');
       window.requestAnimationFrame(() => transitionOverlay.classList.remove('is-resetting'));
-    }, 145);
+    }, 180);
   });
 }
 

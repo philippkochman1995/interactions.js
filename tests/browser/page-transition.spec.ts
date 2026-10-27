@@ -10,12 +10,15 @@ test('transition fades to white and back without a title', async ({ page }) => {
   const curtain = page.locator('[data-page-transition-overlay]');
   await expect(curtain).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(curtain).toHaveCSS('opacity', '0');
-  await page.locator('#page-link').click({ noWaitAfter: true });
-  await expect(curtain).toHaveClass(/is-covering/);
-  await page.waitForTimeout(45);
-  const duringCover = await curtain.evaluate((element) => Number(getComputedStyle(element).opacity));
-  expect(duringCover).toBeGreaterThan(0);
-  expect(duringCover).toBeLessThan(1);
+  const duringCover = await page.evaluate(async () => {
+    document.querySelector<HTMLAnchorElement>('#page-link')?.click();
+    await new Promise((resolve) => window.setTimeout(resolve, 75));
+    const overlay = document.querySelector<HTMLElement>('[data-page-transition-overlay]');
+    return { className: overlay?.className, opacity: Number(getComputedStyle(overlay!).opacity) };
+  });
+  expect(duringCover.className).toContain('is-covering');
+  expect(duringCover.opacity).toBeGreaterThan(0);
+  expect(duringCover.opacity).toBeLessThan(1);
   await page.waitForURL('**/page-transition.html?next=direct');
   await expect(page.locator('.page-transition-overlay__title')).toHaveCount(0);
   await expect(curtain).not.toHaveClass(/is-uncovering/);

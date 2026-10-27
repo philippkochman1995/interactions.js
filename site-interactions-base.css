@@ -133,8 +133,8 @@ body.is-lightbox-open {
 :root {
   --eo: cubic-bezier(.05, .85, .05, 1);
   --pt-ease: cubic-bezier(.4, 0, .2, 1);
-  --pt-cover-duration: .1s;
-  --pt-uncover-duration: .12s;
+  --pt-cover-duration: .15s;
+  --pt-uncover-duration: .15s;
 }
 
 [data-page-transition-overlay],
