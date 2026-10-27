@@ -1189,12 +1189,17 @@ html.is-page-transition-boot::before {
   }
 }
 
-/* Biography: keep the hero image still; the top bar and date fade together. */
+/* Match Atelier's single settle, with the start scale present before JS runs. */
 .bio_hero_section > img.bio_hero_img {
-  transform: none !important;
-  transition: none !important;
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
 }
 
+.bio_hero_section > img.bio_hero_img.is-site-image-in {
+  transform: scale(1) !important;
+}
+
+/* Biography's top bar and date share one 200 ms fade. */
 body:has(.bio_hero_section) .top_bar_section {
   opacity: 0;
   transition: opacity .2s linear;
@@ -1205,6 +1210,7 @@ body:has(.bio_hero_eyebrow.is-masked-reveal-playing) .top_bar_section {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .bio_hero_section > img.bio_hero_img { transform: none !important; transition: none !important; }
   body:has(.bio_hero_section) .top_bar_section { opacity: 1; transition: none; }
 }
 

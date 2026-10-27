@@ -4,6 +4,7 @@ const REVEAL_ATTR = 'data-site-image-reveal';
 const IN_CLASS = 'is-site-image-in';
 const EVENT_IMAGE_SELECTOR = '.news_event img.intro_img';
 const BIO_IMAGE_SELECTOR = '.bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img';
+const BIO_HERO_SELECTOR = '.bio_hero_section > img.bio_hero_img';
 const IMAGE_EXCLUSIONS = [
   '.top_bar_section', '[data-site-menu]', '.site-preloader', '[data-site-lightbox]',
   '.fwm-modal', '.modal_registry', '[data-modal-content]', '[hidden]',
@@ -14,9 +15,32 @@ const IMAGE_EXCLUSIONS = [
   '[aria-hidden="true"]',
 ].join(', ');
 
-type RevealType = 'bio' | 'event' | 'contact' | 'media' | 'plain' | 'edition' | 'instagram';
+type RevealType = 'hero' | 'bio' | 'event' | 'contact' | 'media' | 'plain' | 'edition' | 'instagram';
 
 let initialized = false;
+
+function afterPageEntrance(callback: () => void): void {
+  const root = document.documentElement;
+  const covered = (): boolean => {
+    if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
+    const transitioning = root.classList.contains('is-page-transition-pending') ||
+      root.classList.contains('is-page-transition-entering');
+    return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
+  };
+
+  if (!covered()) {
+    requestAnimationFrame(callback);
+    return;
+  }
+
+  const observer = new MutationObserver(() => {
+    if (covered()) return;
+    observer.disconnect();
+    requestAnimationFrame(callback);
+  });
+  observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+  window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+}
 
 export function initSiteImageReveal(): void {
   if (initialized || prefersReducedMotion() || !('IntersectionObserver' in window)) return;
@@ -37,7 +61,13 @@ export function initSiteImageReveal(): void {
       target.classList.add(IN_CLASS);
       observer.unobserve(target);
     };
-    const finish = complete;
+    const finish = (): void => {
+      if (target.getAttribute(REVEAL_ATTR) === 'hero') {
+        afterPageEntrance(() => window.setTimeout(complete, 200));
+      } else {
+        complete();
+      }
+    };
 
     if (image.complete) {
       if (image.naturalWidth && image.decode) void image.decode().then(finish, finish);
@@ -62,6 +92,10 @@ export function initSiteImageReveal(): void {
     target.setAttribute(REVEAL_ATTR, type);
     if (delay) target.style.setProperty('--site-image-delay', `${delay}ms`);
     images.set(target, image);
+    if (type === 'hero') {
+      image.loading = 'eager';
+      image.setAttribute('fetchpriority', 'high');
+    }
     observer.observe(target);
   };
 
@@ -87,6 +121,8 @@ export function initSiteImageReveal(): void {
     scanFrame = 0;
     const path = window.location.pathname;
     if (/^\/biografie\/?$/i.test(path)) {
+      const hero = document.querySelector<HTMLImageElement>(BIO_HERO_SELECTOR);
+      if (hero) register(hero, hero, 'hero');
       document.querySelectorAll<HTMLImageElement>(BIO_IMAGE_SELECTOR).forEach((image) => {
         const target = image.closest<HTMLElement>('.site-lightbox-trigger, .bio_video_trigger') ?? image;
         register(target, image, 'bio');

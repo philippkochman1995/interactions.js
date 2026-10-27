@@ -728,8 +728,10 @@ Bei Breiten- oder Schriftwechsel werden Timelines und ScrollTrigger entfernt und
 neu aufgebaut. Bereits gestartete Reveals bleiben sichtbar. Bei
 `prefers-reduced-motion: reduce` wird keine Reveal-Animation gestartet.
 
-Auf der Biografie-Seite stehen das Hero-Bild und sein Ausschnitt still. Die
-Top Bar und das Datum `.bio_hero_eyebrow` faden gleichzeitig in 200 ms ein;
+Auf der Biografie-Seite bewegt sich das Hero-Bild wie auf der Atelierseite
+einmal von 107,5 auf 100 Prozent. Der Startwert gilt schon vor dem Laden des
+Scripts, damit das Bild nicht erst in die Gegenrichtung springt. Die Top Bar
+und das Datum `.bio_hero_eyebrow` faden gleichzeitig in 200 ms ein;
 die maskierte Textanimation steuert den gemeinsamen Start. Die Headline hat
 in Webflow `data-reveal="off"`, damit die globale Reveal-Timeline sie nicht
 gleichzeitig animiert.
