@@ -40,6 +40,8 @@ function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
   if (/^\/news\/?$/i.test(window.location.pathname) &&
     element.closest('.news_event, .news_highlight_section')) return false;
+  if (/^\/kontakt\/?$/i.test(window.location.pathname) &&
+    element.closest('.contact_section')) return false;
   if (element.matches('p') && element.closest('.intro_date_infos > .u-p-small')) return false;
   if (element.closest('.quote-block') && !element.matches('.quote-block')) return false;
   if (element.matches('.atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading')) return false;

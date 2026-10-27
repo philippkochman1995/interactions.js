@@ -1291,7 +1291,7 @@ var Vr = "h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-
 }, Yr = !1;
 function Xr(e) {
 	var t;
-	return e.closest(Ur) || e.closest("[hidden]") || /^\/news\/?$/i.test(window.location.pathname) && e.closest(".news_event, .news_highlight_section") || e.matches("p") && e.closest(".intro_date_infos > .u-p-small") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
+	return e.closest(Ur) || e.closest("[hidden]") || /^\/news\/?$/i.test(window.location.pathname) && e.closest(".news_event, .news_highlight_section") || /^\/kontakt\/?$/i.test(window.location.pathname) && e.closest(".contact_section") || e.matches("p") && e.closest(".intro_date_infos > .u-p-small") || e.closest(".quote-block") && !e.matches(".quote-block") || e.matches(".atelier_hero_section .atelier_slide_heading, .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_heading") || e.matches(".bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_sub") || e.matches("[data-masked-line-reveal], [data-masked-reveal-label]") || e.matches(".work_about_heading, .editionen_title, .accordion_heading") || e.matches(".atelier_about_section.u-theme-dark5 .atelier_about_h2, .atelier_about_section.u-theme-dark5 .atelier_story_p") ? !1 : ((t = e.textContent) == null ? void 0 : t.trim().length) !== 0;
 }
 function Zr(e) {
 	if (e.closest(Wr)) return !0;
@@ -2381,7 +2381,7 @@ function Es(e, t) {
 function Ds() {
 	var e;
 	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
-	let t = /^\/(?:biografie|editionen|news|werk-ueberblick)\/?$/i.test(window.location.pathname), n = /^\/werk-ueberblick\/?$/i.test(window.location.pathname), r = os.map((e) => t && e === ".top_bar_section" || n ? [] : Array.from(document.querySelectorAll(e))), i = Array.from(document.querySelectorAll("[data-site-menu]"));
+	let t = /^\/(?:biografie|editionen|news|werk-ueberblick|kontakt)\/?$/i.test(window.location.pathname), n = /^\/werk-ueberblick\/?$/i.test(window.location.pathname), r = os.map((e) => t && e === ".top_bar_section" || n ? [] : Array.from(document.querySelectorAll(e))), i = Array.from(document.querySelectorAll("[data-site-menu]"));
 	[...r.flat(), ...i].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {

@@ -9,7 +9,7 @@ This directory is the source for CSS and JavaScript formerly embedded in Webflow
 | Biografie | `biography.css`, `biography-footer.js`, `dist/biography-intro.js` |
 | Atelier | `atelier-slideshow.css`, `atelier-hero-image.js` and the shared `webflow-code/editions-footer.js`; the three image slides, arrows and dots are editable Webflow elements using the Editionen structure. |
 | Editionen | `editions.css`, `editions-footer.js` |
-| Kontakt | `contact-footer.js` |
+| Kontakt | `contact.css`, `contact-footer.js` |
 | Impressum und Datenschutz | `legal-pages.css` |
 | News | `news.css` |
 | News template | `news-detail.css`, `news-detail-head.js`, `news-detail-footer.js` |

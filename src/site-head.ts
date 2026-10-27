@@ -72,31 +72,36 @@ function primeLeadImage(): void {
   const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
   const edition = /^\/editionen\/?$/i.test(window.location.pathname);
   const news = /^\/news\/?$/i.test(window.location.pathname);
-  if (!biography && !atelier && !edition && !news) return;
+  const contact = /^\/kontakt\/?$/i.test(window.location.pathname);
+  if (!biography && !atelier && !edition && !news && !contact) return;
   const selector = biography
     ? '.bio_hero_section > img.bio_hero_img'
     : atelier ? '.atelier_hero_section > img.atelier_hero_img'
       : edition ? '.editionen_item:first-child .editionen_slide.is-active img.editionen_img'
-        : '.news_highlight_section .news_img > img.intro_img';
+        : news ? '.news_highlight_section .news_img > img.intro_img'
+          : '.contact_img img.is-contact-image';
   const revealClass = atelier ? 'in' : 'is-site-image-in';
   const root = document.documentElement;
   const attach = (image: HTMLImageElement): void => {
     const target = edition ? image.closest<HTMLElement>('.editionen_track')
-      : news ? image.closest<HTMLElement>('.news_img') : image;
+      : news ? image.closest<HTMLElement>('.news_img')
+        : contact ? image.closest<HTMLElement>('.contact_img') : image;
     if (!target) return;
     if (edition || news) {
       target.setAttribute('data-site-image-reveal', edition ? 'edition' : 'news-highlight');
+    }
+    if (edition || news || contact) {
       const width = Math.ceil(target.getBoundingClientRect().width);
       if (width) image.sizes = `${width}px`;
     }
-    const directLoad = (edition || news) && !isIncomingNavigation();
+    const directLoad = (edition || news || contact) && !isIncomingNavigation();
     image.loading = 'eager';
     image.setAttribute('fetchpriority', 'high');
     const reveal = (): void => {
       const start = (): void => {
         // Let the 107.5% start scale paint once, including on a fast direct load.
         void getComputedStyle(image).transform;
-        if (edition || news) {
+        if (edition || news || contact) {
           void getComputedStyle(image).scale;
           void getComputedStyle(target).opacity;
         }
@@ -127,9 +132,12 @@ function primePageIntro(): void {
   const edition = /^\/editionen\/?$/i.test(window.location.pathname);
   const news = /^\/news\/?$/i.test(window.location.pathname);
   const works = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
-  if (!edition && !news && !works) return;
-  const selector = edition ? '.editionen_intro' : news ? '.news_highlight_section' : '.werk_hero_section';
-  const revealClass = edition ? 'is-edition-intro-in' : news ? 'is-news-intro-in' : 'is-works-intro-in';
+  const contact = /^\/kontakt\/?$/i.test(window.location.pathname);
+  if (!edition && !news && !works && !contact) return;
+  const selector = edition ? '.editionen_intro' : news ? '.news_highlight_section'
+    : works ? '.werk_hero_section' : '.contact_section';
+  const revealClass = edition ? 'is-edition-intro-in' : news ? 'is-news-intro-in'
+    : works ? 'is-works-intro-in' : 'is-contact-intro-in';
   const root = document.documentElement;
   const start = (): void => {
     const directLoad = !isIncomingNavigation();

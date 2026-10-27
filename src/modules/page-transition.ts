@@ -117,7 +117,7 @@ function restorePreloaderIntro(): void {
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
-  const customHeader = /^\/(?:biografie|editionen|news|werk-ueberblick)\/?$/i.test(window.location.pathname);
+  const customHeader = /^\/(?:biografie|editionen|news|werk-ueberblick|kontakt)\/?$/i.test(window.location.pathname);
   const worksIntro = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
   const groups = INTRO_FADE_SELECTORS.map((selector) =>
     (customHeader && selector === '.top_bar_section') || worksIntro ? []
