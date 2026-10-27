@@ -57,7 +57,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			dragPan: {
 				linearity: .25,
 				maxSpeed: 1100,
-				deceleration: 1700
+				deceleration: 1e3
 			},
 			minZoom: 0,
 			maxZoom: 18
