@@ -24,8 +24,14 @@ function primePageTransition(): void {
   }, 6000);
 }
 
-function primeBiographyHero(): void {
-  if (!/^\/biografie\/?$/i.test(window.location.pathname)) return;
+function primePageHero(): void {
+  const biography = /^\/biografie\/?$/i.test(window.location.pathname);
+  const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
+  if (!biography && !atelier) return;
+  const selector = biography
+    ? '.bio_hero_section > img.bio_hero_img'
+    : '.atelier_hero_section > img.atelier_hero_img';
+  const revealClass = biography ? 'is-site-image-in' : 'in';
   const root = document.documentElement;
   const attach = (image: HTMLImageElement): void => {
     image.loading = 'eager';
@@ -38,9 +44,11 @@ function primeBiographyHero(): void {
         return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
       };
       const start = (): void => {
-        // Commit the 107.5% start scale before the class changes on the next frame.
+        // Let the 107.5% start scale paint once, including on a fast direct load.
         void getComputedStyle(image).transform;
-        window.requestAnimationFrame(() => image.classList.add('is-site-image-in'));
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => image.classList.add(revealClass));
+        });
       };
       if (!covered()) { start(); return; }
       const observer = new MutationObserver(() => {
@@ -54,7 +62,6 @@ function primeBiographyHero(): void {
     if (image.complete && image.naturalWidth) reveal();
     else image.addEventListener('load', reveal, { once: true });
   };
-  const selector = '.bio_hero_section > img.bio_hero_img';
   const image = document.querySelector<HTMLImageElement>(selector);
   if (image) { attach(image); return; }
   const observer = new MutationObserver(() => {
@@ -70,4 +77,4 @@ primePageTransition();
 optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();
-primeBiographyHero();
+primePageHero();

@@ -1,7 +1,7 @@
-/* The full-bleed hero settles after the page curtain clears, without a fade. */
+/* The full-bleed hero settles as soon as its image loads and the page curtain clears. */
 .atelier_hero_section > img.atelier_hero_img {
   transform: scale(1.075) !important;
-  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
+  transition: transform 1.4s cubic-bezier(0, 0, .2, 1);
 }
 
 .atelier_hero_section > img.atelier_hero_img.in {
