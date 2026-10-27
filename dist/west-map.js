@@ -80,10 +80,11 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			});
 		}
 		_.scrollZoom.setZoomRate(1 / 140), _.scrollZoom.setWheelZoomRate(1 / 650), _.touchZoomRotate.disableRotation(), _.on("style.load", function() {
+			var e = getComputedStyle(document.documentElement).getPropertyValue("--fw_off_white").trim() || "#fafdff";
 			_.setFog({
-				color: "#f3f2f4",
-				"high-color": "#f1f0f2",
-				"space-color": "#efedf0",
+				color: e,
+				"high-color": e,
+				"space-color": e,
 				"horizon-blend": .12,
 				"star-intensity": 0
 			});

@@ -4,4 +4,4 @@
   }
 
 /* head: fw-light-map-background */
-#wmMap, .wm-map { background-color: #efedf0; }
+#wmMap, .wm-map { background-color: var(--fw_off_white, #fafdff); }

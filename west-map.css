@@ -1,6 +1,6 @@
-html,body{margin:0;padding:0;overflow:hidden;height:100%;}
+html,body{margin:0;padding:0;overflow:hidden;height:100%;background:var(--fw_off_white,#fafdff);}
 #wmCmsSource{display:none;}
-#wmMap{position:fixed;inset:0;width:100%;height:100%;background:#efedf0;}
+#wmMap{position:fixed;inset:0;width:100%;height:100%;background:var(--fw_off_white,#fafdff);}
 svg[viewBox="0 0 102 102"]{width:3rem;height:3rem;}
 #wmMapPill{display:none !important;}
 .wm-overview-slot{display:none !important;}
@@ -16,7 +16,7 @@ svg[viewBox="0 0 102 102"]{width:3rem;height:3rem;}
   font-family:inherit;
 }
 
-.wm-map{position:absolute;inset:0;width:100%;height:100%;background:#efedf0;}
+.wm-map{position:absolute;inset:0;width:100%;height:100%;background:var(--fw_off_white,#fafdff);}
 .wm-map-fade{position:absolute;inset:0;background:var(--fw_off_white);opacity:0;pointer-events:none;transition:opacity 0.25s ease;z-index:15;}
 .wm-map-fade.is-active{opacity:1;pointer-events:auto;}
 

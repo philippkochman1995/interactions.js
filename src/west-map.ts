@@ -120,10 +120,11 @@ import { markerThumbnail } from './marker-thumbnails';
     map.scrollZoom.setWheelZoomRate(1 / 650);
     map.touchZoomRotate.disableRotation();
     map.on('style.load', function(){
+      var offWhite = getComputedStyle(document.documentElement).getPropertyValue('--fw_off_white').trim() || '#fafdff';
       map.setFog({
-        color: '#f3f2f4',
-        'high-color': '#f1f0f2',
-        'space-color': '#efedf0',
+        color: offWhite,
+        'high-color': offWhite,
+        'space-color': offWhite,
         'horizon-blend': 0.12,
         'star-intensity': 0
       });
