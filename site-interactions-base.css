@@ -1189,15 +1189,23 @@ html.is-page-transition-boot::before {
   }
 }
 
-/* Biography uses Atelier's image entrance: the hero settles without fading,
-   while each later photo appears when its image has loaded in the viewport. */
-.bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"] {
-  transform: scale(1.075) !important;
-  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
+/* Biography: keep the hero image still; the top bar and date fade together. */
+.bio_hero_section > img.bio_hero_img {
+  transform: none !important;
+  transition: none !important;
 }
 
-.bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"].is-site-image-in {
-  transform: scale(1) !important;
+body:has(.bio_hero_section) .top_bar_section {
+  opacity: 0;
+  transition: opacity .2s linear;
+}
+
+body:has(.bio_hero_eyebrow.is-masked-reveal-playing) .top_bar_section {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.bio_hero_section) .top_bar_section { opacity: 1; transition: none; }
 }
 
 .bio_photo .bio_image_reveal.bio_fade {
@@ -1321,7 +1329,6 @@ html.is-page-transition-boot::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bio_hero_section > img.bio_hero_img[data-site-image-reveal="hero"],
   .bio_photo [data-site-image-reveal="bio"],
   .bio_photo [data-site-image-reveal="bio"] img,
   .news_event .img-zoom[data-site-image-reveal="event"],
