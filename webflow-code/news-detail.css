@@ -25,13 +25,6 @@
   object-fit: contain;
 }
 
-/* Align the recommendation card's date divider with the article divider above. */
-@media (min-width: 992px) {
-  body:has(.news_detail_more_section) .news_event .intro_layout {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr);
-  }
-}
-
 /* News: CMS-Auswahl für den sichtbaren Ausschnitt des breiten Detailbilds. */
 img.bild-detail {
   object-fit: cover;

@@ -14,6 +14,7 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
       bounds: map.options.bounds,
       fog: map.fog,
       dragRotate: map.options.dragRotate,
+      dragPan: map.options.dragPan,
       touchRotationDisabled: map.touchRotationDisabled,
       animated: Boolean(map.lastEase)
     };
@@ -22,13 +23,14 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
     localFontFamily: 'StyreneA',
     bounds: [[-12, 34], [37, 61]],
     fog: {
-      color: '#ffffff',
-      'high-color': '#ffffff',
-      'space-color': '#ffffff',
-      'horizon-blend': 0.02,
+      color: '#f3f2f4',
+      'high-color': '#f1f0f2',
+      'space-color': '#efedf0',
+      'horizon-blend': 0.12,
       'star-intensity': 0
     },
     dragRotate: false,
+    dragPan: { linearity: 0.22, maxSpeed: 1000, deceleration: 2200 },
     touchRotationDisabled: true,
     animated: false
   });
@@ -148,3 +150,30 @@ test('a cluster click clears a pending button zoom before the next click', async
   await page.getByRole('button', { name: 'Rauszoomen' }).click();
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls)).toEqual([14, 10]);
 });
+
+for (const viewport of [{ width: 1728, height: 1117 }, { width: 390, height: 844 }]) {
+  test(`map markers enter one after another at ${viewport.width}px`, async ({ page }) => {
+    await page.clock.install();
+    await page.setViewportSize(viewport);
+    await page.goto('/tests/fixtures/west-map-zoom.html?motion=full');
+    await page.waitForFunction(() => Boolean((window as any).westMapTest));
+
+    await page.evaluate(() => {
+      const map = (window as any).westMapTest;
+      map.features = [0, 1, 2].map(idx => ({
+        properties: { idx, cluster: false },
+        geometry: { coordinates: [16.37 - idx, 48.2 + idx] }
+      }));
+      map.fire('load');
+      map.fire('render');
+      map.fire('render');
+    });
+
+    const visible = () => page.locator('.wm-marker.wm-visible').count();
+    expect(await visible()).toBe(1);
+    await page.clock.runFor(95);
+    expect(await visible()).toBe(2);
+    await page.clock.runFor(95);
+    expect(await visible()).toBe(3);
+  });
+}

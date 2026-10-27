@@ -669,6 +669,20 @@ html.is-page-transition-boot::after {
 }
 
 @media (max-width: 767px) {
+  /* Die Startseiten-Signatur war 96px breit, auf Unterseiten 136px.
+     Ein gemeinsamer mobiler Wert hebt Home um 20% an und gilt fuer alle Seiten. */
+  .top_bar_section .top_bar_center .nav_logo_link,
+  .top_bar_section .top_bar_center .nav_logo_image_link {
+    width: 7.2rem;
+    max-width: none;
+  }
+
+  .top_bar_section .top_bar_center .nav_logo_image_link img.nav_logo {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   /* Der spaeter geladene Head-Style begrenzt .site-menu ebenfalls in der Breite.
      Die kombinierte Klasse setzt das Menue auf Mobil bis an alle Seitenraender. */
   .site-menu[data-site-menu] {
@@ -680,6 +694,32 @@ html.is-page-transition-boot::after {
     bottom: 0;
     max-width: none;
     box-sizing: border-box;
+  }
+
+  .site-menu__header {
+    margin-bottom: 2.5rem;
+  }
+
+  .site-menu__brand,
+  .site-menu__language,
+  .site-menu__link--small,
+  .site-menu__footer-link,
+  .site-menu__toggle {
+    font-size: calc(var(--_sizes---footer-14, 0.875rem) + 0.125rem);
+  }
+
+  .site-menu__link--large {
+    font-size: calc(var(--_sizes---h2-font-size, 1.667rem) + 0.125rem);
+  }
+
+  .site-menu__footer-links {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  [data-site-menu-item].site-menu__footer-link {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 
   /* Platz fuer die fixierte Menueleiste am Seitenende: Die letzte Footer-Zeile
@@ -2504,7 +2544,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(240px, min(34vw, 56vh), 560px);
+  width: clamp(180px, min(25.5vw, 42vh), 420px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   opacity: 0;

@@ -1336,13 +1336,10 @@ function ti(e) {
 	});
 	n.fromTo(t, qr, Jr), e.timeline = n, e.trigger = $.create({
 		trigger: e.element,
-		start: "top 90%",
+		start: e.targets.some((e) => e.matches("p")) ? "top 75%" : "top 90%",
 		end: "bottom 0%",
 		invalidateOnRefresh: !1,
-		animation: n,
-		onEnter: () => {
-			e.played = !0;
-		}
+		animation: n
 	});
 }
 function ni(e, t) {

@@ -870,12 +870,14 @@ Bewegungen, während echte Assets weiter abgewartet werden.
   Abschlussanimation beginnen darf.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
-- Native Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
+- Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
   vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
   sichtbare Szene vorgeladen und für den Preloader abgewartet. Auf Home hat die
-  erste Folie separate Szenen für Desktop und Mobile (bis 767 px). Das Head-Skript
-  entfernt auf Telefonen die Desktop-Szene während des HTML-Parsens, bevor Webflow
-  einen zweiten GPU-Renderer anlegt. Die Mobile-Szene bleibt auch im Querformat
+  ersten beiden Folien separate Szenen für Desktop und Mobile (bis 767 px). Die
+  mobile Szene der zweiten Folie verwendet Webflows Spline-Markup mit
+  `data-animation-type="spline"`, `data-spline-url` und einem Canvas als Kind.
+  Das Head-Skript entfernt auf Telefonen die Desktop-Szenen während des
+  HTML-Parsens, bevor Webflow einen zweiten GPU-Renderer anlegt. Die Mobile-Szene bleibt auch im Querformat
   sichtbar. Das Home-CSS in `snippets/home-responsive-spline.html` hält auf anderen
   Geräten die inaktive Szene mit `visibility: hidden` auf voller Größe, damit WebGPU kein
   0×0-Canvas initialisiert; der Preloader überspringt sie. Inaktive Slides werden nach

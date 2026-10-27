@@ -97,11 +97,10 @@ function buildScrollReveal(state: RevealState): void {
   state.timeline = timeline;
   state.trigger = ScrollTrigger.create({
     trigger: state.element,
-    start: 'top 90%',
+    start: state.targets.some((target) => target.matches('p')) ? 'top 75%' : 'top 90%',
     end: 'bottom 0%',
     invalidateOnRefresh: false,
     animation: timeline,
-    onEnter: () => { state.played = true; },
   });
 }
 

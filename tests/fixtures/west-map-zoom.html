@@ -42,7 +42,7 @@
     <span class="wm-f-kategorie">Wichtige Orte</span>
   </div>
   <script>
-    window.matchMedia = () => ({ matches: true });
+    window.matchMedia = () => ({ matches: !location.search.includes('motion=full') });
     window.mapboxgl = {
       Map: class {
         constructor(options){
@@ -76,7 +76,7 @@
         addLayer(){}
         isSourceLoaded(){ return true; }
         querySourceFeatures(){
-          return [{
+          return this.features || [{
             properties: { cluster: true, cluster_id: 1, firstIdx: 0, point_count_abbreviated: '2', hasW: 1 },
             geometry: { coordinates: [16.37, 48.2] }
           }];

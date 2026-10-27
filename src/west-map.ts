@@ -94,16 +94,18 @@ import { markerThumbnail } from './marker-thumbnails';
       bearing: 0,
       pitch: 0,
       dragRotate: false,
+      // A small amount of momentum lets the globe settle after a mouse or touch drag.
+      dragPan: { linearity: 0.22, maxSpeed: 1000, deceleration: 2200 },
       minZoom: 0,
       maxZoom: 18
     });
     map.touchZoomRotate.disableRotation();
     map.on('style.load', function(){
       map.setFog({
-        color: '#ffffff',
-        'high-color': '#ffffff',
-        'space-color': '#ffffff',
-        'horizon-blend': 0.02,
+        color: '#f3f2f4',
+        'high-color': '#f1f0f2',
+        'space-color': '#efedf0',
+        'horizon-blend': 0.12,
         'star-intensity': 0
       });
     });
@@ -406,6 +408,10 @@ function openMapModal(data){
     }
 
     function applyFilter(){
+      for(var r in revealTimers){
+        clearTimeout(revealTimers[r]);
+        delete revealTimers[r];
+      }
       for(var t in removeTimers){
         clearTimeout(removeTimers[t]);
         delete removeTimers[t];
@@ -553,8 +559,11 @@ function openMapModal(data){
     var markersCache = {};
     var markersOnScreen = {};
     var removeTimers = {};
+    var revealTimers = {};
+    var introPending = true;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function showMarker(key, marker){
+    function showMarker(key, marker, delay){
       if(removeTimers[key]){
         clearTimeout(removeTimers[key]);
         delete removeTimers[key];
@@ -567,6 +576,16 @@ function openMapModal(data){
 
       var el = marker.getElement();
 
+      if(revealTimers[key]) return;
+      if(delay > 0){
+        revealTimers[key] = setTimeout(function(){
+          delete revealTimers[key];
+          void el.offsetWidth;
+          el.classList.add('wm-visible');
+        }, delay);
+        return;
+      }
+
       if(!el.classList.contains('wm-visible')){
         void el.offsetWidth;
         el.classList.add('wm-visible');
@@ -574,6 +593,10 @@ function openMapModal(data){
     }
 
     function hideMarker(key, marker){
+      if(revealTimers[key]){
+        clearTimeout(revealTimers[key]);
+        delete revealTimers[key];
+      }
       if(removeTimers[key]) return;
 
       marker.getElement().classList.remove('wm-visible');
@@ -582,7 +605,7 @@ function openMapModal(data){
         marker.remove();
         marker._wmAdded = false;
         delete removeTimers[key];
-      }, 200);
+      }, 400);
     }
 
     function updateMarkers(){
@@ -611,8 +634,15 @@ function openMapModal(data){
         }
 
         newMarkers[key] = marker;
-        showMarker(key, marker);
       }
+
+      var keys = Object.keys(newMarkers);
+      var firstBatch = introPending && keys.length > 0;
+      if(firstBatch) introPending = false;
+      var step = firstBatch && !reduceMotion ? Math.min(90, 1200 / Math.max(1, keys.length - 1)) : 0;
+      keys.forEach(function(key, index){
+        showMarker(key, newMarkers[key], Math.round(index * step));
+      });
 
       for(var k2 in markersOnScreen){
         if(!newMarkers[k2]){

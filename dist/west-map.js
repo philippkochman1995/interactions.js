@@ -55,15 +55,20 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			bearing: 0,
 			pitch: 0,
 			dragRotate: !1,
+			dragPan: {
+				linearity: .22,
+				maxSpeed: 1e3,
+				deceleration: 2200
+			},
 			minZoom: 0,
 			maxZoom: 18
 		});
 		_.touchZoomRotate.disableRotation(), _.on("style.load", function() {
 			_.setFog({
-				color: "#ffffff",
-				"high-color": "#ffffff",
-				"space-color": "#ffffff",
-				"horizon-blend": .02,
+				color: "#f3f2f4",
+				"high-color": "#f1f0f2",
+				"space-color": "#efedf0",
+				"horizon-blend": .12,
 				"star-intensity": 0
 			});
 		});
@@ -247,11 +252,12 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			}), e;
 		}
 		function M() {
-			for (var e in R) clearTimeout(R[e]), delete R[e];
-			for (var t in I) I[t].remove(), I[t]._wmAdded = !1;
+			for (var e in z) clearTimeout(z[e]), delete z[e];
+			for (var t in R) clearTimeout(R[t]), delete R[t];
+			for (var n in I) I[n].remove(), I[n]._wmAdded = !1;
 			I = {}, L = {};
-			var n = _.getSource("wmOrte");
-			n && n.setData({
+			var r = _.getSource("wmOrte");
+			r && r.setData({
 				type: "FeatureCollection",
 				features: j()
 			});
@@ -302,18 +308,26 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 				});
 			}), n.el;
 		}
-		var I = {}, L = {}, R = {};
-		function z(e, t) {
+		var I = {}, L = {}, R = {}, z = {}, B = !0, V = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		function H(e, t, n) {
 			R[e] && (clearTimeout(R[e]), delete R[e]), t._wmAdded || (t.addTo(_), t._wmAdded = !0);
-			var n = t.getElement();
-			n.classList.contains("wm-visible") || (n.offsetWidth, n.classList.add("wm-visible"));
+			var r = t.getElement();
+			if (!z[e]) {
+				if (n > 0) {
+					z[e] = setTimeout(function() {
+						delete z[e], r.offsetWidth, r.classList.add("wm-visible");
+					}, n);
+					return;
+				}
+				r.classList.contains("wm-visible") || (r.offsetWidth, r.classList.add("wm-visible"));
+			}
 		}
-		function B(e, t) {
-			R[e] || (t.getElement().classList.remove("wm-visible"), R[e] = setTimeout(function() {
+		function U(e, t) {
+			z[e] && (clearTimeout(z[e]), delete z[e]), !R[e] && (t.getElement().classList.remove("wm-visible"), R[e] = setTimeout(function() {
 				t.remove(), t._wmAdded = !1, delete R[e];
-			}, 200));
+			}, 400));
 		}
-		function V() {
+		function W() {
 			for (var e = {}, t = _.querySourceFeatures("wmOrte"), n = 0; n < t.length; n++) {
 				var r = t[n], i = r.properties, a = r.geometry.coordinates, o = i.cluster ? "c" + i.cluster_id : "p" + i.idx;
 				if (!e[o]) {
@@ -325,10 +339,15 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 							anchor: "center"
 						}).setLngLat(a), I[o] = s;
 					}
-					e[o] = s, z(o, s);
+					e[o] = s;
 				}
 			}
-			for (var l in L) e[l] || B(l, L[l]);
+			var l = Object.keys(e), u = B && l.length > 0;
+			u && (B = !1);
+			var d = u && !V ? Math.min(90, 1200 / Math.max(1, l.length - 1)) : 0;
+			for (var f in l.forEach(function(t, n) {
+				H(t, e[t], Math.round(n * d));
+			}), L) e[f] || U(f, L[f]);
 			L = e;
 		}
 		_.on("load", function() {
@@ -373,8 +392,8 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 					"circle-opacity": 0
 				}
 			}), _.on("render", function() {
-				_.isSourceLoaded("wmOrte") && V();
-			}), _.on("moveend", V);
+				_.isSourceLoaded("wmOrte") && W();
+			}), _.on("moveend", W);
 		});
 	});
 })();
