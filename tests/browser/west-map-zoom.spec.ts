@@ -38,7 +38,7 @@ test('map opens over Europe and wraps horizontally while latitude stays below th
     mapBackground: 'rgb(250, 253, 255)',
     bodyBackground: 'rgb(250, 253, 255)',
     dragRotate: false,
-    dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1000 },
+    dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1400 },
     maxBounds: undefined,
     latitude: [-80, 80],
     latitudeConstrained: true,

@@ -92,7 +92,7 @@ import { markerThumbnail } from './marker-thumbnails';
       bearing: 0,
       pitch: 0,
       dragRotate: false,
-      dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1000 },
+      dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1400 },
       minZoom: 0,
       maxZoom: 18
     });
