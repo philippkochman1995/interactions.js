@@ -24,21 +24,46 @@ function primePageTransition(): void {
   }, 6000);
 }
 
+function isPageCovered(): boolean {
+  const root = document.documentElement;
+  if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
+  const transitioning = root.classList.contains('is-page-transition-pending') ||
+    root.classList.contains('is-page-transition-entering');
+  return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
+}
+
+function isIncomingNavigation(): boolean {
+  const root = document.documentElement;
+  return root.classList.contains('is-page-transition-pending') ||
+    root.classList.contains('is-page-transition-entering');
+}
+
 function afterPageUncovered(callback: () => void): void {
   const root = document.documentElement;
-  const covered = (): boolean => {
-    if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
-    const transitioning = root.classList.contains('is-page-transition-pending') ||
-      root.classList.contains('is-page-transition-entering');
-    return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
-  };
-  if (!covered()) { callback(); return; }
+  if (!isPageCovered()) { callback(); return; }
   const observer = new MutationObserver(() => {
-    if (covered()) return;
+    if (isPageCovered()) return;
     observer.disconnect();
     callback();
   });
   observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+  window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+}
+
+function afterFirstPaint(callback: () => void): void {
+  const painted = (): boolean => performance.getEntriesByType('paint')
+    .some((entry) => entry.name === 'first-paint' || entry.name === 'first-contentful-paint');
+  if (painted()) { callback(); return; }
+  if (!('PerformanceObserver' in window) || !PerformanceObserver.supportedEntryTypes?.includes('paint')) {
+    window.requestAnimationFrame(() => window.setTimeout(callback, 0));
+    return;
+  }
+  const observer = new PerformanceObserver(() => {
+    if (!painted()) return;
+    observer.disconnect();
+    callback();
+  });
+  observer.observe({ type: 'paint', buffered: true });
   window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
 }
 
@@ -61,6 +86,7 @@ function primePageHero(): void {
       const width = Math.ceil(target.getBoundingClientRect().width);
       if (width) image.sizes = `${width}px`;
     }
+    const directEditionLoad = edition && !isIncomingNavigation();
     image.loading = 'eager';
     image.setAttribute('fetchpriority', 'high');
     const reveal = (): void => {
@@ -72,7 +98,10 @@ function primePageHero(): void {
           window.requestAnimationFrame(() => target.classList.add(revealClass));
         });
       };
-      afterPageUncovered(start);
+      afterPageUncovered(() => {
+        if (directEditionLoad) afterFirstPaint(start);
+        else start();
+      });
     };
     if (image.complete && image.naturalWidth) reveal();
     else image.addEventListener('load', reveal, { once: true });
@@ -92,10 +121,15 @@ function primeEditionIntro(): void {
   if (!/^\/editionen\/?$/i.test(window.location.pathname)) return;
   const root = document.documentElement;
   const start = (): void => {
+    const directLoad = !isIncomingNavigation();
     afterPageUncovered(() => {
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => root.classList.add('is-edition-intro-in'));
-      });
+      const reveal = (): void => {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => root.classList.add('is-edition-intro-in'));
+        });
+      };
+      if (directLoad) afterFirstPaint(reveal);
+      else reveal();
     });
   };
   if (document.querySelector('.editionen_intro')) { start(); return; }
