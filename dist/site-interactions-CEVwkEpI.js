@@ -1,5 +1,5 @@
 //#region src/modules/site-preloader-state.ts
-var e = "is-site-preloader-exiting", t = "[data-site-preloader]", n = 11e3;
+var e = "is-site-preloader-exiting", t = "[data-site-preloader]", n = 8250;
 function r(e) {
 	let t = window.__sitePreloader;
 	t != null && t.active ? t.ready.then(e) : e();
@@ -106,4 +106,4 @@ function f() {
 //#endregion
 export { r as a, t as i, e as n, n as r, f as t };
 
-//# sourceMappingURL=site-interactions-vwiAXl0u.js.map
+//# sourceMappingURL=site-interactions-CEVwkEpI.js.map

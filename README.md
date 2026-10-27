@@ -610,7 +610,7 @@ The global `site-interactions.js` bundle adds a vanilla JavaScript page transiti
 for normal same-origin page links. The curtain rises from the bottom, holds the
 destination title while the new page loads, and leaves through the top. Motion
 uses `clip-path`; existing Webflow colors and typography stay in place.
-The title uses the preloader's 16px size. The curtain takes 0.8 seconds.
+The title uses the preloader's 16px size. The curtain takes 0.384 seconds in each direction.
 Media-heavy pages keep their canvas still while the curtain moves.
 On the first visit, the top bar, slider dots, eye info and menu enter after the
 preloader clears; later pages do not replay that intro.
@@ -847,22 +847,22 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 Die Signatur im Preloader zeigt dieselben sieben Motive wie das Topbar-Logo.
-Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,3 s und das Datum
-bei 1,125 s mit langem Fade-up-Auslauf. Bei 2,55 s fährt der Textblock nach unten;
-bei 3,35 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 6,8 s
+Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,225 s und das Datum
+bei 0,844 s mit langem Fade-up-Auslauf. Bei 1,913 s fährt der Textblock nach unten;
+bei 2,513 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 5,1 s
 mit `0.6*t + 0.4*easeInOutCubic(t)` bis 100 %. Die sieben Signaturen wechseln
-hart mit dem Zählerfortschritt; jede erscheint mit einem 3-s-Zoom-Impact.
+hart mit dem Zählerfortschritt; jede erscheint mit einem 2,25-s-Zoom-Impact.
 Die letzte ist `SIGNATUR2.svg` und bleibt bis zur Freigabe sichtbar. Nach
-Asset- und `window.load`-Abschluss hält die Szene 0,6 s. Danach gehen Zähler,
-Text und Signatur gemeinsam ab; 0,5 s später zieht sich das rosa Overlay per
-`clip-path` in 1,3 s nach oben zurück. Bei reduzierter Bewegung entfallen Wartezeiten und
+Asset- und `window.load`-Abschluss hält die Szene 0,45 s. Danach gehen Zähler,
+Text und Signatur gemeinsam ab; 0,375 s später zieht sich das rosa Overlay per
+`clip-path` in 0,975 s nach oben zurück. Bei reduzierter Bewegung entfallen Wartezeiten und
 Bewegungen, während echte Assets weiter abgewartet werden.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `4`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
-- Mindestanzeige 11.000 ms. Der Head-Wachhund gibt ohne Hauptbundle nach 6 s
+- Mindestanzeige 8.250 ms. Der Head-Wachhund gibt ohne Hauptbundle nach 6 s
   frei; mit aktivem Hauptbundle begrenzt er den Ablauf auf weitere 20 s.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
 - Der sichtbare Zähler beginnt bei 0 und läuft zeitgesteuert bis 100 %.
@@ -919,7 +919,7 @@ Bewegungen, während echte Assets weiter abgewartet werden.
 - Weitere erkannte Bilder und markierte Warmup-Assets laden nach der Freigabe mit
   höchstens drei parallelen Aufgaben, bis `pagehide` oder maximal 30 s. Bei
   `navigator.connection.saveData` wird auf dieses zusätzliche Vorwärmen verzichtet.
-- Prozentrollen bewegen sich mit `power2.out` über 65 ms. Reduced Motion schaltet
+- Prozentrollen bewegen sich mit `power2.out` über 49 ms. Reduced Motion schaltet
   sofort um. Menü- und Text-Eintrittsanimationen warten auf die Freigabe.
 - Währenddessen ist der Seiteninhalt `inert`; bestehende `inert`-Zustände bleiben
   erhalten. Nur die eigenen Scroll-/Interaktionssperren werden aufgehoben.

@@ -1,7 +1,7 @@
 import { _ as e, a as t, b as n, c as r, d as i, f as a, g as o, h as s, i as c, l, m as u, n as d, o as f, p, r as m, s as h, t as g, u as _, v, y } from "./site-interactions-Cou7uu3t.js";
 import { t as b } from "./site-interactions-BxJ-FVg3.js";
 import { t as x } from "./site-interactions-CKkKncuX.js";
-import { a as S, i as C, n as w, r as T, t as E } from "./site-interactions-vwiAXl0u.js";
+import { a as S, i as C, n as w, r as T, t as E } from "./site-interactions-CEVwkEpI.js";
 //#region src/modules/i18n.ts
 var D = {};
 function O(e) {
@@ -2287,11 +2287,11 @@ function is(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var as = {
-	titleStart: 240,
-	navigate: 720,
-	hold: 416,
-	uncoverStart: 776,
-	reset: 1976,
+	titleStart: 144,
+	navigate: 432,
+	hold: 250,
+	uncoverStart: 466,
+	reset: 1186,
 	watchdog: 6e3
 }, os = [
 	".top_bar_section",
@@ -2808,7 +2808,7 @@ async function mc(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var hc = /* @__PURE__ */ new WeakSet(), gc = 6800, _c = 600, vc = 500, yc = 1300;
+var hc = /* @__PURE__ */ new WeakSet(), gc = 5100, _c = 450, vc = 375, yc = 975;
 function bc(e) {
 	return e < .5 ? 4 * e * e * e : 1 - (-2 * e + 2) ** 3 / 2;
 }
@@ -2844,7 +2844,7 @@ function Sc(e, t) {
 			b.to(r, {
 				yPercent: -50,
 				y: 0,
-				duration: .065,
+				duration: .049,
 				ease: "power2.out",
 				onComplete: () => {
 					o.textContent = c, b.set(r, {

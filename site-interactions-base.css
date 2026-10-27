@@ -134,11 +134,11 @@ body.is-lightbox-open {
   --e: cubic-bezier(.7, 0, .08, 1);
   --eo: cubic-bezier(.05, .85, .05, 1);
   --tail: cubic-bezier(.02, .9, .03, 1);
-  --pt-cover-duration: .64s;
-  --pt-uncover-duration: .64s;
-  --pt-content-duration: .64s;
-  --pt-title-opacity-duration: .96s;
-  --pt-title-travel-duration: 1.2s;
+  --pt-cover-duration: .384s;
+  --pt-uncover-duration: .384s;
+  --pt-content-duration: .384s;
+  --pt-title-opacity-duration: .576s;
+  --pt-title-travel-duration: .72s;
 }
 
 [data-page-transition-overlay],
@@ -205,7 +205,7 @@ html.is-page-transition-pending .curtain {
 
 .curtain.is-title-leaving .page-transition-overlay__title {
   opacity: 0;
-  transition: opacity .4s var(--e);
+  transition: opacity .24s var(--e);
 }
 
 .curtain.is-resetting .page-transition-overlay__title {
@@ -247,8 +247,8 @@ main.is-page-transition-entered,
   transform: translate3d(0, 108%, 0);
   backface-visibility: hidden;
   will-change: transform;
-  transition: transform 1.92s var(--eo);
-  transition-delay: calc(var(--word-index) * .096s);
+  transition: transform 1.152s var(--eo);
+  transition-delay: calc(var(--word-index) * .0576s);
 }
 
 .is-page-transition-heading.is-revealing .page-transition-word {
@@ -2461,7 +2461,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   cursor: progress;
   clip-path: inset(0 0 0 0);
   will-change: clip-path;
-  transition: clip-path 1.3s var(--preloader-ease);
+  transition: clip-path .975s var(--preloader-ease);
 }
 .site-preloader::before {
   content: '';
@@ -2491,12 +2491,12 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   transform: translateY(110%);
-  transition: transform 1s var(--preloader-ease-out);
+  transition: transform .75s var(--preloader-ease-out);
 }
 .site-preloader.is-loading .site-preloader__progress { transform: translateY(0); }
 .site-preloader.is-fading .site-preloader__progress {
   transform: translateY(-110%);
-  transition-duration: .8s;
+  transition-duration: .6s;
   transition-timing-function: var(--preloader-ease);
 }
 .site-preloader__digit {
@@ -2516,7 +2516,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   transform: translateX(-50%) translateY(var(--intro-shift, 0px));
   opacity: 0;
   animation: site-preloader-drift 8s ease-in-out infinite alternate;
-  transition: opacity .6s var(--preloader-ease);
+  transition: opacity .45s var(--preloader-ease);
 }
 .site-preloader__name:not(.is-ready) {
   top: 50%;
@@ -2526,14 +2526,14 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 .site-preloader__name.is-ready { opacity: 1; }
 .site-preloader__name.is-settled {
   transform: translateX(-50%) translateY(0);
-  transition: transform 1.5s var(--preloader-ease), opacity .6s var(--preloader-ease);
+  transition: transform 1.125s var(--preloader-ease), opacity .45s var(--preloader-ease);
 }
 .site-preloader.is-fading .site-preloader__name { opacity: 0; }
 .site-preloader__title,
 .site-preloader__date {
   opacity: 0;
   transform: translateY(44px);
-  transition: opacity 4s cubic-bezier(.02, .9, .03, 1), transform 9s cubic-bezier(.02, .9, .03, 1);
+  transition: opacity 3s cubic-bezier(.02, .9, .03, 1), transform 6.75s cubic-bezier(.02, .9, .03, 1);
 }
 .site-preloader__title.is-visible,
 .site-preloader__date.is-visible {
@@ -2550,17 +2550,17 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   opacity: 0;
   pointer-events: none;
   animation: site-preloader-drift 7s ease-in-out infinite alternate;
-  transition: opacity 1.4s var(--preloader-ease-out);
+  transition: opacity 1.05s var(--preloader-ease-out);
   will-change: opacity, transform;
 }
 .site-preloader.is-loading .site-preloader__signature-stage { opacity: 1; }
 .site-preloader.is-fading .site-preloader__signature-stage {
   opacity: 0;
-  transition-duration: .6s;
+  transition-duration: .45s;
   transition-timing-function: var(--preloader-ease);
 }
 .site-preloader__signature-stage.is-impact {
-  animation: site-preloader-impact 3s cubic-bezier(.01, .95, .02, 1), site-preloader-drift 7s ease-in-out infinite alternate;
+  animation: site-preloader-impact 2.25s cubic-bezier(.01, .95, .02, 1), site-preloader-drift 7s ease-in-out infinite alternate;
 }
 .site-preloader__signature,
 .site-preloader__signature-variant {

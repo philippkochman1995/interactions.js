@@ -2,7 +2,7 @@ import { PRELOADER_SELECTOR } from './site-preloader-state';
 import { PRELOADER_FINAL_SIGNATURE_INDEX, setPageSignatureVariant, SIGNATURE_VARIANTS } from './signature-variants';
 import { isInactiveHeroSplineScene } from './spline-slider';
 
-const INTRO = { title: 300, date: 1125, settle: 2550, loading: 3350 } as const;
+const INTRO = { title: 225, date: 844, settle: 1913, loading: 2513 } as const;
 
 /**
  * Start native Webflow scene requests before the deferred application bundle.

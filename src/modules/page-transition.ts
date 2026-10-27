@@ -3,7 +3,7 @@ import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // The matching easing and duration variables live in the curtain CSS block.
-const TIME = { titleStart: 240, navigate: 720, hold: 416, uncoverStart: 776, reset: 1976, watchdog: 6000 };
+const TIME = { titleStart: 144, navigate: 432, hold: 250, uncoverStart: 466, reset: 1186, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const STORAGE_KEY = 'pt';
