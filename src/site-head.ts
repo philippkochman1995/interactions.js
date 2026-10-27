@@ -24,7 +24,50 @@ function primePageTransition(): void {
   }, 6000);
 }
 
+function primeBiographyHero(): void {
+  if (!/^\/biografie\/?$/i.test(window.location.pathname)) return;
+  const root = document.documentElement;
+  const attach = (image: HTMLImageElement): void => {
+    image.loading = 'eager';
+    image.setAttribute('fetchpriority', 'high');
+    const reveal = (): void => {
+      const covered = (): boolean => {
+        if (root.classList.contains('is-site-preloading') || root.classList.contains('is-site-preloader-exiting')) return true;
+        const transitioning = root.classList.contains('is-page-transition-pending') ||
+          root.classList.contains('is-page-transition-entering');
+        return transitioning && !document.querySelector('.page-transition-overlay.is-uncovering');
+      };
+      const start = (): void => {
+        // Commit the 107.5% start scale before the class changes on the next frame.
+        void getComputedStyle(image).transform;
+        window.requestAnimationFrame(() => image.classList.add('is-site-image-in'));
+      };
+      if (!covered()) { start(); return; }
+      const observer = new MutationObserver(() => {
+        if (covered()) return;
+        observer.disconnect();
+        start();
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ['class'], subtree: true });
+      window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
+    };
+    if (image.complete && image.naturalWidth) reveal();
+    else image.addEventListener('load', reveal, { once: true });
+  };
+  const selector = '.bio_hero_section > img.bio_hero_img';
+  const image = document.querySelector<HTMLImageElement>(selector);
+  if (image) { attach(image); return; }
+  const observer = new MutationObserver(() => {
+    const image = document.querySelector<HTMLImageElement>(selector);
+    if (!image) return;
+    observer.disconnect();
+    attach(image);
+  });
+  observer.observe(root, { childList: true, subtree: true });
+}
+
 primePageTransition();
 optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();
+primeBiographyHero();

@@ -735,6 +735,9 @@ und das Datum `.bio_hero_eyebrow` faden gleichzeitig in 200 ms ein;
 die maskierte Textanimation steuert den gemeinsamen Start. Die Headline hat
 in Webflow `data-reveal="off"`, damit die globale Reveal-Timeline sie nicht
 gleichzeitig animiert.
+Das Head-Script startet die 1,4 Sekunden lange Bewegung beim Laden des Bildes
+beziehungsweise sofort nach dem Freigeben der Seite. Der Start wartet nicht
+auf das spaeter geladene Interaktions-Bundle.
 
 ### Smooth scroll
 

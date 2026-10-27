@@ -1192,7 +1192,7 @@ html.is-page-transition-boot::before {
 /* Match Atelier's single settle, with the start scale present before JS runs. */
 .bio_hero_section > img.bio_hero_img {
   transform: scale(1.075) !important;
-  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
+  transition: transform 1.4s cubic-bezier(0, 0, .2, 1);
 }
 
 .bio_hero_section > img.bio_hero_img.is-site-image-in {
