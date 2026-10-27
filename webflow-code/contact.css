@@ -28,6 +28,8 @@ html.w-mod-js.is-contact-intro-in .contact_txt > :nth-child(3) { transition-dela
 html.w-mod-js.is-contact-intro-in .contact_txt > :nth-child(4) { transition-delay: 150ms; }
 html.w-mod-js.is-contact-intro-in .contact_links { transition-delay: 190ms; }
 
+html.w-mod-js .top_bar_right .contact-instagram-link { opacity: 0; }
+
 /* The footer script inserts the icon after parsing; its animation also starts
    when insertion happens after the page intro has begun. */
 html.w-mod-js.is-contact-intro-in .top_bar_right .contact-instagram-link {
@@ -67,7 +69,10 @@ html.w-mod-js .contact_img.is-site-image-in img.is-contact-image {
     transition: none !important;
   }
 
-  html.w-mod-js .top_bar_right .contact-instagram-link { animation: none !important; }
+  html.w-mod-js .top_bar_right .contact-instagram-link {
+    opacity: 1 !important;
+    animation: none !important;
+  }
   html.w-mod-js .contact_img img.is-contact-image {
     scale: 1 !important;
     transition: none !important;
