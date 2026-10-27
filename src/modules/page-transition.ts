@@ -3,7 +3,7 @@ import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
 // Keep navigation and reset just after their matching CSS fades finish.
-const TIME = { navigate: 180, revealStart: 20, reset: 260, watchdog: 6000 };
+const TIME = { navigate: 110, revealStart: 0, reset: 155, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const STORAGE_KEY = 'pt';
@@ -18,6 +18,18 @@ const IGNORED_LINKS = [
 let initialized = false;
 let busy = false;
 let timers: number[] = [];
+const prefetchedPages = new Set<string>();
+
+function prefetchPage(link: HTMLAnchorElement): void {
+  if (link.closest(IGNORED_LINKS) || (link.target && link.target !== '_self')) return;
+  const url = getNavigableUrl(link);
+  if (!url || url.hash || prefetchedPages.has(url.href)) return;
+  prefetchedPages.add(url.href);
+  const hint = document.createElement('link');
+  hint.rel = 'prefetch';
+  hint.href = url.href;
+  document.head.append(hint);
+}
 
 function later(callback: () => void, delay: number): void {
   timers.push(window.setTimeout(callback, delay));
@@ -151,6 +163,18 @@ export function initPageTransitions(): void {
   const incoming = hasPendingTransition() && document.documentElement.classList.contains(PENDING_CLASS);
   if (incoming && !overlay.hasAttribute('data-page-transition-managed')) revealIncoming(overlay, main);
   else restorePreloaderIntro();
+
+  // Warm likely destinations while the visitor moves through the menu.
+  const prefetchHoveredLink = (event: Event): void => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (link) prefetchPage(link);
+  };
+  document.addEventListener('pointerover', prefetchHoveredLink, { passive: true });
+  document.addEventListener('focusin', prefetchHoveredLink);
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest('[data-site-menu-toggle]')) return;
+    document.querySelectorAll<HTMLAnchorElement>('[data-site-menu] a[href]').forEach(prefetchPage);
+  }, true);
 
   document.addEventListener('click', (event) => {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;

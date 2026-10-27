@@ -12,7 +12,7 @@ test('transition fades to white and back without a title', async ({ page }) => {
   await expect(curtain).toHaveCSS('opacity', '0');
   await page.locator('#page-link').click({ noWaitAfter: true });
   await expect(curtain).toHaveClass(/is-covering/);
-  await page.waitForTimeout(90);
+  await page.waitForTimeout(45);
   const duringCover = await curtain.evaluate((element) => Number(getComputedStyle(element).opacity));
   expect(duringCover).toBeGreaterThan(0);
   expect(duringCover).toBeLessThan(1);
