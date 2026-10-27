@@ -6,21 +6,25 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('[data-page-transition-overlay]')).toHaveCount(1);
 });
 
-test('curtain covers and uncovers from top to bottom without a title', async ({ page }) => {
+test('transition fades to white and back without a title', async ({ page }) => {
   const curtain = page.locator('[data-page-transition-overlay]');
-  await expect(curtain).toHaveCSS('clip-path', 'inset(0px 0px 100%)');
-  await page.locator('#page-link').click();
+  await expect(curtain).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(curtain).toHaveCSS('opacity', '0');
+  await page.locator('#page-link').click({ noWaitAfter: true });
   await expect(curtain).toHaveClass(/is-covering/);
-  await page.waitForTimeout(230);
-  const duringCover = await curtain.evaluate((element) => getComputedStyle(element).clipPath);
-  expect(duringCover).toMatch(/^inset\(0px 0px (?:[1-9]\d?|100)(?:\.\d+)?%/);
+  await page.waitForTimeout(90);
+  const duringCover = await curtain.evaluate((element) => Number(getComputedStyle(element).opacity));
+  expect(duringCover).toBeGreaterThan(0);
+  expect(duringCover).toBeLessThan(1);
   await page.waitForURL('**/page-transition.html?next=direct');
   await expect(page.locator('.page-transition-overlay__title')).toHaveCount(0);
   await expect(curtain).toHaveClass(/is-uncovering/);
-  await page.waitForTimeout(250);
-  const duringUncover = await curtain.evaluate((element) => getComputedStyle(element).clipPath);
-  expect(duringUncover).toMatch(/^inset\((?:[1-9]\d?|100)(?:\.\d+)?% 0px 0px/);
+  await page.waitForTimeout(120);
+  const duringUncover = await curtain.evaluate((element) => Number(getComputedStyle(element).opacity));
+  expect(duringUncover).toBeGreaterThan(0);
+  expect(duringUncover).toBeLessThan(1);
   await expect(curtain).not.toHaveClass(/is-uncovering/);
+  await expect(curtain).toHaveCSS('opacity', '0');
 });
 
 test('menu starts closing before the curtain begins', async ({ page }) => {

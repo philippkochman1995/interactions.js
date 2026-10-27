@@ -2,8 +2,8 @@ import { afterSitePreloader } from './site-preloader-state';
 import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
-// Keep the navigation and reset just after their matching CSS wipes finish.
-const TIME = { navigate: 500, uncoverStart: 120, reset: 640, watchdog: 6000 };
+// Keep navigation and reset just after their matching CSS fades finish.
+const TIME = { navigate: 270, revealStart: 40, reset: 390, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const STORAGE_KEY = 'pt';
@@ -55,30 +55,6 @@ function pageContent(): HTMLElement | null {
   return document.querySelector<HTMLElement>('main, [role="main"]');
 }
 
-// A plain-text h1 can be split without destroying nested Webflow markup.
-function prepareHeading(main: HTMLElement | null): void {
-  const heading = main?.querySelector<HTMLElement>('h1');
-  if (!heading || heading.matches('[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading')
-    || heading.children.length || !heading.textContent?.trim()) return;
-  const words = heading.textContent.trim().split(/\s+/);
-  heading.setAttribute('data-reveal', 'off');
-  heading.setAttribute('aria-label', words.join(' '));
-  heading.textContent = '';
-  words.forEach((word, index) => {
-    if (index) heading.append(document.createTextNode(' '));
-    const mask = document.createElement('span');
-    mask.className = 'page-transition-word-mask';
-    mask.setAttribute('aria-hidden', 'true');
-    const inner = document.createElement('span');
-    inner.className = 'page-transition-word';
-    inner.style.setProperty('--word-index', String(index));
-    inner.textContent = word;
-    mask.append(inner);
-    heading.append(mask);
-  });
-  heading.classList.add('is-page-transition-heading');
-}
-
 function focusMain(main: HTMLElement | null): void {
   if (!main) return;
   if (!main.hasAttribute('tabindex')) {
@@ -109,16 +85,9 @@ function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
   overlay.setAttribute('aria-hidden', 'false');
   overlay.classList.add('is-covered');
   document.documentElement.classList.add('is-page-transition-entering');
-  if (window.location.pathname !== '/') prepareHeading(main);
   // The head script releases the page if this bundle never starts.
-  const fonts = document.fonts?.ready ?? Promise.resolve();
-  void fonts.catch(() => undefined).then(() => {
-    later(() => {
-      overlay.classList.add('is-uncovering');
-      main?.querySelector('.is-page-transition-heading')?.classList.add('is-revealing');
-    }, TIME.uncoverStart);
-    later(() => { focusMain(main); reset(overlay); }, TIME.reset);
-  });
+  later(() => overlay.classList.add('is-uncovering'), TIME.revealStart);
+  later(() => { focusMain(main); reset(overlay); }, TIME.reset);
 }
 
 function leave(url: URL, overlay: HTMLElement): void {

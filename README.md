@@ -607,11 +607,10 @@ reduce` passiert nichts.
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a vanilla JavaScript page transition
-for normal same-origin page links. The curtain wipes from top to bottom to cover
-the current page, then continues down to reveal the destination. Motion uses
-`clip-path`; existing Webflow colors stay in place. The curtain takes 0.46 seconds
-in each direction. When a link is clicked in the open menu, the curtain starts
-as the menu is roughly half closed. The transition shows no destination title.
+for normal same-origin page links. A white overlay fades in over the current page
+in 0.24 seconds and fades out over the destination in 0.3 seconds. When a link is
+clicked in the open menu, the fade starts as the menu is roughly half closed.
+The transition shows no destination title.
 On the first visit, the top bar, slider dots, eye info and menu enter after the
 preloader clears; later pages do not replay that intro.
 
@@ -623,10 +622,10 @@ global Webflow footer before the script include:
 <div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"></div>
 ```
 
-Style color through Webflow or CSS. The base stylesheet uses:
+The base stylesheet uses:
 
 ```css
-background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+background: #fff;
 ```
 
 The transition ignores external links, `mailto:`, `tel:`, hash-only links,
@@ -638,8 +637,8 @@ and modifier-clicks. To opt out a specific internal link:
 ```
 
 The global head script sets the covered state before first paint; the global
-footer scripts create the curtain on every page. The new page starts revealing
-after its fonts are ready. Images and videos can continue loading afterwards.
+footer scripts create the overlay on every page. The new page starts fading in
+as soon as its transition script runs. Images and videos can continue loading afterwards.
 
 ## Werk-Overlay
 

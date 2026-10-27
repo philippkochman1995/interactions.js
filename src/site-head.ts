@@ -15,7 +15,7 @@ function primePageTransition(): void {
   document.addEventListener('DOMContentLoaded', () => {
     root.classList.remove('is-page-transition-boot');
   }, { once: true });
-  // Emergency release even when the deferred bundle or font loading fails.
+  // Emergency release if the deferred bundle never starts.
   window.setTimeout(() => {
     if (!root.classList.contains('is-page-transition-pending')) return;
     document.querySelector<HTMLElement>('[data-page-transition-overlay]')?.remove();
