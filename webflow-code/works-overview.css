@@ -81,3 +81,64 @@ html.fw-works-fade-out body { opacity: 0 !important; transition: opacity 320ms e
   html.fw-works-fade-in body, html.fw-works-fade-out body { transition: none !important; }
 }
 
+/* First-visit and page-transition entrance share one trigger. Webflow's inline
+   interaction opacity on the dots and eye must not start a second reveal. */
+html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center,
+html.w-mod-js .werk_hero_slider .werk_hero_dots,
+html.w-mod-js .werk_hero_slide:first-child .u-slide-info {
+  opacity: 0 !important;
+  transition: opacity 360ms cubic-bezier(.33, 1, .68, 1) !important;
+}
+
+html.w-mod-js.is-works-intro-in .top_bar_section:not(.work-overlay__header) .top_bar_center {
+  opacity: 1 !important;
+  transition-duration: 220ms !important;
+}
+
+html.w-mod-js.is-works-intro-in .werk_hero_slider .werk_hero_dots {
+  opacity: 1 !important;
+  transition-delay: 60ms !important;
+}
+
+html.w-mod-js.is-works-intro-in .werk_hero_slide:first-child .u-slide-info {
+  opacity: 1 !important;
+  transition-delay: 140ms !important;
+}
+
+html.w-mod-js .werk_hero_slide:first-child .hero_sign {
+  opacity: 0 !important;
+  translate: 0 24px;
+  transition: opacity 760ms cubic-bezier(.33, 1, .68, 1),
+    translate 760ms cubic-bezier(.33, 1, .68, 1);
+}
+
+html.w-mod-js.is-works-intro-in .werk_hero_slide:first-child .hero_sign {
+  opacity: .6 !important;
+  translate: none;
+}
+
+html.w-mod-js .werk_hero_slide:first-child .werk_hero_spline {
+  opacity: 0 !important;
+  transition: opacity 650ms cubic-bezier(.33, 1, .68, 1) !important;
+}
+
+html.w-mod-js.is-works-intro-in .werk_hero_slide:first-child .werk_hero_spline.is-works-spline-ready {
+  opacity: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.w-mod-js .top_bar_section:not(.work-overlay__header) .top_bar_center,
+  html.w-mod-js .werk_hero_slider .werk_hero_dots,
+  html.w-mod-js .werk_hero_slide:first-child :is(.u-slide-info, .werk_hero_spline) {
+    opacity: 1 !important;
+    translate: none !important;
+    transition: none !important;
+  }
+
+  html.w-mod-js .werk_hero_slide:first-child .hero_sign {
+    opacity: .6 !important;
+    translate: none !important;
+    transition: none !important;
+  }
+}
+

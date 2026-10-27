@@ -2381,8 +2381,8 @@ function Es(e, t) {
 function Ds() {
 	var e;
 	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
-	let t = /^\/(?:biografie|editionen|news)\/?$/i.test(window.location.pathname), n = os.map((e) => t && e === ".top_bar_section" ? [] : Array.from(document.querySelectorAll(e))), r = Array.from(document.querySelectorAll("[data-site-menu]"));
-	[...n.flat(), ...r].forEach((e) => {
+	let t = /^\/(?:biografie|editionen|news|werk-ueberblick)\/?$/i.test(window.location.pathname), n = /^\/werk-ueberblick\/?$/i.test(window.location.pathname), r = os.map((e) => t && e === ".top_bar_section" || n ? [] : Array.from(document.querySelectorAll(e))), i = Array.from(document.querySelectorAll("[data-site-menu]"));
+	[...r.flat(), ...i].forEach((e) => {
 		e.style.opacity = "0";
 	}), S(() => {
 		let e = (e, t, n, r, i = "cubic-bezier(.05, .85, .05, 1)") => {
@@ -2400,19 +2400,19 @@ function Ds() {
 				e.style.removeProperty("opacity"), a.cancel();
 			};
 		};
-		n.forEach((t, n) => {
+		r.forEach((t, n) => {
 			t.forEach((t) => e(t, [{ opacity: 0 }, { opacity: 1 }], ss.delay + n * ss.stagger, ss.fade));
 		});
-		let t = n.reduce((e, t, n) => t.length ? n : e, -1), i = t < 0 ? 0 : ss.delay + t * ss.stagger + ss.fade + ss.menuGap;
-		r.forEach((t) => {
-			let n = Math.max(0, window.innerHeight - t.getBoundingClientRect().top) + 8;
+		let t = r.reduce((e, t, n) => t.length ? n : e, -1), n = t < 0 ? 0 : ss.delay + t * ss.stagger + ss.fade + ss.menuGap;
+		i.forEach((t) => {
+			let r = Math.max(0, window.innerHeight - t.getBoundingClientRect().top) + 8;
 			e(t, [{
 				opacity: 1,
-				transform: `translate3d(0, ${n}px, 0)`
+				transform: `translate3d(0, ${r}px, 0)`
 			}, {
 				opacity: 1,
 				transform: "translate3d(0, 0, 0)"
-			}], i, ss.menu);
+			}], n, ss.menu);
 		});
 	});
 }

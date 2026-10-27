@@ -126,9 +126,10 @@ function primeLeadImage(): void {
 function primePageIntro(): void {
   const edition = /^\/editionen\/?$/i.test(window.location.pathname);
   const news = /^\/news\/?$/i.test(window.location.pathname);
-  if (!edition && !news) return;
-  const selector = edition ? '.editionen_intro' : '.news_highlight_section';
-  const revealClass = edition ? 'is-edition-intro-in' : 'is-news-intro-in';
+  const works = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
+  if (!edition && !news && !works) return;
+  const selector = edition ? '.editionen_intro' : news ? '.news_highlight_section' : '.werk_hero_section';
+  const revealClass = edition ? 'is-edition-intro-in' : news ? 'is-news-intro-in' : 'is-works-intro-in';
   const root = document.documentElement;
   const start = (): void => {
     const directLoad = !isIncomingNavigation();
@@ -151,9 +152,24 @@ function primePageIntro(): void {
   observer.observe(root, { childList: true, subtree: true });
 }
 
+function primeWorksSplineIntro(): void {
+  if (!/^\/werk-ueberblick\/?$/i.test(window.location.pathname)) return;
+  const selector = '.werk_hero_slide:first-child .werk_hero_spline[data-animation-type="spline"]';
+  const markReady = (event: Event): void => {
+    const scene = event.target;
+    if (!(scene instanceof HTMLElement) || !scene.matches(selector)) return;
+    // Webflow's load event precedes the canvas' first painted frame.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => scene.classList.add('is-works-spline-ready'));
+    });
+  };
+  document.addEventListener('w-spline-load', markReady, true);
+}
+
 primePageTransition();
 optimizeNewsImageSizes();
 pruneMobileHeroSpline();
 primeSitePreloader();
 primeLeadImage();
 primePageIntro();
+primeWorksSplineIntro();
