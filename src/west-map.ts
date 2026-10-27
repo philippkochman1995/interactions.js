@@ -120,9 +120,6 @@ import { markerThumbnail } from './marker-thumbnails';
     map.scrollZoom.setWheelZoomRate(1 / 650);
     map.touchZoomRotate.disableRotation();
     map.on('style.load', function(){
-      var landColor = ['interpolate', ['linear'], ['zoom'], 9, 'hsl(220, 3%, 94%)', 11, 'hsl(220, 1%, 92%)'];
-      if(map.getLayer('land')) map.setPaintProperty('land', 'background-color', landColor);
-      if(map.getLayer('land-structure-polygon')) map.setPaintProperty('land-structure-polygon', 'fill-color', landColor);
       var offWhite = getComputedStyle(document.documentElement).getPropertyValue('--fw_off_white').trim() || '#fafdff';
       map.setFog({
         color: offWhite,

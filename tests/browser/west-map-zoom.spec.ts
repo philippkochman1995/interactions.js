@@ -13,7 +13,6 @@ test('map opens over Europe and wraps horizontally while latitude stays below th
       localFontFamily: map.options.localFontFamily,
       bounds: map.options.bounds,
       fog: map.fog,
-      paintChanges: map.paintChanges,
       mapBackground: getComputedStyle(document.getElementById('wmMap')!).backgroundColor,
       bodyBackground: getComputedStyle(document.body).backgroundColor,
       dragRotate: map.options.dragRotate,
@@ -36,10 +35,6 @@ test('map opens over Europe and wraps horizontally while latitude stays below th
       'horizon-blend': 0.12,
       'star-intensity': 0
     },
-    paintChanges: [
-      { id: 'land', property: 'background-color', value: ['interpolate', ['linear'], ['zoom'], 9, 'hsl(220, 3%, 94%)', 11, 'hsl(220, 1%, 92%)'] },
-      { id: 'land-structure-polygon', property: 'fill-color', value: ['interpolate', ['linear'], ['zoom'], 9, 'hsl(220, 3%, 94%)', 11, 'hsl(220, 1%, 92%)'] }
-    ],
     mapBackground: 'rgb(250, 253, 255)',
     bodyBackground: 'rgb(250, 253, 255)',
     dragRotate: false,

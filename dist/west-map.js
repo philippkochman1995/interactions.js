@@ -80,21 +80,11 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			});
 		}
 		_.scrollZoom.setZoomRate(1 / 140), _.scrollZoom.setWheelZoomRate(1 / 650), _.touchZoomRotate.disableRotation(), _.on("style.load", function() {
-			var e = [
-				"interpolate",
-				["linear"],
-				["zoom"],
-				9,
-				"hsl(220, 3%, 94%)",
-				11,
-				"hsl(220, 1%, 92%)"
-			];
-			_.getLayer("land") && _.setPaintProperty("land", "background-color", e), _.getLayer("land-structure-polygon") && _.setPaintProperty("land-structure-polygon", "fill-color", e);
-			var t = getComputedStyle(document.documentElement).getPropertyValue("--fw_off_white").trim() || "#fafdff";
+			var e = getComputedStyle(document.documentElement).getPropertyValue("--fw_off_white").trim() || "#fafdff";
 			_.setFog({
-				color: t,
-				"high-color": t,
-				"space-color": t,
+				color: e,
+				"high-color": e,
+				"space-color": e,
 				"horizon-blend": .12,
 				"star-intensity": 0
 			});
