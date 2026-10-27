@@ -52,6 +52,27 @@
   }
 }
 
+/* Keep the normal pointer over work images instead of replacing it with an eye. */
+@media (hover: hover) and (pointer: fine) {
+  .cms-works__item .cms-works__image-wrap,
+  .cms-work-detail .cms-works__item .cms-works__image-wrap {
+    cursor: pointer;
+  }
+}
+
+/* Related works use the same image zoom timing as the overview cards. */
+[data-work-overlay] .cms-work-detail .cms-works__image {
+  transition: transform var(--fw-image-zoom-duration, 0.62s)
+    var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
+}
+
+[data-work-overlay] .cms-work-detail__overview-link.button-outlined {
+  width: max-content;
+  min-width: 14rem;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
 /* head: fw-works-overview-fade */
 html.fw-works-fade-in body { opacity: 1 !important; transition: opacity 320ms ease !important; }
 html.fw-works-fade-entry body { opacity: 0 !important; }
