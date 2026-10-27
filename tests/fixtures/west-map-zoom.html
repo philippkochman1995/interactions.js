@@ -71,6 +71,8 @@
         }
         setPadding(){}
         setFog(fog){ this.fog = fog; }
+        getLayer(id){ return id === 'land' || id === 'land-structure-polygon'; }
+        setPaintProperty(id, property, value){ (this.paintChanges ||= []).push({ id, property, value }); }
         getZoom(){ return this.zoom; }
         zoomTo(zoom, options){ this.zoomCalls.push(zoom); this.lastZoomOptions = options; }
         easeTo(options){ this.lastEase = options; }
