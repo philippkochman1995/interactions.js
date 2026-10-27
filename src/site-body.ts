@@ -18,17 +18,4 @@ if (!document.querySelector('[data-page-transition-overlay], .page-transition-ov
 
 const transitionOverlay = document.querySelector<HTMLElement>('[data-page-transition-overlay], .page-transition-overlay');
 transitionOverlay?.classList.add('curtain');
-if (transitionOverlay) {
-  let title = transitionOverlay.querySelector<HTMLElement>('.page-transition-overlay__title');
-  if (!title) {
-    title = document.createElement('span');
-    title.className = 'page-transition-overlay__title';
-    transitionOverlay.appendChild(title);
-  }
-  title.setAttribute('aria-live', 'polite');
-  try {
-    title.textContent = window.sessionStorage.getItem('pt') ?? '';
-  } catch {
-    // Session storage is optional for the incoming title.
-  }
-}
+transitionOverlay?.querySelector('.page-transition-overlay__title')?.remove();

@@ -437,10 +437,20 @@ function closeMenu(instance: SiteMenuInstance, onComplete?: () => void): gsap.co
   return tween;
 }
 
-export function closeSiteMenuBeforeTransition(root: HTMLElement, onClosed: () => void): boolean {
+export function closeSiteMenuBeforeTransition(root: HTMLElement, onHalfClosed: () => void): boolean {
   const instance = instances.find((item) => item.root === root && item.isOpen);
   if (!instance) return false;
-  closeMenu(instance, onClosed);
+  let started = false;
+  const startCurtain = (): void => {
+    if (started) return;
+    started = true;
+    onHalfClosed();
+  };
+  const tween = closeMenu(instance, startCurtain);
+  // With the panel easing, 42% of the duration is close to half its travel.
+  tween?.eventCallback('onUpdate', () => {
+    if (tween.progress() >= .42) startCurtain();
+  });
   return true;
 }
 

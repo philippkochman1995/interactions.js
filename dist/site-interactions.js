@@ -2229,7 +2229,13 @@ function $o(e, t) {
 }
 function es(e, t) {
 	let n = Io.find((t) => t.root === e && t.isOpen);
-	return n ? ($o(n, t), !0) : !1;
+	if (!n) return !1;
+	let r = !1, i = () => {
+		r || (r = !0, t());
+	}, a = $o(n, i);
+	return a == null || a.eventCallback("onUpdate", () => {
+		a.progress() >= .42 && i();
+	}), !0;
 }
 function ts(e) {
 	e.isOpen ? $o(e) : Qo(e);
@@ -2287,11 +2293,9 @@ function is(e = document) {
 //#endregion
 //#region src/modules/page-transition.ts
 var as = {
-	titleStart: 144,
-	navigate: 432,
-	hold: 250,
-	uncoverStart: 466,
-	reset: 1186,
+	navigate: 500,
+	uncoverStart: 120,
+	reset: 640,
 	watchdog: 6e3
 }, os = [
 	".top_bar_section",
@@ -2321,10 +2325,9 @@ function gs() {
 }
 function _s() {
 	try {
-		var e;
-		return (e = window.sessionStorage.getItem(cs)) == null ? "" : e;
+		return !!window.sessionStorage.getItem(cs);
 	} catch (e) {
-		return "";
+		return !1;
 	}
 }
 function vs() {
@@ -2336,46 +2339,12 @@ function vs() {
 function ys() {
 	var e;
 	let t = document.querySelector(ls);
-	if (t || (t = document.createElement("div"), document.body.append(t)), t.classList.add("curtain", "page-transition-overlay"), t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), !t.querySelector(".page-transition-overlay__title")) {
-		let e = document.createElement("span");
-		e.className = "page-transition-overlay__title", t.append(e);
-	}
-	return (e = t.querySelector(".page-transition-overlay__title")) == null || e.setAttribute("aria-live", "polite"), t;
+	return t || (t = document.createElement("div"), document.body.append(t)), t.classList.add("curtain", "page-transition-overlay"), t.setAttribute("data-page-transition-overlay", ""), t.setAttribute("aria-hidden", "true"), (e = t.querySelector(".page-transition-overlay__title")) == null || e.remove(), t;
 }
-function bs(e, t) {
-	var n, r, i, a;
-	let o = (e) => {
-		var t;
-		return (t = e == null ? void 0 : e.replace(/\s+/g, " ").trim()) == null ? "" : t;
-	}, s = o(t.getAttribute("data-page-name") || t.getAttribute("data-transition-title") || ((n = t.closest("[data-page-name], [data-transition-title]")) == null ? void 0 : n.getAttribute("data-page-name")) || ((r = t.closest("[data-transition-title]")) == null ? void 0 : r.getAttribute("data-transition-title")));
-	if (s) return s;
-	let c = e.pathname.replace(/\/$/, "") || "/", l = Array.from(document.querySelectorAll("[data-site-menu-link][href]")).find((e) => {
-		try {
-			return (new URL(e.href).pathname.replace(/\/$/, "") || "/") === c;
-		} catch (e) {
-			return !1;
-		}
-	}), u = o((l == null ? void 0 : l.getAttribute("data-site-menu-label")) || (l == null ? void 0 : l.textContent));
-	if (u) return u;
-	let d = t.closest("article, [class*=\"card\"]"), f = o(((i = t.querySelector("h1, h2, h3, h4")) == null ? void 0 : i.textContent) || (d == null || (a = d.querySelector("h1, h2, h3, h4")) == null ? void 0 : a.textContent));
-	if (f) return f;
-	let p = o(t.textContent);
-	if (p && p.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(p)) return p;
-	let m = e.pathname.split("/").filter(Boolean).pop();
-	if (!m) return "Startseite";
-	try {
-		return decodeURIComponent(m).replace(/[-_]+/g, " ");
-	} catch (e) {
-		return m.replace(/[-_]+/g, " ");
-	}
-}
-function xs() {
+function bs() {
 	return document.querySelector("main, [role=\"main\"]");
 }
-function Ss(e) {
-	return !!(e && !e.querySelector("canvas, iframe, video, [data-animation-type=\"spline\"]"));
-}
-function Cs(e) {
+function xs(e) {
 	var t;
 	let n = e == null ? void 0 : e.querySelector("h1");
 	if (!n || n.matches("[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_heading") || n.children.length || !((t = n.textContent) != null && t.trim())) return;
@@ -2388,42 +2357,39 @@ function Cs(e) {
 		i.className = "page-transition-word", i.style.setProperty("--word-index", String(t)), i.textContent = e, r.append(i), n.append(r);
 	}), n.classList.add("is-page-transition-heading");
 }
-function ws(e) {
+function Ss(e) {
 	e && (e.hasAttribute("tabindex") || (e.setAttribute("tabindex", "-1"), e.addEventListener("blur", () => e.removeAttribute("tabindex"), { once: !0 })), e.focus({ preventScroll: !0 }));
 }
-function Ts(e, t) {
-	gs(), e.classList.add("is-resetting"), e.classList.remove("is-covering", "is-covered", "is-title-visible", "is-title-leaving", "is-uncovering"), e.setAttribute("aria-hidden", "true"), t == null || t.classList.remove("is-page-transition-out", "is-page-transition-in", "is-page-transition-entered"), document.documentElement.classList.remove("is-page-transition-entering", "is-page-transition-covering"), vs(), ps = !1, window.requestAnimationFrame(() => e.classList.remove("is-resetting"));
+function Cs(e) {
+	gs(), e.classList.add("is-resetting"), e.classList.remove("is-covering", "is-covered", "is-uncovering"), e.setAttribute("aria-hidden", "true"), document.documentElement.classList.remove("is-page-transition-entering", "is-page-transition-covering"), vs(), ps = !1, window.requestAnimationFrame(() => e.classList.remove("is-resetting"));
 }
-function Es(e, t) {
+function ws(e, t) {
 	var n, r;
 	if (ps = !0, u()) {
-		ws(t), Ts(e, t);
+		Ss(t), Cs(e);
 		return;
 	}
-	let i = e.querySelector(".page-transition-overlay__title");
-	i && (i.textContent = _s()), e.setAttribute("aria-hidden", "false"), e.classList.add("is-covered", "is-title-visible"), Ss(t) && t.classList.add("is-page-transition-in"), document.documentElement.classList.add("is-page-transition-entering"), window.location.pathname !== "/" && Cs(t), ((n = (r = document.fonts) == null ? void 0 : r.ready) == null ? Promise.resolve() : n).catch(() => void 0).then(() => {
-		hs(() => e.classList.add("is-title-leaving"), as.hold), hs(() => {
+	e.setAttribute("aria-hidden", "false"), e.classList.add("is-covered"), document.documentElement.classList.add("is-page-transition-entering"), window.location.pathname !== "/" && xs(t), ((n = (r = document.fonts) == null ? void 0 : r.ready) == null ? Promise.resolve() : n).catch(() => void 0).then(() => {
+		hs(() => {
 			var n;
-			e.classList.add("is-uncovering"), t == null || t.classList.add("is-page-transition-entered"), t == null || (n = t.querySelector(".is-page-transition-heading")) == null || n.classList.add("is-revealing");
+			e.classList.add("is-uncovering"), t == null || (n = t.querySelector(".is-page-transition-heading")) == null || n.classList.add("is-revealing");
 		}, as.uncoverStart), hs(() => {
-			ws(t), Ts(e, t);
+			Ss(t), Cs(e);
 		}, as.reset);
 	});
 }
-function Ds(e, t, n, r) {
-	ps = !0;
-	let i = t.querySelector(".page-transition-overlay__title");
-	i && (i.textContent = r), t.setAttribute("aria-hidden", "false");
+function Ts(e, t) {
+	ps = !0, t.setAttribute("aria-hidden", "false");
 	try {
-		window.sessionStorage.setItem(cs, r);
+		window.sessionStorage.setItem(cs, "1");
 	} catch (e) {}
-	document.documentElement.classList.add("is-page-transition-covering"), t.classList.add("is-covering"), Ss(n) && n.classList.add("is-page-transition-out"), hs(() => t.classList.add("is-title-visible"), as.titleStart), hs(() => {
+	document.documentElement.classList.add("is-page-transition-covering"), t.classList.add("is-covering"), hs(() => {
 		window.location.href = e.href;
 	}, as.navigate), hs(() => {
 		window.location.href = e.href;
 	}, as.watchdog);
 }
-function Os() {
+function Es() {
 	var e;
 	if (!((e = window.__sitePreloader) != null && e.active) || u() || window.location.pathname === "/") return;
 	let t = os.map((e) => Array.from(document.querySelectorAll(e))), n = Array.from(document.querySelectorAll("[data-site-menu]"));
@@ -2461,45 +2427,45 @@ function Os() {
 		});
 	});
 }
-function ks() {
+function Ds() {
 	if (fs) return;
 	if (!document.body) {
-		document.addEventListener("DOMContentLoaded", ks, { once: !0 });
+		document.addEventListener("DOMContentLoaded", Ds, { once: !0 });
 		return;
 	}
 	fs = !0;
-	let e = ys(), t = xs();
-	_s() && document.documentElement.classList.contains(us) ? Es(e, t) : Os(), document.addEventListener("click", (n) => {
-		var r;
-		let i = n.target instanceof Element ? n.target.closest("a[href]") : null;
-		if (!i || n.defaultPrevented || l(n)) return;
+	let e = ys(), t = bs();
+	_s() && document.documentElement.classList.contains(us) ? ws(e, t) : Es(), document.addEventListener("click", (t) => {
+		var n;
+		let r = t.target instanceof Element ? t.target.closest("a[href]") : null;
+		if (!r || t.defaultPrevented || l(t)) return;
 		if (ps) {
-			n.preventDefault();
+			t.preventDefault();
 			return;
 		}
-		if (i.closest(ds) || i.target && i.target !== "_self") return;
-		let a = h(i);
-		if (!a || a.hash || u() || (r = window.__sitePreloader) != null && r.active) return;
-		n.preventDefault();
-		let o = bs(a, i), s = i.closest("[data-site-menu]");
-		s && (ps = !0, es(s, () => Ds(a, e, t, o))) || Ds(a, e, t, o);
-	}, !0), window.addEventListener("pageshow", (n) => {
-		n.persisted && Ts(e, t);
+		if (r.closest(ds) || r.target && r.target !== "_self") return;
+		let i = h(r);
+		if (!i || i.hash || u() || (n = window.__sitePreloader) != null && n.active) return;
+		t.preventDefault();
+		let a = r.closest("[data-site-menu]");
+		a && (ps = !0, es(a, () => Ts(i, e))) || Ts(i, e);
+	}, !0), window.addEventListener("pageshow", (t) => {
+		t.persisted && Cs(e);
 	});
 }
 //#endregion
 //#region src/modules/parallax.ts
-var As = "[data-parallax]", js = "data-parallax", Ms = "data-parallax-ready", Ns = "fw-parallax-window", Ps = "fw-parallax-window--self-sized", Fs = "fw-parallax-inner", Is = 60, Ls = 160, Rs = ".site-lightbox-trigger", zs = 1, Bs = !1;
-function Vs() {
-	Bs || (Bs = !0, b.registerPlugin($));
+var Os = "[data-parallax]", ks = "data-parallax", As = "data-parallax-ready", js = "fw-parallax-window", Ms = "fw-parallax-window--self-sized", Ns = "fw-parallax-inner", Ps = 60, Fs = 160, Is = ".site-lightbox-trigger", Ls = 1, Rs = !1;
+function zs() {
+	Rs || (Rs = !0, b.registerPlugin($));
 }
-function Hs(e) {
-	let t = e.getAttribute(js);
-	if (t === null || t.trim() === "") return Is;
+function Bs(e) {
+	let t = e.getAttribute(ks);
+	if (t === null || t.trim() === "") return Ps;
 	let n = Number.parseFloat(t);
-	return Number.isFinite(n) ? Math.sign(n) * Math.min(Math.abs(n), Ls) : Is;
+	return Number.isFinite(n) ? Math.sign(n) * Math.min(Math.abs(n), Fs) : Ps;
 }
-function Us(e) {
+function Vs(e) {
 	return e.complete && e.naturalWidth > 0 ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			e.removeEventListener("load", n), e.removeEventListener("error", n), t();
@@ -2507,44 +2473,44 @@ function Us(e) {
 		e.addEventListener("load", n, { once: !0 }), e.addEventListener("error", n, { once: !0 });
 	});
 }
-function Ws(e, t) {
+function Hs(e, t) {
 	var n;
-	let r = (n = e.closest(Rs)) == null ? e.parentElement : n;
-	if (!r || r.classList.contains(Ns)) return null;
+	let r = (n = e.closest(Is)) == null ? e.parentElement : n;
+	if (!r || r.classList.contains(js)) return null;
 	let i = r.getBoundingClientRect().height;
 	if (i <= 0) return null;
-	r.classList.add(Ns);
-	let a = document.createElement("span"), o = Math.abs(t) / 2 + zs;
-	if (a.className = Fs, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
+	r.classList.add(js);
+	let a = document.createElement("span"), o = Math.abs(t) / 2 + Ls;
+	if (a.className = Ns, a.style.top = `${-o}px`, a.style.bottom = `${-o}px`, e.before(a), a.append(e), r.getBoundingClientRect().height < i - 1) {
 		let t = e.naturalWidth / e.naturalHeight;
-		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(Ns), null;
-		r.classList.add(Ps), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
+		if (!Number.isFinite(t) || t <= 0) return a.before(e), a.remove(), r.classList.remove(js), null;
+		r.classList.add(Ms), r.style.aspectRatio = `${e.naturalWidth} / ${e.naturalHeight}`;
 	}
 	return a;
 }
-function Gs(e, t) {
+function Us(e, t) {
 	let n = e instanceof HTMLImageElement ? [e] : o("img", e);
 	if (n.length === 0) {
 		b.fromTo(e, { y: t / 2 }, {
 			y: -t / 2,
 			ease: "none",
-			scrollTrigger: Ks(e)
+			scrollTrigger: Ws(e)
 		});
 		return;
 	}
 	n.forEach((n) => {
-		Us(n).then(() => {
+		Vs(n).then(() => {
 			if (!n.isConnected) return;
-			let r = Ws(n, t);
+			let r = Hs(n, t);
 			r && (b.fromTo(r, { y: t / 2 }, {
 				y: -t / 2,
 				ease: "none",
-				scrollTrigger: Ks(e)
+				scrollTrigger: Ws(e)
 			}), $.refresh());
 		});
 	});
 }
-function Ks(e) {
+function Ws(e) {
 	return {
 		trigger: e,
 		start: "top bottom",
@@ -2553,28 +2519,28 @@ function Ks(e) {
 		invalidateOnRefresh: !0
 	};
 }
-function qs(e = document) {
-	let t = o(As, e).filter((e) => !e.hasAttribute(Ms));
-	t.length === 0 || u() || (Vs(), t.forEach((e) => {
-		let t = Hs(e);
-		t !== 0 && (e.setAttribute(Ms, ""), Gs(e, t));
+function Gs(e = document) {
+	let t = o(Os, e).filter((e) => !e.hasAttribute(As));
+	t.length === 0 || u() || (zs(), t.forEach((e) => {
+		let t = Bs(e);
+		t !== 0 && (e.setAttribute(As, ""), Us(e, t));
 	}));
 }
 //#endregion
 //#region src/modules/more-arrows.ts
-var Js = "\n  <path data-more-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\" fill=\"currentColor\"/>\n  <path data-more-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\" fill=\"currentColor\"/>\n";
-function Ys(e) {
+var Ks = "\n  <path data-more-arrow-dot d=\"M55.2685 54.5264H53.5352V58.4737H55.2685V54.5264Z\" fill=\"currentColor\"/>\n  <path data-more-arrow-head d=\"M56.9961 55.7542L49.6604 49L47.3711 51.1129L53.0066 56.2967V56.7033L47.3711 61.8871L49.6604 64L56.9961 57.2458C56.9965 56.9546 56.9965 56.0454 56.9961 55.7542Z\" fill=\"currentColor\"/>\n";
+function qs(e) {
 	var t, n;
 	if (!/^mehr\s+erfahren$/i.test((t = (n = e.textContent) == null ? void 0 : n.trim()) == null ? "" : t)) return;
 	let r = e.querySelector("svg.arrow");
-	r != null && r.hasAttribute("data-more-arrow") || (r || (r = document.createElementNS("http://www.w3.org/2000/svg", "svg"), r.classList.add("arrow"), e.appendChild(r)), r.classList.add("more-arrow"), r.setAttribute("data-more-arrow", ""), r.setAttribute("viewBox", "40 49 19 15"), r.setAttribute("aria-hidden", "true"), r.setAttribute("focusable", "false"), r.innerHTML = Js);
+	r != null && r.hasAttribute("data-more-arrow") || (r || (r = document.createElementNS("http://www.w3.org/2000/svg", "svg"), r.classList.add("arrow"), e.appendChild(r)), r.classList.add("more-arrow"), r.setAttribute("data-more-arrow", ""), r.setAttribute("viewBox", "40 49 19 15"), r.setAttribute("aria-hidden", "true"), r.setAttribute("focusable", "false"), r.innerHTML = Ks);
 }
-function Xs(e) {
-	e instanceof Element && e.matches("a, button, [role=\"button\"]") && Ys(e), e.querySelectorAll("a, button, [role=\"button\"]").forEach(Ys);
+function Js(e) {
+	e instanceof Element && e.matches("a, button, [role=\"button\"]") && qs(e), e.querySelectorAll("a, button, [role=\"button\"]").forEach(qs);
 }
-function Zs() {
-	Xs(document), new MutationObserver((e) => {
-		for (let t of e) for (let e of t.addedNodes) e instanceof Element && Xs(e);
+function Ys() {
+	Js(document), new MutationObserver((e) => {
+		for (let t of e) for (let e of t.addedNodes) e instanceof Element && Js(e);
 	}).observe(document.body, {
 		childList: !0,
 		subtree: !0
@@ -2582,8 +2548,8 @@ function Zs() {
 }
 //#endregion
 //#region src/modules/outlined-buttons.ts
-var Qs = ".btn, .button-outlined";
-function $s() {
+var Xs = ".btn, .button-outlined";
+function Zs() {
 	let e = /* @__PURE__ */ new WeakSet();
 	function t(t) {
 		if (!e.has(t)) {
@@ -2600,7 +2566,7 @@ function $s() {
 		}
 	}
 	function n(e) {
-		e instanceof HTMLElement && e.matches(Qs) && t(e), e.querySelectorAll(Qs).forEach(t);
+		e instanceof HTMLElement && e.matches(Xs) && t(e), e.querySelectorAll(Xs).forEach(t);
 	}
 	n(document), new MutationObserver((e) => {
 		for (let t of e) for (let e of t.addedNodes) e instanceof HTMLElement && n(e);
@@ -2611,30 +2577,30 @@ function $s() {
 }
 //#endregion
 //#region src/modules/spline-slider.ts
-var ec = ".werk_hero_slider", tc = ".werk_hero_track";
-function nc(e, t) {
+var Qs = ".werk_hero_slider", $s = ".werk_hero_track";
+function ec(e, t) {
 	let n = e.parentElement;
 	for (; n && n.parentElement !== t;) n = n.parentElement;
 	return (n == null ? void 0 : n.parentElement) === t ? n : null;
 }
-function rc(e) {
+function tc(e) {
 	var t, n;
 	let r = Array.from(e.children).filter((e) => e instanceof HTMLElement);
 	return (t = (n = r.find((e) => !e.inert && e.getAttribute("aria-hidden") !== "true")) == null ? r[0] : n) == null ? null : t;
 }
-function ic(e) {
-	let t = e.closest(ec), n = t == null ? void 0 : t.querySelector(tc);
+function nc(e) {
+	let t = e.closest(Qs), n = t == null ? void 0 : t.querySelector($s);
 	if (!n) return !1;
 	if (typeof getComputedStyle == "function") {
 		let t = getComputedStyle(e);
 		if (t.display === "none" || t.visibility === "hidden") return !0;
 	}
-	let r = nc(e, n), i = rc(n);
+	let r = ec(e, n), i = tc(n);
 	return !!(r && i && r !== i);
 }
 //#endregion
 //#region src/modules/site-preloader-assets.ts
-function ac(e, t) {
+function rc(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			t.removeEventListener("abort", r), n();
@@ -2643,7 +2609,7 @@ function ac(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), e.then(r, r);
 	});
 }
-function oc(e, t) {
+function ic(e, t) {
 	return new Promise((n) => {
 		let r = !1, i = () => {
 			r || (r = !0, e.removeEventListener("load", a), e.removeEventListener("error", i), t.removeEventListener("abort", i), n());
@@ -2654,7 +2620,7 @@ function oc(e, t) {
 		t.addEventListener("abort", i, { once: !0 }), e.addEventListener("load", a, { once: !0 }), e.addEventListener("error", i, { once: !0 }), e.loading = "eager", e.complete && a();
 	});
 }
-function sc(e, t) {
+function ac(e, t) {
 	return fetch(e, {
 		signal: t,
 		cache: "force-cache",
@@ -2663,7 +2629,7 @@ function sc(e, t) {
 		e.ok && await e.arrayBuffer();
 	}).catch(() => void 0);
 }
-function cc(e) {
+function oc(e) {
 	if (!(e != null && e.trim())) return null;
 	try {
 		let t = new URL(e, document.baseURI);
@@ -2672,16 +2638,16 @@ function cc(e) {
 		return null;
 	}
 }
-function lc(e) {
+function sc(e) {
 	var t;
 	let n = (t = e.closest("[data-preload-priority]")) == null ? void 0 : t.getAttribute("data-preload-priority");
 	return n === "critical" || n === "warm" ? n : void 0;
 }
-function uc(e) {
+function cc(e) {
 	let t = e.getBoundingClientRect();
 	return t.width > 0 && t.height > 0 && t.top < window.innerHeight && t.bottom > 0 && t.left < window.innerWidth && t.right > 0;
 }
-function dc(e, t) {
+function lc(e, t) {
 	return new Promise((n) => {
 		let r = [
 			"load-complete",
@@ -2700,7 +2666,7 @@ function dc(e, t) {
 		}
 	});
 }
-function fc() {
+function uc() {
 	let e = /* @__PURE__ */ new Map(), t = (t) => {
 		let n = e.get(t.key);
 		(!n || n.priority === "warm" && t.priority === "critical") && e.set(t.key, t);
@@ -2709,45 +2675,45 @@ function fc() {
 			key: `${n}:${e}`,
 			priority: r,
 			load: (t) => {
-				if (n === "spline") return sc(e, t);
+				if (n === "spline") return ac(e, t);
 				let r = new Image();
-				return r.src = e, oc(r, t);
+				return r.src = e, ic(r, t);
 			}
 		});
 	};
 	for (let [e, n] of Array.from(document.images).entries()) {
 		var r;
 		if (n.closest("[data-cms-works-source], [data-cms-work-related-source], [data-cms-canvas-source], [data-modal-content], [data-modal], #wmCmsSource, template")) continue;
-		let i = lc(n);
+		let i = sc(n);
 		if (!i && (n.closest("[hidden]") || getComputedStyle(n).display === "none")) continue;
 		let a = n.getBoundingClientRect(), o = a.top > window.innerHeight * 2 || a.bottom < -window.innerHeight;
 		if (!i && !n.closest("[data-site-preloader]") && o) {
 			n.loading = "lazy";
 			continue;
 		}
-		let s = cc(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
+		let s = oc(n.currentSrc || n.getAttribute("src")), c = n.srcset || ((r = n.closest("picture")) == null ? void 0 : r.querySelector("source[srcset]"));
 		!s && !c || t({
 			key: s ? `image:${s}` : `image:responsive-${e}`,
-			priority: i == null ? n.closest("[data-site-preloader]") || uc(n) ? "critical" : "warm" : i,
-			load: (e) => oc(n, e)
+			priority: i == null ? n.closest("[data-site-preloader]") || cc(n) ? "critical" : "warm" : i,
+			load: (e) => ic(n, e)
 		});
 	}
 	let i = document.querySelector(".site-preloader__signature");
 	i && n(new URL("preloader-background.svg", i.src).href, "image", "critical");
 	for (let [e, r] of Array.from(document.querySelectorAll("spline-viewer, [data-animation-type=\"spline\"], [data-preload-spline], iframe[src]")).entries()) {
 		var a;
-		if (r.matches("[data-animation-type=\"spline\"]") && ic(r)) continue;
-		let i = r instanceof HTMLIFrameElement, o = cc(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
+		if (r.matches("[data-animation-type=\"spline\"]") && nc(r)) continue;
+		let i = r instanceof HTMLIFrameElement, o = oc(r.getAttribute("data-preload-spline-url") || r.getAttribute("data-spline-url") || r.getAttribute("url") || r.getAttribute("src"));
 		if (!o || i && !r.hasAttribute("data-preload-spline") && !/(^|\.)spline\.design$/.test(new URL(o).hostname)) continue;
-		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = lc(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
+		let s = r.matches("[data-animation-type=\"spline\"][data-spline-url]"), c = (a = sc(r)) == null ? s ? "critical" : "warm" : a, l = r.matches("spline-viewer, [data-animation-type=\"spline\"]");
 		c === "critical" && l ? t({
 			key: `spline-runtime:${e}:${o}`,
 			priority: c,
-			load: (e) => dc(r, e)
+			load: (e) => lc(r, e)
 		}) : i ? t(c === "critical" ? {
 			key: `spline:${o}`,
 			priority: c,
-			load: (e) => (r.loading = "eager", dc(r, e))
+			load: (e) => (r.loading = "eager", lc(r, e))
 		} : {
 			key: `spline:${o}`,
 			priority: c,
@@ -2761,17 +2727,17 @@ function fc() {
 		if (!Array.isArray(t)) continue;
 		for (let e of t) {
 			if (!e || typeof e.url != "string" || !["image", "spline"].includes(e.type)) continue;
-			let t = cc(e.url);
+			let t = oc(e.url);
 			t && n(t, e.type, e.priority === "critical" ? "critical" : "warm");
 		}
 	} catch (e) {}
 	return document.fonts && t({
 		key: "fonts",
 		priority: "critical",
-		load: (e) => ac(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
+		load: (e) => rc(document.fonts.load("500 16px \"StyreneA\"").then(() => document.fonts.ready), e)
 	}), Array.from(e.values());
 }
-function pc(e) {
+function dc(e) {
 	let t = Array.from(document.querySelectorAll("[data-cms-works], [data-cms-work-detail]"));
 	return !t.length || t.every((e) => e.hasAttribute("data-site-assets-ready")) ? Promise.resolve() : new Promise((n) => {
 		let r = () => {
@@ -2788,13 +2754,13 @@ function pc(e) {
 		e.addEventListener("abort", r, { once: !0 }), e.aborted && r();
 	});
 }
-async function mc(e) {
+async function fc(e) {
 	var t;
 	if ((t = navigator.connection) != null && t.saveData) return;
 	let n = new AbortController(), r = () => n.abort();
 	window.addEventListener("pagehide", r, { once: !0 });
 	let i = window.setTimeout(r, 3e4), a = e.filter((e) => e.priority === "warm"), o = async () => {
-		for (; a.length && !n.signal.aborted;) await ac(a.shift().load(n.signal), n.signal);
+		for (; a.length && !n.signal.aborted;) await rc(a.shift().load(n.signal), n.signal);
 	};
 	try {
 		await Promise.all([
@@ -2808,11 +2774,11 @@ async function mc(e) {
 }
 //#endregion
 //#region src/modules/site-preloader.ts
-var hc = /* @__PURE__ */ new WeakSet(), gc = 5100, _c = 450, vc = 375, yc = 975;
-function bc(e) {
+var pc = /* @__PURE__ */ new WeakSet(), mc = 5100, hc = 450, gc = 375, _c = 975;
+function vc(e) {
 	return e < .5 ? 4 * e * e * e : 1 - (-2 * e + 2) ** 3 / 2;
 }
-function xc(e) {
+function yc(e) {
 	return new Promise((t) => {
 		let n = 0, r = 0, i = !1, a = window.setTimeout(o, 160);
 		function o() {
@@ -2824,7 +2790,7 @@ function xc(e) {
 		});
 	});
 }
-function Sc(e, t) {
+function bc(e, t) {
 	var n, r;
 	if (!Number.isFinite(t)) return;
 	let i = Math.max(Number(e.getAttribute("aria-valuenow")) || 0, Math.min(100, Math.max(0, Math.round(t))));
@@ -2856,17 +2822,17 @@ function Sc(e, t) {
 		}
 	});
 }
-function Cc(e) {
+function xc(e) {
 	let t = u(), n = !1, r = !1, i = 0, a = 0, o, s = new Promise((e) => {
 		o = e;
 	}), c = (t) => {
 		if (n) return;
-		let r = Math.min(1, (t - a) / gc);
-		Sc(e, (.6 * r + .4 * bc(r)) * 100), r === 1 ? o() : i = window.requestAnimationFrame(c);
+		let r = Math.min(1, (t - a) / mc);
+		bc(e, (.6 * r + .4 * vc(r)) * 100), r === 1 ? o() : i = window.requestAnimationFrame(c);
 	};
 	return {
 		start: () => {
-			r || n || (r = !0, a = performance.now(), t ? (Sc(e, 100), o()) : i = window.requestAnimationFrame(c));
+			r || n || (r = !0, a = performance.now(), t ? (bc(e, 100), o()) : i = window.requestAnimationFrame(c));
 		},
 		complete: s,
 		stop: () => {
@@ -2874,7 +2840,7 @@ function Cc(e) {
 		}
 	};
 }
-function wc(e, t) {
+function Sc(e, t) {
 	return new Promise((n) => {
 		let r = () => {
 			window.clearTimeout(i), t.removeEventListener("abort", r), n();
@@ -2882,7 +2848,7 @@ function wc(e, t) {
 		t.addEventListener("abort", r, { once: !0 }), t.aborted && r();
 	});
 }
-function Tc(e) {
+function Cc(e) {
 	return document.readyState === "complete" || e.aborted ? Promise.resolve() : new Promise((t) => {
 		let n = () => {
 			window.removeEventListener("load", n), e.removeEventListener("abort", n), t();
@@ -2890,20 +2856,20 @@ function Tc(e) {
 		window.addEventListener("load", n, { once: !0 }), e.addEventListener("abort", n, { once: !0 });
 	});
 }
-async function Ec(e, t) {
-	t.aborted || (document.documentElement.classList.add(w), e.classList.add("is-fading"), await wc(u() ? 0 : vc, t), !t.aborted && (e.classList.add("is-curtain"), await wc(u() ? 0 : yc, t)));
+async function wc(e, t) {
+	t.aborted || (document.documentElement.classList.add(w), e.classList.add("is-fading"), await Sc(u() ? 0 : gc, t), !t.aborted && (e.classList.add("is-curtain"), await Sc(u() ? 0 : _c, t)));
 }
-function Dc() {
+function Tc() {
 	var e, t;
 	let n = window.__sitePreloader;
-	if (!(n != null && n.active) || hc.has(n)) return;
-	hc.add(n);
+	if (!(n != null && n.active) || pc.has(n)) return;
+	pc.add(n);
 	let r = document.querySelector(C);
 	if (!r) {
 		n.release();
 		return;
 	}
-	let i = new AbortController(), a = Cc(r);
+	let i = new AbortController(), a = xc(r);
 	(e = n.allowExit) == null || e.call(n), ((t = n.introReady) == null ? Promise.resolve() : t).then(() => {
 		n.active && a.start();
 	}), n.cleanup.push(() => {
@@ -2912,11 +2878,11 @@ function Dc() {
 		e.length && b.killTweensOf(e);
 	});
 	let o = async () => {
-		if (await pc(i.signal), !n.active) return;
-		let e = fc(), t = e.filter((e) => e.priority === "critical");
+		if (await dc(i.signal), !n.active) return;
+		let e = uc(), t = e.filter((e) => e.priority === "critical");
 		await Promise.all(t.map(async (e) => {
-			await ac(Promise.resolve().then(() => e.load(i.signal)), i.signal);
-		})), n.active && (await xc(i.signal), n.active && (await n.introReady, n.active && (await Promise.all([a.complete, Tc(i.signal)]), n.active && (await wc(u() ? 0 : Math.max(0, T - (Date.now() - n.startedAt)), i.signal), n.active && (await wc(u() ? 0 : _c, i.signal), n.active && (await Ec(r, i.signal), n.active && (n.release(), mc(e))))))));
+			await rc(Promise.resolve().then(() => e.load(i.signal)), i.signal);
+		})), n.active && (await yc(i.signal), n.active && (await n.introReady, n.active && (await Promise.all([a.complete, Cc(i.signal)]), n.active && (await Sc(u() ? 0 : Math.max(0, T - (Date.now() - n.startedAt)), i.signal), n.active && (await Sc(u() ? 0 : hc, i.signal), n.active && (await wc(r, i.signal), n.active && (n.release(), fc(e))))))));
 	}, s = () => {
 		o().catch(n.release);
 	};
@@ -2924,27 +2890,27 @@ function Dc() {
 }
 //#endregion
 //#region src/modules/smooth-scroll.ts
-var Oc = !1, kc = !1;
-function Ac() {
-	if (kc || u()) return;
-	kc = !0;
+var Ec = !1, Dc = !1;
+function Oc() {
+	if (Dc || u()) return;
+	Dc = !0;
 	let e, t = () => {
 		let t = window.lenis;
-		if (Oc || !window.__siteLenisManaged || !t) return;
-		Oc = !0, b.registerPlugin($), t.on("scroll", $.update);
+		if (Ec || !window.__siteLenisManaged || !t) return;
+		Ec = !0, b.registerPlugin($), t.on("scroll", $.update);
 		let n = (e) => t.raf(e * 1e3);
 		b.ticker.add(n), b.ticker.lagSmoothing(0), window.__siteLenisTickerConnected = !0, window.dispatchEvent(new Event("site:lenis-ticker-connected")), $.refresh(), e = () => {
-			b.ticker.remove(n), t.off("scroll", $.update), Oc = !1, window.__siteLenisTickerConnected = !1, e = void 0;
+			b.ticker.remove(n), t.off("scroll", $.update), Ec = !1, window.__siteLenisTickerConnected = !1, e = void 0;
 		};
 	};
 	window.addEventListener("pagehide", () => e == null ? void 0 : e()), window.addEventListener("pageshow", (e) => {
 		var n;
 		e.persisted && (t(), (n = window.lenis) == null || n.resize());
-	}), t(), Oc || window.addEventListener("site:lenis-ready", t, { once: !0 });
+	}), t(), Ec || window.addEventListener("site:lenis-ready", t, { once: !0 });
 }
 //#endregion
 //#region src/modules/site-image-reveal.ts
-var jc = "data-site-image-reveal", Mc = "is-site-image-in", Nc = ".news_event img.intro_img", Pc = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Fc = ".bio_hero_section > img.bio_hero_img", Ic = [
+var kc = "data-site-image-reveal", Ac = "is-site-image-in", jc = ".news_event img.intro_img", Mc = ".bio_photo img.bio_media_img, .bio_photo.bio_video .bio_video_trigger img", Nc = ".bio_hero_section > img.bio_hero_img", Pc = [
 	".top_bar_section",
 	"[data-site-menu]",
 	".site-preloader",
@@ -2966,8 +2932,8 @@ var jc = "data-site-image-reveal", Mc = "is-site-image-in", Nc = ".news_event im
 	"[data-edition-slider]",
 	"[data-atelier-slideshow-root]",
 	"[aria-hidden=\"true\"]"
-].join(", "), Lc = !1;
-function Rc(e) {
+].join(", "), Fc = !1;
+function Ic(e) {
 	let t = document.documentElement, n = () => t.classList.contains("is-site-preloading") || t.classList.contains("is-site-preloader-exiting") ? !0 : (t.classList.contains("is-page-transition-pending") || t.classList.contains("is-page-transition-entering")) && !document.querySelector(".page-transition-overlay.is-uncovering");
 	if (!n()) {
 		requestAnimationFrame(e);
@@ -2982,17 +2948,17 @@ function Rc(e) {
 		subtree: !0
 	}), window.addEventListener("pagehide", () => r.disconnect(), { once: !0 });
 }
-function zc() {
-	if (Lc || u() || !("IntersectionObserver" in window)) return;
-	Lc = !0;
+function Lc() {
+	if (Fc || u() || !("IntersectionObserver" in window)) return;
+	Fc = !0;
 	let e = /* @__PURE__ */ new WeakMap(), t = /* @__PURE__ */ new WeakSet(), n = 0, r = (n) => {
 		let r = e.get(n);
-		if (!r || n.classList.contains(Mc) || t.has(n)) return;
+		if (!r || n.classList.contains(Ac) || t.has(n)) return;
 		t.add(n);
 		let a = () => {
-			t.delete(n), n.isConnected && (n.classList.add(Mc), i.unobserve(n));
+			t.delete(n), n.isConnected && (n.classList.add(Ac), i.unobserve(n));
 		}, o = () => {
-			n.getAttribute(jc) === "hero" ? Rc(() => window.setTimeout(a, 200)) : a();
+			n.getAttribute(kc) === "hero" ? Ic(() => window.setTimeout(a, 200)) : a();
 		};
 		r.complete ? r.naturalWidth && r.decode ? r.decode().then(o, o) : o() : (r.addEventListener("load", () => {
 			r.decode ? r.decode().then(o, o) : o();
@@ -3002,7 +2968,7 @@ function zc() {
 			e.isIntersecting && r(e.target);
 		});
 	}, { threshold: 0 }), a = (t, n, r, a = 0) => {
-		t.hasAttribute(jc) || (t.setAttribute(jc, r), a && t.style.setProperty("--site-image-delay", `${a}ms`), e.set(t, n), r === "hero" && (n.loading = "eager", n.setAttribute("fetchpriority", "high")), i.observe(t));
+		t.hasAttribute(kc) || (t.setAttribute(kc, r), a && t.style.setProperty("--site-image-delay", `${a}ms`), e.set(t, n), r === "hero" && (n.loading = "eager", n.setAttribute("fetchpriority", "high")), i.observe(t));
 	}, o = (e) => {
 		if (e.closest("[data-site-image-reveal=\"event\"]")) return;
 		let t = e.parentElement;
@@ -3013,15 +2979,15 @@ function zc() {
 		n = 0;
 		let e = window.location.pathname;
 		if (/^\/biografie\/?$/i.test(e)) {
-			let e = document.querySelector(Fc);
-			e && a(e, e, "hero"), document.querySelectorAll(Pc).forEach((e) => {
+			let e = document.querySelector(Nc);
+			e && a(e, e, "hero"), document.querySelectorAll(Mc).forEach((e) => {
 				var t;
 				let n = (t = e.closest(".site-lightbox-trigger, .bio_video_trigger")) == null ? e : t;
 				a(n, e, "bio");
 			});
 		}
 		if (!/^\/atelier\/?$/i.test(e)) {
-			if (document.querySelectorAll(Nc).forEach((e) => {
+			if (document.querySelectorAll(jc).forEach((e) => {
 				o(e);
 			}), /^\/kontakt\/?$/i.test(e)) {
 				let e = document.querySelector(".contact_img img.is-contact-image"), t = e == null ? void 0 : e.closest(".site-lightbox-trigger");
@@ -3036,7 +3002,7 @@ function zc() {
 				let n = e.querySelector("img");
 				n && a(e, n, "instagram", Math.min(t, 4) * 85);
 			}), document.querySelectorAll("body img").forEach((e, n) => {
-				if (t || e.closest(Ic) || e.closest(`[${jc}]`) || !e.getAttribute("src") && !e.getAttribute("srcset")) return;
+				if (t || e.closest(Pc) || e.closest(`[${kc}]`) || !e.getAttribute("src") && !e.getAttribute("srcset")) return;
 				let r = e.closest(".site-lightbox-trigger, .news_img, .contact_img, .about_img, .image-absolute-full-wrapper");
 				a(r == null ? e : r, e, r ? "media" : "plain", n % 4 * 70);
 			});
@@ -3055,12 +3021,12 @@ function zc() {
 }
 //#endregion
 //#region src/modules/masked-line-reveal.ts
-var Bc = ".work_about_heading, .editionen_title, .accordion_heading", Vc = ".bio_hero_section .bio_hero_sub", Hc = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, ${Vc}, ${Bc}`, Uc = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading", Wc = "data-masked-reveal-ready", Gc = "data-masked-reveal-complete", Kc = /* @__PURE__ */ new Map(), qc = /* @__PURE__ */ new Set(), Jc, Yc = !1, Xc = window.location.pathname, Zc, Qc = /* @__PURE__ */ new WeakSet();
-function $c(e) {
+var Rc = ".work_about_heading, .editionen_title, .accordion_heading", zc = ".bio_hero_section .bio_hero_sub", Bc = `[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, ${zc}, ${Rc}`, Vc = "[data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading", Hc = "data-masked-reveal-ready", Uc = "data-masked-reveal-complete", Wc = /* @__PURE__ */ new Map(), Gc = /* @__PURE__ */ new Set(), Kc, qc = !1, Jc = window.location.pathname, Yc, Xc = /* @__PURE__ */ new WeakSet();
+function Zc(e) {
 	let t = getComputedStyle(e).getPropertyValue("--masked-reveal-stagger").trim() || "50ms", n = Number.parseFloat(t);
 	return Number.isFinite(n) ? t.endsWith("s") && !t.endsWith("ms") ? n * 1e3 : n : 50;
 }
-async function el(e) {
+async function Qc(e) {
 	let t = document.documentElement, n = /^\/atelier\/?$/i.test(window.location.pathname) && !!e.closest(".atelier_hero_section") || /^\/biografie\/?$/i.test(window.location.pathname) && !!e.closest(".bio_hero_section"), r = /^\/editionen\/?$/i.test(window.location.pathname) && e.matches(".editionen_title") && e.closest(".editionen_item") === document.querySelector(".editionen_item"), i = n || r;
 	if (t.classList.contains("is-page-transition-entering") && !(i && document.querySelector(".page-transition-overlay.is-uncovering")) && await new Promise((e) => {
 		let n = new MutationObserver(() => {
@@ -3091,50 +3057,50 @@ async function el(e) {
 		});
 	}
 }
-function tl(e) {
+function $c(e) {
 	e.played || !e.element.isConnected || (e.played = !0, e.element.classList.add("is-masked-reveal-playing"), /^\/atelier\/?$/i.test(window.location.pathname) && e.element.matches(".atelier_hero_section .atelier_slide_heading") && document.dispatchEvent(new Event("atelier:hero-line-reveal")));
 }
-function nl(e) {
+function el(e) {
 	var t;
 	e.matches(".editionen_title") && ((t = e.closest(".editionen_item")) == null || t.querySelectorAll("[data-edition-content-reveal]").forEach((e) => e.classList.add("is-edition-content-in")));
 }
-function rl(e, t = !1) {
+function tl(e, t = !1) {
 	let { element: n, text: r, markup: i } = e;
-	if (!n.isConnected || !Jc) return;
-	let a = e.played && n.hasAttribute(Gc) && !t;
-	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Gc), n.innerHTML = i;
+	if (!n.isConnected || !Kc) return;
+	let a = e.played && n.hasAttribute(Uc) && !t;
+	n.classList.remove("is-masked-reveal-playing"), n.removeAttribute(Uc), n.innerHTML = i;
 	try {
-		let t = Jc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
+		let t = Kc.create(n, { type: "lines" }), i = t.lines.filter((e) => {
 			var t;
 			return (t = e.textContent) == null ? void 0 : t.trim();
 		}).map((e) => Array.from(e.childNodes, (e) => e.cloneNode(!0)));
 		if (t.revert(), !i.length) throw Error("No text lines found");
-		let s = document.createDocumentFragment(), c = $c(n);
+		let s = document.createDocumentFragment(), c = Zc(n);
 		if (i.forEach((e, t) => {
 			t && s.append(document.createTextNode(" "));
 			let n = document.createElement("span");
 			n.className = "masked-reveal-line", n.setAttribute("aria-hidden", "true");
 			let r = document.createElement("span");
 			r.className = "masked-reveal-line__text", r.style.setProperty("--masked-reveal-line-delay", `${t * c}ms`), r.append(...e), n.append(r), s.append(n);
-		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Wc, ""), e.width = n.getBoundingClientRect().width, a) {
-			e.played = !0, n.setAttribute(Gc, ""), nl(n);
+		}), n.replaceChildren(s), n.setAttribute("aria-label", r), n.setAttribute(Hc, ""), e.width = n.getBoundingClientRect().width, a) {
+			e.played = !0, n.setAttribute(Uc, ""), el(n);
 			return;
 		}
 		if (e.played = !1, n.getAttribute("data-masked-line-reveal") === "viewport" && "IntersectionObserver" in window) {
 			var o;
 			(o = e.intersectionObserver) == null || o.disconnect(), e.intersectionObserver = new IntersectionObserver((t, n) => {
-				t.some((e) => e.isIntersecting) && (n.disconnect(), tl(e));
+				t.some((e) => e.isIntersecting) && (n.disconnect(), $c(e));
 			}, { threshold: .1 }), e.intersectionObserver.observe(n);
-		} else tl(e);
+		} else $c(e);
 	} catch (e) {
-		n.innerHTML = i, n.removeAttribute(Wc), n.setAttribute(Gc, ""), nl(n);
+		n.innerHTML = i, n.removeAttribute(Hc), n.setAttribute(Uc, ""), el(n);
 	}
 }
-function il(e) {
+function nl(e) {
 	var t, n, r, i;
-	if (Kc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
-	if (e.matches(Bc) && !e.hasAttribute("data-masked-line-reveal") && e.setAttribute("data-masked-line-reveal", "viewport"), e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
-		e.setAttribute(Gc, "");
+	if (Wc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim())) return;
+	if (e.matches(Rc) && !e.hasAttribute("data-masked-line-reveal") && e.setAttribute("data-masked-line-reveal", "viewport"), e.querySelector("a, button, input, select, textarea, svg, img, canvas, video, iframe")) {
+		e.setAttribute(Uc, "");
 		return;
 	}
 	let a = {
@@ -3144,62 +3110,62 @@ function il(e) {
 		width: 0,
 		played: !1,
 		resizeObserver: new ResizeObserver(() => {
-			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || e.matches(Vc) && a.played && !e.hasAttribute(Gc) || rl(a);
+			!a.width || Math.abs(e.getBoundingClientRect().width - a.width) < 1 || e.matches(zc) && a.played && !e.hasAttribute(Uc) || tl(a);
 		})
 	};
-	Kc.set(e, a), a.resizeObserver.observe(e), Promise.all([
+	Wc.set(e, a), a.resizeObserver.observe(e), Promise.all([
 		import("./site-interactions-CacQO3xR.js"),
 		(r = document.fonts) == null ? void 0 : r.ready,
 		(i = window.__sitePreloader) == null ? void 0 : i.ready,
-		el(e)
+		Qc(e)
 	]).then(([{ SplitText: t }]) => {
-		b.registerPlugin(t), Jc = t, e.isConnected && rl(a);
+		b.registerPlugin(t), Kc = t, e.isConnected && tl(a);
 	}).catch(() => {
-		e.setAttribute(Gc, "");
+		e.setAttribute(Uc, "");
 	});
 }
-function al(e) {
+function rl(e) {
 	var t, n, r;
-	qc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (qc.add(e), Promise.all([
+	Gc.has(e) || /^\/atelier\/?$/i.test(window.location.pathname) && e.hasAttribute("data-fade") || !((t = e.textContent) != null && t.trim()) || (Gc.add(e), Promise.all([
 		(n = document.fonts) == null ? void 0 : n.ready,
 		(r = window.__sitePreloader) == null ? void 0 : r.ready,
-		el(e)
+		Qc(e)
 	]).then(() => {
 		e.isConnected && e.classList.add("is-masked-reveal-playing");
 	}).catch(() => {
-		e.setAttribute(Gc, "");
+		e.setAttribute(Uc, "");
 	}));
 }
-function ol() {
-	Kc.forEach((e) => {
-		rl(e, !0);
-	}), qc.forEach((e) => {
+function il() {
+	Wc.forEach((e) => {
+		tl(e, !0);
+	}), Gc.forEach((e) => {
 		e.classList.remove("is-masked-reveal-playing"), requestAnimationFrame(() => e.classList.add("is-masked-reveal-playing"));
 	});
 }
-function sl() {
-	let e = Xc !== window.location.pathname;
-	if (Xc = window.location.pathname, /^\/editionen\/?$/i.test(Xc)) {
+function al() {
+	let e = Jc !== window.location.pathname;
+	if (Jc = window.location.pathname, /^\/editionen\/?$/i.test(Jc)) {
 		var t;
 		(t = document.querySelector(".editionen_item")) == null || t.setAttribute("data-edition-first", "");
 	}
-	document.querySelectorAll(Hc).forEach(il), document.querySelectorAll(Uc).forEach(al), document.querySelectorAll(".editionen_item").forEach((e) => {
+	document.querySelectorAll(Bc).forEach(nl), document.querySelectorAll(Vc).forEach(rl), document.querySelectorAll(".editionen_item").forEach((e) => {
 		e.querySelectorAll(".editionen_meta, .editionen_note").forEach((t, n) => {
 			var r;
-			t.hasAttribute("data-edition-content-reveal") || (t.setAttribute("data-edition-content-reveal", ""), t.style.setProperty("--edition-content-delay", `${n * 90}ms`), (r = e.querySelector(".editionen_title")) != null && r.hasAttribute(Gc) && t.classList.add("is-edition-content-in"));
+			t.hasAttribute("data-edition-content-reveal") || (t.setAttribute("data-edition-content-reveal", ""), t.style.setProperty("--edition-content-delay", `${n * 90}ms`), (r = e.querySelector(".editionen_title")) != null && r.hasAttribute(Uc) && t.classList.add("is-edition-content-in"));
 		});
-	}), Zc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
-		Qc.has(e) || (Qc.add(e), e.style.setProperty("--accordion-line-index", String(t)), e.setAttribute("data-accordion-line-ready", ""), Zc == null || Zc.observe(e));
-	}), Kc.forEach((e, t) => {
+	}), Yc && document.querySelectorAll(".accordion_section .accordion_item").forEach((e, t) => {
+		Xc.has(e) || (Xc.add(e), e.style.setProperty("--accordion-line-index", String(t)), e.setAttribute("data-accordion-line-ready", ""), Yc == null || Yc.observe(e));
+	}), Wc.forEach((e, t) => {
 		var n;
-		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Kc.delete(t));
-	}), qc.forEach((e) => {
-		e.isConnected || qc.delete(e);
-	}), e && ol();
+		t.isConnected || (e.resizeObserver.disconnect(), (n = e.intersectionObserver) == null || n.disconnect(), Wc.delete(t));
+	}), Gc.forEach((e) => {
+		e.isConnected || Gc.delete(e);
+	}), e && il();
 }
-function cl() {
+function ol() {
 	var e;
-	Yc || u() || (Yc = !0, "IntersectionObserver" in window && (Zc = new IntersectionObserver((e, t) => {
+	qc || u() || (qc = !0, "IntersectionObserver" in window && (Yc = new IntersectionObserver((e, t) => {
 		e.forEach((e) => {
 			if (!e.isIntersecting) return;
 			let n = e.target;
@@ -3208,35 +3174,35 @@ function cl() {
 	}, {
 		threshold: 0,
 		rootMargin: "0px 0px -5% 0px"
-	})), sl(), new MutationObserver(sl).observe(document.documentElement, {
+	})), al(), new MutationObserver(al).observe(document.documentElement, {
 		childList: !0,
 		subtree: !0
 	}), (e = document.fonts) == null || e.addEventListener("loadingdone", () => {
-		Kc.forEach((e) => {
-			e.element.matches(Vc) && e.played && !e.element.hasAttribute(Gc) || rl(e);
+		Wc.forEach((e) => {
+			e.element.matches(zc) && e.played && !e.element.hasAttribute(Uc) || tl(e);
 		});
-	}), window.addEventListener("popstate", sl), window.addEventListener("pageshow", (e) => {
-		e.persisted && (ol(), sl());
+	}), window.addEventListener("popstate", al), window.addEventListener("pageshow", (e) => {
+		e.persisted && (il(), al());
 	}), document.addEventListener("animationend", (e) => {
 		let t = e.target;
 		if (!(t instanceof HTMLElement) || !t.classList.contains("masked-reveal-line__text")) return;
-		let n = t.closest(Hc);
-		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Gc, ""), nl(n));
+		let n = t.closest(Bc);
+		!n || t !== n.querySelector(".masked-reveal-line:last-of-type > .masked-reveal-line__text") || (n.classList.remove("is-masked-reveal-playing"), n.setAttribute(Uc, ""), el(n));
 	}));
 }
 //#endregion
 //#region src/main.ts
-var ll = !1;
-Dc(), ks(), ii(), cl(), Ac();
-function ul() {
-	if (ll) return;
-	ll = !0;
+var sl = !1;
+Tc(), Ds(), ii(), ol(), Oc();
+function cl() {
+	if (sl) return;
+	sl = !0;
 	let e = ee();
 	if (io({ i18n: e }), /^\/kontakt\/?$/i.test(window.location.pathname)) {
 		var t;
 		(t = document.querySelector(".contact_img img.is-contact-image")) == null || t.classList.add("js-lightbox");
 	}
-	Xi({ i18n: e }), qs(), is(), ie(), _(), E(), Zs(), $s(), zc(), window.SiteInteractions = {
+	Xi({ i18n: e }), Gs(), is(), ie(), _(), E(), Ys(), Zs(), Lc(), window.SiteInteractions = {
 		openModal: eo,
 		openContentModal: $a,
 		closeModal: to,
@@ -3244,7 +3210,7 @@ function ul() {
 		closeLightbox: qi
 	};
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ul, { once: !0 }) : ul();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", cl, { once: !0 }) : cl();
 //#endregion
 
 //# sourceMappingURL=site-interactions.js.map

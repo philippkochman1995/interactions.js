@@ -607,11 +607,11 @@ reduce` passiert nichts.
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a vanilla JavaScript page transition
-for normal same-origin page links. The curtain rises from the bottom, holds the
-destination title while the new page loads, and leaves through the top. Motion
-uses `clip-path`; existing Webflow colors and typography stay in place.
-The title uses the preloader's 16px size. The curtain takes 0.384 seconds in each direction.
-Media-heavy pages keep their canvas still while the curtain moves.
+for normal same-origin page links. The curtain wipes from top to bottom to cover
+the current page, then continues down to reveal the destination. Motion uses
+`clip-path`; existing Webflow colors stay in place. The curtain takes 0.46 seconds
+in each direction. When a link is clicked in the open menu, the curtain starts
+as the menu is roughly half closed. The transition shows no destination title.
 On the first visit, the top bar, slider dots, eye info and menu enter after the
 preloader clears; later pages do not replay that intro.
 
@@ -620,7 +620,7 @@ flash between Webflow page loads, you may also place this element once in the
 global Webflow footer before the script include:
 
 ```html
-<div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"><span class="page-transition-overlay__title" aria-live="polite"></span></div>
+<div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"></div>
 ```
 
 Style color through Webflow or CSS. The base stylesheet uses:
@@ -637,13 +637,9 @@ and modifier-clicks. To opt out a specific internal link:
 <a href="/example" data-transition="false">No transition</a>
 ```
 
-Use `data-page-name="West Map"` on a link when its visible label differs from
-the destination title. The title can also be read from the site menu, a nearby
-card heading, the link text, or the URL. The global head script sets the covered
-state and title before first paint; the global footer scripts create the curtain
-on every page. Only the destination title appears in the curtain.
-The global head also preloads the existing StyreneA medium font so the title
-does not switch fonts during the head-to-footer handoff.
+The global head script sets the covered state before first paint; the global
+footer scripts create the curtain on every page. The new page starts revealing
+after its fonts are ready. Images and videos can continue loading afterwards.
 
 ## Werk-Overlay
 

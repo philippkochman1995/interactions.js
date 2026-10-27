@@ -129,16 +129,12 @@ body.is-lightbox-open {
   overscroll-behavior: contain;
 }
 
-/* Page transition: only motion is owned here; existing site colors and type remain. */
+/* Page transition: the curtain closes and opens from top to bottom. */
 :root {
-  --e: cubic-bezier(.7, 0, .08, 1);
   --eo: cubic-bezier(.05, .85, .05, 1);
-  --tail: cubic-bezier(.02, .9, .03, 1);
-  --pt-cover-duration: .384s;
-  --pt-uncover-duration: .384s;
-  --pt-content-duration: .384s;
-  --pt-title-opacity-duration: .576s;
-  --pt-title-travel-duration: .72s;
+  --pt-ease: cubic-bezier(.76, 0, .24, 1);
+  --pt-cover-duration: .46s;
+  --pt-uncover-duration: .46s;
 }
 
 [data-page-transition-overlay],
@@ -151,9 +147,9 @@ body.is-lightbox-open {
   z-index: 2000;
   background: var(--fw_rosa, #ffc7d1);
   pointer-events: none;
-  clip-path: inset(100% 0 0 0);
+  clip-path: inset(0 0 100% 0);
   will-change: clip-path;
-  transition: clip-path var(--pt-cover-duration) var(--e);
+  transition: clip-path var(--pt-cover-duration) var(--pt-ease);
 }
 
 .curtain.is-covering,
@@ -163,78 +159,16 @@ html.is-page-transition-pending .curtain {
 }
 
 .curtain.is-uncovering {
-  clip-path: inset(0 0 100% 0) !important;
+  clip-path: inset(100% 0 0 0) !important;
   transition-duration: var(--pt-uncover-duration);
 }
 
 .curtain.is-resetting {
   transition: none !important;
-  clip-path: inset(100% 0 0 0) !important;
+  clip-path: inset(0 0 100% 0) !important;
 }
 
-.page-transition-overlay__title {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  color: var(--fw_dark_purple, #06021a);
-  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0;
-  text-align: center;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-  opacity: 0;
-  transform: translate3d(0, 44px, 0);
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-  transition:
-    opacity var(--pt-title-opacity-duration) var(--tail),
-    transform var(--pt-title-travel-duration) var(--tail);
-}
-
-.curtain.is-title-visible .page-transition-overlay__title {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.curtain.is-title-leaving .page-transition-overlay__title {
-  opacity: 0;
-  transition: opacity .24s var(--e);
-}
-
-.curtain.is-resetting .page-transition-overlay__title {
-  opacity: 0;
-  transform: translate3d(0, 44px, 0);
-  transition: none;
-}
-
-html.is-page-transition-pending .curtain:not(.is-title-leaving) .page-transition-overlay__title {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-main.is-page-transition-out,
-[role="main"].is-page-transition-out {
-  transform: translate3d(0, -7vh, 0);
-  transition: transform var(--pt-content-duration) var(--e);
-}
-
-main.is-page-transition-in,
-[role="main"].is-page-transition-in {
-  transform: translate3d(0, 7vh, 0);
-  transition: transform var(--pt-content-duration) var(--e);
-}
-
-main.is-page-transition-entered,
-[role="main"].is-page-transition-entered {
-  transform: translate3d(0, 0, 0);
-}
+.page-transition-overlay__title { display: none !important; }
 
 .page-transition-word-mask {
   display: inline-block;
@@ -263,11 +197,6 @@ html.is-page-transition-covering #fw-hero-grained::before {
 
 @media (prefers-reduced-motion: reduce) {
   .curtain,
-  .curtain .page-transition-overlay__title,
-  main.is-page-transition-out,
-  main.is-page-transition-in,
-  [role="main"].is-page-transition-out,
-  [role="main"].is-page-transition-in,
   .page-transition-word {
     transition-duration: .01s !important;
   }
@@ -280,30 +209,6 @@ html.is-page-transition-boot::before {
   inset: 0;
   z-index: 2001;
   background: var(--fw_rosa, #ffc7d1);
-  pointer-events: none;
-}
-
-/* The head boot layer carries the same title until the footer curtain exists. */
-html.is-page-transition-boot::after {
-  content: attr(data-page-transition-title);
-  position: fixed;
-  inset: 0;
-  z-index: 2002;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  padding: 1.5rem;
-  color: var(--fw_dark_purple, #06021a);
-  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0;
-  text-align: center;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-  -webkit-font-smoothing: antialiased;
   pointer-events: none;
 }
 

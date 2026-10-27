@@ -2,8 +2,8 @@ import { afterSitePreloader } from './site-preloader-state';
 import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
-// The matching easing and duration variables live in the curtain CSS block.
-const TIME = { titleStart: 144, navigate: 432, hold: 250, uncoverStart: 466, reset: 1186, watchdog: 6000 };
+// Keep the navigation and reset just after their matching CSS wipes finish.
+const TIME = { navigate: 500, uncoverStart: 120, reset: 640, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
 const STORAGE_KEY = 'pt';
@@ -28,9 +28,9 @@ function clearTimers(): void {
   timers = [];
 }
 
-function storedTitle(): string {
-  try { return window.sessionStorage.getItem(STORAGE_KEY) ?? ''; }
-  catch { return ''; }
+function hasPendingTransition(): boolean {
+  try { return Boolean(window.sessionStorage.getItem(STORAGE_KEY)); }
+  catch { return false; }
 }
 
 function clearPending(): void {
@@ -47,47 +47,12 @@ function ensureOverlay(): HTMLElement {
   overlay.classList.add('curtain', 'page-transition-overlay');
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
-  if (!overlay.querySelector('.page-transition-overlay__title')) {
-    const title = document.createElement('span');
-    title.className = 'page-transition-overlay__title';
-    overlay.append(title);
-  }
-  overlay.querySelector('.page-transition-overlay__title')?.setAttribute('aria-live', 'polite');
+  overlay.querySelector('.page-transition-overlay__title')?.remove();
   return overlay;
-}
-
-function titleFor(url: URL, link: HTMLAnchorElement): string {
-  const clean = (value: string | null | undefined): string => value?.replace(/\s+/g, ' ').trim() ?? '';
-  const explicit = clean(link.getAttribute('data-page-name') || link.getAttribute('data-transition-title')
-    || link.closest<HTMLElement>('[data-page-name], [data-transition-title]')?.getAttribute('data-page-name')
-    || link.closest<HTMLElement>('[data-transition-title]')?.getAttribute('data-transition-title'));
-  if (explicit) return explicit;
-  const path = url.pathname.replace(/\/$/, '') || '/';
-  const menuLink = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-site-menu-link][href]')).find((item) => {
-    try { return (new URL(item.href).pathname.replace(/\/$/, '') || '/') === path; }
-    catch { return false; }
-  });
-  const menuTitle = clean(menuLink?.getAttribute('data-site-menu-label') || menuLink?.textContent);
-  if (menuTitle) return menuTitle;
-  const card = link.closest<HTMLElement>('article, [class*="card"]');
-  const heading = clean(link.querySelector('h1, h2, h3, h4')?.textContent || card?.querySelector('h1, h2, h3, h4')?.textContent);
-  if (heading) return heading;
-  const linkText = clean(link.textContent);
-  if (linkText && linkText.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(linkText)) return linkText;
-  const segment = url.pathname.split('/').filter(Boolean).pop();
-  if (!segment) return 'Startseite';
-  try { return decodeURIComponent(segment).replace(/[-_]+/g, ' '); }
-  catch { return segment.replace(/[-_]+/g, ' '); }
 }
 
 function pageContent(): HTMLElement | null {
   return document.querySelector<HTMLElement>('main, [role="main"]');
-}
-
-function canMoveContent(main: HTMLElement | null): main is HTMLElement {
-  // Translating a whole WebGL/video scene while clipping the viewport stalls
-  // compositing on the media-heavy pages. The curtain still carries the handoff.
-  return Boolean(main && !main.querySelector('canvas, iframe, video, [data-animation-type="spline"]'));
 }
 
 // A plain-text h1 can be split without destroying nested Webflow markup.
@@ -123,12 +88,11 @@ function focusMain(main: HTMLElement | null): void {
   main.focus({ preventScroll: true });
 }
 
-function reset(overlay: HTMLElement, main: HTMLElement | null): void {
+function reset(overlay: HTMLElement): void {
   clearTimers();
   overlay.classList.add('is-resetting');
-  overlay.classList.remove('is-covering', 'is-covered', 'is-title-visible', 'is-title-leaving', 'is-uncovering');
+  overlay.classList.remove('is-covering', 'is-covered', 'is-uncovering');
   overlay.setAttribute('aria-hidden', 'true');
-  main?.classList.remove('is-page-transition-out', 'is-page-transition-in', 'is-page-transition-entered');
   document.documentElement.classList.remove('is-page-transition-entering', 'is-page-transition-covering');
   clearPending();
   busy = false;
@@ -139,39 +103,30 @@ function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
   busy = true;
   if (prefersReducedMotion()) {
     focusMain(main);
-    reset(overlay, main);
+    reset(overlay);
     return;
   }
-  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
-  if (title) title.textContent = storedTitle();
   overlay.setAttribute('aria-hidden', 'false');
-  overlay.classList.add('is-covered', 'is-title-visible');
-  if (canMoveContent(main)) main.classList.add('is-page-transition-in');
+  overlay.classList.add('is-covered');
   document.documentElement.classList.add('is-page-transition-entering');
   if (window.location.pathname !== '/') prepareHeading(main);
   // The head script releases the page if this bundle never starts.
   const fonts = document.fonts?.ready ?? Promise.resolve();
   void fonts.catch(() => undefined).then(() => {
-    later(() => overlay.classList.add('is-title-leaving'), TIME.hold);
     later(() => {
       overlay.classList.add('is-uncovering');
-      main?.classList.add('is-page-transition-entered');
       main?.querySelector('.is-page-transition-heading')?.classList.add('is-revealing');
     }, TIME.uncoverStart);
-    later(() => { focusMain(main); reset(overlay, main); }, TIME.reset);
+    later(() => { focusMain(main); reset(overlay); }, TIME.reset);
   });
 }
 
-function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleText: string): void {
+function leave(url: URL, overlay: HTMLElement): void {
   busy = true;
-  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
-  if (title) title.textContent = titleText;
   overlay.setAttribute('aria-hidden', 'false');
-  try { window.sessionStorage.setItem(STORAGE_KEY, titleText); } catch { /* Continue normally. */ }
+  try { window.sessionStorage.setItem(STORAGE_KEY, '1'); } catch { /* Continue normally. */ }
   document.documentElement.classList.add('is-page-transition-covering');
   overlay.classList.add('is-covering');
-  if (canMoveContent(main)) main.classList.add('is-page-transition-out');
-  later(() => overlay.classList.add('is-title-visible'), TIME.titleStart);
   later(() => { window.location.href = url.href; }, TIME.navigate);
   later(() => { window.location.href = url.href; }, TIME.watchdog);
 }
@@ -224,7 +179,7 @@ export function initPageTransitions(): void {
   initialized = true;
   const overlay = ensureOverlay();
   const main = pageContent();
-  const incoming = Boolean(storedTitle()) && document.documentElement.classList.contains(PENDING_CLASS);
+  const incoming = hasPendingTransition() && document.documentElement.classList.contains(PENDING_CLASS);
   if (incoming) revealIncoming(overlay, main);
   else restorePreloaderIntro();
 
@@ -236,17 +191,16 @@ export function initPageTransitions(): void {
     const url = getNavigableUrl(link);
     if (!url || url.hash || prefersReducedMotion() || window.__sitePreloader?.active) return;
     event.preventDefault();
-    const title = titleFor(url, link);
     const menu = link.closest<HTMLElement>('[data-site-menu]');
     if (menu) {
-      // Die Menue-Schliessanimation endet, bevor der Vorhang loslaeuft.
+      // The curtain starts as the menu is roughly half closed.
       busy = true;
-      if (closeSiteMenuBeforeTransition(menu, () => leave(url, overlay, main, title))) return;
+      if (closeSiteMenuBeforeTransition(menu, () => leave(url, overlay))) return;
     }
-    leave(url, overlay, main, title);
+    leave(url, overlay);
   }, true);
 
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted) reset(overlay, main);
+    if (event.persisted) reset(overlay);
   });
 }
