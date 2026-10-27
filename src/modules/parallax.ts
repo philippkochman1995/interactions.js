@@ -100,7 +100,7 @@ function whenMeasurable(image: HTMLImageElement): Promise<void> {
   gesetzt, wenn es ihn gibt: er umschliesst das Bild bereits exakt, ist beschnitten und
   traegt das Lupen-Icon, das am Rand kleben bleiben soll statt mitzuwandern.
 */
-function buildWindow(image: HTMLImageElement, shift: number): HTMLElement | null {
+function buildWindow(image: HTMLImageElement, overscan: number): HTMLElement | null {
   const frame = image.closest<HTMLElement>(LIGHTBOX_WRAPPER_SELECTOR) ?? image.parentElement;
 
   if (!frame || frame.classList.contains(WINDOW_CLASS)) {
@@ -122,7 +122,6 @@ function buildWindow(image: HTMLImageElement, shift: number): HTMLElement | null
   frame.classList.add(WINDOW_CLASS);
 
   const inner = document.createElement('span');
-  const overscan = Math.abs(shift) / 2 + EDGE_RESERVE;
 
   inner.className = INNER_CLASS;
   inner.style.top = `${-overscan}px`;
@@ -157,8 +156,24 @@ function buildWindow(image: HTMLImageElement, shift: number): HTMLElement | null
   return inner;
 }
 
+/*
+  Ein Rahmen, der schon beim Laden im Viewport steht - das Hero der News-Detailseite -,
+  kommt nie von unten herein. Die erste Haelfte des Fensterwegs verpufft dort, und das
+  Ueberhoehen schneidet vom Bild oben und unten ab, obwohl die Bildposition "Oben" sagt.
+
+  Laeuft das Bild hinterher (negativer Wert), braucht so ein Rahmen gar kein Ueberhoehen:
+  Das Bild startet buendig und sinkt erst, wenn der Rahmen oben aus dem Viewport faehrt.
+  Der Spalt, der sich dabei oben oeffnet, ist nie groesser als das Stueck Rahmen, das
+  bereits ueber dem Viewport liegt - solange das Bild langsamer sinkt, als gescrollt wird.
+  Unten beschneidet der Rahmen das Bild nur, eine Luecke entsteht dort nicht.
+*/
+function isHero(element: HTMLElement, shift: number): boolean {
+  return shift < 0 && element.getBoundingClientRect().top + window.scrollY < window.innerHeight;
+}
+
 function applyParallax(element: HTMLElement, shift: number): void {
   const images = element instanceof HTMLImageElement ? [element] : qsa<HTMLImageElement>('img', element);
+  const hero = isHero(element, shift);
 
   if (images.length === 0) {
     // Kein Bild da: dann wandert das Element selbst. Kein Fenster, aber besser als
@@ -177,9 +192,25 @@ function applyParallax(element: HTMLElement, shift: number): void {
         return;
       }
 
-      const inner = buildWindow(image, shift);
+      const inner = buildWindow(image, hero ? 0 : Math.abs(shift) / 2 + EDGE_RESERVE);
 
       if (!inner) {
+        return;
+      }
+
+      if (hero) {
+        gsap.fromTo(
+          inner,
+          { y: 0 },
+          {
+            // Gedeckelt unter der Rahmenhoehe, sonst sinkt das Bild schneller, als der
+            // Rahmen hinausfaehrt, und der Spalt oben wird sichtbar.
+            y: () => Math.min(Math.abs(shift), inner.offsetHeight * 0.5),
+            ease: 'none',
+            scrollTrigger: { ...trigger(element), start: 'top top' },
+          },
+        );
+        ScrollTrigger.refresh();
         return;
       }
 

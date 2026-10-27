@@ -563,6 +563,15 @@ Fenster. Der Betrag ist der gesamte Weg, den das Bild hinter dem Fenster zurueck
 gedeckelt bei 160px; ein negativer Wert kehrt die Richtung um. Unter etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf
 die volle Scrollstrecke des Elements verteilt.
 
+### Hero: Rahmen, die beim Laden schon sichtbar sind
+
+Steht ein Rahmen mit negativem Wert beim Laden schon im Viewport (Hero der
+News-Detailseite), wird das Bild nicht ueberhoeht und damit nicht beschnitten: es startet
+buendig und sinkt erst, wenn der Rahmen oben aus dem Viewport faehrt (`start: top top`).
+Der Spalt oben liegt dabei immer schon ueber dem Viewport, unten beschneidet nur der
+Rahmen. Der Weg ist auf die halbe Rahmenhoehe gedeckelt, damit das Bild nie schneller
+sinkt, als gescrollt wird. Das passiert automatisch, in Webflow ist nichts zu setzen.
+
 ### Aufbau
 
 ```text
