@@ -255,7 +255,9 @@ html.is-page-transition-boot::before {
 }
 
 [data-site-menu].is-open [data-site-menu-panel] {
-  height: var(--site-menu-open-height, calc(100dvh - 3rem));
+  height: auto;
+  max-height: var(--site-menu-open-height, calc(100dvh - 3rem));
+  overflow-y: auto;
 }
 
 [data-site-menu-toggle] {
