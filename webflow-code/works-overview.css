@@ -15,6 +15,11 @@
 .moebel_block .quote-icon { height: 1rem; }
 .moebel_block .quote-text > .quote-h3:only-child { margin-bottom: 0; }
 
+/* The SVG artwork is 18px wide; long mobile quotes must not shrink its box below that. */
+@media (max-width: 767px) {
+  .moebel_block .quote-icon { min-width: 18px; }
+}
+
 /* head: fw-work-overlay-menu-and-overview-fix */
 [data-work-overlay] > .work-overlay__flyer { z-index: 2 !important; }
 [data-work-overlay] > [data-site-menu] { z-index: 3 !important; }
