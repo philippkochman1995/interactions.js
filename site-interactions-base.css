@@ -361,21 +361,19 @@ html.is-page-transition-boot::before {
   padding-bottom: 0.25rem;
 }
 
-/* Bei den Footer-Links steckt der Abstand im row-gap des Containers:
-   Gap auf 0, dafuer je 0.125rem Padding pro Seite — in Summe wieder die
-   0.25rem von vorher, aber diesmal als Hover-Flaeche. Der Gap sitzt nur
-   zwischen den Links, das Padding auch aussen: die 0.125rem oben und
-   unten kommen darum von den Container-Margins (1.5rem / 1rem im
-   Designer) wieder runter, damit der Text auf demselben Pixel bleibt. */
+/* Die Footer-Links bekommen denselben Zeilenabstand und dieselbe Hover-Flaeche
+   wie die kleinen Links in den Sektionen. Der Block hat nach oben und unten
+   2.5rem Abstand; auf kurzen Viewports begrenzt das Panel seine Hoehe und
+   der Inhalt scrollt. */
 .site-menu__footer-links {
   row-gap: 0;
-  margin-top: 1.375rem;
-  margin-bottom: 0.875rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
 }
 
 [data-site-menu-item].site-menu__footer-link {
-  padding-top: 0.125rem;
-  padding-bottom: 0.125rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 /* Zweiter Teil derselben Sache: der Streifen zwischen einer Trennlinie und
@@ -597,16 +595,6 @@ html.is-page-transition-boot::before {
 
   .site-menu__link--large {
     font-size: calc(var(--_sizes---h2-font-size, 1.667rem) + 0.125rem);
-  }
-
-  .site-menu__footer-links {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  [data-site-menu-item].site-menu__footer-link {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
   }
 
   /* Platz fuer die fixierte Menueleiste am Seitenende: Die letzte Footer-Zeile
