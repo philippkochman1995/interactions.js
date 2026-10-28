@@ -792,10 +792,12 @@ html.is-page-transition-boot::before {
     order: 1;
   }
 
-  /* The fixed menu already reserves the last 50px of the viewport. */
+  /* The fixed menu already reserves the last 50px of the viewport. On the
+     flex-column legal/contact pages the footer must still fit its children. */
   .footer.u-section {
     min-height: 0;
     height: auto;
+    flex-shrink: 0;
   }
 
   .atelier_location_txt.u-p,
