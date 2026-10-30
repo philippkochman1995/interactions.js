@@ -4,10 +4,10 @@ import { PRELOADER_EXIT_CLASS, PRELOADER_MINIMUM, PRELOADER_SELECTOR } from './s
 import { prefersReducedMotion } from './utils';
 
 const initializedStates = new WeakSet<object>();
-const PROGRESS_MS = 6800;
-const HOLD_AFTER_LOAD_MS = 600;
-const FADE_BEFORE_CURTAIN_MS = 500;
-const CURTAIN_MS = 1300;
+const PROGRESS_MS = 5100;
+const HOLD_AFTER_LOAD_MS = 450;
+const FADE_BEFORE_CURTAIN_MS = 375;
+const CURTAIN_MS = 975;
 
 function easeInOutCubic(t: number): number {
   return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -60,7 +60,7 @@ export function setPreloaderProgress(overlay: HTMLElement, value: number): void 
       current.textContent = target;
       return;
     }
-    gsap.to(track, { yPercent: -50, y: 0, duration: 0.065, ease: 'power2.out', onComplete: () => {
+    gsap.to(track, { yPercent: -50, y: 0, duration: 0.049, ease: 'power2.out', onComplete: () => {
       current.textContent = target;
       gsap.set(track, { yPercent: 0, y: 0 });
     } });

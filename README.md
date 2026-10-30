@@ -563,6 +563,15 @@ Fenster. Der Betrag ist der gesamte Weg, den das Bild hinter dem Fenster zurueck
 gedeckelt bei 160px; ein negativer Wert kehrt die Richtung um. Unter etwa 40px faellt der Effekt kaum auf, weil sich der Weg auf
 die volle Scrollstrecke des Elements verteilt.
 
+### Hero: Rahmen, die beim Laden schon sichtbar sind
+
+Steht ein Rahmen mit negativem Wert beim Laden schon im Viewport (Hero der
+News-Detailseite), wird das Bild nicht ueberhoeht und damit nicht beschnitten: es startet
+buendig und sinkt erst, wenn der Rahmen oben aus dem Viewport faehrt (`start: top top`).
+Der Spalt oben liegt dabei immer schon ueber dem Viewport, unten beschneidet nur der
+Rahmen. Der Weg ist auf die halbe Rahmenhoehe gedeckelt, damit das Bild nie schneller
+sinkt, als gescrollt wird. Das passiert automatisch, in Webflow ist nichts zu setzen.
+
 ### Aufbau
 
 ```text
@@ -607,11 +616,10 @@ reduce` passiert nichts.
 ## Page transitions
 
 The global `site-interactions.js` bundle adds a vanilla JavaScript page transition
-for normal same-origin page links. The curtain rises from the bottom, holds the
-destination title while the new page loads, and leaves through the top. Motion
-uses `clip-path`; existing Webflow colors and typography stay in place.
-The title uses the preloader's 16px size. The curtain takes 0.8 seconds.
-Media-heavy pages keep their canvas still while the curtain moves.
+for normal same-origin page links. A white overlay fades in over the current page
+in 0.16 seconds and fades out over the destination in 0.2 seconds. When a link is
+clicked in the open menu, the fade starts as the menu is roughly half closed.
+The transition shows no destination title.
 On the first visit, the top bar, slider dots, eye info and menu enter after the
 preloader clears; later pages do not replay that intro.
 
@@ -620,13 +628,13 @@ flash between Webflow page loads, you may also place this element once in the
 global Webflow footer before the script include:
 
 ```html
-<div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"><span class="page-transition-overlay__title" aria-live="polite"></span></div>
+<div class="curtain page-transition-overlay" data-page-transition-overlay aria-hidden="true"></div>
 ```
 
-Style color through Webflow or CSS. The base stylesheet uses:
+The base stylesheet uses:
 
 ```css
-background: var(--FW_Rose, var(--FW_Rosa, var(--fw_rosa, #ffc0cb)));
+background: #fff;
 ```
 
 The transition ignores external links, `mailto:`, `tel:`, hash-only links,
@@ -637,13 +645,10 @@ and modifier-clicks. To opt out a specific internal link:
 <a href="/example" data-transition="false">No transition</a>
 ```
 
-Use `data-page-name="West Map"` on a link when its visible label differs from
-the destination title. The title can also be read from the site menu, a nearby
-card heading, the link text, or the URL. The global head script sets the covered
-state and title before first paint; the global footer scripts create the curtain
-on every page. Only the destination title appears in the curtain.
-The global head also preloads the existing StyreneA medium font so the title
-does not switch fonts during the head-to-footer handoff.
+The global head script sets the covered state before first paint; the global
+footer scripts create the overlay on every page. The new page starts fading in
+from the synchronous body script, before the main interaction bundle runs. Images
+and videos can continue loading afterwards.
 
 ## Werk-Overlay
 
@@ -723,10 +728,16 @@ Bei Breiten- oder Schriftwechsel werden Timelines und ScrollTrigger entfernt und
 neu aufgebaut. Bereits gestartete Reveals bleiben sichtbar. Bei
 `prefers-reduced-motion: reduce` wird keine Reveal-Animation gestartet.
 
-Der Biografie-Hero verwendet `src/biography-intro.ts` separat: erst erscheint
-`.bio_hero_eyebrow`, danach `.bio_hero_heading`. Die Headline hat in Webflow
-`data-reveal="off"`, damit die globale Reveal-Timeline sie nicht gleichzeitig
-animiert. Das kleine gebaute Script ist im Biografie-Footer eingebettet.
+Auf der Biografie-Seite bewegt sich das Hero-Bild wie auf der Atelierseite
+einmal von 107,5 auf 100 Prozent. Der Startwert gilt schon vor dem Laden des
+Scripts, damit das Bild nicht erst in die Gegenrichtung springt. Die Top Bar
+und das Datum `.bio_hero_eyebrow` faden gleichzeitig in 200 ms ein;
+die maskierte Textanimation steuert den gemeinsamen Start. Die Headline hat
+in Webflow `data-reveal="off"`, damit die globale Reveal-Timeline sie nicht
+gleichzeitig animiert.
+Das Head-Script startet die 1,4 Sekunden lange Bewegung beim Laden des Bildes
+beziehungsweise sofort nach dem Freigeben der Seite. Der Start wartet nicht
+auf das spaeter geladene Interaktions-Bundle.
 
 ### Smooth scroll
 
@@ -847,22 +858,22 @@ Figma-SVGs liegen in `assets/preloader-signature.svg` und
 CSS bzw. Body-Skript aufgelöst. Keine temporären Figma-URLs werden ausgeliefert.
 Die bestehende Webflow-Schrift `StyreneA` (500) wird wiederverwendet.
 Die Signatur im Preloader zeigt dieselben sieben Motive wie das Topbar-Logo.
-Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,3 s und das Datum
-bei 1,125 s mit langem Fade-up-Auslauf. Bei 2,55 s fährt der Textblock nach unten;
-bei 3,35 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 6,8 s
+Nach `document.fonts.ready` erscheinen „Franz West“ bei 0,225 s und das Datum
+bei 0,844 s mit langem Fade-up-Auslauf. Bei 1,913 s fährt der Textblock nach unten;
+bei 2,513 s rollen Prozentanzeige und Signatur ins Bild. Der Zähler läuft 5,1 s
 mit `0.6*t + 0.4*easeInOutCubic(t)` bis 100 %. Die sieben Signaturen wechseln
-hart mit dem Zählerfortschritt; jede erscheint mit einem 3-s-Zoom-Impact.
+hart mit dem Zählerfortschritt; jede erscheint mit einem 2,25-s-Zoom-Impact.
 Die letzte ist `SIGNATUR2.svg` und bleibt bis zur Freigabe sichtbar. Nach
-Asset- und `window.load`-Abschluss hält die Szene 0,6 s. Danach gehen Zähler,
-Text und Signatur gemeinsam ab; 0,5 s später zieht sich das rosa Overlay per
-`clip-path` in 1,3 s nach oben zurück. Bei reduzierter Bewegung entfallen Wartezeiten und
+Asset- und `window.load`-Abschluss hält die Szene 0,45 s. Danach gehen Zähler,
+Text und Signatur gemeinsam ab; 0,375 s später zieht sich das rosa Overlay per
+`clip-path` in 0,975 s nach oben zurück. Bei reduzierter Bewegung entfallen Wartezeiten und
 Bewegungen, während echte Assets weiter abgewartet werden.
 
 - Ein Versuch pro `sessionStorage`-Sitzung (Schlüssel `site-preloader-seen`, Version `4`),
   markiert beim Start. Ohne Storage: einmal pro Dokumentaufruf.
 - Eine bereits anstehende Page-Transition oder Work-Flip hat Vorrang und
   überspringt den Intro-Preloader. BFCache-Rückkehr startet ihn nicht erneut.
-- Mindestanzeige 11.000 ms. Der Head-Wachhund gibt ohne Hauptbundle nach 6 s
+- Mindestanzeige 8.250 ms. Der Head-Wachhund gibt ohne Hauptbundle nach 6 s
   frei; mit aktivem Hauptbundle begrenzt er den Ablauf auf weitere 20 s.
   Fehler und Abbruch geben die Seite frei, auch ohne Body- oder Hauptbundle.
 - Der sichtbare Zähler beginnt bei 0 und läuft zeitgesteuert bis 100 %.
@@ -870,12 +881,14 @@ Bewegungen, während echte Assets weiter abgewartet werden.
   Abschlussanimation beginnen darf.
 - Kritisch sind Bilder im initialen Viewport, eigene Design-Assets, Fonts und
   explizite `critical`-Assets. Versteckte CMS-Quellen und Flip-Ghosts zählen nicht.
-- Native Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
+- Webflow-Spline-Szenen werden im synchronen Body-Skript in den HTTP-Cache
   vorgeladen und zählen als kritisch. Im `.werk_hero_slider` wird nur die aktive
   sichtbare Szene vorgeladen und für den Preloader abgewartet. Auf Home hat die
-  erste Folie separate Szenen für Desktop und Mobile (bis 767 px). Das Head-Skript
-  entfernt auf Telefonen die Desktop-Szene während des HTML-Parsens, bevor Webflow
-  einen zweiten GPU-Renderer anlegt. Die Mobile-Szene bleibt auch im Querformat
+  ersten beiden Folien separate Szenen für Desktop und Mobile (bis 767 px). Die
+  mobile Szene der zweiten Folie verwendet Webflows Spline-Markup mit
+  `data-animation-type="spline"`, `data-spline-url` und einem Canvas als Kind.
+  Das Head-Skript entfernt auf Telefonen die Desktop-Szenen während des
+  HTML-Parsens, bevor Webflow einen zweiten GPU-Renderer anlegt. Die Mobile-Szene bleibt auch im Querformat
   sichtbar. Das Home-CSS in `snippets/home-responsive-spline.html` hält auf anderen
   Geräten die inaktive Szene mit `visibility: hidden` auf voller Größe, damit WebGPU kein
   0×0-Canvas initialisiert; der Preloader überspringt sie. Inaktive Slides werden nach
@@ -917,7 +930,7 @@ Bewegungen, während echte Assets weiter abgewartet werden.
 - Weitere erkannte Bilder und markierte Warmup-Assets laden nach der Freigabe mit
   höchstens drei parallelen Aufgaben, bis `pagehide` oder maximal 30 s. Bei
   `navigator.connection.saveData` wird auf dieses zusätzliche Vorwärmen verzichtet.
-- Prozentrollen bewegen sich mit `power2.out` über 65 ms. Reduced Motion schaltet
+- Prozentrollen bewegen sich mit `power2.out` über 49 ms. Reduced Motion schaltet
   sofort um. Menü- und Text-Eintrittsanimationen warten auf die Freigabe.
 - Währenddessen ist der Seiteninhalt `inert`; bestehende `inert`-Zustände bleiben
   erhalten. Nur die eigenen Scroll-/Interaktionssperren werden aufgehoben.

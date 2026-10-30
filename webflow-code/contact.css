@@ -1,0 +1,80 @@
+/* Hide the first state before the deferred interaction bundle runs. */
+html.w-mod-js .top_bar_section .top_bar_center,
+html.w-mod-js .contact_txt > *,
+html.w-mod-js .contact_links {
+  opacity: 0;
+}
+
+html.w-mod-js .top_bar_section .top_bar_center {
+  transition: opacity 220ms linear;
+}
+
+html.w-mod-js .contact_txt > *,
+html.w-mod-js .contact_links {
+  translate: 0 14px;
+  transition: opacity 550ms cubic-bezier(.33, 1, .68, 1),
+    translate 550ms cubic-bezier(.33, 1, .68, 1);
+}
+
+html.w-mod-js.is-contact-intro-in .top_bar_section .top_bar_center,
+html.w-mod-js.is-contact-intro-in .contact_txt > *,
+html.w-mod-js.is-contact-intro-in .contact_links {
+  opacity: 1;
+  translate: none;
+}
+
+html.w-mod-js.is-contact-intro-in .contact_txt > :nth-child(2) { transition-delay: 50ms; }
+html.w-mod-js.is-contact-intro-in .contact_txt > :nth-child(3) { transition-delay: 100ms; }
+html.w-mod-js.is-contact-intro-in .contact_txt > :nth-child(4) { transition-delay: 150ms; }
+html.w-mod-js.is-contact-intro-in .contact_links { transition-delay: 190ms; }
+
+html.w-mod-js .top_bar_right .contact-instagram-link { opacity: 0; }
+
+/* The footer script inserts the icon after parsing; its animation also starts
+   when insertion happens after the page intro has begun. */
+html.w-mod-js.is-contact-intro-in .top_bar_right .contact-instagram-link {
+  animation: contact-social-in 300ms ease-out both;
+}
+
+@keyframes contact-social-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+html.w-mod-js .contact_img {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 450ms ease-out;
+}
+
+html.w-mod-js .contact_img.is-site-image-in { opacity: 1; }
+
+html.w-mod-js .contact_img img.is-contact-image {
+  scale: 1.075 !important;
+  transition: scale 1.2s cubic-bezier(0, 0, .2, 1),
+    transform var(--fw-image-zoom-duration, .62s) var(--fw-image-zoom-ease, cubic-bezier(.33, 1, .68, 1)) !important;
+}
+
+html.w-mod-js .contact_img.is-site-image-in img.is-contact-image {
+  scale: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.w-mod-js .top_bar_section .top_bar_center,
+  html.w-mod-js .contact_txt > *,
+  html.w-mod-js .contact_links,
+  html.w-mod-js .contact_img {
+    opacity: 1 !important;
+    translate: none !important;
+    transition: none !important;
+  }
+
+  html.w-mod-js .top_bar_right .contact-instagram-link {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  html.w-mod-js .contact_img img.is-contact-image {
+    scale: 1 !important;
+    transition: none !important;
+  }
+}

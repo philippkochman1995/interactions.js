@@ -1,18 +1,4 @@
 /* head: Webflow style */
-/* On Home, copy and interface labels appear without typography motion. */
-main :is(h1, h2, h3, h4, h5, h6, p),
-[role="main"] :is(h1, h2, h3, h4, h5, h6, p),
-.news_event .u-text-eyebrow[data-animation-ready] {
-  animation: none !important;
-  transition: none !important;
-}
-
-[data-reveal-pending] { visibility: visible !important; }
-
-[data-home-heading-pending] { visibility: hidden; }
-
-.home-heading-line-mask { overflow: clip; }
-
 .page-transition-overlay__title,
 .page-transition-word {
   animation: none !important;
@@ -21,10 +7,12 @@ main :is(h1, h2, h3, h4, h5, h6, p),
 
 .page-transition-word { transform: none !important; }
 
-/* Home only: scale the centered signature with the viewport. 136px at 1440px. */
-.top_bar_section .top_bar_center .nav_logo_link {
-  width: clamp(6rem, calc(5rem + 3.8888889vw), 10.625rem);
-  max-width: none;
+/* Home only on desktop; mobile uses the shared signature size. */
+@media (min-width: 768px) {
+  .top_bar_section .top_bar_center .nav_logo_link {
+    width: clamp(6rem, calc(5rem + 3.8888889vw), 10.625rem);
+    max-width: none;
+  }
 }
 
 /* Keep responsive Spline canvases sized while hiding the inactive one.
@@ -275,6 +263,11 @@ main :is(h1, h2, h3, h4, h5, h6, p),
 }
 
 @media screen and (max-width: 767px) {
+  [data-insta-feed] > div:first-child { flex-wrap: wrap; }
+  [data-insta-feed] [data-insta-account],
+  [data-insta-feed] .button-outlined[data-insta-follow],
+  [data-insta-feed] [data-insta-follow] .button-text { white-space: nowrap; }
+  [data-insta-feed] .button-outlined[data-insta-follow] { margin-left: 0; }
   [data-insta-feed] [data-insta-track] > :is(div, a) { flex-basis: 74%; }
   [data-insta-feed] [data-insta-prev],
   [data-insta-feed] [data-insta-next] {
@@ -284,12 +277,11 @@ main :is(h1, h2, h3, h4, h5, h6, p),
 }
 
 @media screen and (max-width: 479px) {
-  [data-insta-feed] > div:first-child { flex-wrap: wrap; gap: 12px; }
+  [data-insta-feed] > div:first-child { gap: 12px; }
   [data-insta-feed] > div:first-child > div:first-child { gap: 10px; }
   [data-insta-feed] .insta-feed__avatar-frame { width: 42px; height: 42px; }
   [data-insta-feed] [data-insta-account] { font-size: 13px; line-height: 18px; }
   [data-insta-feed] .button-outlined[data-insta-follow] {
-    margin-left: auto;
     padding-inline: 1.25rem;
   }
 }

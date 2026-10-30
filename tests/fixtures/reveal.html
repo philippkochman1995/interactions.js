@@ -20,14 +20,16 @@
       <h1 data-testid="hero-heading">A headline that wraps with its true width</h1>
       <p data-testid="hero-paragraph">A hero paragraph that follows the heading in the shared intro sequence.</p>
     </section>
-    <section class="body-section">
+    <section class="body-section about_section">
       <h2 data-testid="scroll-heading">A heading revealed while scrolling</h2>
-      <p data-testid="scroll-paragraph">A paragraph with enough words to wrap across multiple lines on smaller screens.</p>
+      <p class="about_text_p" data-testid="scroll-paragraph">A paragraph with enough words to wrap across multiple lines on smaller screens.</p>
     </section>
   </main>
   <div class="fwm-modal"><h2 data-testid="modal-heading">Modal heading stays untouched</h2></div>
   <script>
-    if (new URLSearchParams(location.search).has('news')) history.replaceState(null, '', '/news/preview');
+    const params = new URLSearchParams(location.search);
+    if (params.has('news')) history.replaceState(null, '', '/news/preview');
+    if (params.has('home')) history.replaceState(null, '', '/');
   </script>
   <script type="module" src="/dist/site-interactions.js"></script>
 </body>

@@ -5,13 +5,16 @@
   var track = document.querySelector('[data-bio-timeline="track"]');
   var fill = document.querySelector('[data-bio-timeline="fill"]');
   if (!track || !fill) return;
+  var rail = track.querySelector('.bio_timeline_rail');
+  var finalChapter = track.querySelector('.bio_era_final');
+  var firstDot = track.querySelector('.bio_era_dot');
 
   var texts = document.querySelectorAll('.bio_era_years, .bio_era_title');
   var dots = document.querySelectorAll('.bio_era_dot');
   var allFades = document.querySelectorAll('.bio_fade');
   var fades = [];
   for (var f = 0; f < allFades.length; f++) {
-    if (allFades[f].querySelector('h1, h2, h3, h4, h5, h6, p')) {
+    if (allFades[f].closest('.bio_photo') || allFades[f].querySelector('h1, h2, h3, h4, h5, h6, p')) {
       allFades[f].style.opacity = '1';
       allFades[f].style.transform = 'none';
     } else {
@@ -26,6 +29,8 @@
 
   var current = 0;
   var queued = false;
+  var railStart = 0;
+  var railLength = 0;
 
   if (reduce) {
     for (var k = 0; k < fades.length; k++) {
@@ -44,8 +49,30 @@
 
   function targetProgress() {
     var r = track.getBoundingClientRect();
-    if (!r.height) return current;
-    return clamp01((viewportH() * 0.5 - r.top) / r.height);
+    if (window.innerWidth > 767) return r.height ? clamp01((viewportH() * 0.5 - r.top) / r.height) : current;
+    if (!railLength) return current;
+    return clamp01((viewportH() * 0.5 - r.top - railStart) / railLength);
+  }
+
+  function updateRail() {
+    if (!rail || !finalChapter) {
+      railStart = 0;
+      railLength = track.getBoundingClientRect().height;
+      return;
+    }
+    var trackRect = track.getBoundingClientRect();
+    var end = Math.max(0, finalChapter.getBoundingClientRect().top - trackRect.top);
+    var dotRect = firstDot && firstDot.getBoundingClientRect();
+    railStart = window.innerWidth <= 767 && dotRect
+      ? Math.max(0, dotRect.top + dotRect.height / 2 - trackRect.top)
+      : 0;
+    railLength = Math.max(0, end - railStart);
+    rail.style.setProperty('top', railStart + 'px', 'important');
+    rail.style.setProperty('bottom', 'auto', 'important');
+    rail.style.setProperty('height', railLength + 'px', 'important');
+    fill.style.setProperty('top', (rail.contains(fill) ? 0 : railStart) + 'px', 'important');
+    fill.style.setProperty('max-height', railLength + 'px', 'important');
+    schedule();
   }
 
   /* Elemente, die von der Linienspitze eingefaerbt werden */
@@ -76,7 +103,9 @@
   }
 
   function render() {
-    fill.style.height = (current * 100).toFixed(3) + '%';
+    fill.style.height = window.innerWidth <= 767
+      ? (current * railLength).toFixed(3) + 'px'
+      : (current * 100).toFixed(3) + '%';
     var tip = fill.getBoundingClientRect().bottom;
     paintFilled(texts, tip);
     paintFilled(dots, tip);
@@ -100,11 +129,17 @@
     if (!queued) { queued = true; requestAnimationFrame(frame); }
   }
 
+  updateRail();
   current = targetProgress();
   render();
   window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule);
-  window.addEventListener('load', render);
+  window.addEventListener('resize', updateRail);
+  window.addEventListener('load', updateRail);
+  if ('ResizeObserver' in window && finalChapter) {
+    var observer = new ResizeObserver(updateRail);
+    observer.observe(track);
+    observer.observe(finalChapter);
+  }
 })();
 
 /* footer: Webflow script */
@@ -194,32 +229,6 @@
     images?.classList.toggle('bio_images_left', copyOnRight);
     lastSideByYear.set(year, copyOnRight);
   });
-})();
-
-/* footer: fw-biography-trim-final-line */
-(() => {
-  const track = document.querySelector('[data-bio-timeline="track"]');
-  const finalChapter = track?.querySelector('.bio_era_final');
-  const rail = track?.querySelector('.bio_timeline_rail');
-  const fill = track?.querySelector('[data-bio-timeline="fill"]');
-  if (!track || !finalChapter || !rail || !fill) return;
-
-  const update = () => {
-    const end = Math.max(0, finalChapter.getBoundingClientRect().top - track.getBoundingClientRect().top);
-    rail.style.setProperty('top', '0px', 'important');
-    rail.style.setProperty('bottom', 'auto', 'important');
-    rail.style.setProperty('height', end + 'px', 'important');
-    fill.style.setProperty('max-height', end + 'px', 'important');
-  };
-
-  update();
-  window.addEventListener('load', update);
-  window.addEventListener('resize', update);
-  if ('ResizeObserver' in window) {
-    const observer = new ResizeObserver(update);
-    observer.observe(track);
-    observer.observe(finalChapter);
-  }
 })();
 
 /* footer: fw-bio-videos */

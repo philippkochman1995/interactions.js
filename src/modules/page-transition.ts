@@ -1,11 +1,11 @@
 import { afterSitePreloader } from './site-preloader-state';
+import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
 
-// The matching easing and duration variables live in the curtain CSS block.
-const TIME = { titleStart: 240, navigate: 720, hold: 416, uncoverStart: 776, reset: 1976, watchdog: 6000 };
+// Keep navigation and reset just after their matching CSS fades finish.
+const TIME = { navigate: 160, revealStart: 0, reset: 180, watchdog: 6000 };
 const INTRO_FADE_SELECTORS = ['.top_bar_section', '.werk_hero_dots', '.werk_hero_slide .u-slide-info'] as const;
 const INTRO = { delay: 225, stagger: 125, fade: 700, menuGap: 80, menu: 550 };
-const HOME_INTRO = { fade: 1200, easing: 'ease-in-out' };
 const STORAGE_KEY = 'pt';
 const OVERLAY_SELECTOR = '[data-page-transition-overlay], .page-transition-overlay';
 const PENDING_CLASS = 'is-page-transition-pending';
@@ -18,6 +18,18 @@ const IGNORED_LINKS = [
 let initialized = false;
 let busy = false;
 let timers: number[] = [];
+const prefetchedPages = new Set<string>();
+
+function prefetchPage(link: HTMLAnchorElement): void {
+  if (link.closest(IGNORED_LINKS) || (link.target && link.target !== '_self')) return;
+  const url = getNavigableUrl(link);
+  if (!url || url.hash || prefetchedPages.has(url.href)) return;
+  prefetchedPages.add(url.href);
+  const hint = document.createElement('link');
+  hint.rel = 'prefetch';
+  hint.href = url.href;
+  document.head.append(hint);
+}
 
 function later(callback: () => void, delay: number): void {
   timers.push(window.setTimeout(callback, delay));
@@ -28,9 +40,9 @@ function clearTimers(): void {
   timers = [];
 }
 
-function storedTitle(): string {
-  try { return window.sessionStorage.getItem(STORAGE_KEY) ?? ''; }
-  catch { return ''; }
+function hasPendingTransition(): boolean {
+  try { return Boolean(window.sessionStorage.getItem(STORAGE_KEY)); }
+  catch { return false; }
 }
 
 function clearPending(): void {
@@ -47,71 +59,12 @@ function ensureOverlay(): HTMLElement {
   overlay.classList.add('curtain', 'page-transition-overlay');
   overlay.setAttribute('data-page-transition-overlay', '');
   overlay.setAttribute('aria-hidden', 'true');
-  if (!overlay.querySelector('.page-transition-overlay__title')) {
-    const title = document.createElement('span');
-    title.className = 'page-transition-overlay__title';
-    overlay.append(title);
-  }
-  overlay.querySelector('.page-transition-overlay__title')?.setAttribute('aria-live', 'polite');
+  overlay.querySelector('.page-transition-overlay__title')?.remove();
   return overlay;
-}
-
-function titleFor(url: URL, link: HTMLAnchorElement): string {
-  const clean = (value: string | null | undefined): string => value?.replace(/\s+/g, ' ').trim() ?? '';
-  const explicit = clean(link.getAttribute('data-page-name') || link.getAttribute('data-transition-title')
-    || link.closest<HTMLElement>('[data-page-name], [data-transition-title]')?.getAttribute('data-page-name')
-    || link.closest<HTMLElement>('[data-transition-title]')?.getAttribute('data-transition-title'));
-  if (explicit) return explicit;
-  const path = url.pathname.replace(/\/$/, '') || '/';
-  const menuLink = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-site-menu-link][href]')).find((item) => {
-    try { return (new URL(item.href).pathname.replace(/\/$/, '') || '/') === path; }
-    catch { return false; }
-  });
-  const menuTitle = clean(menuLink?.getAttribute('data-site-menu-label') || menuLink?.textContent);
-  if (menuTitle) return menuTitle;
-  const card = link.closest<HTMLElement>('article, [class*="card"]');
-  const heading = clean(link.querySelector('h1, h2, h3, h4')?.textContent || card?.querySelector('h1, h2, h3, h4')?.textContent);
-  if (heading) return heading;
-  const linkText = clean(link.textContent);
-  if (linkText && linkText.length <= 60 && !/^(mehr|weiter|lesen|details|öffnen)/i.test(linkText)) return linkText;
-  const segment = url.pathname.split('/').filter(Boolean).pop();
-  if (!segment) return 'Startseite';
-  try { return decodeURIComponent(segment).replace(/[-_]+/g, ' '); }
-  catch { return segment.replace(/[-_]+/g, ' '); }
 }
 
 function pageContent(): HTMLElement | null {
   return document.querySelector<HTMLElement>('main, [role="main"]');
-}
-
-function canMoveContent(main: HTMLElement | null): main is HTMLElement {
-  // Translating a whole WebGL/video scene while clipping the viewport stalls
-  // compositing on the media-heavy pages. The curtain still carries the handoff.
-  return Boolean(main && !main.querySelector('canvas, iframe, video, [data-animation-type="spline"]'));
-}
-
-// A plain-text h1 can be split without destroying nested Webflow markup.
-function prepareHeading(main: HTMLElement | null): void {
-  const heading = main?.querySelector<HTMLElement>('h1');
-  if (!heading || heading.matches('[data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading')
-    || heading.children.length || !heading.textContent?.trim()) return;
-  const words = heading.textContent.trim().split(/\s+/);
-  heading.setAttribute('data-reveal', 'off');
-  heading.setAttribute('aria-label', words.join(' '));
-  heading.textContent = '';
-  words.forEach((word, index) => {
-    if (index) heading.append(document.createTextNode(' '));
-    const mask = document.createElement('span');
-    mask.className = 'page-transition-word-mask';
-    mask.setAttribute('aria-hidden', 'true');
-    const inner = document.createElement('span');
-    inner.className = 'page-transition-word';
-    inner.style.setProperty('--word-index', String(index));
-    inner.textContent = word;
-    mask.append(inner);
-    heading.append(mask);
-  });
-  heading.classList.add('is-page-transition-heading');
 }
 
 function focusMain(main: HTMLElement | null): void {
@@ -123,12 +76,11 @@ function focusMain(main: HTMLElement | null): void {
   main.focus({ preventScroll: true });
 }
 
-function reset(overlay: HTMLElement, main: HTMLElement | null): void {
+function reset(overlay: HTMLElement): void {
   clearTimers();
   overlay.classList.add('is-resetting');
-  overlay.classList.remove('is-covering', 'is-covered', 'is-title-visible', 'is-title-leaving', 'is-uncovering');
+  overlay.classList.remove('is-covering', 'is-covered', 'is-uncovering');
   overlay.setAttribute('aria-hidden', 'true');
-  main?.classList.remove('is-page-transition-out', 'is-page-transition-in', 'is-page-transition-entered');
   document.documentElement.classList.remove('is-page-transition-entering', 'is-page-transition-covering');
   clearPending();
   busy = false;
@@ -139,56 +91,41 @@ function revealIncoming(overlay: HTMLElement, main: HTMLElement | null): void {
   busy = true;
   if (prefersReducedMotion()) {
     focusMain(main);
-    reset(overlay, main);
+    reset(overlay);
     return;
   }
-  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
-  if (title) title.textContent = storedTitle();
   overlay.setAttribute('aria-hidden', 'false');
-  overlay.classList.add('is-covered', 'is-title-visible');
-  if (canMoveContent(main)) main.classList.add('is-page-transition-in');
+  overlay.classList.add('is-covered');
   document.documentElement.classList.add('is-page-transition-entering');
-  if (window.location.pathname !== '/') prepareHeading(main);
   // The head script releases the page if this bundle never starts.
-  const fonts = document.fonts?.ready ?? Promise.resolve();
-  void fonts.catch(() => undefined).then(() => {
-    later(() => overlay.classList.add('is-title-leaving'), TIME.hold);
-    later(() => {
-      overlay.classList.add('is-uncovering');
-      main?.classList.add('is-page-transition-entered');
-      main?.querySelector('.is-page-transition-heading')?.classList.add('is-revealing');
-    }, TIME.uncoverStart);
-    later(() => { focusMain(main); reset(overlay, main); }, TIME.reset);
-  });
+  later(() => overlay.classList.add('is-uncovering'), TIME.revealStart);
+  later(() => { focusMain(main); reset(overlay); }, TIME.reset);
 }
 
-function leave(url: URL, overlay: HTMLElement, main: HTMLElement | null, titleText: string): void {
+function leave(url: URL, overlay: HTMLElement): void {
   busy = true;
-  const title = overlay.querySelector<HTMLElement>('.page-transition-overlay__title');
-  if (title) title.textContent = titleText;
   overlay.setAttribute('aria-hidden', 'false');
-  try { window.sessionStorage.setItem(STORAGE_KEY, titleText); } catch { /* Continue normally. */ }
+  try { window.sessionStorage.setItem(STORAGE_KEY, '1'); } catch { /* Continue normally. */ }
   document.documentElement.classList.add('is-page-transition-covering');
   overlay.classList.add('is-covering');
-  if (canMoveContent(main)) main.classList.add('is-page-transition-out');
-  later(() => overlay.classList.add('is-title-visible'), TIME.titleStart);
   later(() => { window.location.href = url.href; }, TIME.navigate);
   later(() => { window.location.href = url.href; }, TIME.watchdog);
 }
 
 function restorePreloaderIntro(): void {
-  if (!window.__sitePreloader?.active || prefersReducedMotion()) return;
+  if (!window.__sitePreloader?.active || prefersReducedMotion() || window.location.pathname === '/') return;
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
+  const customHeader = /^\/(?:biografie|editionen|news|werk-ueberblick|kontakt)\/?$/i.test(window.location.pathname);
+  const worksIntro = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
   const groups = INTRO_FADE_SELECTORS.map((selector) =>
-    Array.from(document.querySelectorAll<HTMLElement>(selector)));
+    (customHeader && selector === '.top_bar_section') || worksIntro ? []
+      : Array.from(document.querySelectorAll<HTMLElement>(selector)));
   const menus = Array.from(document.querySelectorAll<HTMLElement>('[data-site-menu]'));
   [...groups.flat(), ...menus].forEach((element) => { element.style.opacity = '0'; });
 
   afterSitePreloader(() => {
-    const isHome = window.location.pathname === '/';
-    const fadeDuration = isHome ? HOME_INTRO.fade : INTRO.fade;
     const animate = (element: HTMLElement, keyframes: Keyframe[], delay: number, duration: number,
       easing = 'cubic-bezier(.05, .85, .05, 1)'): void => {
       if (!element.animate) { element.style.removeProperty('opacity'); return; }
@@ -202,12 +139,11 @@ function restorePreloaderIntro(): void {
     };
     groups.forEach((elements, index) => {
       elements.forEach((element) => animate(element, [{ opacity: 0 }, { opacity: 1 }],
-        INTRO.delay + index * INTRO.stagger, fadeDuration,
-        isHome ? HOME_INTRO.easing : undefined));
+        INTRO.delay + index * INTRO.stagger, INTRO.fade));
     });
     const lastGroup = groups.reduce((last, elements, index) => elements.length ? index : last, -1);
     const menuDelay = lastGroup < 0 ? 0
-      : INTRO.delay + lastGroup * INTRO.stagger + fadeDuration + INTRO.menuGap;
+      : INTRO.delay + lastGroup * INTRO.stagger + INTRO.fade + INTRO.menuGap;
     menus.forEach((menu) => {
       const distance = Math.max(0, window.innerHeight - menu.getBoundingClientRect().top) + 8;
       animate(menu, [
@@ -227,9 +163,21 @@ export function initPageTransitions(): void {
   initialized = true;
   const overlay = ensureOverlay();
   const main = pageContent();
-  const incoming = Boolean(storedTitle()) && document.documentElement.classList.contains(PENDING_CLASS);
-  if (incoming) revealIncoming(overlay, main);
+  const incoming = hasPendingTransition() && document.documentElement.classList.contains(PENDING_CLASS);
+  if (incoming && !overlay.hasAttribute('data-page-transition-managed')) revealIncoming(overlay, main);
   else restorePreloaderIntro();
+
+  // Warm likely destinations while the visitor moves through the menu.
+  const prefetchHoveredLink = (event: Event): void => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
+    if (link) prefetchPage(link);
+  };
+  document.addEventListener('pointerover', prefetchHoveredLink, { passive: true });
+  document.addEventListener('focusin', prefetchHoveredLink);
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest('[data-site-menu-toggle]')) return;
+    document.querySelectorAll<HTMLAnchorElement>('[data-site-menu] a[href]').forEach(prefetchPage);
+  }, true);
 
   document.addEventListener('click', (event) => {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null;
@@ -239,10 +187,16 @@ export function initPageTransitions(): void {
     const url = getNavigableUrl(link);
     if (!url || url.hash || prefersReducedMotion() || window.__sitePreloader?.active) return;
     event.preventDefault();
-    leave(url, overlay, main, titleFor(url, link));
+    const menu = link.closest<HTMLElement>('[data-site-menu]');
+    if (menu) {
+      // The curtain starts as the menu is roughly half closed.
+      busy = true;
+      if (closeSiteMenuBeforeTransition(menu, () => leave(url, overlay))) return;
+    }
+    leave(url, overlay);
   }, true);
 
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted) reset(overlay, main);
+    if (event.persisted) reset(overlay);
   });
 }

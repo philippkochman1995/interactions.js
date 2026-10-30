@@ -31,15 +31,6 @@
   --fw-button-reduced-duration: 0.01s;
 }
 
-/* Home editorial images and the West Map info card reveal with the button easing. */
-[data-home-image-wipe] {
-  clip-path: inset(100% 0 0 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-home-image-wipe] { clip-path: none; }
-}
-
 /* Aus dem Site-Head-Custom-Code hierher gezogen (04.09.2026). Diese Datei
    laedt nach der Webflow-CSS, gewinnt bei gleicher Spezifitaet und ersetzt den
    Inline-Block damit eins zu eins.
@@ -138,16 +129,12 @@ body.is-lightbox-open {
   overscroll-behavior: contain;
 }
 
-/* Page transition: only motion is owned here; existing site colors and type remain. */
+/* Page transition: a short fade to and from white. */
 :root {
-  --e: cubic-bezier(.7, 0, .08, 1);
   --eo: cubic-bezier(.05, .85, .05, 1);
-  --tail: cubic-bezier(.02, .9, .03, 1);
-  --pt-cover-duration: .64s;
-  --pt-uncover-duration: .64s;
-  --pt-content-duration: .64s;
-  --pt-title-opacity-duration: .96s;
-  --pt-title-travel-duration: 1.2s;
+  --pt-ease: cubic-bezier(.4, 0, .2, 1);
+  --pt-cover-duration: .15s;
+  --pt-uncover-duration: .15s;
 }
 
 [data-page-transition-overlay],
@@ -158,111 +145,30 @@ body.is-lightbox-open {
   width: 100%;
   height: 100dvh;
   z-index: 2000;
-  background: var(--fw_rosa, #ffc7d1);
+  background: #fff;
   pointer-events: none;
-  clip-path: inset(100% 0 0 0);
-  will-change: clip-path;
-  transition: clip-path var(--pt-cover-duration) var(--e);
+  opacity: 0;
+  will-change: opacity;
+  transition: opacity var(--pt-cover-duration) var(--pt-ease);
 }
 
 .curtain.is-covering,
 .curtain.is-covered,
 html.is-page-transition-pending .curtain {
-  clip-path: inset(0);
+  opacity: 1;
 }
 
 .curtain.is-uncovering {
-  clip-path: inset(0 0 100% 0) !important;
+  opacity: 0 !important;
   transition-duration: var(--pt-uncover-duration);
 }
 
 .curtain.is-resetting {
   transition: none !important;
-  clip-path: inset(100% 0 0 0) !important;
+  opacity: 0 !important;
 }
 
-.page-transition-overlay__title {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  color: var(--fw_dark_purple, #06021a);
-  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0;
-  text-align: center;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-  opacity: 0;
-  transform: translate3d(0, 44px, 0);
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-  transition:
-    opacity var(--pt-title-opacity-duration) var(--tail),
-    transform var(--pt-title-travel-duration) var(--tail);
-}
-
-.curtain.is-title-visible .page-transition-overlay__title {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.curtain.is-title-leaving .page-transition-overlay__title {
-  opacity: 0;
-  transition: opacity .4s var(--e);
-}
-
-.curtain.is-resetting .page-transition-overlay__title {
-  opacity: 0;
-  transform: translate3d(0, 44px, 0);
-  transition: none;
-}
-
-html.is-page-transition-pending .curtain:not(.is-title-leaving) .page-transition-overlay__title {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-main.is-page-transition-out,
-[role="main"].is-page-transition-out {
-  transform: translate3d(0, -7vh, 0);
-  transition: transform var(--pt-content-duration) var(--e);
-}
-
-main.is-page-transition-in,
-[role="main"].is-page-transition-in {
-  transform: translate3d(0, 7vh, 0);
-  transition: transform var(--pt-content-duration) var(--e);
-}
-
-main.is-page-transition-entered,
-[role="main"].is-page-transition-entered {
-  transform: translate3d(0, 0, 0);
-}
-
-.page-transition-word-mask {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-}
-
-.page-transition-word {
-  display: inline-block;
-  transform: translate3d(0, 108%, 0);
-  backface-visibility: hidden;
-  will-change: transform;
-  transition: transform 1.92s var(--eo);
-  transition-delay: calc(var(--word-index) * .096s);
-}
-
-.is-page-transition-heading.is-revealing .page-transition-word {
-  transform: translate3d(0, 0, 0);
-}
+.page-transition-overlay__title { display: none !important; }
 
 /* The existing animated hero grain should not compete with the curtain. */
 html.is-page-transition-pending #fw-hero-grained::before,
@@ -271,13 +177,7 @@ html.is-page-transition-covering #fw-hero-grained::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .curtain,
-  .curtain .page-transition-overlay__title,
-  main.is-page-transition-out,
-  main.is-page-transition-in,
-  [role="main"].is-page-transition-out,
-  [role="main"].is-page-transition-in,
-  .page-transition-word {
+  .curtain {
     transition-duration: .01s !important;
   }
 }
@@ -288,31 +188,7 @@ html.is-page-transition-boot::before {
   position: fixed;
   inset: 0;
   z-index: 2001;
-  background: var(--fw_rosa, #ffc7d1);
-  pointer-events: none;
-}
-
-/* The head boot layer carries the same title until the footer curtain exists. */
-html.is-page-transition-boot::after {
-  content: attr(data-page-transition-title);
-  position: fixed;
-  inset: 0;
-  z-index: 2002;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  padding: 1.5rem;
-  color: var(--fw_dark_purple, #06021a);
-  font-family: 'StyreneA', 'Styrene A Web', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0;
-  text-align: center;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-  -webkit-font-smoothing: antialiased;
+  background: #fff;
   pointer-events: none;
 }
 
@@ -370,6 +246,7 @@ html.is-page-transition-boot::after {
 [data-site-menu-panel] {
   width: 100%;
   height: var(--site-menu-toggle-height, 3.125rem);
+  max-height: var(--site-menu-open-height, calc(100dvh - 3rem));
   overflow: hidden;
   will-change: height;
 }
@@ -379,7 +256,8 @@ html.is-page-transition-boot::after {
 }
 
 [data-site-menu].is-open [data-site-menu-panel] {
-  height: var(--site-menu-open-height, calc(100dvh - 3rem));
+  height: auto;
+  overflow-y: auto;
 }
 
 [data-site-menu-toggle] {
@@ -483,21 +361,22 @@ html.is-page-transition-boot::after {
   padding-bottom: 0.25rem;
 }
 
-/* Bei den Footer-Links steckt der Abstand im row-gap des Containers:
-   Gap auf 0, dafuer je 0.125rem Padding pro Seite — in Summe wieder die
-   0.25rem von vorher, aber diesmal als Hover-Flaeche. Der Gap sitzt nur
-   zwischen den Links, das Padding auch aussen: die 0.125rem oben und
-   unten kommen darum von den Container-Margins (1.5rem / 1rem im
-   Designer) wieder runter, damit der Text auf demselben Pixel bleibt. */
+/* Gleicher Zeilenabstand und dieselbe Hover-Flaeche wie bei den kleinen Links.
+   Den groesseren Aussenabstand gibt es nur, wenn der ganze Inhalt ins Panel passt. */
 .site-menu__footer-links {
   row-gap: 0;
   margin-top: 1.375rem;
   margin-bottom: 0.875rem;
 }
 
+[data-site-menu].has-footer-room .site-menu__footer-links {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
 [data-site-menu-item].site-menu__footer-link {
-  padding-top: 0.125rem;
-  padding-bottom: 0.125rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 /* Zweiter Teil derselben Sache: der Streifen zwischen einer Trennlinie und
@@ -612,7 +491,86 @@ html.is-page-transition-boot::after {
   }
 }
 
+/* Menue-Reveal (Split-Line): Jeder Punkt hat eine Maske, der Text faehrt von
+   unten ein, die Trennlinien zeichnen sich von links nach rechts. Staffelung:
+   --i = Reihenfolge in der Welle, --g = Welle (0 = Ueberschriften, 1 = kleine
+   Links und Footer), gesetzt in site-menu.ts. Der Ausgangszustand gilt erst mit
+   .is-ready, ohne JavaScript bleibt das Menue normal sichtbar. */
+[data-site-menu] {
+  --site-menu-reveal-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --site-menu-reveal-start: 300ms;
+  --site-menu-reveal-step: 50ms;
+  --site-menu-reveal-dur: 700ms;
+  --site-menu-reveal-gap: 320ms;
+  --site-menu-reveal-reset: 0.55s;
+}
+
+.site-menu__line {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  /* Luft fuer Unterlaengen, ohne den Zeilenabstand zu aendern. */
+  padding: 0.14em 0;
+  margin: -0.14em 0;
+}
+
+.site-menu__line-in {
+  display: block;
+}
+
+[data-site-menu].is-ready .site-menu__line-in {
+  transform: translateY(110%);
+  /* Zuruecksetzen erst, wenn das Panel eingefahren ist. */
+  transition: transform 0s linear var(--site-menu-reveal-reset);
+}
+
+[data-site-menu].is-ready.is-open .site-menu__line-in {
+  transform: translateY(0);
+  transition: transform var(--site-menu-reveal-dur) var(--site-menu-reveal-ease)
+    calc(
+      var(--site-menu-reveal-start) + var(--g, 0) * var(--site-menu-reveal-gap) +
+        var(--i, 0) * var(--site-menu-reveal-step)
+    );
+}
+
+[data-site-menu].is-ready .site-menu__divider {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0s linear var(--site-menu-reveal-reset);
+}
+
+[data-site-menu].is-ready.is-open .site-menu__divider {
+  transform: scaleX(1);
+  transition: transform calc(var(--site-menu-reveal-dur) * 0.9) var(--site-menu-reveal-ease)
+    calc(
+      var(--site-menu-reveal-start) + var(--g, 0) * var(--site-menu-reveal-gap) +
+        var(--i, 0) * var(--site-menu-reveal-step) + 60ms
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site-menu].is-ready .site-menu__line-in,
+  [data-site-menu].is-ready .site-menu__divider {
+    transform: none;
+    transition: none;
+  }
+}
+
 @media (max-width: 767px) {
+  /* Die Startseiten-Signatur war 96px breit, auf Unterseiten 136px.
+     Ein gemeinsamer mobiler Wert hebt Home um 20% an und gilt fuer alle Seiten. */
+  .top_bar_section .top_bar_center .nav_logo_link,
+  .top_bar_section .top_bar_center .nav_logo_image_link {
+    width: 7.2rem;
+    max-width: none;
+  }
+
+  .top_bar_section .top_bar_center .nav_logo_image_link img.nav_logo {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   /* Der spaeter geladene Head-Style begrenzt .site-menu ebenfalls in der Breite.
      Die kombinierte Klasse setzt das Menue auf Mobil bis an alle Seitenraender. */
   .site-menu[data-site-menu] {
@@ -624,6 +582,27 @@ html.is-page-transition-boot::after {
     bottom: 0;
     max-width: none;
     box-sizing: border-box;
+  }
+
+  .site-menu__header {
+    margin-bottom: 2.5rem;
+  }
+
+  .site-menu__brand,
+  .site-menu__language,
+  .site-menu__link--small,
+  .site-menu__footer-link,
+  .site-menu__toggle {
+    font-size: calc(var(--_sizes---footer-14, 0.875rem) + 0.125rem);
+  }
+
+  .site-menu__link--large {
+    font-size: calc(var(--_sizes---h2-font-size, 1.667rem) + 0.125rem);
+  }
+
+  .site-menu__footer-links {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   /* Platz fuer die fixierte Menueleiste am Seitenende: Die letzte Footer-Zeile
@@ -666,6 +645,15 @@ html.is-page-transition-boot::after {
     aspect-ratio: 382 / 250;
     margin-bottom: 1.5rem;
     object-position: center;
+  }
+
+  .news_event .img-zoom:is([data-site-image-reveal="event"], [data-atelier-image-mask]) {
+    order: -1;
+    margin-bottom: 1.5rem;
+  }
+
+  .news_event .img-zoom:is([data-site-image-reveal="event"], [data-atelier-image-mask]) img.intro_img {
+    margin-bottom: 0;
   }
 
   .news_event .intro_content_about > .text-link {
@@ -812,10 +800,12 @@ html.is-page-transition-boot::after {
     order: 1;
   }
 
-  /* The fixed menu already reserves the last 50px of the viewport. */
+  /* The fixed menu already reserves the last 50px of the viewport. On the
+     flex-column legal/contact pages the footer must still fit its children. */
   .footer.u-section {
     min-height: 0;
     height: auto;
+    flex-shrink: 0;
   }
 
   .atelier_location_txt.u-p,
@@ -1171,43 +1161,23 @@ html.is-page-transition-boot::after {
   transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
 }
 
-/* Event cards: Webflow also writes a 5% hover scale inline. Keep the image's
-   transform in CSS so the zoom and inward crop stay in sync on entry and exit.
-   Clipping the image itself works for direct .intro_img grid items and .news_img. */
-:is(.news_event img.intro_img, .news_img img) {
-  transform: scale(1) !important;
-  transition:
-    transform var(--fw-news-image-duration, 0.3s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1)),
-    clip-path var(--fw-news-image-duration, 0.3s) var(--fw-image-zoom-ease, cubic-bezier(0.33, 1, 0.68, 1));
-}
-
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :is(.news_event:hover img.intro_img, .news_highlight_section:hover .news_img img, .news_img:hover img):not([data-home-image-wipe]) {
-    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
-    clip-path: inset(var(--fw-news-image-inset, 2.05%));
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* The home image reveal owns clip-path until its first viewport wipe finishes. */
-  :is(.news_event img.intro_img, .news_img img):not([data-home-image-wipe]) {
-    clip-path: inset(0);
-  }
-
-  :is(.news_event:focus-within img.intro_img, .news_highlight_section:focus-within .news_img img):not([data-home-image-wipe]) {
-    transform: scale(var(--fw-news-image-zoom, 1.0189)) !important;
-    clip-path: inset(var(--fw-news-image-inset, 2.05%));
-  }
+/* The leading News highlight keeps a fixed image on hover and focus. Event
+   cards below it retain their separate Atelier mask and image hover. */
+.news_highlight_section .news_img img {
+  scale: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  transition: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.news_event img.intro_img, .news_img img),
+  .news_img img,
   .site-lightbox-trigger__image,
   .fwm-modal__work-image {
     transition: none;
   }
 
-  :is(.news_event img.intro_img, .news_img img) {
+  .news_img img {
     transform: none !important;
   }
 
@@ -1216,6 +1186,182 @@ html.is-page-transition-boot::after {
   .fwm-modal__work-card[href]:hover .fwm-modal__work-image,
   .fwm-modal__work-card[href]:focus-visible .fwm-modal__work-image {
     transform: none;
+  }
+}
+
+/* Match Atelier's single settle, with the start scale present before JS runs. */
+.bio_hero_section > img.bio_hero_img {
+  transform: scale(1.075) !important;
+  transition: transform 1.4s cubic-bezier(0, 0, .2, 1);
+}
+
+.bio_hero_section > img.bio_hero_img.is-site-image-in {
+  transform: scale(1) !important;
+}
+
+/* Biography's top bar and date share one 200 ms fade. */
+body:has(.bio_hero_section) .top_bar_section {
+  opacity: 0;
+  transition: opacity .2s linear;
+}
+
+body:has(.bio_hero_eyebrow.is-masked-reveal-playing) .top_bar_section {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio_hero_section > img.bio_hero_img { transform: none !important; transition: none !important; }
+  body:has(.bio_hero_section) .top_bar_section { opacity: 1; transition: none; }
+}
+
+.bio_photo .bio_image_reveal.bio_fade {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.bio_photo [data-site-image-reveal="bio"] {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity .4s ease-out;
+}
+
+.bio_photo [data-site-image-reveal="bio"].is-site-image-in {
+  opacity: 1;
+}
+
+.bio_photo [data-site-image-reveal="bio"] img {
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1) !important;
+}
+
+.bio_photo [data-site-image-reveal="bio"].is-site-image-in img {
+  transform: scale(1) !important;
+}
+
+/* Event cards outside Atelier get its two-layer mask and hover motion. The
+   existing .img-zoom is reused where Webflow already provides one. */
+.news_event .img-zoom[data-site-image-reveal="event"] {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0 !important;
+  opacity: 0;
+  transition: opacity .4s ease-out;
+}
+
+.news_event .img-zoom[data-site-image-reveal="event"].is-site-image-in {
+  opacity: 1;
+}
+
+.news_event [data-site-event-zoom] {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform .6s cubic-bezier(0, 0, .2, 1);
+}
+
+.news_event .img-zoom[data-site-image-reveal="event"] [data-site-event-zoom] > img.intro_img {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  transform: scale(1.075) !important;
+  transition: transform 1.2s cubic-bezier(0, 0, .2, 1) !important;
+}
+
+.news_event .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
+  transform: scale(1) !important;
+}
+
+@media (max-width: 991px) {
+  .news_event .img-zoom[data-site-image-reveal="event"] {
+    height: auto;
+  }
+
+  .news_event .img-zoom[data-site-image-reveal="event"] [data-site-event-zoom] > img.intro_img {
+    height: auto;
+  }
+}
+
+:is(.news_event, .news_highlight_section) a.text-link {
+  transition: transform .6s cubic-bezier(0, 0, .2, 1);
+}
+
+:is(.news_event, .news_highlight_section) a.text-link .arrow :is(.arrow-dot, .arrow-arrow),
+:is(.news_event, .news_highlight_section) a.text-link .more-arrow :is([data-more-arrow-dot], [data-more-arrow-head]) {
+  transition-timing-function: cubic-bezier(0, 0, .2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .bio_photo [data-site-image-reveal="bio"].is-site-image-in:hover img {
+    transform: scale(1.045) !important;
+  }
+
+  .news_event:hover .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] {
+    transform: scale(1.03);
+  }
+
+  .news_event:hover .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
+    transform: scale(1.015) !important;
+  }
+
+  :is(.news_event, .news_highlight_section):hover a.text-link {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bio_photo [data-site-image-reveal="bio"].is-site-image-in:focus-visible img {
+    transform: scale(1.045) !important;
+  }
+
+  .news_event:focus-within .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] {
+    transform: scale(1.03);
+  }
+
+  .news_event:focus-within .img-zoom[data-site-image-reveal="event"].is-site-image-in [data-site-event-zoom] > img.intro_img {
+    transform: scale(1.015) !important;
+  }
+
+  :is(.news_event, .news_highlight_section):focus-within a.text-link {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio_photo [data-site-image-reveal="bio"],
+  .bio_photo [data-site-image-reveal="bio"] img,
+  .news_event .img-zoom[data-site-image-reveal="event"],
+  .news_event [data-site-event-zoom],
+  .news_event .img-zoom[data-site-image-reveal="event"] [data-site-event-zoom] > img.intro_img,
+  :is(.news_event, .news_highlight_section) a.text-link {
+    opacity: 1;
+    clip-path: none;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Contact: the frame stays fixed while only its image settles into place. */
+@media (prefers-reduced-motion: no-preference) {
+  .contact_img [data-site-image-reveal="contact"] {
+    overflow: hidden;
+  }
+
+  .contact_img [data-site-image-reveal="contact"] img {
+    scale: 1.075;
+    transition: scale 1.2s cubic-bezier(0, 0, .2, 1),
+      transform var(--fw-image-zoom-duration, .62s) var(--fw-image-zoom-ease, cubic-bezier(.33, 1, .68, 1));
+  }
+
+  .contact_img [data-site-image-reveal="contact"].is-site-image-in img {
+    scale: 1;
   }
 }
 
@@ -1843,12 +1989,12 @@ footer a.w--current:focus-visible::after,
   visibility: hidden;
 }
 
-/* Opt-in line reveal; the Atelier hero uses the same hook by selector. */
-:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
+/* Opt-in line reveal; Atelier and Biography use the same hero timing. */
+:is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_sub):not([data-masked-reveal-ready], [data-masked-reveal-complete]) {
   visibility: hidden;
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow):not([data-masked-reveal-complete]) {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading):not([data-masked-reveal-complete]) {
   opacity: 0;
 }
 
@@ -1870,16 +2016,34 @@ footer a.w--current:focus-visible::after,
   animation-delay: calc(var(--masked-reveal-delay, 0ms) + var(--masked-reveal-line-delay, 0ms));
 }
 
-:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow).is-masked-reveal-playing {
+:is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading).is-masked-reveal-playing {
   animation: masked-reveal-fade 200ms linear both;
+  animation-delay: var(--masked-label-delay, 0ms);
 }
 
 [data-masked-reveal-complete] .masked-reveal-line__text {
   transform: none;
 }
 
-.atelier_hero_section .atelier_slide_heading {
+.atelier_hero_section .atelier_slide_heading,
+.bio_hero_section .bio_hero_sub {
   --masked-reveal-delay: 60ms;
+}
+
+/* Edition text follows its H2 line reveal; slider motion is independent. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-edition-content-reveal] {
+    opacity: 0;
+    translate: 0 20px;
+    transition: opacity 1s cubic-bezier(.33, 1, .68, 1),
+      translate 1s cubic-bezier(.33, 1, .68, 1);
+    transition-delay: var(--edition-content-delay, 0ms);
+  }
+
+  [data-edition-content-reveal].is-edition-content-in {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 @keyframes masked-reveal-rise {
@@ -1897,11 +2061,11 @@ footer a.w--current:focus-visible::after,
     visibility: visible;
   }
 
-  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading) {
+  :is([data-masked-line-reveal], .atelier_hero_section .atelier_slide_heading, .bio_hero_section .bio_hero_sub) {
     visibility: visible;
   }
 
-  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow) {
+  :is([data-masked-reveal-label], .atelier_hero_section .atlier_slide_eyebrow, .bio_hero_section .bio_hero_eyebrow, .bio_hero_section .bio_hero_heading) {
     opacity: 1;
     animation: none;
   }
@@ -2109,6 +2273,14 @@ footer a.w--current:focus-visible::after,
   :is(.news_event, .news_highlight_section):hover a.text-link {
     color: var(--fw_dark_purple, #06021a);
   }
+
+  :is(.news_event, .news_highlight_section).u-theme-green:hover a.text-link {
+    color: var(--fw_dark_purple, #06021a) !important;
+  }
+}
+
+:is(.news_event, .news_highlight_section).u-theme-green:focus-within a.text-link {
+  color: var(--fw_dark_purple, #06021a) !important;
 }
 
 .more-arrow [data-more-arrow-dot],
@@ -2187,7 +2359,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   cursor: progress;
   clip-path: inset(0 0 0 0);
   will-change: clip-path;
-  transition: clip-path 1.3s var(--preloader-ease);
+  transition: clip-path .975s var(--preloader-ease);
 }
 .site-preloader::before {
   content: '';
@@ -2217,12 +2389,12 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   transform: translateY(110%);
-  transition: transform 1s var(--preloader-ease-out);
+  transition: transform .75s var(--preloader-ease-out);
 }
 .site-preloader.is-loading .site-preloader__progress { transform: translateY(0); }
 .site-preloader.is-fading .site-preloader__progress {
   transform: translateY(-110%);
-  transition-duration: .8s;
+  transition-duration: .6s;
   transition-timing-function: var(--preloader-ease);
 }
 .site-preloader__digit {
@@ -2242,7 +2414,7 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   transform: translateX(-50%) translateY(var(--intro-shift, 0px));
   opacity: 0;
   animation: site-preloader-drift 8s ease-in-out infinite alternate;
-  transition: opacity .6s var(--preloader-ease);
+  transition: opacity .45s var(--preloader-ease);
 }
 .site-preloader__name:not(.is-ready) {
   top: 50%;
@@ -2252,14 +2424,14 @@ html.is-site-preloading.is-site-preloader-exiting::after {
 .site-preloader__name.is-ready { opacity: 1; }
 .site-preloader__name.is-settled {
   transform: translateX(-50%) translateY(0);
-  transition: transform 1.5s var(--preloader-ease), opacity .6s var(--preloader-ease);
+  transition: transform 1.125s var(--preloader-ease), opacity .45s var(--preloader-ease);
 }
 .site-preloader.is-fading .site-preloader__name { opacity: 0; }
 .site-preloader__title,
 .site-preloader__date {
   opacity: 0;
   transform: translateY(44px);
-  transition: opacity 4s cubic-bezier(.02, .9, .03, 1), transform 9s cubic-bezier(.02, .9, .03, 1);
+  transition: opacity 3s cubic-bezier(.02, .9, .03, 1), transform 6.75s cubic-bezier(.02, .9, .03, 1);
 }
 .site-preloader__title.is-visible,
 .site-preloader__date.is-visible {
@@ -2270,23 +2442,23 @@ html.is-site-preloading.is-site-preloader-exiting::after {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(240px, min(34vw, 56vh), 560px);
+  width: clamp(180px, min(25.5vw, 42vh), 420px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   opacity: 0;
   pointer-events: none;
   animation: site-preloader-drift 7s ease-in-out infinite alternate;
-  transition: opacity 1.4s var(--preloader-ease-out);
+  transition: opacity 1.05s var(--preloader-ease-out);
   will-change: opacity, transform;
 }
 .site-preloader.is-loading .site-preloader__signature-stage { opacity: 1; }
 .site-preloader.is-fading .site-preloader__signature-stage {
   opacity: 0;
-  transition-duration: .6s;
+  transition-duration: .45s;
   transition-timing-function: var(--preloader-ease);
 }
 .site-preloader__signature-stage.is-impact {
-  animation: site-preloader-impact 3s cubic-bezier(.01, .95, .02, 1), site-preloader-drift 7s ease-in-out infinite alternate;
+  animation: site-preloader-impact 2.25s cubic-bezier(.01, .95, .02, 1), site-preloader-drift 7s ease-in-out infinite alternate;
 }
 .site-preloader__signature,
 .site-preloader__signature-variant {
@@ -2409,4 +2581,88 @@ html.site-mobile-hero-spline .werk_hero_spline.is-mobile-scene {
 /* Stop the viewport-sized grain animation above the 3D hero on phones. */
 html.site-mobile-hero-spline #fw-hero-grained::before {
   animation: none !important;
+}
+
+/* Shared image entrance: the visible frame stays fixed while the image settles.
+   Slider tracks and controls keep their own motion. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-site-image-reveal="media"],
+  [data-site-image-reveal="plain"],
+  [data-site-image-reveal="slider"] {
+    opacity: 0;
+    transition: opacity .4s ease-out;
+    transition-delay: var(--site-image-delay, 0ms);
+  }
+
+  :is([data-site-image-reveal="media"], [data-site-image-reveal="plain"], [data-site-image-reveal="slider"]).is-site-image-in {
+    opacity: 1;
+  }
+
+  [data-site-image-reveal="media"] {
+    overflow: hidden;
+  }
+
+  [data-site-image-reveal="media"] img {
+    scale: 1.075;
+    transition: scale 1.2s cubic-bezier(0, 0, .2, 1), transform .62s cubic-bezier(.33, 1, .68, 1);
+    transition-delay: var(--site-image-delay, 0ms);
+  }
+
+  [data-site-image-reveal="media"].is-site-image-in img {
+    scale: 1;
+  }
+
+  [data-site-image-reveal="instagram"] {
+    opacity: 0;
+    translate: 0 20px;
+    transition: opacity 1s cubic-bezier(.33, 1, .68, 1), translate 1s cubic-bezier(.33, 1, .68, 1);
+    transition-delay: var(--site-image-delay, 0ms);
+  }
+
+  [data-site-image-reveal="instagram"].is-site-image-in {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* Only lightbox images receive the additional hover zoom. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .site-lightbox-trigger[data-site-image-reveal="media"].is-site-image-in:hover img,
+  .site-lightbox-trigger[data-site-image-reveal="media"].is-site-image-in:focus-visible img {
+    transform: scale(var(--fw-lightbox-zoom, var(--fw-image-zoom, 1.035)));
+  }
+}
+
+/* The same left-to-right divider reveal as the menu, on the work groups. */
+@media (prefers-reduced-motion: no-preference) {
+  .accordion_section .accordion_item[data-accordion-line-ready] {
+    position: relative;
+    border-bottom-color: transparent;
+  }
+
+  .accordion_section .accordion_item[data-accordion-line-ready]:first-child {
+    border-top-color: transparent;
+  }
+
+  .accordion_section .accordion_item[data-accordion-line-ready]::after,
+  .accordion_section .accordion_item[data-accordion-line-ready]:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: .5px;
+    background: var(--FW_Dark_Purple, var(--fw_dark_purple, #06021a));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .7s cubic-bezier(.33, 1, .68, 1);
+    transition-delay: calc(var(--accordion-line-index, 0) * 55ms);
+    pointer-events: none;
+  }
+
+  .accordion_section .accordion_item[data-accordion-line-ready]::after { bottom: 0; }
+  .accordion_section .accordion_item[data-accordion-line-ready]:first-child::before { top: 0; }
+  .accordion_section .accordion_item[data-accordion-line-ready].is-accordion-line-in::after,
+  .accordion_section .accordion_item[data-accordion-line-ready].is-accordion-line-in:first-child::before {
+    transform: scaleX(1);
+  }
 }

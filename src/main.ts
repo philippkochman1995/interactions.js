@@ -12,8 +12,7 @@ import { initMoreArrows } from './modules/more-arrows';
 import { initOutlinedButtons } from './modules/outlined-buttons';
 import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
-import { initHomeImageWipe } from './modules/home-image-wipe';
-import { initHomeHeadingReveal } from './modules/home-heading-reveal';
+import { initSiteImageReveal } from './modules/site-image-reveal';
 import { initMaskedLineReveal } from './modules/masked-line-reveal';
 
 let booted = false;
@@ -25,7 +24,6 @@ initPageTransitions();
 
 // Ebenfalls vor boot(): die Ziele muessen markiert sein, bevor der erste Paint sie zeigt.
 initLineReveal();
-initHomeHeadingReveal();
 initMaskedLineReveal();
 initSmoothScrollSync();
 
@@ -39,6 +37,9 @@ function boot(): void {
   const i18n = initI18n();
 
   initModals({ i18n });
+  if (/^\/kontakt\/?$/i.test(window.location.pathname)) {
+    document.querySelector<HTMLImageElement>('.contact_img img.is-contact-image')?.classList.add('js-lightbox');
+  }
   initLightbox({ i18n });
   // Nach initLightbox: der Wrapper, der bei Lightbox-Bildern zum Fenster wird,
   // entsteht erst dort.
@@ -49,7 +50,7 @@ function boot(): void {
   initLogoVariants();
   initMoreArrows();
   initOutlinedButtons();
-  initHomeImageWipe();
+  initSiteImageReveal();
 
   window.SiteInteractions = {
     openModal,

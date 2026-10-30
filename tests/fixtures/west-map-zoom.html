@@ -42,7 +42,7 @@
     <span class="wm-f-kategorie">Wichtige Orte</span>
   </div>
   <script>
-    window.matchMedia = () => ({ matches: true });
+    window.matchMedia = () => ({ matches: !location.search.includes('motion=full') });
     window.mapboxgl = {
       Map: class {
         constructor(options){
@@ -50,6 +50,15 @@
           this.options = options;
           this.zoomCalls = [];
           this.handlers = {};
+          this.transform = {
+            minLat: -85.051129,
+            maxLat: 85.051129,
+            _constrain: () => { this.latitudeConstrained = true; }
+          };
+          this.scrollZoom = {
+            setZoomRate: rate => { this.trackpadZoomRate = rate; },
+            setWheelZoomRate: rate => { this.wheelZoomRate = rate; }
+          };
           this.touchZoomRotate = { disableRotation: () => { this.touchRotationDisabled = true; } };
           window.westMapTest = this;
         }
@@ -63,8 +72,9 @@
         setPadding(){}
         setFog(fog){ this.fog = fog; }
         getZoom(){ return this.zoom; }
-        zoomTo(zoom){ this.zoomCalls.push(zoom); }
+        zoomTo(zoom, options){ this.zoomCalls.push(zoom); this.lastZoomOptions = options; }
         easeTo(options){ this.lastEase = options; }
+        flyTo(options){ this.lastFly = options; }
         addSource(id, options){
           this.source = {
             data: options.data,
@@ -76,7 +86,7 @@
         addLayer(){}
         isSourceLoaded(){ return true; }
         querySourceFeatures(){
-          return [{
+          return this.features || [{
             properties: { cluster: true, cluster_id: 1, firstIdx: 0, point_count_abbreviated: '2', hasW: 1 },
             geometry: { coordinates: [16.37, 48.2] }
           }];

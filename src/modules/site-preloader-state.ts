@@ -6,7 +6,7 @@ export const PRELOADER_SELECTOR = '[data-site-preloader]';
 export const PRELOADER_STORAGE_KEY = 'site-preloader-seen';
 export const PRELOADER_STORAGE_VERSION = '4';
 export const PRELOADER_TIMEOUT = 6000;
-export const PRELOADER_MINIMUM = 11000;
+export const PRELOADER_MINIMUM = 8250;
 
 export interface PreloaderState {
   active: boolean;

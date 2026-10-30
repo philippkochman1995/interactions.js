@@ -5,24 +5,54 @@
   <link rel="stylesheet" href="/site-interactions-base.css">
   <style>
     body { display: grid; gap: 2rem; padding: 2rem; }
-    .news_event, .news_highlight_section { width: 440px; padding: 1rem; background: #eee; }
-    .news_event img, .news_img img { display: block; width: 400px; height: 240px; object-fit: cover; }
+    .news_event, .news_highlight_section { width: 700px; padding: 1rem; background: #eee; }
+    .intro_layout { display: grid; grid-template-columns: 400px 1fr; gap: 1rem; }
+    .news_event img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .news_img img { display: block; width: 400px; height: 300px; object-fit: cover; }
+    .intro_content_about { min-height: 300px; }
     .text-link { color: #82808c; }
     .text-link:hover { color: #06021a; }
+    @media (max-width: 991px) {
+      .intro_layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 767px) {
+      .news_event, .news_highlight_section { width: auto; }
+      .news_event img { height: auto; }
+    }
   </style>
+  <script type="module">
+    import { initSiteImageReveal } from '/src/modules/site-image-reveal.ts';
+    if (!new URLSearchParams(location.search).has('nojs')) initSiteImageReveal();
+  </script>
 </head>
 <body>
+  <article class="news_event" data-testid="home-card">
+    <div class="intro_layout">
+      <img class="intro_img" data-testid="home-image" src="/tests/fixtures/image.svg" alt="Home">
+      <div class="intro_content_about"><a class="text-link" href="#home">Mehr erfahren</a></div>
+    </div>
+  </article>
   <article class="news_event" data-testid="news-card">
-    <img class="intro_img" data-testid="news-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="News">
-    <a class="text-link" href="#news">Mehr erfahren</a>
+    <div class="intro_layout">
+      <img class="intro_img" data-testid="news-image" src="/tests/fixtures/image.svg" alt="News">
+      <div class="intro_content_about"><a class="text-link" href="#news">Mehr erfahren</a></div>
+    </div>
+  </article>
+  <article class="news_event" data-testid="detail-card">
+    <div class="intro_layout">
+      <div class="img-zoom"><img class="intro_img" data-testid="detail-image" src="/tests/fixtures/image.svg" alt="Weitere News"></div>
+      <div class="intro_content_about"><a class="text-link" href="#detail">Mehr erfahren</a></div>
+    </div>
+  </article>
+  <article class="news_event" data-testid="works-card">
+    <div class="intro_layout">
+      <img class="intro_img" data-testid="works-image" src="/tests/fixtures/image.svg" alt="Werke">
+      <div class="intro_content_about"><a class="text-link" href="#works">Mehr erfahren</a></div>
+    </div>
   </article>
   <section class="news_highlight_section" data-testid="highlight-card">
-    <div class="news_img"><img data-testid="highlight-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="Highlight"></div>
+    <div class="news_img"><img data-testid="highlight-image" src="/tests/fixtures/image.svg" alt="Highlight"></div>
     <a class="text-link" href="#highlight">Mehr erfahren</a>
   </section>
-  <article class="news_event" data-testid="atelier-card">
-    <img class="intro_img" data-testid="atelier-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect width='400' height='240' fill='%23777777'/%3E%3C/svg%3E" alt="Open Studio">
-    <a class="text-link" href="#atelier">Mehr erfahren</a>
-  </article>
 </body>
 </html>
