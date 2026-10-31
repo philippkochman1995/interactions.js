@@ -689,6 +689,10 @@ und alte Animationsklassen vom Text entfernt. `data-reveal="off"` nimmt ein einz
 Element aus. Die alten `data-splitline`-, Gruppen-, Delay- und Stagger-Attribute
 steuern den neuen Reveal nicht mehr.
 
+Auf `/kontakt` bleiben die ersten Texte und Links in der Seiten-Introanimation.
+Der letzte Absatz in `.contact_txt` verwendet den globalen Reveal, damit er auf
+kleinen Viewports erst beim Einscrollen erscheint.
+
 Auf der Startseite animiert `src/modules/home-heading-reveal.ts` ausschliesslich
 sichtbare Ueberschriften (`h1`–`h6`) zeilenweise aus einer Maske. Absaetze und
 sonstiger Text bleiben statisch. SplitText passt die Zeilen bei Schrift- oder

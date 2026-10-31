@@ -9,7 +9,7 @@ html.w-mod-js .top_bar_section .top_bar_center {
   transition: opacity 220ms linear;
 }
 
-html.w-mod-js .contact_txt > *,
+html.w-mod-js .contact_txt > :not(:last-child),
 html.w-mod-js .contact_links {
   translate: 0 14px;
   transition: opacity 550ms cubic-bezier(.33, 1, .68, 1),
@@ -17,7 +17,7 @@ html.w-mod-js .contact_links {
 }
 
 html.w-mod-js.is-contact-intro-in .top_bar_section .top_bar_center,
-html.w-mod-js.is-contact-intro-in .contact_txt > *,
+html.w-mod-js.is-contact-intro-in .contact_txt > :not(:last-child),
 html.w-mod-js.is-contact-intro-in .contact_links {
   opacity: 1;
   translate: none;
