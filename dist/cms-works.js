@@ -1,6 +1,6 @@
 import { l as e, m as t, o as n } from "./site-interactions-Cou7uu3t.js";
 import { t as r } from "./site-interactions-BxJ-FVg3.js";
-import { a as i, t as a } from "./site-interactions-HQKELVCL.js";
+import { a as i, t as a } from "./site-interactions-CEVwkEpI.js";
 import { createDetailSection as o, createRelatedSection as s, fitDetailImage as c, pickRelatedItems as l } from "./cms-work-detail.js";
 //#region src/cms-works-filter.ts
 var u = "\n  <svg width=\"14.45\" height=\"10.2\" viewBox=\"0 0 17 12\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M8.50754 0.799805L0.608478 0.799805L0.308594 1.25064L1.3437 2.7998H8.50264H8.50754H15.6582L16.6932 1.25064L16.3933 0.799805L8.50754 0.799805Z\" fill=\"currentColor\"/>\n    <path d=\"M9.13695 5H3.29988C3.17037 5.1947 3 5.45083 3 5.45083L4.03511 7H9.13205H9.13695H13.2339L14.2689 5.45083C14.1393 5.25613 14.0985 5.1947 13.969 5H9.13695Z\" fill=\"currentColor\"/>\n    <path d=\"M8.08318 9.2002H6.29988L6 9.65103L7.03511 11.2002H8.07828H8.08318H10.1264L11.1613 9.65103L10.8614 9.2002H8.08318Z\" fill=\"currentColor\"/>\n  </svg>\n", d = "\n  <svg width=\"8.5\" height=\"9.35\" viewBox=\"0 0 10 11\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" focusable=\"false\">\n    <path d=\"M6 9L6 0L4 -8.74228e-08L4 9L6 9Z\" fill=\"currentColor\"/>\n    <path d=\"M5.49717 10.9999L10 7.18921L8.59139 6L5.13553 8.92743L4.86446 8.92743L1.40861 6L-5.26956e-07 7.18921L4.50283 10.9999C4.69696 11 5.30303 11 5.49717 10.9999Z\" fill=\"currentColor\"/>\n  </svg>\n", f = {
@@ -1110,13 +1110,13 @@ function Ut() {
 	let e = document.createElementNS(xt, "svg"), t = document.createElementNS(xt, "path"), n = document.createElementNS(xt, "path");
 	return e.classList.add("cms-works__eye"), e.setAttribute("viewBox", "0 0 26 17"), e.setAttribute("fill", "none"), e.setAttribute("aria-hidden", "true"), e.setAttribute("focusable", "false"), t.classList.add("cms-works__eye-pupil"), t.setAttribute("d", "M12.9287 5.09348L9.21484 8.5L12.9287 11.9065L16.6426 8.5L12.9287 5.09348Z"), t.setAttribute("fill", "currentColor"), n.setAttribute("d", "M13.0002 2.18023C15.6652 2.18023 18.1329 3.07008 20.3347 4.82508C21.9106 6.08117 22.9982 7.49402 23.6231 8.43757V8.56243C22.9982 9.50597 21.9106 10.9188 20.3347 12.1749C18.1329 13.9299 15.6652 14.8198 13.0002 14.8198C10.3349 14.8198 7.86705 13.9298 5.66511 12.1745C4.08924 10.9183 3.00176 9.50545 2.37694 8.56192V8.43809C3.00176 7.49455 4.08926 6.08168 5.66511 4.82548C7.86706 3.07023 10.3349 2.18023 13.0002 2.18023ZM13.0002 0C5.40921 0 1.20653 5.8629 0 7.85026V9.14973C1.20653 11.1371 5.40921 17 13.0002 17C20.5904 17 24.793 11.1382 26 9.1503V7.8497C24.793 5.8618 20.5904 0 13.0002 0Z"), n.setAttribute("fill", "currentColor"), e.append(t, n), e;
 }
-function Wt(e, t = -1) {
-	let n = document.createElement(e.href ? "a" : "article"), r = document.createElement("span"), i = document.createElement("img"), a = document.createElement("span"), o = document.createElement("span"), s = document.createElement("span");
-	if (n.className = "cms-works__item", n.setAttribute("data-works-rendered-item", e.id), n.setAttribute("data-works-categories", e.categories.join(",")), e.href && (n.classList.add("cms-works__item--clickable"), n.setAttribute("href", e.href), n.setAttribute("data-work-overlay-trigger", e.id), n.setAttribute("data-transition", "false")), r.className = "cms-works__image-wrap", t >= 0 && (r.classList.add("cms-works__image-wrap--revealing"), r.style.setProperty("--cms-works-reveal-delay", `${t * 100}ms`)), i.className = "cms-works__image", i.src = e.thumbnail, i.alt = e.thumbnailAlt, i.loading = "lazy", i.decoding = "async", r.append(i), a.className = "cms-works__meta", o.className = "cms-works__label", s.className = "cms-works__title", s.textContent = e.title, o.append(s), e.year) {
+function Wt(e) {
+	let t = document.createElement(e.href ? "a" : "article"), n = document.createElement("span"), r = document.createElement("img"), i = document.createElement("span"), a = document.createElement("span"), o = document.createElement("span");
+	if (t.className = "cms-works__item", t.setAttribute("data-works-rendered-item", e.id), t.setAttribute("data-works-categories", e.categories.join(",")), e.href && (t.classList.add("cms-works__item--clickable"), t.setAttribute("href", e.href), t.setAttribute("data-work-overlay-trigger", e.id), t.setAttribute("data-transition", "false")), n.className = "cms-works__image-wrap", r.className = "cms-works__image", r.src = e.thumbnail, r.alt = e.thumbnailAlt, r.loading = "lazy", r.decoding = "async", n.append(r), i.className = "cms-works__meta", a.className = "cms-works__label", o.className = "cms-works__title", o.textContent = e.title, a.append(o), e.year) {
 		let t = document.createElement("span");
-		t.className = "cms-works__year", t.textContent = Bt(e.year), o.append(t);
+		t.className = "cms-works__year", t.textContent = Bt(e.year), a.append(t);
 	}
-	return a.append(o, Ut()), n.append(r, a), n;
+	return i.append(a, Ut()), t.append(n, i), t;
 }
 function Gt(e) {
 	return new Promise((t) => {
@@ -1150,17 +1150,14 @@ function qt(e, t, n) {
 		a.items.push(e), a.height += i.height / Math.max(i.width, 1) + .18;
 	}), r;
 }
-function Jt(e, t, n, r) {
-	let i = document.createElement("div"), a = qt(t, n, Kt(e)), o = /* @__PURE__ */ new Map();
-	r && t.forEach((e) => {
-		r.has(e.id) && o.set(e.id, o.size);
-	}), i.className = "cms-works__grid", a.forEach((e) => {
+function Jt(e, t, n) {
+	let r = document.createElement("div"), i = qt(t, n, Kt(e));
+	r.className = "cms-works__grid", i.forEach((e) => {
 		let t = document.createElement("div");
 		t.className = "cms-works__column", e.items.forEach((e) => {
-			var n;
-			t.append(Wt(e, (n = o.get(e.id)) == null ? -1 : n));
-		}), i.append(t);
-	}), e.replaceChildren(i), e.classList.add("is-ready");
+			t.append(Wt(e));
+		}), r.append(t);
+	}), e.replaceChildren(r), e.classList.add("is-ready");
 }
 function Yt(e, t) {
 	var n, r, i;
@@ -1185,20 +1182,20 @@ function Qt(e, t) {
 		open: !1
 	}, d = document.createElement("div"), f = document.createElement("button"), p = document.createElement("div"), m = Xt(e, t), h = 0, _ = 0, b = 0, x = (a = c == null ? void 0 : c.visibleCount) == null ? Ct : a, S = window.location.hash === "#werke" || (o = c == null ? void 0 : c.scrollY) == null ? null : o, C = [], w = /* @__PURE__ */ new Map(), T = /* @__PURE__ */ new Map(), E = 0;
 	t.hidden = !0, t.setAttribute("aria-hidden", "true"), Lt(t), e.classList.add("cms-works"), d.className = "cms-works__grid-host u-section", f.className = "cms-works__collection-overlay", f.type = "button", f.setAttribute("aria-label", "Filter anwenden"), p.className = "cms-works__grid-mount", d.append(p), m && d.append(m);
-	let D = () => Vt(Ht(s, u.appliedCategories), u.appliedSortMode, e), O = (t = !1, n) => {
-		let r = ++E, i = C.slice(0, x);
-		Promise.all(i.map(async (e) => {
+	let D = () => Vt(Ht(s, u.appliedCategories), u.appliedSortMode, e), O = (t = !1) => {
+		let n = ++E, r = C.slice(0, x);
+		Promise.all(r.map(async (e) => {
 			if (w.has(e.id)) return;
 			let t = T.get(e.thumbnail);
 			t || (t = Gt(e.thumbnail), T.set(e.thumbnail, t)), w.set(e.id, await t);
 		})).then(() => {
-			r === E && (window.cancelAnimationFrame(h), h = window.requestAnimationFrame(() => {
-				if (r !== E) return;
-				let a = Kt(e), o = Math.round(e.getBoundingClientRect().width);
-				!t && a === _ && o === b || (_ = a, b = o, Jt(p, i, w, n), m && (m.hidden = C.length <= x), S !== null && (window.scrollTo(0, S), S = null), e.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(Et, {
+			n === E && (window.cancelAnimationFrame(h), h = window.requestAnimationFrame(() => {
+				if (n !== E) return;
+				let i = Kt(e), a = Math.round(e.getBoundingClientRect().width);
+				!t && i === _ && a === b || (_ = i, b = a, Jt(p, r, w), m && (m.hidden = C.length <= x), S !== null && (window.scrollTo(0, S), S = null), e.setAttribute("data-site-assets-ready", ""), document.dispatchEvent(new CustomEvent(Et, {
 					bubbles: !0,
 					detail: {
-						count: i.length,
+						count: r.length,
 						total: C.length
 					}
 				})));
@@ -1223,10 +1220,7 @@ function Qt(e, t) {
 	} });
 	if (f.addEventListener("click", () => j.apply()), m) {
 		let e = () => {
-			let e = x;
-			x = Math.min(x + wt, C.length);
-			let t = new Set(C.slice(e, x).map((e) => e.id));
-			O(!0, t), k();
+			x = Math.min(x + wt, C.length), O(!0), k();
 		};
 		m.addEventListener("click", (t) => {
 			t.preventDefault(), e();
