@@ -177,9 +177,10 @@
         if (!response.ok) return '';
         const page = new DOMParser().parseFromString(await response.text(), 'text/html');
         const field = page.querySelector('[data-bio-credit-key]');
-        return field?.getAttribute('data-bio-credit-key')?.toLowerCase() === key
+        const credit = field?.getAttribute('data-bio-credit-key')?.toLowerCase() === key
           ? field.getAttribute('data-bio-credit-value')?.trim() || ''
           : '';
+        return localePrefix && credit === '© Foto Credit:' ? '© Photo credit:' : credit;
       }).catch(() => ''));
     }
     return credits.get(key);
