@@ -5,7 +5,7 @@ const ARROW_PATHS = `
 
 function updateMoreLink(link: Element): void {
   // The Webflow label can contain a nested text block and arbitrary whitespace.
-  if (!/^mehr\s+erfahren$/i.test(link.textContent?.trim() ?? '')) return;
+  if (!/^(?:mehr\s+erfahren|learn\s+more)$/i.test(link.textContent?.trim() ?? '')) return;
 
   let arrow = link.querySelector<SVGSVGElement>('svg.arrow');
   if (arrow?.hasAttribute('data-more-arrow')) return;
