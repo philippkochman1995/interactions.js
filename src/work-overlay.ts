@@ -49,7 +49,9 @@ function overviewUrl(): string {
 }
 
 function worksOverviewUrl(): string {
-  const url = new URL(overviewUrl(), window.location.href);
+  const url = new URL(window.location.href);
+  url.pathname = isEnglish ? '/en/werk-ueberblick' : '/werk-ueberblick';
+  url.searchParams.delete('work');
   url.hash = 'werke';
   return `${url.pathname}${url.search}${url.hash}`;
 }

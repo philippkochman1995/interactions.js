@@ -710,8 +710,8 @@ function ut() {
 	return e.searchParams.delete("work"), `${e.pathname}${e.search}${e.hash}`;
 }
 function dt() {
-	let e = new URL(ut(), window.location.href);
-	return e.hash = "werke", `${e.pathname}${e.search}${e.hash}`;
+	let e = new URL(window.location.href);
+	return e.pathname = it ? "/en/werk-ueberblick" : "/werk-ueberblick", e.searchParams.delete("work"), e.hash = "werke", `${e.pathname}${e.search}${e.hash}`;
 }
 function ft(e) {
 	try {
