@@ -153,6 +153,13 @@ function E(t) {
 			let t = e.querySelector(".text-block");
 			t && (t.textContent = "Back");
 		}
+		document.querySelectorAll("a[href]").forEach((e) => {
+			let t = new URL(e.href, document.baseURI);
+			if (!(t.pathname !== "/werk-ueberblick" || t.hash !== "#werke") && (e.href = "/en/werk-ueberblick#werke", /zur übersicht/i.test(e.textContent || ""))) {
+				let t = e.querySelector(".text-block, .button-text");
+				t ? t.textContent = "Back to overview" : e.textContent = "Back to overview";
+			}
+		});
 	}
 	T(t, (n = t.querySelector(e)) == null ? document.querySelector(t.getAttribute("data-work-detail-source") || e) : n), D(t);
 }

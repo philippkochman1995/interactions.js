@@ -458,6 +458,16 @@ function mount(root: HTMLElement): void {
       const label = backLink.querySelector<HTMLElement>('.text-block');
       if (label) label.textContent = 'Back';
     }
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+      const target = new URL(link.href, document.baseURI);
+      if (target.pathname !== '/werk-ueberblick' || target.hash !== '#werke') return;
+      link.href = '/en/werk-ueberblick#werke';
+      if (/zur übersicht/i.test(link.textContent || '')) {
+        const label = link.querySelector<HTMLElement>('.text-block, .button-text');
+        if (label) label.textContent = 'Back to overview';
+        else link.textContent = 'Back to overview';
+      }
+    });
   }
   const source =
     root.querySelector<HTMLElement>(SOURCE_SELECTOR) ??
