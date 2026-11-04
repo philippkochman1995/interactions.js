@@ -120,9 +120,18 @@ function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
     return null;
   }
 
+  let caption = getStringAttr(trigger, 'data-lightbox-caption');
+  if (/^\/en\/biografie\/?$/i.test(window.location.pathname) && caption && trigger.closest('.bio_photo')) {
+    const image = trigger instanceof HTMLImageElement ? trigger : qs<HTMLImageElement>('img', trigger);
+    const englishAlt = image?.alt.trim();
+    if (englishAlt) caption = caption.includes('Tri-Tra Focus')
+      ? '“Tri-Tra Focus”, 1998, Museum of Modern Art, Gunma, Takasaki'
+      : englishAlt;
+  }
+
   return {
     src,
-    caption: getStringAttr(trigger, 'data-lightbox-caption'),
+    caption,
     credit: getStringAttr(trigger, 'data-lightbox-credit'),
     alt: getTriggerAlt(trigger),
     group: getStringAttr(trigger, 'data-lightbox-group'),

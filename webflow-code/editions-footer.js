@@ -11,6 +11,20 @@
      ein Klick auf den Swatch springt auf den passenden Slide.
      Pfeile und Dots blenden sich aus, solange es nur ein Bild gibt. */
   (function () {
+    var isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
+    var englishCaptions = {
+      'Stuhl, ab 2015': 'Chair, from 2015',
+      'Stuhl, Detail – Holz und Baustahl': 'Chair, detail – wood and structural steel',
+      'Beistelltische': 'Side tables',
+      'Beistelltisch, Rosa': 'Side table, pink',
+      'Beistelltisch, Gelb': 'Side table, yellow',
+      'Beistelltisch, Rot': 'Side table, red',
+      'Beistelltisch, Grün': 'Side table, green',
+      'Große Lampe': 'Large lamp',
+      'Große Lampe, Lampenfuß 2': 'Large lamp, lamp base 2',
+      'Große Lampe, Lampenfuß 3': 'Large lamp, lamp base 3',
+      'Garderobe, ab 2023': 'Coat rack, from 2023'
+    };
     /* Gleiche Pfeil-Grafik wie im Designer, damit Slideshow und Lightbox
        identisch aussehen. Styling und Hover liegen im Head-CSS. */
     var ARROW_SVG =
@@ -30,6 +44,10 @@
           trigger.setAttribute('data-lightbox-src', image.src);
         }
         var caption = trigger.getAttribute('data-lightbox-caption');
+        if (isEnglish && caption && englishCaptions[caption]) {
+          caption = englishCaptions[caption];
+          trigger.setAttribute('data-lightbox-caption', caption);
+        }
         if (caption) {
           image.alt = caption;
           trigger.setAttribute('data-lightbox-alt', caption);

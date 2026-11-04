@@ -1446,14 +1446,20 @@ function ji(e) {
 }
 function Mi(e) {
 	let t = ki(e).trim();
-	return t ? {
+	if (!t) return null;
+	let n = r(e, "data-lightbox-caption");
+	if (/^\/en\/biografie\/?$/i.test(window.location.pathname) && n && e.closest(".bio_photo")) {
+		let t = e instanceof HTMLImageElement ? e : s("img", e), r = t == null ? void 0 : t.alt.trim();
+		r && (n = n.includes("Tri-Tra Focus") ? "“Tri-Tra Focus”, 1998, Museum of Modern Art, Gunma, Takasaki" : r);
+	}
+	return {
 		src: t,
-		caption: r(e, "data-lightbox-caption"),
+		caption: n,
 		credit: r(e, "data-lightbox-credit"),
 		alt: ji(e),
 		group: r(e, "data-lightbox-group"),
 		trigger: e
-	} : null;
+	};
 }
 function Ni(e) {
 	let t = Mi(e);
