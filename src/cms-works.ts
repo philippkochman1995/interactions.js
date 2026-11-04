@@ -456,7 +456,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   gridHost.className = 'cms-works__grid-host u-section';
   collectionOverlay.className = 'cms-works__collection-overlay';
   collectionOverlay.type = 'button';
-  collectionOverlay.setAttribute('aria-label', 'Filter anwenden');
+  collectionOverlay.setAttribute('aria-label', /^\/en(?:\/|$)/.test(window.location.pathname) ? 'Apply filters' : 'Filter anwenden');
   gridMount.className = 'cms-works__grid-mount';
   gridHost.append(gridMount);
 

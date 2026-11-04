@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { markerThumbnail } from './marker-thumbnails';
 (function(){
+  var isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
   var catClassMap = {
     'Ausstellungen': 'wm-cat-ausstellungen',
     'Werke': 'wm-cat-werke',
@@ -67,10 +68,10 @@ import { markerThumbnail } from './marker-thumbnails';
 
       currentRow = row.cloneNode(true);
       currentRow.classList.add('wm-current-row');
-      currentRow.querySelector('span').textContent = 'Aktuell zu sehen';
+      currentRow.querySelector('span').textContent = isEnglish ? 'Currently on view' : 'Aktuell zu sehen';
       currentSwitch = currentRow.querySelector('#wmLabelsSwitch');
       currentSwitch.id = 'wmCurrentSwitch';
-      currentSwitch.setAttribute('aria-label', 'Nur aktuell zu sehende Orte');
+      currentSwitch.setAttribute('aria-label', isEnglish ? 'Show only locations currently on view' : 'Nur aktuell zu sehende Orte');
       row.parentElement.insertBefore(currentRow, row);
 
       var prev = row.previousElementSibling;
@@ -147,19 +148,19 @@ import { markerThumbnail } from './marker-thumbnails';
       var zoomInBtn = document.createElement('button');
       zoomInBtn.type = 'button';
       zoomInBtn.className = 'wm-zoom-btn';
-      zoomInBtn.setAttribute('aria-label','Reinzoomen');
+      zoomInBtn.setAttribute('aria-label', isEnglish ? 'Zoom in' : 'Reinzoomen');
       zoomInBtn.innerHTML = ZOOM_IN_SVG;
 
       var zoomOutBtn = document.createElement('button');
       zoomOutBtn.type = 'button';
       zoomOutBtn.className = 'wm-zoom-btn';
-      zoomOutBtn.setAttribute('aria-label','Rauszoomen');
+      zoomOutBtn.setAttribute('aria-label', isEnglish ? 'Zoom out' : 'Rauszoomen');
       zoomOutBtn.innerHTML = ZOOM_OUT_SVG;
 
       var filterBtn = document.createElement('button');
       filterBtn.type = 'button';
       filterBtn.className = 'wm-zoom-btn wm-filter-btn';
-      filterBtn.setAttribute('aria-label','Legende');
+      filterBtn.setAttribute('aria-label', isEnglish ? 'Legend' : 'Legende');
       filterBtn.setAttribute('aria-expanded','false');
       filterBtn.innerHTML = FILTER_SVG;
 
@@ -472,7 +473,9 @@ function openMapModal(data){
         toggle.type = 'button';
         toggle.className = 'wm-switch is-on wm-category-switch';
         toggle.setAttribute('role', 'switch');
-        toggle.setAttribute('aria-label', category);
+        toggle.setAttribute('aria-label', isEnglish
+          ? ({ 'Ausstellungen': 'Exhibitions', 'Werke': 'Works', 'Wichtige Orte': 'Key locations' }[category] || category)
+          : category);
         toggle.setAttribute('aria-checked', 'true');
         toggle.innerHTML = '<span class="wm-switch-track"></span><span class="wm-switch-thumb"></span>';
         item.appendChild(toggle);
