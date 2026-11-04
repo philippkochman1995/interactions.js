@@ -42,6 +42,19 @@ const LIGHTBOX_TRIGGER_IMAGE_CLASS = 'site-lightbox-trigger__image';
 const LIGHTBOX_TRIGGER_ICON_CLASS = 'site-lightbox-trigger__icon';
 const WEBFLOW_EMPTY_BIND_CLASS = 'w-dyn-bind-empty';
 const WEBFLOW_PLACEHOLDER_IMAGE_PATTERN = '/plugins/Basic/assets/placeholder.';
+const EN_EDITION_CAPTIONS: Record<string, string> = {
+  'Stuhl, ab 2015': 'Chair, from 2015',
+  'Stuhl, Detail – Holz und Baustahl': 'Chair, detail – wood and structural steel',
+  Beistelltische: 'Side tables',
+  'Beistelltisch, Rosa': 'Side table, pink',
+  'Beistelltisch, Gelb': 'Side table, yellow',
+  'Beistelltisch, Rot': 'Side table, red',
+  'Beistelltisch, Grün': 'Side table, green',
+  'Große Lampe': 'Large lamp',
+  'Große Lampe, Lampenfuß 2': 'Large lamp, lamp base 2',
+  'Große Lampe, Lampenfuß 3': 'Large lamp, lamp base 3',
+  'Garderobe, ab 2023': 'Coat rack, from 2023',
+};
 const LIGHTBOX_AUTO_ICON_SVG = `
   <svg width="34" height="34" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
     <circle class="site-lightbox-trigger__icon-circle" cx="15" cy="15" r="15"/>
@@ -121,6 +134,14 @@ function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
   }
 
   let caption = getStringAttr(trigger, 'data-lightbox-caption');
+  let alt = getTriggerAlt(trigger);
+  if (/^\/en\/editionen\/?$/i.test(window.location.pathname)) {
+    const translated = EN_EDITION_CAPTIONS[caption.trim()];
+    if (translated) {
+      caption = translated;
+      alt = translated;
+    }
+  }
   if (/^\/en\/biografie\/?$/i.test(window.location.pathname) && caption && trigger.closest('.bio_photo')) {
     const image = trigger instanceof HTMLImageElement ? trigger : qs<HTMLImageElement>('img', trigger);
     const englishAlt = image?.alt.trim();
@@ -133,7 +154,7 @@ function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
     src,
     caption,
     credit: getStringAttr(trigger, 'data-lightbox-credit'),
-    alt: getTriggerAlt(trigger),
+    alt,
     group: getStringAttr(trigger, 'data-lightbox-group'),
     trigger,
   };
