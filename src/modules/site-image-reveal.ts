@@ -1,4 +1,5 @@
 import { prefersReducedMotion } from './utils';
+import { sitePathname } from './locale-path';
 
 const REVEAL_ATTR = 'data-site-image-reveal';
 const IN_CLASS = 'is-site-image-in';
@@ -85,7 +86,7 @@ export function initSiteImageReveal(): void {
 
   const scan = (): void => {
     scanFrame = 0;
-    const path = window.location.pathname;
+    const path = sitePathname();
     if (/^\/biografie\/?$/i.test(path)) {
       document.querySelectorAll<HTMLImageElement>(BIO_IMAGE_SELECTOR).forEach((image) => {
         const target = image.closest<HTMLElement>('.site-lightbox-trigger, .bio_video_trigger') ?? image;

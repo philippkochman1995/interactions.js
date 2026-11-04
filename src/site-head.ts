@@ -1,6 +1,7 @@
 import { primeSitePreloader } from './modules/site-preloader-state';
 import { pruneMobileHeroSpline } from './modules/mobile-hero-spline';
 import { optimizeNewsImageSizes } from './modules/news-image-sizes';
+import { sitePathname } from './modules/locale-path';
 
 // Loaded as a blocking classic script in <head>, not as a deferred module.
 function primePageTransition(): void {
@@ -68,11 +69,12 @@ function afterFirstPaint(callback: () => void): void {
 }
 
 function primeLeadImage(): void {
-  const biography = /^\/biografie\/?$/i.test(window.location.pathname);
-  const atelier = /^\/atelier\/?$/i.test(window.location.pathname);
-  const edition = /^\/editionen\/?$/i.test(window.location.pathname);
-  const news = /^\/news\/?$/i.test(window.location.pathname);
-  const contact = /^\/kontakt\/?$/i.test(window.location.pathname);
+  const path = sitePathname();
+  const biography = /^\/biografie\/?$/i.test(path);
+  const atelier = /^\/atelier\/?$/i.test(path);
+  const edition = /^\/editionen\/?$/i.test(path);
+  const news = /^\/news\/?$/i.test(path);
+  const contact = /^\/kontakt\/?$/i.test(path);
   if (!biography && !atelier && !edition && !news && !contact) return;
   const selector = biography
     ? '.bio_hero_section > img.bio_hero_img'
@@ -129,10 +131,11 @@ function primeLeadImage(): void {
 }
 
 function primePageIntro(): void {
-  const edition = /^\/editionen\/?$/i.test(window.location.pathname);
-  const news = /^\/news\/?$/i.test(window.location.pathname);
-  const works = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
-  const contact = /^\/kontakt\/?$/i.test(window.location.pathname);
+  const path = sitePathname();
+  const edition = /^\/editionen\/?$/i.test(path);
+  const news = /^\/news\/?$/i.test(path);
+  const works = /^\/werk-ueberblick\/?$/i.test(path);
+  const contact = /^\/kontakt\/?$/i.test(path);
   if (!edition && !news && !works && !contact) return;
   const selector = edition ? '.editionen_intro' : news ? '.news_highlight_section'
     : works ? '.werk_hero_section' : '.contact_section';
@@ -161,7 +164,7 @@ function primePageIntro(): void {
 }
 
 function primeWorksSplineIntro(): void {
-  if (!/^\/werk-ueberblick\/?$/i.test(window.location.pathname)) return;
+  if (!/^\/werk-ueberblick\/?$/i.test(sitePathname())) return;
   const selector = '.werk_hero_slide:first-child .werk_hero_spline[data-animation-type="spline"]';
   const markReady = (event: Event): void => {
     const scene = event.target;

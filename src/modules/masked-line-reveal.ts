@@ -1,6 +1,7 @@
 import { gsap } from 'gsap';
 
 import { prefersReducedMotion } from './utils';
+import { sitePathname } from './locale-path';
 
 const SECTION_HEADING_SELECTOR = '.work_about_heading, .editionen_title, .accordion_heading';
 // The Biography headline is visually .bio_hero_sub; its H1 is the small lead-in.
@@ -38,9 +39,9 @@ function staggerMs(element: HTMLElement): number {
 async function waitForPageTransition(element: HTMLElement): Promise<void> {
   const root = document.documentElement;
   const pageHero =
-    (/^\/atelier\/?$/i.test(window.location.pathname) && Boolean(element.closest('.atelier_hero_section'))) ||
-    (/^\/biografie\/?$/i.test(window.location.pathname) && Boolean(element.closest('.bio_hero_section')));
-  const firstEditionHeading = /^\/editionen\/?$/i.test(window.location.pathname) &&
+    (/^\/atelier\/?$/i.test(sitePathname()) && Boolean(element.closest('.atelier_hero_section'))) ||
+    (/^\/biografie\/?$/i.test(sitePathname()) && Boolean(element.closest('.bio_hero_section')));
+  const firstEditionHeading = /^\/editionen\/?$/i.test(sitePathname()) &&
     element.matches('.editionen_title') &&
     element.closest('.editionen_item') === document.querySelector('.editionen_item');
   const revealWithCurtain = pageHero || firstEditionHeading;
@@ -84,7 +85,7 @@ function play(state: HeadingState): void {
   if (state.played || !state.element.isConnected) return;
   state.played = true;
   state.element.classList.add('is-masked-reveal-playing');
-  if (/^\/atelier\/?$/i.test(window.location.pathname) &&
+  if (/^\/atelier\/?$/i.test(sitePathname()) &&
     state.element.matches('.atelier_hero_section .atelier_slide_heading')) {
     document.dispatchEvent(new Event('atelier:hero-line-reveal'));
   }
@@ -159,7 +160,7 @@ function rebuild(state: HeadingState, replay = false): void {
 
 function addHeading(element: HTMLElement): void {
   if (headings.has(element) ||
-    (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
+    (/^\/atelier\/?$/i.test(sitePathname()) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
   if (element.matches(SECTION_HEADING_SELECTOR) && !element.hasAttribute('data-masked-line-reveal')) {
     element.setAttribute('data-masked-line-reveal', 'viewport');
@@ -195,7 +196,7 @@ function addHeading(element: HTMLElement): void {
 
 function addLabel(element: HTMLElement): void {
   if (labels.has(element) ||
-    (/^\/atelier\/?$/i.test(window.location.pathname) && element.hasAttribute('data-fade')) ||
+    (/^\/atelier\/?$/i.test(sitePathname()) && element.hasAttribute('data-fade')) ||
     !element.textContent?.trim()) return;
   labels.add(element);
   void Promise.all([document.fonts?.ready, window.__sitePreloader?.ready, waitForPageTransition(element)])
@@ -217,7 +218,7 @@ function replayAll(): void {
 function scan(): void {
   const routeChanged = activePath !== window.location.pathname;
   activePath = window.location.pathname;
-  if (/^\/editionen\/?$/i.test(activePath)) {
+  if (/^\/editionen\/?$/i.test(sitePathname(activePath))) {
     document.querySelector<HTMLElement>('.editionen_item')?.setAttribute('data-edition-first', '');
   }
   document.querySelectorAll<HTMLElement>(HEADING_SELECTOR).forEach(addHeading);

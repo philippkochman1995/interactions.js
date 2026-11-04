@@ -14,6 +14,7 @@ import { initSitePreloader } from './modules/site-preloader';
 import { initSmoothScrollSync } from './modules/smooth-scroll';
 import { initSiteImageReveal } from './modules/site-image-reveal';
 import { initMaskedLineReveal } from './modules/masked-line-reveal';
+import { sitePathname } from './modules/locale-path';
 
 let booted = false;
 initSitePreloader();
@@ -37,7 +38,7 @@ function boot(): void {
   const i18n = initI18n();
 
   initModals({ i18n });
-  if (/^\/kontakt\/?$/i.test(window.location.pathname)) {
+  if (/^\/kontakt\/?$/i.test(sitePathname())) {
     document.querySelector<HTMLImageElement>('.contact_img img.is-contact-image')?.classList.add('js-lightbox');
   }
   initLightbox({ i18n });

@@ -1,6 +1,7 @@
 import { afterSitePreloader } from './site-preloader-state';
 import { closeSiteMenuBeforeTransition } from './site-menu';
 import { getNavigableUrl, hasModifierKey, prefersReducedMotion } from './utils';
+import { sitePathname } from './locale-path';
 
 // Keep navigation and reset just after their matching CSS fades finish.
 const TIME = { navigate: 160, revealStart: 0, reset: 180, watchdog: 6000 };
@@ -113,12 +114,13 @@ function leave(url: URL, overlay: HTMLElement): void {
 }
 
 function restorePreloaderIntro(): void {
-  if (!window.__sitePreloader?.active || prefersReducedMotion() || window.location.pathname === '/') return;
+  const path = sitePathname();
+  if (!window.__sitePreloader?.active || prefersReducedMotion() || path === '/') return;
 
   // Prime while the preloader still covers the page, so its exit reveals no
   // already-visible header, dots or slide eye info.
-  const customHeader = /^\/(?:biografie|editionen|news|werk-ueberblick|kontakt)\/?$/i.test(window.location.pathname);
-  const worksIntro = /^\/werk-ueberblick\/?$/i.test(window.location.pathname);
+  const customHeader = /^\/(?:biografie|editionen|news|werk-ueberblick|kontakt)\/?$/i.test(path);
+  const worksIntro = /^\/werk-ueberblick\/?$/i.test(path);
   const groups = INTRO_FADE_SELECTORS.map((selector) =>
     (customHeader && selector === '.top_bar_section') || worksIntro ? []
       : Array.from(document.querySelectorAll<HTMLElement>(selector)));

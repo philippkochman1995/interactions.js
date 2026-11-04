@@ -17,6 +17,7 @@ import {
   trapFocus,
   unlockScroll,
 } from './utils';
+import { localizedPath } from './locale-path';
 
 interface ModalInitOptions {
   i18n: I18nApi;
@@ -360,10 +361,10 @@ function resolveContent(id: string): ContentModalData | null {
 function workPopupHref(href: string): string {
   try {
     const source = new URL(href, document.baseURI);
-    const match = source.pathname.match(/^\/werke\/([^/]+)\/?$/);
+    const match = source.pathname.match(/^\/(?:en\/)?werke\/([^/]+)\/?$/);
     if (!match) return href;
 
-    const target = new URL('/werk-ueberblick', document.baseURI);
+    const target = new URL(localizedPath('/werk-ueberblick', source.pathname), document.baseURI);
     target.searchParams.set('work', decodeURIComponent(match[1]));
     target.hash = 'werke';
     return `${target.pathname}${target.search}${target.hash}`;

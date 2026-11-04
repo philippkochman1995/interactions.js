@@ -3,6 +3,7 @@ import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { prefersReducedMotion, qsa } from './utils';
+import { sitePathname } from './locale-path';
 
 const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .u-text-eyebrow, a.button-outlined, a.text-link, button.button-outlined, .editionen_button_wrap a, .quote-block, .news_event .intro_date_infos > .u-p-small, .news_highlight_section .intro_date_infos > .u-p-small';
 const RICH_TEXT_SELECTOR = '.w-richtext, .rich-text';
@@ -38,9 +39,9 @@ let initialized = false;
 
 function isEligible(element: HTMLElement): boolean {
   if (element.closest(EXCLUDED) || element.closest('[hidden]')) return false;
-  if (/^\/news\/?$/i.test(window.location.pathname) &&
+  if (/^\/news\/?$/i.test(sitePathname()) &&
     element.closest('.news_event, .news_highlight_section')) return false;
-  if (/^\/kontakt\/?$/i.test(window.location.pathname) &&
+  if (/^\/kontakt\/?$/i.test(sitePathname()) &&
     element.closest('.contact_section') &&
     !element.matches('.contact_txt > p:last-child')) return false;
   if (element.matches('p') && element.closest('.intro_date_infos > .u-p-small')) return false;
@@ -150,7 +151,7 @@ export function initLineReveal(root: ParentNode = document): void {
       if (seen.has(key)) return;
       groups.set(key, [...(groups.get(key) ?? []), element]);
     });
-    if (/^\/news\/?$/i.test(window.location.pathname)) {
+    if (/^\/news\/?$/i.test(sitePathname())) {
       qsa<HTMLElement>('.news_event', root).forEach((card) => {
         if (seen.has(card)) return;
         const content = card.querySelector<HTMLElement>('.intro_content_about');

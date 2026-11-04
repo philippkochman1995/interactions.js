@@ -3,6 +3,7 @@ import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { prefersReducedMotion } from './utils';
+import { sitePathname } from './locale-path';
 
 const SECTION = '.atelier_about_section.u-theme-dark5';
 const PENDING = 'data-atelier-story-pending';
@@ -11,7 +12,7 @@ const STORY_EASE = '0.05,0.85,0.05,1';
 let initialized = false;
 
 export function initAtelierStoryReveal(): void {
-  if (initialized || !/^\/atelier\/?$/i.test(window.location.pathname) || prefersReducedMotion()) return;
+  if (initialized || !/^\/atelier\/?$/i.test(sitePathname()) || prefersReducedMotion()) return;
 
   const section = document.querySelector<HTMLElement>(SECTION);
   const heading = section?.querySelector<HTMLElement>('.atelier_about_h2');

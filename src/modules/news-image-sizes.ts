@@ -1,6 +1,8 @@
+import { sitePathname } from './locale-path';
+
 /** Correct Webflow's intrinsic-width sizes value before lazy images load. */
 export function optimizeNewsImageSizes(): void {
-  if (!/^\/news\/?$/.test(window.location?.pathname || '')) return;
+  if (!/^\/news\/?$/.test(sitePathname())) return;
 
   const update = (): void => {
     for (const image of document.querySelectorAll<HTMLImageElement>('img.intro_img[sizes*="6001px"]')) {

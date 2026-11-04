@@ -1,6 +1,6 @@
 /* Atelier images: one viewport reveal; hover motion stays on cards only. */
 (function () {
-  var PAGE = /^\/atelier\/?$/i;
+  var PAGE = /^\/(?:en\/)?atelier\/?$/i;
   var CARD = 'data-atelier-image-card';
   var MASK = 'data-atelier-image-mask';
   var ZOOM = 'data-atelier-image-zoom';
