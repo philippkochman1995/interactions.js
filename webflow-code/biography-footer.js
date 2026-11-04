@@ -170,7 +170,8 @@
 
   async function creditFor(key) {
     if (!credits.has(key)) {
-      credits.set(key, fetch(`/biografie-bildnachweise/${encodeURIComponent(key)}`, {
+      const localePrefix = /^\/en(?:\/|$)/.test(location.pathname) ? '/en' : '';
+      credits.set(key, fetch(`${localePrefix}/biografie-bildnachweise/${encodeURIComponent(key)}`, {
         credentials: 'same-origin',
       }).then(async (response) => {
         if (!response.ok) return '';
