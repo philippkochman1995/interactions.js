@@ -458,7 +458,16 @@ function openMapModal(data){
     }
 
     if(legend){
-      legend.querySelectorAll('.wm-legend-item').forEach(function(item){
+      var legendCategories = ['Ausstellungen', 'Werke', 'Wichtige Orte'];
+      var legendCategoryLabels = {
+        'ausstellungen': 'Ausstellungen',
+        'exhibitions': 'Ausstellungen',
+        'werke': 'Werke',
+        'works': 'Werke',
+        'wichtige orte': 'Wichtige Orte',
+        'key locations': 'Wichtige Orte'
+      };
+      legend.querySelectorAll('.wm-legend-item').forEach(function(item, index){
         var dot = item.querySelector('.wm-dot');
         var cat = null;
         if(dot){
@@ -466,7 +475,20 @@ function openMapModal(data){
             if(dot.classList.contains(c)) cat = dotCatMap[c];
           }
         }
+        if(!cat){
+          var label = (item.textContent || '').trim().toLowerCase();
+          cat = legendCategoryLabels[label] || legendCategories[index];
+        }
         if(!cat) return;
+
+        if(!dot){
+          dot = document.createElement('span');
+          dot.className = 'wm-dot';
+          item.prepend(dot);
+        }
+        var dotClass = { 'Ausstellungen': 'wm-dot-ausstellungen', 'Werke': 'wm-dot-werke', 'Wichtige Orte': 'wm-dot-orte' }[cat];
+        if(dotClass) dot.classList.add(dotClass);
+        if(getComputedStyle(dot).display === 'none') dot.style.display = 'inline-block';
 
         var category = cat;
         var toggle = document.createElement('button');
