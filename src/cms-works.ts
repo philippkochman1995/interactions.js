@@ -411,7 +411,7 @@ function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement 
   button.removeAttribute('aria-hidden');
   button.removeAttribute('data-cms-works-load-more-template');
   button.setAttribute('data-cms-works-load-more', '');
-  setButtonText(button, 'MEHR ANZEIGEN');
+  setButtonText(button, /^\/en(?:\/|$)/.test(window.location.pathname) ? 'SHOW MORE' : 'MEHR ANZEIGEN');
 
   return button;
 }
