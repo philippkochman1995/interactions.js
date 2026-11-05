@@ -1,0 +1,8 @@
+/* Keep the exhibition links visible when the overview ends in a short viewport.
+   The shared scroll reveal can leave these actions hidden at the page bottom. */
+.news_event .intro_content_about > a.text-link,
+.news_event .intro_date_infos a.button-outlined {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
