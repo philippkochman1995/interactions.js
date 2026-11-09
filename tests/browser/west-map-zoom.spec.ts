@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('map opens over Europe, becomes a globe when zoomed out, and does not rotate', async ({ page }) => {
+test('map opens over Europe and wraps horizontally while latitude stays below the poles', async ({ page }) => {
   await page.goto('/tests/fixtures/west-map-zoom.html');
   await page.waitForFunction(() => Boolean((window as any).westMapTest));
 
@@ -13,7 +13,14 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
       localFontFamily: map.options.localFontFamily,
       bounds: map.options.bounds,
       fog: map.fog,
+      mapBackground: getComputedStyle(document.getElementById('wmMap')!).backgroundColor,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
       dragRotate: map.options.dragRotate,
+      dragPan: map.options.dragPan,
+      maxBounds: map.options.maxBounds,
+      latitude: [map.transform.minLat, map.transform.maxLat],
+      latitudeConstrained: map.latitudeConstrained,
+      zoomRates: [map.trackpadZoomRate, map.wheelZoomRate],
       touchRotationDisabled: map.touchRotationDisabled,
       animated: Boolean(map.lastEase)
     };
@@ -22,13 +29,20 @@ test('map opens over Europe, becomes a globe when zoomed out, and does not rotat
     localFontFamily: 'StyreneA',
     bounds: [[-12, 34], [37, 61]],
     fog: {
-      color: '#ffffff',
-      'high-color': '#ffffff',
-      'space-color': '#ffffff',
-      'horizon-blend': 0.02,
+      color: '#fafdff',
+      'high-color': '#fafdff',
+      'space-color': '#fafdff',
+      'horizon-blend': 0.12,
       'star-intensity': 0
     },
+    mapBackground: 'rgb(250, 253, 255)',
+    bodyBackground: 'rgb(250, 253, 255)',
     dragRotate: false,
+    dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1400 },
+    maxBounds: undefined,
+    latitude: [-80, 80],
+    latitudeConstrained: true,
+    zoomRates: [1 / 140, 1 / 650],
     touchRotationDisabled: true,
     animated: false
   });
@@ -102,8 +116,26 @@ test('zoom buttons take two levels near Europe and stop at the overview before c
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls.at(-1))).toBe(4);
   await page.getByRole('button', { name: 'Reinzoomen' }).click();
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls.at(-1))).toBe(6);
+  expect(await page.evaluate(() => (window as any).westMapTest.lastZoomOptions.duration)).toBe(0);
 
   expect(await page.evaluate(() => (window as any).westMapTest.lastBounds)).toEqual([[-12, 34], [36, 72]]);
+});
+
+test('large cluster zoom flies continuously without a white jump', async ({ page }) => {
+  await page.goto('/tests/fixtures/west-map-zoom.html?motion=full');
+  await page.waitForFunction(() => Boolean((window as any).westMapTest));
+  await page.evaluate(() => {
+    const map = (window as any).westMapTest;
+    map.zoom = 17;
+    map.fire('load');
+    map.fire('render');
+  });
+
+  await page.locator('.wm-cluster').click();
+  expect(await page.evaluate(() => {
+    const map = (window as any).westMapTest;
+    return { zoom: map.lastFly?.zoom, duration: map.lastFly?.duration, fade: !!document.querySelector('.wm-map-fade') };
+  })).toEqual({ zoom: 8.2, duration: 1300, fade: false });
 });
 
 test('the Europe boundary follows the mobile viewport and zoom stays within map limits', async ({ page }) => {
@@ -148,3 +180,30 @@ test('a cluster click clears a pending button zoom before the next click', async
   await page.getByRole('button', { name: 'Rauszoomen' }).click();
   expect(await page.evaluate(() => (window as any).westMapTest.zoomCalls)).toEqual([14, 10]);
 });
+
+for (const viewport of [{ width: 1728, height: 1117 }, { width: 390, height: 844 }]) {
+  test(`map markers enter one after another at ${viewport.width}px`, async ({ page }) => {
+    await page.clock.install();
+    await page.setViewportSize(viewport);
+    await page.goto('/tests/fixtures/west-map-zoom.html?motion=full');
+    await page.waitForFunction(() => Boolean((window as any).westMapTest));
+
+    await page.evaluate(() => {
+      const map = (window as any).westMapTest;
+      map.features = [0, 1, 2].map(idx => ({
+        properties: { idx, cluster: false },
+        geometry: { coordinates: [16.37 - idx, 48.2 + idx] }
+      }));
+      map.fire('load');
+      map.fire('render');
+      map.fire('render');
+    });
+
+    const visible = () => page.locator('.wm-marker.wm-visible').count();
+    expect(await visible()).toBe(1);
+    await page.clock.runFor(95);
+    expect(await visible()).toBe(2);
+    await page.clock.runFor(95);
+    expect(await visible()).toBe(3);
+  });
+}

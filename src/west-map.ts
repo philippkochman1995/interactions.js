@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { markerThumbnail } from './marker-thumbnails';
 (function(){
+  var isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
   var catClassMap = {
     'Ausstellungen': 'wm-cat-ausstellungen',
     'Werke': 'wm-cat-werke',
@@ -67,10 +68,10 @@ import { markerThumbnail } from './marker-thumbnails';
 
       currentRow = row.cloneNode(true);
       currentRow.classList.add('wm-current-row');
-      currentRow.querySelector('span').textContent = 'Aktuell zu sehen';
+      currentRow.querySelector('span').textContent = isEnglish ? 'Currently on view' : 'Aktuell zu sehen';
       currentSwitch = currentRow.querySelector('#wmLabelsSwitch');
       currentSwitch.id = 'wmCurrentSwitch';
-      currentSwitch.setAttribute('aria-label', 'Nur aktuell zu sehende Orte');
+      currentSwitch.setAttribute('aria-label', isEnglish ? 'Show only locations currently on view' : 'Nur aktuell zu sehende Orte');
       row.parentElement.insertBefore(currentRow, row);
 
       var prev = row.previousElementSibling;
@@ -89,21 +90,43 @@ import { markerThumbnail } from './marker-thumbnails';
       projection: 'globe',
       bounds: [[-12, 34], [37, 61]],
       fitBoundsOptions: { padding: 24 },
-      // Keep the globe's center clear of both poles, even when fully zoomed out.
-      maxBounds: [[-180, -75], [180, 75]],
       bearing: 0,
       pitch: 0,
       dragRotate: false,
+      dragPan: { linearity: 0.25, maxSpeed: 1100, deceleration: 1400 },
       minZoom: 0,
       maxZoom: 18
     });
+    // Mapbox v2.15 treats maxBounds as a rectangle, so it also stops the globe
+    // at the antimeridian. Keep only its native latitude constraint and let
+    // longitude wrap continuously in either direction.
+    if(map.transform && typeof map.transform._constrain === 'function'){
+      map.transform.minLat = -80;
+      map.transform.maxLat = 80;
+      map.transform._constrain();
+    } else if(typeof map.getCenter === 'function'){
+      // Preserve the pole limit if a later Mapbox version changes Transform.
+      var correctingLatitude = false;
+      map.on('move', function(){
+        if(correctingLatitude) return;
+        var center = map.getCenter();
+        var latitude = Math.max(-80, Math.min(80, center.lat));
+        if(latitude === center.lat) return;
+        correctingLatitude = true;
+        try { map.setCenter([center.lng, latitude]); }
+        finally { correctingLatitude = false; }
+      });
+    }
+    map.scrollZoom.setZoomRate(1 / 140);
+    map.scrollZoom.setWheelZoomRate(1 / 650);
     map.touchZoomRotate.disableRotation();
     map.on('style.load', function(){
+      var offWhite = getComputedStyle(document.documentElement).getPropertyValue('--fw_off_white').trim() || '#fafdff';
       map.setFog({
-        color: '#ffffff',
-        'high-color': '#ffffff',
-        'space-color': '#ffffff',
-        'horizon-blend': 0.02,
+        color: offWhite,
+        'high-color': offWhite,
+        'space-color': offWhite,
+        'horizon-blend': 0.12,
         'star-intensity': 0
       });
     });
@@ -125,19 +148,19 @@ import { markerThumbnail } from './marker-thumbnails';
       var zoomInBtn = document.createElement('button');
       zoomInBtn.type = 'button';
       zoomInBtn.className = 'wm-zoom-btn';
-      zoomInBtn.setAttribute('aria-label','Reinzoomen');
+      zoomInBtn.setAttribute('aria-label', isEnglish ? 'Zoom in' : 'Reinzoomen');
       zoomInBtn.innerHTML = ZOOM_IN_SVG;
 
       var zoomOutBtn = document.createElement('button');
       zoomOutBtn.type = 'button';
       zoomOutBtn.className = 'wm-zoom-btn';
-      zoomOutBtn.setAttribute('aria-label','Rauszoomen');
+      zoomOutBtn.setAttribute('aria-label', isEnglish ? 'Zoom out' : 'Rauszoomen');
       zoomOutBtn.innerHTML = ZOOM_OUT_SVG;
 
       var filterBtn = document.createElement('button');
       filterBtn.type = 'button';
       filterBtn.className = 'wm-zoom-btn wm-filter-btn';
-      filterBtn.setAttribute('aria-label','Legende');
+      filterBtn.setAttribute('aria-label', isEnglish ? 'Legend' : 'Legende');
       filterBtn.setAttribute('aria-expanded','false');
       filterBtn.innerHTML = FILTER_SVG;
 
@@ -173,7 +196,10 @@ import { markerThumbnail } from './marker-thumbnails';
         target = Math.max(0, Math.min(18, target));
         if(Math.abs(target - current) < 0.001) return;
 
-        map.zoomTo(target);
+        map.zoomTo(target, {
+          duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650,
+          easing: function(t){ return 1 - Math.pow(1 - t, 3); }
+        });
         pendingControlZoom = target;
       }
 
@@ -278,32 +304,15 @@ import { markerThumbnail } from './marker-thumbnails';
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
     }
 
-    var fadeOverlay = document.createElement('div');
-    fadeOverlay.className = 'wm-map-fade';
-    mapEl.appendChild(fadeOverlay);
-
     function flyOrFade(center, zoom){
-      if(Math.abs(zoom - map.getZoom()) <= 4){
-        map.easeTo({ center: center, zoom: zoom });
-        return;
+      var distance = Math.abs(zoom - map.getZoom());
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var easing = function(t){ return 1 - Math.pow(1 - t, 3); };
+      if(distance <= 4){
+        map.easeTo({ center: center, zoom: zoom, duration: reduced ? 0 : 700, easing: easing });
+      } else {
+        map.flyTo({ center: center, zoom: zoom, duration: reduced ? 0 : Math.min(1300, 850 + distance * 75), curve: 1.2, easing: easing });
       }
-
-      fadeOverlay.classList.add('is-active');
-
-      setTimeout(function(){
-        map.jumpTo({ center: center, zoom: zoom });
-
-        var done = false;
-
-        function clear(){
-          if(done) return;
-          done = true;
-          fadeOverlay.classList.remove('is-active');
-        }
-
-        map.once('idle', clear);
-        setTimeout(clear, 2500);
-      }, 280);
     }
 
 
@@ -406,6 +415,10 @@ function openMapModal(data){
     }
 
     function applyFilter(){
+      for(var r in revealTimers){
+        clearTimeout(revealTimers[r]);
+        delete revealTimers[r];
+      }
       for(var t in removeTimers){
         clearTimeout(removeTimers[t]);
         delete removeTimers[t];
@@ -445,7 +458,16 @@ function openMapModal(data){
     }
 
     if(legend){
-      legend.querySelectorAll('.wm-legend-item').forEach(function(item){
+      var legendCategories = ['Ausstellungen', 'Werke', 'Wichtige Orte'];
+      var legendCategoryLabels = {
+        'ausstellungen': 'Ausstellungen',
+        'exhibitions': 'Ausstellungen',
+        'werke': 'Werke',
+        'works': 'Werke',
+        'wichtige orte': 'Wichtige Orte',
+        'key locations': 'Wichtige Orte'
+      };
+      legend.querySelectorAll('.wm-legend-item').forEach(function(item, index){
         var dot = item.querySelector('.wm-dot');
         var cat = null;
         if(dot){
@@ -453,14 +475,29 @@ function openMapModal(data){
             if(dot.classList.contains(c)) cat = dotCatMap[c];
           }
         }
+        if(!cat){
+          var label = (item.textContent || '').trim().toLowerCase();
+          cat = legendCategoryLabels[label] || legendCategories[index];
+        }
         if(!cat) return;
+
+        if(!dot){
+          dot = document.createElement('span');
+          dot.className = 'wm-dot';
+          item.prepend(dot);
+        }
+        var dotClass = { 'Ausstellungen': 'wm-dot-ausstellungen', 'Werke': 'wm-dot-werke', 'Wichtige Orte': 'wm-dot-orte' }[cat];
+        if(dotClass) dot.classList.add(dotClass);
+        if(getComputedStyle(dot).display === 'none') dot.style.display = 'inline-block';
 
         var category = cat;
         var toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'wm-switch is-on wm-category-switch';
         toggle.setAttribute('role', 'switch');
-        toggle.setAttribute('aria-label', category);
+        toggle.setAttribute('aria-label', isEnglish
+          ? ({ 'Ausstellungen': 'Exhibitions', 'Werke': 'Works', 'Wichtige Orte': 'Key locations' }[category] || category)
+          : category);
         toggle.setAttribute('aria-checked', 'true');
         toggle.innerHTML = '<span class="wm-switch-track"></span><span class="wm-switch-thumb"></span>';
         item.appendChild(toggle);
@@ -553,8 +590,11 @@ function openMapModal(data){
     var markersCache = {};
     var markersOnScreen = {};
     var removeTimers = {};
+    var revealTimers = {};
+    var introPending = true;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function showMarker(key, marker){
+    function showMarker(key, marker, delay){
       if(removeTimers[key]){
         clearTimeout(removeTimers[key]);
         delete removeTimers[key];
@@ -567,6 +607,16 @@ function openMapModal(data){
 
       var el = marker.getElement();
 
+      if(revealTimers[key]) return;
+      if(delay > 0){
+        revealTimers[key] = setTimeout(function(){
+          delete revealTimers[key];
+          void el.offsetWidth;
+          el.classList.add('wm-visible');
+        }, delay);
+        return;
+      }
+
       if(!el.classList.contains('wm-visible')){
         void el.offsetWidth;
         el.classList.add('wm-visible');
@@ -574,6 +624,10 @@ function openMapModal(data){
     }
 
     function hideMarker(key, marker){
+      if(revealTimers[key]){
+        clearTimeout(revealTimers[key]);
+        delete revealTimers[key];
+      }
       if(removeTimers[key]) return;
 
       marker.getElement().classList.remove('wm-visible');
@@ -582,7 +636,7 @@ function openMapModal(data){
         marker.remove();
         marker._wmAdded = false;
         delete removeTimers[key];
-      }, 200);
+      }, 400);
     }
 
     function updateMarkers(){
@@ -611,8 +665,15 @@ function openMapModal(data){
         }
 
         newMarkers[key] = marker;
-        showMarker(key, marker);
       }
+
+      var keys = Object.keys(newMarkers);
+      var firstBatch = introPending && keys.length > 0;
+      if(firstBatch) introPending = false;
+      var step = firstBatch && !reduceMotion ? Math.min(90, 1200 / Math.max(1, keys.length - 1)) : 0;
+      keys.forEach(function(key, index){
+        showMarker(key, newMarkers[key], Math.round(index * step));
+      });
 
       for(var k2 in markersOnScreen){
         if(!newMarkers[k2]){

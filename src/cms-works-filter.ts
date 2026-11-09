@@ -35,6 +35,18 @@ const SORT_LABELS: Record<WorksSortMode, string> = {
   random: 'zufällig',
   year: 'Entstehungsjahr',
 };
+const EN_SORT_LABELS: Record<WorksSortMode, string> = {
+  random: 'Random',
+  year: 'Year',
+};
+const EN_CATEGORY_LABELS: Record<string, string> = {
+  Papierarbeiten: 'Works on Paper',
+  Passstücke: 'Adaptives',
+  Skulpturen: 'Sculptures',
+  Möbelskulpturen: 'Furniture Sculptures',
+  Installationen: 'Installations',
+  Außenskulpturen: 'Outdoor Sculptures',
+};
 const SORT_MODES = ['year', 'random'] as const;
 
 interface WorksFilterOptions {
@@ -93,6 +105,7 @@ export function createWorksFilterInterface(
   const resetButton = document.createElement('button');
   const applyLink = document.createElement('a');
   const categoryCounts = getCategoryCounts(items);
+  const isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
   const categoryButtons = new Map<string, HTMLButtonElement>();
   const sortButtons = new Map<WorksSortMode, HTMLButtonElement>();
 
@@ -114,7 +127,7 @@ export function createWorksFilterInterface(
 
   right.className = 'cms-works-filter__bar-right';
   sortLabel.className = 'cms-works-filter__sort-label';
-  sortLabel.textContent = 'SORTIERUNG';
+  sortLabel.textContent = isEnglish ? 'SORT' : 'SORTIERUNG';
   sortControls.className = 'cms-works-filter__sort-controls';
   right.append(sortLabel, sortControls, createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'));
 
@@ -126,7 +139,7 @@ export function createWorksFilterInterface(
   mobileSortSection.className = 'cms-works-filter__mobile-sort-section';
   mobileSortHeading.className = 'cms-works-filter__mobile-sort-heading';
   mobileSortLabel.className = 'cms-works-filter__sort-label';
-  mobileSortLabel.textContent = 'SORTIERUNG';
+  mobileSortLabel.textContent = isEnglish ? 'SORT' : 'SORTIERUNG';
   mobileSortControls.className = 'cms-works-filter__mobile-sort-controls';
   mobileSortHeading.append(createIconMarkup(ARROW_ICON, 'cms-works-filter__arrow-icon'), mobileSortLabel);
   mobileSortSection.append(mobileSortHeading, mobileSortControls);
@@ -139,7 +152,7 @@ export function createWorksFilterInterface(
     button.className = 'cms-works-filter__pill';
     button.type = 'button';
     button.setAttribute('aria-pressed', 'false');
-    label.textContent = category.name;
+    label.textContent = isEnglish ? EN_CATEGORY_LABELS[category.name] ?? category.name : category.name;
     buttonCount.className = 'cms-works-filter__pill-count';
     buttonCount.textContent = `[${category.count}]`;
     button.append(label, buttonCount);
@@ -162,7 +175,7 @@ export function createWorksFilterInterface(
 
     button.className = 'cms-works-filter__sort-option';
     button.type = 'button';
-    button.textContent = SORT_LABELS[mode];
+    button.textContent = (isEnglish ? EN_SORT_LABELS : SORT_LABELS)[mode];
     button.setAttribute('aria-pressed', 'false');
     button.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -181,7 +194,7 @@ export function createWorksFilterInterface(
     const mobileButton = document.createElement('button');
     mobileButton.className = 'cms-works-filter__mobile-sort-option';
     mobileButton.type = 'button';
-    mobileButton.textContent = SORT_LABELS[mode];
+    mobileButton.textContent = (isEnglish ? EN_SORT_LABELS : SORT_LABELS)[mode];
     mobileButton.setAttribute('aria-pressed', 'false');
     mobileButton.addEventListener('click', () => {
       state.pendingSortMode = mode;
@@ -192,7 +205,7 @@ export function createWorksFilterInterface(
 
   resetButton.className = 'cms-works-filter__reset';
   resetButton.type = 'button';
-  resetButton.textContent = 'Filter zurücksetzen';
+  resetButton.textContent = isEnglish ? 'Reset filters' : 'Filter zurücksetzen';
   resetButton.addEventListener('click', () => {
     state.pendingCategories.clear();
     applyPendingFilter();
@@ -200,7 +213,7 @@ export function createWorksFilterInterface(
 
   applyLink.className = 'cms-works-filter__apply';
   applyLink.href = '#';
-  applyLink.textContent = 'ANWENDEN';
+  applyLink.textContent = isEnglish ? 'APPLY' : 'ANWENDEN';
   applyLink.addEventListener('click', (event) => {
     event.preventDefault();
     applyPendingFilter();

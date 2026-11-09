@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 
 import manifest from './work-manifest.json';
+import englishManifest from './work-manifest.en.json';
 import {
   createDetailSection,
   createRelatedSection,
@@ -34,7 +35,8 @@ type OverlayLenisConstructor = new (options: {
   autoRaf: boolean;
 }) => OverlayLenis;
 
-const works = manifest as ManifestWork[];
+const isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
+const works = (isEnglish ? englishManifest : manifest) as ManifestWork[];
 const worksById = new Map(works.map((work) => [work.id, work]));
 const relatedItems: WorkItem[] = works.map((work, index) => ({ ...work, index }));
 const FLIP_DURATION = 0.82;
@@ -47,7 +49,9 @@ function overviewUrl(): string {
 }
 
 function worksOverviewUrl(): string {
-  const url = new URL(overviewUrl(), window.location.href);
+  const url = new URL(window.location.href);
+  url.pathname = isEnglish ? '/en/werk-ueberblick' : '/werk-ueberblick';
+  url.searchParams.delete('work');
   url.hash = 'werke';
   return `${url.pathname}${url.search}${url.hash}`;
 }
@@ -104,13 +108,13 @@ function createOverlayHeader(): { header: HTMLElement; backLink: HTMLAnchorEleme
   backLink.className = 'text-link is-back w-inline-block work-overlay__back';
   backLink.href = overviewUrl();
   backLink.setAttribute('data-transition', 'false');
-  backLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 15" class="arrow is-rotate" aria-hidden="true"><path d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor" class="arrow-dot"/><path d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor" class="arrow-arrow"/></svg><div class="text-block">Zurück</div>';
+  backLink.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 15" class="arrow is-rotate" aria-hidden="true"><path d="M3.60046 5.7002H0V9.3002H3.60046V5.7002Z" fill="currentColor" class="arrow-dot"/><path d="M11.9979 6.75425L5.22647 0L3.11328 2.11291L8.31525 7.2967V7.7033L3.11328 12.8871L5.22647 15L11.9979 8.24575C11.9982 7.95455 11.9982 7.04545 11.9979 6.75425Z" fill="currentColor" class="arrow-arrow"/></svg><div class="text-block">' + (isEnglish ? 'Back' : 'Zurück') + '</div>';
   left.replaceChildren(backLink);
   return { header, backLink };
 }
 
 function animateOverviewLink(link: HTMLAnchorElement): void {
-  const label = link.textContent?.trim() || 'Zur Übersicht';
+  const label = link.textContent?.trim() || (isEnglish ? 'Back to overview' : 'Zur Übersicht');
   const mask = document.createElement('span');
   const text = document.createElement('span');
   const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -159,7 +163,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   overlay.hidden = true;
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-label', 'Werkdetails');
+  overlay.setAttribute('aria-label', isEnglish ? 'Work details' : 'Werkdetails');
   overlay.setAttribute('data-work-overlay', '');
   overlay.tabIndex = -1;
   backdrop.className = 'work-overlay__backdrop';
@@ -171,6 +175,10 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
   surface.append(scrollContent);
   overlay.append(backdrop, surface);
   overlay.setAttribute('data-work-detail-overview-href', worksOverviewUrl());
+  if (isEnglish) {
+    overlay.setAttribute('data-work-detail-related-label', 'Related works');
+    overlay.setAttribute('data-work-detail-overview-label', 'Back to overview');
+  }
   document.body.append(overlay);
   initLogoVariants();
 

@@ -1,4 +1,5 @@
 import { markerThumbnail } from './marker-thumbnails';
+import { localizedPath } from './modules/locale-path';
 
 type HomePlace = {
   lat: number;
@@ -16,7 +17,6 @@ type MapFeature = {
 const MAPBOX_VERSION = '2.15.0';
 const MAP_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-gl.js`;
 const MAP_CSS_URL = `https://api.mapbox.com/mapbox-gl-js/v${MAPBOX_VERSION}/mapbox-gl.css`;
-const MAP_DESTINATION = '/west-map';
 const MOBILE_QUERY = '(max-width: 767px)';
 const EUROPE_BOUNDS: [[number, number], [number, number]] = [[-7, 37], [32, 59]];
 const EUROPE_PADDING = 18;
@@ -95,7 +95,7 @@ function initHomeMap(root: HTMLElement): void {
 
   const fullMapLink = document.createElement('a');
   fullMapLink.className = 'wm-home-map-link';
-  fullMapLink.href = MAP_DESTINATION;
+  fullMapLink.href = localizedPath('/west-map');
   fullMapLink.setAttribute('aria-label', 'West Map öffnen');
   background.appendChild(fullMapLink);
 
@@ -160,7 +160,7 @@ function initHomeMap(root: HTMLElement): void {
           : place?.category || 'Wichtige Orte';
         const link = document.createElement('a');
         link.className = `wm-home-marker ${categoryClass(category)}`;
-        link.href = MAP_DESTINATION;
+        link.href = localizedPath('/west-map');
         link.setAttribute('aria-label', clustered
           ? `${props.point_count} Orte auf der West Map öffnen`
           : `${place?.address || 'Ort'} auf der West Map öffnen`);

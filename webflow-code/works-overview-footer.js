@@ -1,6 +1,8 @@
 /* footer: fw-work-overlay-layer-and-button */
 (function () {
-  var targetUrl = '/werk-ueberblick#werke';
+  var targetUrl = /^\/en(?:\/|$)/.test(window.location.pathname)
+    ? '/en/werk-ueberblick#werke'
+    : '/werk-ueberblick#werke';
 
   function enhanceOverviewLink(link) {
     link.href = targetUrl;
@@ -8,7 +10,7 @@
     link.classList.add('button-outlined');
     if (link.querySelector('.button-mask')) return;
 
-    var label = link.textContent.trim() || 'Zur Übersicht';
+    var label = link.textContent.trim() || (/^\/en(?:\/|$)/.test(window.location.pathname) ? 'Back to overview' : 'Zur Übersicht');
     var mask = document.createElement('span');
     var text = document.createElement('span');
     var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -39,7 +41,9 @@
 /* footer: fw-works-overview-fade */
 (function () {
   var root = document.documentElement;
-  var url = '/werk-ueberblick#werke';
+  var url = /^\/en(?:\/|$)/.test(window.location.pathname)
+    ? '/en/werk-ueberblick#werke'
+    : '/werk-ueberblick#werke';
   var duration = 320;
   var navigating = false;
   function showOverview() {

@@ -26,6 +26,13 @@ const ORIGINAL_TABINDEX_ATTR = 'data-site-menu-original-tabindex';
 const DEFAULT_OPEN_LABEL = 'CLOSE';
 const DEFAULT_CLOSED_LABEL = 'MENU';
 const LABEL_SLIDE_DURATION = 0.42;
+// Reveal der Menuepunkte (Split-Line-Reveal): Maske + Innenebene, Timing steht im CSS.
+const REVEAL_ITEM_SELECTOR = '.site-menu__brand, [data-site-menu-item], .site-menu__divider';
+const REVEAL_DIVIDER_CLASS = 'site-menu__divider';
+const REVEAL_SMALL_SELECTOR = '.site-menu__link--small, .site-menu__footer-link';
+const REVEAL_SKIP_SELECTOR = '[data-site-menu-toggle], .site-menu__language, .site-menu__languages';
+const REVEAL_MASK_CLASS = 'site-menu__line';
+const REVEAL_INNER_CLASS = 'site-menu__line-in';
 const PANEL_DURATION = { open: 0.513, close: 0.378, transition: 0.54 } as const;
 gsap.registerPlugin(CustomEase);
 // Matches --preloader-ease on the opening text movement.
@@ -230,7 +237,7 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
 
   const transition = instance.labelTransition;
 
-  if (transition && animate && window.location.pathname !== '/' && !prefersReducedMotion()) {
+  if (transition && animate && !prefersReducedMotion()) {
     if (label === transition.from) {
       transition.timeline.reverse();
       return;
@@ -253,7 +260,7 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
   gsap.set(textLayer, { clearProps: 'transform,opacity' });
   textLayer.removeAttribute('aria-hidden');
 
-  if (window.location.pathname === '/' || prefersReducedMotion() || !animate || !outgoing || outgoing === label) {
+  if (prefersReducedMotion() || !animate || !outgoing || outgoing === label) {
     textLayer.textContent = label;
     return;
   }
@@ -278,6 +285,73 @@ function setLabel(instance: SiteMenuInstance, animate = true): void {
   timeline.fromTo(ghost, { yPercent: 0 }, { yPercent: -100 }, 0);
   timeline.fromTo(textLayer, { yPercent: 100 }, { yPercent: 0 }, 0);
   instance.labelTransition = { timeline, from: outgoing, to: label };
+}
+
+/* Split-Line-Reveal: Der Text jedes Menuepunkts sitzt in einer Maske
+   (overflow hidden) und faehrt per CSS von unten ein. Hier wird nur das Markup
+   vorbereitet und die Staffelung (--i, Welle --g) gesetzt. Welle 1 sind Marke,
+   Ueberschriften, grosse Links und Trennlinien, Welle 2 die kleinen Links und
+   der Footer. Trennlinien erben den Index der Ueberschrift davor. */
+function prepareReveal(instance: SiteMenuInstance): Cleanup {
+  const wrapped: HTMLElement[] = [];
+  let first = 0;
+  let second = 0;
+  let lastBig = 0;
+
+  qsa<HTMLElement>(REVEAL_ITEM_SELECTOR, instance.panel).forEach((item) => {
+    if (item.closest(REVEAL_SKIP_SELECTOR)) {
+      return;
+    }
+
+    if (item.classList.contains(REVEAL_DIVIDER_CLASS)) {
+      item.style.setProperty('--i', String(lastBig));
+      item.style.setProperty('--g', '0');
+      return;
+    }
+
+    if (item.querySelector(`:scope > .${REVEAL_MASK_CLASS}`)) {
+      return;
+    }
+
+    const nodes = Array.from(item.childNodes).filter(
+      (node) => !(node instanceof HTMLElement && node.hasAttribute('data-site-menu-indicator')),
+    );
+
+    if (!nodes.some((node) => node.textContent?.trim())) {
+      return;
+    }
+
+    const mask = document.createElement('span');
+    const inner = document.createElement('span');
+
+    mask.className = REVEAL_MASK_CLASS;
+    inner.className = REVEAL_INNER_CLASS;
+    item.insertBefore(mask, nodes[0]);
+    nodes.forEach((node) => inner.appendChild(node));
+    mask.appendChild(inner);
+    wrapped.push(mask);
+
+    if (item.matches(REVEAL_SMALL_SELECTOR)) {
+      item.style.setProperty('--g', '1');
+      item.style.setProperty('--i', String(second++));
+    } else {
+      lastBig = first;
+      item.style.setProperty('--g', '0');
+      item.style.setProperty('--i', String(first++));
+    }
+  });
+
+  return () => {
+    wrapped.forEach((mask) => {
+      const inner = mask.firstElementChild;
+
+      while (inner?.firstChild) {
+        mask.parentNode?.insertBefore(inner.firstChild, mask);
+      }
+
+      mask.remove();
+    });
+  };
 }
 
 function setLinksFocusable(instance: SiteMenuInstance, enabled: boolean): void {
@@ -311,7 +385,12 @@ function setPanelState(instance: SiteMenuInstance, open: boolean, animateLabel =
   setLabel(instance, animateLabel);
 }
 
-function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: number): gsap.core.Tween | undefined {
+function animatePanel(
+  instance: SiteMenuInstance,
+  open: boolean,
+  fromHeight: number,
+  onComplete?: () => void,
+): gsap.core.Tween | undefined {
   gsap.killTweensOf(instance.panel);
 
   gsap.set(instance.panel, { clearProps: 'height' });
@@ -330,6 +409,7 @@ function animatePanel(instance: SiteMenuInstance, open: boolean, fromHeight: num
       ease: MENU_PANEL_EASE,
       onComplete: () => {
         gsap.set(instance.panel, { clearProps: 'height' });
+        onComplete?.();
       },
     },
   );
@@ -345,14 +425,33 @@ function openMenu(instance: SiteMenuInstance): void {
   animatePanel(instance, true, fromHeight);
 }
 
-function closeMenu(instance: SiteMenuInstance): gsap.core.Tween | undefined {
+function closeMenu(instance: SiteMenuInstance, onComplete?: () => void): gsap.core.Tween | undefined {
   if (!instance.isOpen) {
     return;
   }
 
   const fromHeight = instance.panel.getBoundingClientRect().height;
   setPanelState(instance, false);
-  return animatePanel(instance, false, fromHeight);
+  const tween = animatePanel(instance, false, fromHeight, onComplete);
+  if (!tween) onComplete?.();
+  return tween;
+}
+
+export function closeSiteMenuBeforeTransition(root: HTMLElement, onHalfClosed: () => void): boolean {
+  const instance = instances.find((item) => item.root === root && item.isOpen);
+  if (!instance) return false;
+  let started = false;
+  const startCurtain = (): void => {
+    if (started) return;
+    started = true;
+    onHalfClosed();
+  };
+  const tween = closeMenu(instance, startCurtain);
+  // With the panel easing, 42% of the duration is close to half its travel.
+  tween?.eventCallback('onUpdate', () => {
+    if (tween.progress() >= .42) startCurtain();
+  });
+  return true;
 }
 
 export function collapseSiteMenu(root: HTMLElement): gsap.core.Tween | undefined {
@@ -425,6 +524,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   }
 
   toggle.setAttribute('aria-controls', panel.id);
+  instance.cleanup.push(prepareReveal(instance));
   updateActiveLinks(instance);
   setPanelState(instance, instance.isOpen, false);
   instance.cleanup.push(reserveLabelWidth(instance));
@@ -456,7 +556,7 @@ function setupInstance(root: HTMLElement): SiteMenuInstance | null {
   const onLinkClick = (event: Event): void => {
     const target = event.target;
 
-    // Der Seitenuebergang klappt das gesamte Panel direkt auf Hoehe 0.
+    // Navigationsklicks mit Seitentransition schliesst deren Capture-Handler.
     if (event.defaultPrevented || !(target instanceof Element) || !target.closest(LINK_SELECTOR)) {
       return;
     }

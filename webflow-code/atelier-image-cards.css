@@ -1,7 +1,7 @@
-/* The full-bleed hero settles after the page curtain clears, without a fade. */
+/* The full-bleed hero settles as soon as its image loads and the page curtain clears. */
 .atelier_hero_section > img.atelier_hero_img {
   transform: scale(1.075) !important;
-  transition: transform 1.2s cubic-bezier(0, 0, .2, 1);
+  transition: transform 1.4s cubic-bezier(0, 0, .2, 1);
 }
 
 .atelier_hero_section > img.atelier_hero_img.in {
@@ -16,13 +16,11 @@ body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask
   height: 100%;
   overflow: hidden;
   border-radius: 0 !important;
-  clip-path: inset(10px);
   opacity: 0;
   transition: opacity .4s ease-out;
 }
 
 body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask].in {
-  clip-path: inset(0px);
   opacity: 1;
 }
 
@@ -51,9 +49,32 @@ body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask
   transform: scale(1) !important;
 }
 
-/* Reserve the same frame dimensions before lazy images arrive. */
+/* Event images keep Webflow's original frame dimensions. The zoom layers stay
+   in flow so the animation does not impose an aspect ratio. */
 body[data-atelier-image-page] .news_event .img-zoom[data-atelier-image-mask] {
-  aspect-ratio: 4 / 3;
+  height: 100%;
+}
+
+body[data-atelier-image-page] .news_event [data-atelier-image-zoom] {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+}
+
+body[data-atelier-image-page] .news_event [data-atelier-image-mask] [data-atelier-image-zoom] > img.intro_img {
+  position: relative;
+  inset: auto;
+}
+
+@media (max-width: 991px) {
+  body[data-atelier-image-page] .news_event .img-zoom[data-atelier-image-mask] {
+    height: auto;
+  }
+
+  body[data-atelier-image-page] .news_event [data-atelier-image-mask] [data-atelier-image-zoom] > img.intro_img {
+    height: auto;
+  }
 }
 
 body[data-atelier-image-page] .atelier_about_section .site-lightbox-trigger:has(> [data-atelier-image-mask]) {
@@ -106,7 +127,6 @@ body[data-atelier-image-page] .news_event .intro_content_about > a.text-link .mo
 
   body[data-atelier-image-page] [data-atelier-image-card] [data-atelier-image-mask] {
     opacity: 1;
-    clip-path: inset(0px);
     transition: none;
   }
 

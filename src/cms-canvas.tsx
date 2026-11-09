@@ -281,6 +281,7 @@ function readItem(element: HTMLElement, index: number): CanvasItem | null {
   const gallery = readModalGallery(element);
   const firstGalleryItem = gallery[0];
   const topText = textFrom(element, '[data-canvas-modal-hover-text]') || textFrom(element, '[data-canvas-modal-address]') || title;
+  if (/^(?:source|quelle)$/i.test(topText.trim())) return null;
   const headline = textFrom(element, '[data-canvas-modal-headline]') || title;
 
   return {

@@ -31,6 +31,7 @@ const YEAR_SELECTOR = '[data-works-year], [data-canvas-year]';
 const CATEGORY_SELECTOR = '[data-works-category], [data-works-categories]';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 const DETAIL_READY_EVENT = 'site:work-detail-ready';
+const isEnglish = /^\/en(?:\/|$)/.test(window.location.pathname);
 const LINK_SELECTOR = [
   '[data-works-link]',
   '[data-sheet-calendar-link]',
@@ -396,7 +397,7 @@ export function createRelatedSection(root: HTMLElement, detail: WorkDetail, rela
   section.className = 'cms-work-detail cms-work-detail__related';
   inner.className = 'cms-work-detail__related-inner';
   heading.className = 'cms-work-detail__related-heading';
-  heading.textContent = root.getAttribute('data-work-detail-related-label')?.trim() || 'Ähnliche Werke';
+  heading.textContent = root.getAttribute('data-work-detail-related-label')?.trim() || (isEnglish ? 'Related works' : 'Ähnliche Werke');
   grid.className = 'cms-work-detail__related-grid';
 
   relatedItems.forEach((item) => {
@@ -410,7 +411,7 @@ export function createRelatedSection(root: HTMLElement, detail: WorkDetail, rela
 
     overviewLink.className = 'cms-work-detail__overview-link';
     overviewLink.href = overviewHref;
-    overviewLink.textContent = root.getAttribute('data-work-detail-overview-label')?.trim() || 'Zur Übersicht';
+    overviewLink.textContent = root.getAttribute('data-work-detail-overview-label')?.trim() || (isEnglish ? 'Back to overview' : 'Zur Übersicht');
     inner.append(overviewLink);
   }
 
@@ -447,6 +448,27 @@ function renderDetail(root: HTMLElement, source: HTMLElement | null): void {
 }
 
 function mount(root: HTMLElement): void {
+  if (isEnglish) {
+    root.setAttribute('data-work-detail-related-label', 'Related works');
+    root.setAttribute('data-work-detail-overview-label', 'Back to overview');
+    root.setAttribute('data-work-detail-overview-href', '/en/werk-ueberblick#werke');
+    const backLink = document.querySelector<HTMLAnchorElement>('.top_bar_left a.text-link.is-back');
+    if (backLink) {
+      backLink.href = '/en/werk-ueberblick#werke';
+      const label = backLink.querySelector<HTMLElement>('.text-block');
+      if (label) label.textContent = 'Back';
+    }
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+      const target = new URL(link.href, document.baseURI);
+      if (target.pathname !== '/werk-ueberblick' || target.hash !== '#werke') return;
+      link.href = '/en/werk-ueberblick#werke';
+      if (/zur übersicht/i.test(link.textContent || '')) {
+        const label = link.querySelector<HTMLElement>('.text-block, .button-text');
+        if (label) label.textContent = 'Back to overview';
+        else link.textContent = 'Back to overview';
+      }
+    });
+  }
   const source =
     root.querySelector<HTMLElement>(SOURCE_SELECTOR) ??
     document.querySelector<HTMLElement>(root.getAttribute('data-work-detail-source') || SOURCE_SELECTOR);

@@ -8121,7 +8121,9 @@ function me(e, n) {
 	var r, i, a, o, s, c, l, u, d, f, p;
 	let m = (r = fe(e, "[data-canvas-thumbnail]")) == null ? e.querySelector("img") : r, h = t(m);
 	if (!h) return null;
-	let g = de(e, "[data-canvas-title]") || ((i = e.getAttribute("data-canvas-title")) == null ? void 0 : i.trim()) || (m == null ? void 0 : m.alt.trim()) || "", _ = ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `canvas-item-${n + 1}-${O(`${g}-${h}`)}`, v = e.querySelector("[data-canvas-modal-body]"), y = (de(e, "[data-canvas-size]") || e.getAttribute("data-canvas-size") || "").trim().toLocaleLowerCase("de"), b = y === "mittel" ? "medium" : y === "groß" || y === "gross" ? "large" : "small", x = pe(e), S = x[0], C = de(e, "[data-canvas-modal-hover-text]") || de(e, "[data-canvas-modal-address]") || g, w = de(e, "[data-canvas-modal-headline]") || g;
+	let g = de(e, "[data-canvas-title]") || ((i = e.getAttribute("data-canvas-title")) == null ? void 0 : i.trim()) || (m == null ? void 0 : m.alt.trim()) || "", _ = ((a = e.getAttribute("data-canvas-id")) == null ? void 0 : a.trim()) || ((o = e.getAttribute("data-cms-item-id")) == null ? void 0 : o.trim()) || `canvas-item-${n + 1}-${O(`${g}-${h}`)}`, v = e.querySelector("[data-canvas-modal-body]"), y = (de(e, "[data-canvas-size]") || e.getAttribute("data-canvas-size") || "").trim().toLocaleLowerCase("de"), b = y === "mittel" ? "medium" : y === "groß" || y === "gross" ? "large" : "small", x = pe(e), S = x[0], C = de(e, "[data-canvas-modal-hover-text]") || de(e, "[data-canvas-modal-address]") || g;
+	if (/^(?:source|quelle)$/i.test(C.trim())) return null;
+	let w = de(e, "[data-canvas-modal-headline]") || g;
 	return {
 		id: _,
 		title: g,

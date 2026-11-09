@@ -1,6 +1,7 @@
 /* Three fade-up tiers per Atelier text block; no splitting or text replacement. */
 (function () {
-  if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
+  var PAGE = /^\/(?:en\/)?atelier\/?$/i;
+  if (!PAGE.test(window.location.pathname)) return;
 
   var GROUP = '[data-fade-group]';
   var seen = new WeakSet();
@@ -70,7 +71,7 @@
       if (observer) observer.unobserve(peer);
     });
     afterPageEntrance(function () {
-      if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
+      if (!PAGE.test(window.location.pathname)) return;
       peers.forEach(function (peer) {
         if (peer.isConnected) peer.classList.add('is-in');
       });
@@ -87,7 +88,7 @@
 
   function scan() {
     scheduled = false;
-    if (!/^\/atelier\/?$/i.test(window.location.pathname)) return;
+    if (!PAGE.test(window.location.pathname)) return;
     document.querySelectorAll(GROUP).forEach(function (group) {
       group.querySelectorAll('[data-fade]').forEach(function (element) {
         if (seen.has(element)) return;

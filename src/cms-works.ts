@@ -266,7 +266,7 @@ function createEyeIcon(): SVGSVGElement {
   return svg;
 }
 
-function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
+function createWorkCard(item: WorkItem): HTMLElement {
   const card = document.createElement(item.href ? 'a' : 'article');
   const imageWrap = document.createElement('span');
   const image = document.createElement('img');
@@ -286,10 +286,6 @@ function createWorkCard(item: WorkItem, revealIndex = -1): HTMLElement {
   }
 
   imageWrap.className = 'cms-works__image-wrap';
-  if (revealIndex >= 0) {
-    imageWrap.classList.add('cms-works__image-wrap--revealing');
-    imageWrap.style.setProperty('--cms-works-reveal-delay', `${revealIndex * 100}ms`);
-  }
 
   image.className = 'cms-works__image';
   image.src = item.thumbnail;
@@ -361,16 +357,9 @@ function distributeItems(items: WorkItem[], measures: Map<string, ImageMeasure>,
   return columns;
 }
 
-function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, ImageMeasure>, revealedIds?: Set<string>): void {
+function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, ImageMeasure>): void {
   const grid = document.createElement('div');
   const columns = distributeItems(items, measures, getColumnCount(root));
-  const revealOrder = new Map<string, number>();
-
-  if (revealedIds) {
-    items.forEach((item) => {
-      if (revealedIds.has(item.id)) revealOrder.set(item.id, revealOrder.size);
-    });
-  }
 
   grid.className = 'cms-works__grid';
 
@@ -379,7 +368,7 @@ function renderGrid(root: HTMLElement, items: WorkItem[], measures: Map<string, 
 
     column.className = 'cms-works__column';
     columnItems.items.forEach((item) => {
-      column.append(createWorkCard(item, revealOrder.get(item.id) ?? -1));
+      column.append(createWorkCard(item));
     });
     grid.append(column);
   });
@@ -422,7 +411,7 @@ function getLoadMoreButton(root: HTMLElement, source: HTMLElement): HTMLElement 
   button.removeAttribute('aria-hidden');
   button.removeAttribute('data-cms-works-load-more-template');
   button.setAttribute('data-cms-works-load-more', '');
-  setButtonText(button, 'MEHR ANZEIGEN');
+  setButtonText(button, /^\/en(?:\/|$)/.test(window.location.pathname) ? 'SHOW MORE' : 'MEHR ANZEIGEN');
 
   return button;
 }
@@ -467,7 +456,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   gridHost.className = 'cms-works__grid-host u-section';
   collectionOverlay.className = 'cms-works__collection-overlay';
   collectionOverlay.type = 'button';
-  collectionOverlay.setAttribute('aria-label', 'Filter anwenden');
+  collectionOverlay.setAttribute('aria-label', /^\/en(?:\/|$)/.test(window.location.pathname) ? 'Apply filters' : 'Filter anwenden');
   gridMount.className = 'cms-works__grid-mount';
   gridHost.append(gridMount);
 
@@ -477,7 +466,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
   const getRenderedItems = () => sortItems(filterItems(items, state.appliedCategories), state.appliedSortMode, root);
 
-  const renderCurrentItems = (force = false, revealedIds?: Set<string>) => {
+  const renderCurrentItems = (force = false) => {
     const revision = ++renderRevision;
     const visibleItems = currentItems.slice(0, visibleCount);
 
@@ -507,7 +496,7 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
 
         previousColumnCount = nextColumnCount;
         previousWidth = nextWidth;
-        renderGrid(gridMount, visibleItems, measures, revealedIds);
+        renderGrid(gridMount, visibleItems, measures);
         if (loadMoreButton) {
           loadMoreButton.hidden = currentItems.length <= visibleCount;
         }
@@ -562,10 +551,8 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   collectionOverlay.addEventListener('click', () => controls.apply());
   if (loadMoreButton) {
     const showMoreItems = () => {
-      const previousCount = visibleCount;
       visibleCount = Math.min(visibleCount + LOAD_MORE_INCREMENT, currentItems.length);
-      const revealedIds = new Set(currentItems.slice(previousCount, visibleCount).map((item) => item.id));
-      renderCurrentItems(true, revealedIds);
+      renderCurrentItems(true);
       persistView();
     };
     loadMoreButton.addEventListener('click', (event) => {
