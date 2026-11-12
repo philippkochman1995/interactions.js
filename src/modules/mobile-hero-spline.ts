@@ -1,4 +1,5 @@
 const DESKTOP_SCENE = '.werk_hero_slider .werk_hero_spline.is-desktop-scene[data-animation-type="spline"]';
+const LEMUR_SCENE = '.werk_hero_spline.is-mobile-scene[data-spline-url="https://prod.spline.design/hDhyDXfJUhDmc3rA/scene.splinecode"]';
 const LEMUR_NAME = 'Lemurenkopf_01_1K_spline (1)';
 
 interface MobileSplineObject { rotation: { z: number } }
@@ -46,9 +47,7 @@ export function pruneMobileHeroSpline(): void {
 export function initMobileHeroDrag(): void {
   if (!document.documentElement.classList.contains('site-mobile-hero-spline')) return;
 
-  document.querySelectorAll<HTMLElement>(
-    '.werk_hero_slide:first-child .werk_hero_spline.is-mobile-scene',
-  ).forEach((scene) => {
+  document.querySelectorAll<HTMLElement>(LEMUR_SCENE).forEach((scene) => {
     let installed = false;
     let retryTimer: number | undefined;
 
