@@ -605,6 +605,10 @@ html.is-page-transition-boot::before {
     margin-bottom: 1rem;
   }
 
+  .site-menu__footer-links .site-menu__footer-link {
+    text-align: right;
+  }
+
   /* Platz fuer die fixierte Menueleiste am Seitenende: Die letzte Footer-Zeile
      bleibt auch bei maximalem Scrollen oberhalb des 3.125rem hohen Menues. */
   .footer .footer_container {
@@ -2571,6 +2575,30 @@ html.site-mobile-hero-spline .werk_hero_spline.is-mobile-scene {
   transform: translateX(-50%) !important;
   visibility: visible !important;
   pointer-events: auto !important;
+}
+
+/* Spline's full-size HTML iframe owns touch gestures even though its inner
+   drag target declares pan-y. The site-owned drag layer replaces that target. */
+html.site-mobile-hero-spline .werk_hero_slide:first-child
+  .werk_hero_spline.is-mobile-scene iframe[title="Spline HTML content"] {
+  pointer-events: none !important;
+}
+
+html.site-mobile-hero-spline .werk_hero_slide:first-child
+  .werk_hero_spline.is-mobile-scene canvas,
+html.site-mobile-hero-spline .site-mobile-hero-drag {
+  touch-action: pan-y;
+}
+
+html.site-mobile-hero-spline .site-mobile-hero-drag {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: grab;
+}
+
+html.site-mobile-hero-spline .site-mobile-hero-drag.is-dragging {
+  cursor: grabbing;
 }
 
 /* Slightly enlarge the home hero grain without changing its animation. */

@@ -1,5 +1,6 @@
 import { createSitePreloader, primeSplinePreloads } from './modules/site-preloader-markup';
 import { initHeroSplineSlides } from './modules/spline-slider';
+import { initMobileHeroDrag } from './modules/mobile-hero-spline';
 
 // Loaded synchronously at the end of <body>, before the deferred main bundle.
 // Start the incoming fade here so it does not wait for that bundle to download.
@@ -47,5 +48,6 @@ if (transitionOverlay && root.classList.contains('is-page-transition-pending')) 
 // This also runs when the once-per-session overlay is skipped, so later pages
 // still begin fetching their own Spline scenes as early as possible.
 initHeroSplineSlides();
+initMobileHeroDrag();
 primeSplinePreloads();
 createSitePreloader();
