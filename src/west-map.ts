@@ -426,8 +426,8 @@ function openMapModal(data){
       flyOrFade([ort.lng, ort.lat], Math.max(map.getZoom(), 13));
     }
 
-    document.addEventListener('click', function(e){
-      if(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    window.addEventListener('click', function(e){
+      if(e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       var link = e.target instanceof Element ? e.target.closest('a[href]') : null;
       if(!link || !link.closest('[data-site-modal]')) return;
       var ort = findOrtForHref(link.getAttribute('href'));

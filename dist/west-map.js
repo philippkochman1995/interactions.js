@@ -258,7 +258,7 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 				return null;
 			}
 			var n = "";
-			if (t.origin === window.location.origin && /\/karten-orte\/[^/]+\/?$/.test(t.pathname) ? n = t.pathname.replace(/\/$/, "").split("/").pop() : t.hash && t.pathname.replace(/^\/en(?=\/|$)/, "").replace(/\/$/, "") === window.location.pathname.replace(/^\/en(?=\/|$)/, "").replace(/\/$/, "") && (n = decodeURIComponent(t.hash.replace(/^#(?:ort=)?/, ""))), !n) return null;
+			if ((t.origin === window.location.origin || /^(?:www\.)?franzwest\.art$/i.test(t.hostname) || /\.webflow\.io$/i.test(t.hostname)) && /\/karten-orte\/[^/]+\/?$/.test(t.pathname) ? n = t.pathname.replace(/\/$/, "").split("/").pop() : t.hash && t.pathname.replace(/^\/en(?=\/|$)/, "").replace(/\/$/, "") === window.location.pathname.replace(/^\/en(?=\/|$)/, "").replace(/\/$/, "") && (n = decodeURIComponent(t.hash.replace(/^#(?:ort=)?/, ""))), !n) return null;
 			n = n.toLowerCase();
 			for (var r = 0; r < k.length; r++) if (k[r].slug.toLowerCase() === n) return k[r];
 			return null;
@@ -271,8 +271,8 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 			}
 			v.once("moveend", n), setTimeout(n, 2200), D([e.lng, e.lat], Math.max(v.getZoom(), 13));
 		}
-		document.addEventListener("click", function(e) {
-			if (!(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+		window.addEventListener("click", function(e) {
+			if (!(e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
 				var t = e.target instanceof Element ? e.target.closest("a[href]") : null;
 				if (!(!t || !t.closest("[data-site-modal]"))) {
 					var n = j(t.getAttribute("href"));
