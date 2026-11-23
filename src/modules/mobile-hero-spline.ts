@@ -14,6 +14,12 @@ interface MobileDragScene {
   perPixel: number;
   /** Idle rotation in radians per second. */
   idle: number;
+  /**
+   * Invisible mesh in the Spline scene. A touch that starts on it turns the object
+   * freely (yaw and pitch) and keeps the page from scrolling; elsewhere a vertical
+   * swipe still scrolls the page.
+   */
+  hitbox?: string;
 }
 
 const MOBILE_DRAG_SCENES: MobileDragScene[] = [
@@ -30,6 +36,7 @@ const MOBILE_DRAG_SCENES: MobileDragScene[] = [
     axis: 'yaw',
     perPixel: 0.35 * DEG,
     idle: 6 * DEG,
+    hitbox: 'ChairHitbox',
   },
   {
     url: 'https://prod.spline.design/gYt-7atwT80gUawU/scene.splinecode',
@@ -54,15 +61,23 @@ function quatFromEulerXYZ(x: number, y: number, z: number): Quat {
   };
 }
 
-/** Rotate `q` around world up (premultiplied), then normalize. */
-function quatYaw(q: Quat, angle: number): Quat {
-  const s = Math.sin(angle / 2), c = Math.cos(angle / 2);
-  const r = {
-    x: c * q.x + s * q.z,
-    y: c * q.y + s * q.w,
-    z: c * q.z - s * q.x,
-    w: c * q.w - s * q.y,
+function quatMul(a: Quat, b: Quat): Quat {
+  return {
+    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
   };
+}
+
+/**
+ * Turn `q` around world up (yaw), then world right (pitch), premultiplied so the
+ * gesture feels the same however the object is currently tilted.
+ */
+function quatTurn(q: Quat, yaw: number, pitch: number): Quat {
+  const qYaw = { x: 0, y: Math.sin(yaw / 2), z: 0, w: Math.cos(yaw / 2) };
+  const qPitch = { x: Math.sin(pitch / 2), y: 0, z: 0, w: Math.cos(pitch / 2) };
+  const r = quatMul(quatMul(qYaw, qPitch), q);
   const l = Math.hypot(r.x, r.y, r.z, r.w) || 1;
   return { x: r.x / l, y: r.y / l, z: r.z / l, w: r.w / l };
 }
@@ -78,9 +93,90 @@ function eulerXYZFromQuat({ x, y, z, w }: Quat): { x: number; y: number; z: numb
 }
 
 interface MobileSplineObject { rotation: { x: number; y: number; z: number } }
+
+/** The parts of three.js reached through Spline's (private) camera. */
+interface ThreeVector { x: number; y: number; z: number; unproject: (camera: ThreeNode) => ThreeVector }
+interface ThreeBounds { min: ThreeVector; max: ThreeVector }
+interface ThreeNode {
+  name: string;
+  parent: ThreeNode | null;
+  children: ThreeNode[];
+  position: ThreeVector;
+  geometry?: { boundingBox: ThreeBounds | null; computeBoundingBox?: () => void };
+  updateMatrixWorld?: (force?: boolean) => void;
+  worldToLocal: (vector: ThreeVector) => ThreeVector;
+}
+
 interface MobileSplineApp {
   findObjectByName?: (name: string) => MobileSplineObject | undefined;
   isStopped?: boolean | (() => boolean);
+  _camera?: ThreeNode;
+}
+
+/** Whether the segment a→b, in the box's local space, passes through it. */
+function segmentHitsBox(a: ThreeVector, b: ThreeVector, box: ThreeBounds): boolean {
+  let enter = 0;
+  let exit = 1;
+  for (const axis of ['x', 'y', 'z'] as const) {
+    const d = b[axis] - a[axis];
+    if (Math.abs(d) < 1e-9) {
+      if (a[axis] < box.min[axis] || a[axis] > box.max[axis]) return false;
+      continue;
+    }
+    let t0 = (box.min[axis] - a[axis]) / d;
+    let t1 = (box.max[axis] - a[axis]) / d;
+    if (t0 > t1) [t0, t1] = [t1, t0];
+    enter = Math.max(enter, t0);
+    exit = Math.min(exit, t1);
+    if (enter > exit) return false;
+  }
+  return true;
+}
+
+/**
+ * Ray-test a screen point against a named mesh of the scene. Spline exposes no
+ * hit test of its own outside its HTML iframe, so this reads its three.js camera.
+ * Returns null when the scene does not offer what the test needs.
+ */
+function createHitTest(app: MobileSplineApp, name: string, canvas: HTMLCanvasElement):
+  ((clientX: number, clientY: number) => boolean) | null {
+  try {
+    const camera = app._camera;
+    if (!camera) return null;
+    let root = camera;
+    while (root.parent) root = root.parent;
+    let mesh: ThreeNode | undefined;
+    const visit = (node: ThreeNode): void => {
+      if (mesh) return;
+      if (node.name === name && node.geometry) mesh = node;
+      else node.children.forEach(visit);
+    };
+    visit(root);
+    const hitbox = mesh;
+    if (!hitbox?.geometry) return null;
+    hitbox.geometry.computeBoundingBox?.();
+    const bounds = hitbox.geometry.boundingBox;
+    if (!bounds) return null;
+    const Vector = camera.position.constructor as new (x: number, y: number, z: number) => ThreeVector;
+
+    return (clientX, clientY) => {
+      try {
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return false;
+        const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -(((clientY - rect.top) / rect.height) * 2 - 1);
+        camera.updateMatrixWorld?.();
+        hitbox.updateMatrixWorld?.();
+        const near = hitbox.worldToLocal(new Vector(x, y, -1).unproject(camera));
+        const far = hitbox.worldToLocal(new Vector(x, y, 1).unproject(camera));
+        return segmentHitsBox(near, far, bounds);
+      } catch {
+        return false;
+      }
+    };
+  } catch {
+    return null;
+  }
 }
 interface MobileSplineWebflow {
   require?: (name: string) => {
@@ -171,16 +267,21 @@ function installMobileDrag(scene: HTMLElement, config: MobileDragScene): void {
     scene.appendChild(drag);
     frame.remove();
 
-    // Roll keeps an absolute angle; yaw accumulates world-space turns on a quaternion.
+    const canvas = scene.querySelector<HTMLCanvasElement>('canvas');
+    const hitTest = config.hitbox && canvas ? createHitTest(app, config.hitbox, canvas) : null;
+
+    // Roll keeps an absolute angle; yaw/pitch accumulate world-space turns on a quaternion.
     let angle = config.axis === 'roll' ? object.rotation.z : 0;
     let target = angle;
+    let pitch = 0;
+    let pitchTarget = 0;
     let orientation = quatFromEulerXYZ(object.rotation.x, object.rotation.y, object.rotation.z);
-    const apply = (delta: number): void => {
+    const apply = (yawDelta: number, pitchDelta: number): void => {
       if (config.axis === 'roll') {
         object.rotation.z = angle;
         return;
       }
-      orientation = quatYaw(orientation, delta);
+      orientation = quatTurn(orientation, yawDelta, pitchDelta);
       const euler = eulerXYZFromQuat(orientation);
       object.rotation.x = euler.x;
       object.rotation.y = euler.y;
@@ -190,31 +291,45 @@ function installMobileDrag(scene: HTMLElement, config: MobileDragScene): void {
     let startX = 0;
     let startY = 0;
     let lastX = 0;
-    let direction: 'pending' | 'horizontal' | 'vertical' = 'pending';
+    let lastY = 0;
+    // `free`: the touch started on the hitbox and turns the object in every direction.
+    let direction: 'pending' | 'horizontal' | 'vertical' | 'free' = 'pending';
+
+    const capture = (event: PointerEvent): void => {
+      drag.classList.add('is-dragging');
+      drag.setPointerCapture(event.pointerId);
+    };
 
     drag.addEventListener('pointerdown', (event) => {
       if (pointerId !== null || event.button !== 0) return;
       pointerId = event.pointerId;
       startX = lastX = event.clientX;
-      startY = event.clientY;
-      direction = event.pointerType === 'mouse' ? 'horizontal' : 'pending';
-      if (direction === 'horizontal') {
-        drag.classList.add('is-dragging');
-        drag.setPointerCapture(event.pointerId);
-      }
+      startY = lastY = event.clientY;
+      if (hitTest?.(event.clientX, event.clientY)) direction = 'free';
+      else direction = event.pointerType === 'mouse' ? 'horizontal' : 'pending';
+      if (direction !== 'pending') capture(event);
     });
+
+    // A touch on the object owns the gesture; one on the background may still scroll.
+    drag.addEventListener('touchmove', (event) => {
+      if (direction === 'free' && pointerId !== null && event.cancelable) event.preventDefault();
+    }, { passive: false });
 
     drag.addEventListener('pointermove', (event) => {
       if (pointerId !== event.pointerId) return;
+      if (direction === 'free') {
+        target += (event.clientX - lastX) * config.perPixel;
+        pitchTarget += (event.clientY - lastY) * config.perPixel;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        return;
+      }
       if (direction === 'pending') {
         const dx = event.clientX - startX;
         const dy = event.clientY - startY;
         if (Math.max(Math.abs(dx), Math.abs(dy)) < 6) return;
         direction = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
-        if (direction === 'horizontal') {
-          drag.classList.add('is-dragging');
-          drag.setPointerCapture(event.pointerId);
-        }
+        if (direction === 'horizontal') capture(event);
       }
       if (direction !== 'horizontal') return;
       target += (event.clientX - lastX) * config.perPixel;
@@ -238,8 +353,10 @@ function installMobileDrag(scene: HTMLElement, config: MobileDragScene): void {
       if (!document.hidden && !stopped) {
         if (pointerId === null) target += config.idle * dt;
         const delta = (target - angle) * 0.2;
+        const pitchDelta = (pitchTarget - pitch) * 0.2;
         angle += delta;
-        apply(delta);
+        pitch += pitchDelta;
+        apply(delta, pitchDelta);
       }
       window.requestAnimationFrame(tick);
     };
