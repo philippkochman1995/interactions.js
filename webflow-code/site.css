@@ -176,3 +176,10 @@ body { font-size: var(--_sizes---p-font-size); line-height: 1.4; }
     background: var(--fw_off_white);
   }
 }
+
+/* News: leeres Button-Link-Feld im CMS => kein Button. */
+a.button-outlined:not([href]),
+a.button-outlined[href=""],
+a.button-outlined[href="#"] {
+  display: none !important;
+}

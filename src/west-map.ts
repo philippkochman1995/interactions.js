@@ -380,9 +380,62 @@ function openMapModal(data){
         markerBild: markerThumbnail(imgEl),
         gallery: gallery,
         text: textEl ? textEl.innerHTML : '',
+        slug: (((item.querySelector('.wm-f-slug') || {}).textContent || '').trim()) || slugify((item.querySelector('.wm-f-name') || {}).textContent || ''),
         aktuell: !!item.querySelector('.wm-f-bildrechte + div')
       });
     });
+
+    function slugify(value){
+      return String(value || '')
+        .toLowerCase()
+        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // Links im CMS-Text auf einen anderen Eintrag: /karten-orte/<slug> (Webflow-Item-Link),
+    // #<slug> oder #ort=<slug>. Modal schließen, Karte hinfahren, Modal des Ziels öffnen.
+    function findOrtForHref(href){
+      var url;
+      try { url = new URL(href, window.location.href); } catch(e){ return null; }
+      var slug = '';
+      var knownHost = url.origin === window.location.origin || /^(?:www\.)?franzwest\.art$/i.test(url.hostname) || /\.webflow\.io$/i.test(url.hostname);
+      if(knownHost && /\/karten-orte\/[^/]+\/?$/.test(url.pathname)){
+        slug = url.pathname.replace(/\/$/, '').split('/').pop();
+      } else if(url.hash && url.pathname.replace(/^\/en(?=\/|$)/, '').replace(/\/$/, '') === window.location.pathname.replace(/^\/en(?=\/|$)/, '').replace(/\/$/, '')){
+        slug = decodeURIComponent(url.hash.replace(/^#(?:ort=)?/, ''));
+      }
+      if(!slug) return null;
+      slug = slug.toLowerCase();
+      for(var i = 0; i < orte.length; i++){
+        if(orte[i].slug.toLowerCase() === slug) return orte[i];
+      }
+      return null;
+    }
+
+    function goToOrt(ort){
+      if(window.SiteInteractions && window.SiteInteractions.closeModal) window.SiteInteractions.closeModal();
+      var opened = false;
+      function openTarget(){
+        if(opened) return;
+        opened = true;
+        openMapModal(ort);
+      }
+      map.once('moveend', openTarget);
+      setTimeout(openTarget, 2200);
+      flyOrFade([ort.lng, ort.lat], Math.max(map.getZoom(), 13));
+    }
+
+    document.addEventListener('click', function(e){
+      if(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var link = e.target instanceof Element ? e.target.closest('a[href]') : null;
+      if(!link || !link.closest('[data-site-modal]')) return;
+      var ort = findOrtForHref(link.getAttribute('href'));
+      if(!ort) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      goToOrt(ort);
+    }, true);
 
     var currentOnly = false;
     var activeCats = {
