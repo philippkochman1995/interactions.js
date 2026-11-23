@@ -1,4 +1,5 @@
 import type { I18nApi, LightboxApi, LightboxItem } from '../types';
+import { sitePathname } from './locale-path';
 import {
   delegate,
   dispatchSiteEvent,
@@ -142,12 +143,12 @@ function getTriggerItem(trigger: HTMLElement): LightboxItem | null {
       alt = translated;
     }
   }
-  if (/^\/en\/biografie\/?$/i.test(window.location.pathname) && caption && trigger.closest('.bio_photo')) {
-    const image = trigger instanceof HTMLImageElement ? trigger : qs<HTMLImageElement>('img', trigger);
-    const englishAlt = image?.alt.trim();
-    if (englishAlt) caption = caption.includes('Tri-Tra Focus')
-      ? '“Tri-Tra Focus”, 1998, Museum of Modern Art, Gunma, Takasaki'
-      : englishAlt;
+  if (/^\/biografie\/?$/i.test(sitePathname())) {
+    const bioCaption = trigger.closest('.bio_photo')?.querySelector('[data-bio-caption]');
+    if (bioCaption) {
+      // Webflow can use a zero-width space or joiner as an empty text placeholder.
+      caption = (bioCaption.textContent ?? '').replace(/^[\s\u200B-\u200D]+|[\s\u200B-\u200D]+$/g, '');
+    }
   }
 
   return {

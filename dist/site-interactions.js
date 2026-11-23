@@ -1464,9 +1464,13 @@ function Ni(e) {
 		let e = xi[n.trim()];
 		e && (n = e, i = e);
 	}
-	if (/^\/en\/biografie\/?$/i.test(window.location.pathname) && n && e.closest(".bio_photo")) {
-		let t = e instanceof HTMLImageElement ? e : s("img", e), r = t == null ? void 0 : t.alt.trim();
-		r && (n = n.includes("Tri-Tra Focus") ? "“Tri-Tra Focus”, 1998, Museum of Modern Art, Gunma, Takasaki" : r);
+	if (/^\/biografie\/?$/i.test(x())) {
+		var a;
+		let t = (a = e.closest(".bio_photo")) == null ? void 0 : a.querySelector("[data-bio-caption]");
+		if (t) {
+			var o;
+			n = ((o = t.textContent) == null ? "" : o).replace(/^[\s\u200B-\u200D]+|[\s\u200B-\u200D]+$/g, "");
+		}
 	}
 	return {
 		src: t,
