@@ -2580,13 +2580,13 @@ html.site-mobile-hero-spline .werk_hero_spline.is-mobile-scene {
 /* Spline's full-size HTML iframe owns touch gestures even though its inner
    drag target declares pan-y. The site-owned drag layer replaces that target. */
 html.site-mobile-hero-spline
-  .werk_hero_spline.is-mobile-scene[data-spline-url="https://prod.spline.design/hDhyDXfJUhDmc3rA/scene.splinecode"]
+  .werk_hero_spline.is-mobile-scene[data-site-mobile-drag]
   iframe[title="Spline HTML content"] {
   pointer-events: none !important;
 }
 
 html.site-mobile-hero-spline
-  .werk_hero_spline.is-mobile-scene[data-spline-url="https://prod.spline.design/hDhyDXfJUhDmc3rA/scene.splinecode"]
+  .werk_hero_spline.is-mobile-scene[data-site-mobile-drag]
   canvas,
 html.site-mobile-hero-spline .site-mobile-hero-drag {
   touch-action: pan-y;
