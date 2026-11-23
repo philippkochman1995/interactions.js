@@ -1,9 +1,12 @@
 # Instagram feed for the Webflow home page
 
 The home page already contains the slider markup and four static fallback images.
-The Worker reads the foundation's latest Instagram media server-side, caches a
-public list in Cloudflare KV, and refreshes the Instagram token every 30 days.
-Only image URLs and post links are sent to the browser.
+The Worker reads the foundation's own posts through the Instagram API and adds
+recent posts, including collaborations, from Instagram's public profile embed.
+It sorts the combined feed by publication date, caches it in Cloudflare KV, and
+refreshes the Instagram token every 30 days. If either source fails, it can still
+use the other. The embed's internal data format can change, in which case the
+Worker logs an error and can continue serving the account's own posts.
 
 ## Accounts
 
