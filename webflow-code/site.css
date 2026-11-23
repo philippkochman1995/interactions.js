@@ -177,9 +177,11 @@ body { font-size: var(--_sizes---p-font-size); line-height: 1.4; }
   }
 }
 
-/* News: leeres Button-Link-Feld im CMS => kein Button. */
-a.button-outlined:not([href]),
-a.button-outlined[href=""],
-a.button-outlined[href="#"] {
+/* News: leeres Button-Link-Feld im CMS => kein Button.
+   Der "Mehr anzeigen"-Button der Werkuebersicht nutzt bewusst href="#" und ist
+   davon ausgenommen; seine Sichtbarkeit steuert cms-works.ts ueber [hidden]. */
+a.button-outlined:not([href]):not([data-cms-works-load-more], [data-cms-works-load-more-template]),
+a.button-outlined[href=""]:not([data-cms-works-load-more], [data-cms-works-load-more-template]),
+a.button-outlined[href="#"]:not([data-cms-works-load-more], [data-cms-works-load-more-template]) {
   display: none !important;
 }
