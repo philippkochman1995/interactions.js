@@ -415,6 +415,14 @@ function openMapModal(data){
 
     function goToOrt(ort){
       if(window.SiteInteractions && window.SiteInteractions.closeModal) window.SiteInteractions.closeModal();
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var from = map.getCenter();
+      var to = new mapboxgl.LngLat(ort.lng, ort.lat);
+      var km = from.distanceTo(to) / 1000;
+      var targetZoom = 13;
+      // Hoehe der Flugbahn: je weiter das Ziel, desto weiter raus, damit man sieht, wo es liegt.
+      var peakZoom = Math.max(2, Math.min(targetZoom, 12 - Math.log2(Math.max(km, 1) / 10)));
+      var duration = reduced ? 0 : Math.round(Math.max(2400, Math.min(5500, 2200 + Math.log2(km + 1) * 330)));
       var opened = false;
       function openTarget(){
         if(opened) return;
@@ -422,8 +430,17 @@ function openMapModal(data){
         openMapModal(ort);
       }
       map.once('moveend', openTarget);
-      setTimeout(openTarget, 2200);
-      flyOrFade([ort.lng, ort.lat], Math.max(map.getZoom(), 13));
+      setTimeout(openTarget, duration + 1500);
+      var options = {
+        center: to,
+        zoom: targetZoom,
+        duration: duration,
+        curve: 1.6,
+        essential: true,
+        easing: function(t){ return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+      };
+      if(peakZoom < Math.min(map.getZoom(), targetZoom) - 0.5) options.minZoom = peakZoom;
+      map.flyTo(options);
     }
 
     window.addEventListener('click', function(e){

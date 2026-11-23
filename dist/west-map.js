@@ -265,11 +265,22 @@ import { t as e } from "./site-interactions-CahnrWDV.js";
 		}
 		function M(e) {
 			window.SiteInteractions && window.SiteInteractions.closeModal && window.SiteInteractions.closeModal();
-			var t = !1;
-			function n() {
-				t || (t = !0, O(e));
+			var t = window.matchMedia("(prefers-reduced-motion: reduce)").matches, n = v.getCenter(), r = new mapboxgl.LngLat(e.lng, e.lat), i = n.distanceTo(r) / 1e3, a = 13, o = Math.max(2, Math.min(a, 12 - Math.log2(Math.max(i, 1) / 10))), s = t ? 0 : Math.round(Math.max(2400, Math.min(5500, 2200 + Math.log2(i + 1) * 330))), c = !1;
+			function l() {
+				c || (c = !0, O(e));
 			}
-			v.once("moveend", n), setTimeout(n, 2200), D([e.lng, e.lat], Math.max(v.getZoom(), 13));
+			v.once("moveend", l), setTimeout(l, s + 1500);
+			var u = {
+				center: r,
+				zoom: a,
+				duration: s,
+				curve: 1.6,
+				essential: !0,
+				easing: function(e) {
+					return e < .5 ? 4 * e * e * e : 1 - (-2 * e + 2) ** 3 / 2;
+				}
+			};
+			o < Math.min(v.getZoom(), a) - .5 && (u.minZoom = o), v.flyTo(u);
 		}
 		window.addEventListener("click", function(e) {
 			if (!(e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
