@@ -7,6 +7,8 @@ const isPosthogConfigured = Boolean(projectToken && apiHost);
 if (isPosthogConfigured) {
   posthog.init(projectToken, {
     api_host: apiHost,
+    // Cookieless: keep identity in memory only, no cookies or localStorage.
+    persistence: 'memory',
     capture_exceptions: {
       capture_unhandled_errors: true,
       capture_unhandled_rejections: true,

@@ -12679,6 +12679,7 @@ var _m = function() {
 }(), vm = "phc_mpHXoL5tCR8jHuZCZGborfMuzErXnFkUQPPXpSaEm6iq", ym = "https://eu.i.posthog.com", bm = !!ym;
 bm && _m.init(vm, {
 	api_host: ym,
+	persistence: "memory",
 	capture_exceptions: {
 		capture_unhandled_errors: !0,
 		capture_unhandled_rejections: !0,
@@ -12698,4 +12699,4 @@ var Sm = { info(e, t) {
 //#endregion
 export { Sm as n, xm as t };
 
-//# sourceMappingURL=site-interactions-DTXrvFAf.js.map
+//# sourceMappingURL=site-interactions-CiFvoQAi.js.map
