@@ -1,4 +1,5 @@
 import { createWorksFilterInterface, type WorksFilterState, type WorksSortMode } from './cms-works-filter';
+import { capturePosthog } from './posthog';
 import {
   isBackForwardNavigation,
   readWorksViewState,
@@ -536,6 +537,11 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   const controls = createWorksFilterInterface(items, state, () => {
     currentItems = getRenderedItems();
     visibleCount = INITIAL_VISIBLE_COUNT;
+    capturePosthog('works_filter_applied', {
+      category_count: state.appliedCategories.size,
+      sort_mode: state.appliedSortMode,
+      result_count: currentItems.length,
+    });
     renderCurrentItems(true);
     controls.sync();
     persistView();
@@ -551,7 +557,13 @@ function renderWorks(root: HTMLElement, source: HTMLElement): void {
   collectionOverlay.addEventListener('click', () => controls.apply());
   if (loadMoreButton) {
     const showMoreItems = () => {
+      const previousCount = visibleCount;
       visibleCount = Math.min(visibleCount + LOAD_MORE_INCREMENT, currentItems.length);
+      capturePosthog('works_more_loaded', {
+        loaded_count: visibleCount - previousCount,
+        visible_count: visibleCount,
+        result_count: currentItems.length,
+      });
       renderCurrentItems(true);
       persistView();
     };

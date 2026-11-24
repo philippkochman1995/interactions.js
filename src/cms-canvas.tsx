@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { gsap } from 'gsap';
 import { getCmsImageOriginalSource, getCmsImageSource as imageSource } from './modules/cms-image';
+import { capturePosthog } from './posthog';
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork } from './types';
 
 interface CanvasItem {
@@ -625,6 +626,11 @@ function openItemModal(item: CanvasTileData, trigger: HTMLElement): void {
     return;
   }
 
+  capturePosthog('canvas_item_opened', {
+    item_id: item.sourceId,
+    item_size: item.size,
+    gallery_count: item.modal.gallery?.length ?? 0,
+  });
   window.SiteInteractions.openContentModal(item.modal, trigger);
 }
 

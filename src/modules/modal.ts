@@ -1,5 +1,6 @@
 import type { ContentModalData, ContentModalGalleryItem, ContentModalWork, I18nApi, ModalApi } from '../types';
 import { getCmsImageOriginalSource, getCmsImageSource as getImageSource } from './cms-image';
+import { capturePosthog } from '../posthog';
 import { clearModalImage, modalPreviewSource, modalWorkThumbnailSource, prepareModalImage, readyModalImageSource, revealModalImage, setModalPreview } from './modal-image';
 import {
   delegate,
@@ -671,6 +672,12 @@ export function openContentModal(content: ContentModalData, trigger?: HTMLElemen
   renderContent(normalizedContent);
   previouslyFocusedElement = focusTarget;
   activeModalId = normalizedContent.id;
+  capturePosthog('content_modal_opened', {
+    content_id: normalizedContent.id,
+    layout: normalizedContent.layout,
+    gallery_count: normalizedContent.gallery?.length ?? 0,
+    has_related_work: Boolean(normalizedContent.work),
+  });
   showModal(singleton);
   lockScroll();
   focusModal(singleton);

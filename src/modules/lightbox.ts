@@ -1,5 +1,6 @@
 import type { I18nApi, LightboxApi, LightboxItem } from '../types';
 import { sitePathname } from './locale-path';
+import { capturePosthog } from '../posthog';
 import {
   delegate,
   dispatchSiteEvent,
@@ -490,6 +491,12 @@ export function openLightbox(trigger: HTMLElement): void {
   focusElement(lightboxElements.closeButton || lightboxElements.root);
 
   const currentItem = items[activeIndex];
+
+  capturePosthog('lightbox_opened', {
+    item_count: items.length,
+    initial_index: activeIndex,
+    is_grouped: Boolean(currentItem?.group),
+  });
 
   dispatchSiteEvent(lightboxElements.root, 'site:lightbox-open', {
     item: currentItem,
