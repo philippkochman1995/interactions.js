@@ -1,3 +1,4 @@
+import { posthogLog } from './posthog';
 import { initI18n } from './modules/i18n';
 import { initLanguagePicker } from './modules/language-picker';
 import { initLineReveal } from './modules/line-reveal';
@@ -35,6 +36,9 @@ function boot(): void {
   }
 
   booted = true;
+  posthogLog.info('site_interactions_boot_started', {
+    document_ready_state: document.readyState,
+  });
 
   const i18n = initI18n();
 
@@ -58,6 +62,10 @@ function boot(): void {
     openLightbox,
     closeLightbox,
   };
+
+  posthogLog.info('site_interactions_boot_completed', {
+    document_ready_state: document.readyState,
+  });
 }
 
 if (document.readyState === 'loading') {

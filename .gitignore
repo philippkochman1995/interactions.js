@@ -5,3 +5,4 @@ test-results/
 playwright-report/
 instagram-feed/.dev.vars*
 instagram-feed/.env*
+.env

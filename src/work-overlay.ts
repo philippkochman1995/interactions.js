@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { Flip } from 'gsap/Flip';
 
 import manifest from './work-manifest.json';
+import { capturePosthog } from './posthog';
 import {
   createDetailSection,
   createRelatedSection,
@@ -548,6 +549,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     const work = worksById.get(id);
     if (!work) return;
     event.preventDefault();
+    capturePosthog('work_detail_opened', { work_id: work.id, source: 'collection' });
     originFocus = link;
     const url = new URL(window.location.href);
     url.searchParams.set('work', work.id);
@@ -573,6 +575,7 @@ export function initWorkOverlay(root: HTMLElement, gridMount: HTMLElement): void
     if (!work) return;
     event.preventDefault();
     const state = history.state as { fromOverview?: boolean; depth?: number } | null;
+    capturePosthog('work_detail_opened', { work_id: work.id, source: 'related_work' });
     const url = new URL(window.location.href);
     url.searchParams.set('work', work.id);
     history.pushState({

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { markerThumbnail } from './marker-thumbnails';
+import { capturePosthog } from './posthog';
 (function(){
   var catClassMap = {
     'Ausstellungen': 'wm-cat-ausstellungen',
@@ -310,6 +311,11 @@ import { markerThumbnail } from './marker-thumbnails';
 function openMapModal(data){
   if(!window.SiteInteractions) return;
 
+  capturePosthog('map_location_opened', {
+    category: data.kategorie || 'other',
+    is_current: Boolean(data.aktuell)
+  });
+
   window.SiteInteractions.openContentModal({
     id: 'west-map-detail',
     address: data.name && data.adresse ? data.name + ' | ' + data.adresse : (data.name || data.adresse || ''),
@@ -434,6 +440,7 @@ function openMapModal(data){
         currentOnly = currentSwitch.classList.toggle('is-on');
         currentSwitch.setAttribute('aria-checked', currentOnly ? 'true' : 'false');
         currentRow.classList.toggle('is-on', currentOnly);
+        capturePosthog('map_filter_changed', { filter: 'current_only', enabled: currentOnly });
         applyFilter();
       });
       currentSwitch.addEventListener('keydown', function(e){
@@ -470,6 +477,7 @@ function openMapModal(data){
           toggle.classList.toggle('is-on', activeCats[category]);
           toggle.setAttribute('aria-checked', activeCats[category] ? 'true' : 'false');
           item.classList.toggle('is-off', !activeCats[category]);
+          capturePosthog('map_filter_changed', { filter: 'category', category: catCodeMap[category] || 'other', enabled: activeCats[category] });
           applyFilter();
         });
       });
